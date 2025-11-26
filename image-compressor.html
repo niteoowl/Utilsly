@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- SEO 최적화 -->
+    <title>무료 이미지 압축 - 1초 만에 사진 용량 줄이기 (모든 포맷 지원)</title>
+    <meta name="description" content="설치 없이 브라우저에서 바로! 화질 저하 없이 사진 용량을 줄여보세요. JPG, PNG, WebP 등 모든 이미지 포맷 지원.">
+    
+    <!-- 폰트 -->
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css" />
+    <!-- 이미지 압축 라이브러리 -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/browser-image-compression@2.0.2/dist/browser-image-compression.js"></script>
+
+    <!-- [Google AdSense] 스크립트 로드 (한 번만 로드하면 됨) -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script>
+
+    <style>
+        :root {
+            /* Palette */
+            --toss-blue: #3182f6;
+            --toss-blue-dark: #1b64da;
+            --text-main: #191f28;
+            --text-sub: #8b95a1;
+            --border-color: #f2f4f6;
+            --white: #ffffff;
+            --light-bg: #f9fafb;
+            
+            /* Animation */
+            --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            --ease-smooth: cubic-bezier(0.33, 1, 0.68, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: "Pretendard Variable", Pretendard, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--white);
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            /* 헤더가 fixed이므로 콘텐츠가 가려지지 않게 상단 여백 추가 */
+            padding-top: 60px; 
+            overflow-x: hidden;
+        }
+
+        /* 헤더 (Fixed 고정) */
+        .app-header {
+            width: 100%;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            background: var(--white);
+            border-bottom: 1px solid var(--border-color);
+            
+            /* 고정 스타일 */
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            right: 0;
+            z-index: 1000; /* 드롭다운보다 낮아야 하지만 다른 콘텐츠보단 높게 */
+        }
+
+        .logo {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .menu-icon {
+            font-size: 24px;
+            cursor: pointer;
+            padding: 8px;
+            margin-right: -8px;
+            user-select: none;
+        }
+
+        /* Dropdown Menu */
+        .dropdown-menu {
+            position: absolute;
+            top: 64px; /* 헤더 높이(60px) + 여백 */
+            right: 20px;
+            width: 200px;
+            background: var(--white);
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            padding: 8px;
+            border: 1px solid var(--border-color);
+            
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.2s var(--ease-smooth);
+            z-index: 2000; /* 헤더보다 높게 */
+        }
+
+        .dropdown-menu.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            text-decoration: none;
+            color: var(--text-main);
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+
+        .menu-item:hover {
+            background-color: #f2f4f6;
+        }
+
+        .menu-item .tag {
+            color: var(--toss-blue);
+            font-weight: 800;
+            margin-right: 8px;
+            font-size: 16px;
+        }
+
+        .menu-divider {
+            height: 1px;
+            background-color: var(--border-color);
+            margin: 4px 8px;
+        }
+
+        .menu-item.highlight {
+            color: var(--toss-blue);
+            font-weight: 600;
+            justify-content: flex-start;
+        }
+
+        /* 메인 영역 */
+        .main-content {
+            flex: 1;
+            width: 100%;
+            max-width: 640px;
+            margin: 0 auto;
+            padding: 40px 24px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            animation: fadeIn 0.6s var(--ease-smooth);
+        }
+
+        .title-area {
+            margin-bottom: 40px;
+            text-align: left;
+        }
+
+        .title-area h1 {
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 10px;
+            line-height: 1.3;
+        }
+
+        .title-area p {
+            color: var(--text-sub);
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        /* 업로드 영역 */
+        .upload-area {
+            width: 100%;
+            height: 320px;
+            background-color: var(--light-bg);
+            border-radius: 24px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: transform 0.2s var(--ease-spring), background-color 0.2s;
+            border: 1px solid transparent;
+            margin-bottom: 40px;
+            overflow: hidden;
+        }
+
+        .upload-area:active {
+            transform: scale(0.98);
+        }
+        
+        .upload-area:hover {
+            background-color: #f2f4f6;
+        }
+
+        .icon-circle {
+            width: 100px;
+            height: 100px;
+            background: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+
+        .icon-circle img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.1));
+        }
+
+        .upload-text {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+        
+        .upload-sub {
+            font-size: 14px;
+            color: var(--text-sub);
+        }
+
+        input[type="file"] { display: none; }
+
+        /* 결과 화면 */
+        .result-section {
+            display: none;
+            animation: slideUp 0.6s var(--ease-smooth);
+        }
+
+        .preview-wrapper {
+            width: 100%;
+            border-radius: 20px;
+            overflow: hidden;
+            background-color: var(--light-bg);
+            margin-bottom: 30px;
+            max-height: 400px;
+        }
+
+        .preview-img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+        }
+
+        /* 컨트롤 패널 */
+        .control-panel {
+            margin-bottom: 30px;
+        }
+
+        .quality-control {
+            padding: 10px 2px; 
+        }
+
+        .range-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 24px;
+            width: 24px;
+            border-radius: 50%;
+            background: var(--white);
+            border: 2px solid var(--toss-blue);
+            cursor: pointer;
+            margin-top: -10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            background: #e5e8eb;
+            border-radius: 2px;
+        }
+
+        /* 정보 표시 */
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-top: 30px;
+            margin-bottom: 40px;
+            padding: 20px;
+            background-color: var(--light-bg);
+            border-radius: 16px;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: var(--text-sub);
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+
+        .stat-value {
+            font-size: 20px;
+            font-weight: 800;
+        }
+
+        .arrow-icon {
+            color: var(--text-sub);
+            font-size: 24px;
+            padding-bottom: 2px;
+        }
+
+        /* 버튼 그룹 */
+        .btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 40px;
+        }
+
+        .btn {
+            width: 100%;
+            height: 56px;
+            border: none;
+            border-radius: 14px;
+            font-size: 17px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-primary {
+            background-color: var(--toss-blue);
+            color: var(--white);
+        }
+
+        .btn-primary:active {
+            background-color: var(--toss-blue-dark);
+            transform: scale(0.97);
+        }
+
+        .btn-text {
+            background: transparent;
+            color: var(--text-sub);
+        }
+        
+        .btn-text:hover {
+            background: var(--light-bg);
+            color: var(--text-main);
+        }
+
+        /* 로더 */
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s linear infinite;
+            display: none;
+        }
+
+        /* 광고 박스 스타일 */
+        .ad-box {
+            width: 100%;
+            /* 광고 높이는 애드센스에 따라 가변적이므로 min-height만 설정 */
+            min-height: 100px; 
+            padding: 20px 0; /* 상하 여백 */
+            background-color: transparent; /* 배경 투명 (애드센스가 채움) */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .ad-label {
+            font-size: 11px;
+            color: #b0b8c1;
+            margin-bottom: 8px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        .ad-content {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden; /* 광고 튀어나감 방지 */
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+    </style>
+</head>
+<body>
+
+    <!-- 1. 헤더 (Fixed) -->
+    <header class="app-header">
+        <div class="logo">Compressor</div>
+        <div class="menu-icon" id="menu-trigger">≡</div>
+
+        <!-- Dropdown Menu -->
+        <div class="dropdown-menu" id="dropdown-menu">
+            
+            <!-- 태그별 웹툴 보기 -->
+            <a href="/tags" class="menu-item">
+                <span class="tag">#</span>
+                태그별 웹툴 보기
+            </a>
+            
+            <div class="menu-divider"></div>
+            
+            <!-- 전체 웹툴 보기 -->
+            <a href="/tools" class="menu-item highlight">
+                전체 웹툴 보기
+            </a>
+
+        </div>
+    </header>
+
+    <main class="main-content">
+        
+        <!-- 타이틀 -->
+        <div class="title-area" id="title-area">
+            <h1>모든 이미지를<br>용량만 가볍게</h1>
+            <p>JPG, PNG, GIF 등 포맷 제한 없이 지원</p>
+        </div>
+
+        <!-- 2. 업로드 영역 -->
+        <div id="upload-screen">
+            <div class="upload-area" id="drop-zone">
+                <div class="icon-circle">
+                    <!-- 3D 아이콘 -->
+                    <img src="https://cdn3d.iconscout.com/3d/premium/thumb/upload-3d-icon-png-download-7924133.png" alt="Upload Icon">
+                </div>
+                <div class="upload-text">사진 선택하기</div>
+                <div class="upload-sub">또는 여기에 드래그</div>
+                <input type="file" id="file-input" accept="image/*">
+            </div>
+
+            <!-- 첫 화면 하단 광고 (실제 애드센스 적용 가능) -->
+            <div class="ad-box">
+                <span class="ad-label">ADVERTISEMENT</span>
+                <div class="ad-content">
+                    
+                    <!-- [수정 필요] 아래 data-ad-client, data-ad-slot 값을 본인의 것으로 변경하세요 -->
+                    <ins class="adsbygoogle"
+                         style="display:block; width:100%;"
+                         data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+                         data-ad-slot="1234567890"
+                         data-ad-format="auto"
+                         data-full-width-responsive="true"></ins>
+                    <script>
+                         (adsbygoogle = window.adsbygoogle || []).push({});
+                    </script>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. 결과 영역 -->
+        <div id="result-screen" class="result-section">
+            <div class="preview-wrapper">
+                <img id="preview-image" class="preview-img" src="" alt="Preview">
+            </div>
+
+            <div class="control-panel">
+                <!-- 압축 슬라이더 -->
+                <div class="quality-control" id="quality-control-box">
+                    <div class="range-header">
+                        <span>압축 강도</span>
+                        <span id="quality-text" style="color:var(--toss-blue)">20%</span>
+                    </div>
+                    <!-- 0(약함) ~ 100(강함) -->
+                    <input type="range" id="quality-slider" min="0" max="100" step="10" value="20">
+                </div>
+            </div>
+
+            <!-- 결과 스탯 -->
+            <div class="stats">
+                <div class="stat-item">
+                    <span class="stat-label">원본</span>
+                    <span class="stat-value" id="original-size">-</span>
+                </div>
+                <div class="arrow-icon">→</div>
+                <div class="stat-item" style="align-items: flex-end;">
+                    <span class="stat-label">변경 후</span>
+                    <span class="stat-value" style="color:var(--toss-blue)" id="compressed-size">-</span>
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-primary" id="download-btn">
+                    <span>저장하기</span>
+                    <div class="spinner" id="spinner"></div>
+                </button>
+                <button class="btn btn-text" id="reset-btn">다른 이미지 선택</button>
+            </div>
+
+            <!-- 결과 화면 하단 광고 (실제 애드센스 적용 가능) -->
+            <div class="ad-box">
+                <span class="ad-label">SPONSORED</span>
+                <div class="ad-content">
+                    
+                    <!-- [수정 필요] 아래 data-ad-client, data-ad-slot 값을 본인의 것으로 변경하세요 -->
+                    <ins class="adsbygoogle"
+                         style="display:block; width:100%;"
+                         data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+                         data-ad-slot="0987654321"
+                         data-ad-format="auto"
+                         data-full-width-responsive="true"></ins>
+                    <script>
+                         (adsbygoogle = window.adsbygoogle || []).push({});
+                    </script>
+
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // --- DOM Elements ---
+        const dropZone = document.getElementById('drop-zone');
+        const fileInput = document.getElementById('file-input');
+        const uploadScreen = document.getElementById('upload-screen');
+        const resultScreen = document.getElementById('result-screen');
+        const titleArea = document.getElementById('title-area');
+        
+        const previewImg = document.getElementById('preview-image');
+        const originalSizeEl = document.getElementById('original-size');
+        const compressedSizeEl = document.getElementById('compressed-size');
+        
+        const qualitySlider = document.getElementById('quality-slider');
+        const qualityText = document.getElementById('quality-text');
+        
+        const downloadBtn = document.getElementById('download-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const spinner = document.getElementById('spinner');
+        const btnTextSpan = downloadBtn.querySelector('span');
+
+        // Dropdown Menu Elements
+        const menuTrigger = document.getElementById('menu-trigger');
+        const dropdownMenu = document.getElementById('dropdown-menu');
+
+        let originalFile = null;
+        let compressedFile = null;
+
+        // --- Helper: Format Bytes ---
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 B';
+            const sizes = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(1024));
+            return parseFloat((bytes / Math.pow(1024, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // --- Dropdown Logic ---
+        menuTrigger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            dropdownMenu.classList.toggle('show');
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!dropdownMenu.contains(e.target) && e.target !== menuTrigger) {
+                dropdownMenu.classList.remove('show');
+            }
+        });
+
+        // --- Event Listeners (Image Processing) ---
+
+        // 1. Upload
+        dropZone.addEventListener('click', () => fileInput.click());
+        
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.style.backgroundColor = '#e8f3ff'; 
+        });
+        
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.style.backgroundColor = '';
+        });
+        
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.style.backgroundColor = '';
+            handleFile(e.dataTransfer.files[0]);
+        });
+
+        fileInput.addEventListener('change', (e) => handleFile(e.target.files[0]));
+
+        // 2. Controls
+        qualitySlider.addEventListener('input', (e) => {
+            qualityText.innerText = e.target.value + '%';
+        });
+
+        qualitySlider.addEventListener('change', () => {
+            if(originalFile) compressImage(originalFile);
+        });
+
+        // 3. Reset
+        resetBtn.addEventListener('click', () => {
+            location.reload(); 
+        });
+
+        // 4. Download
+        downloadBtn.addEventListener('click', () => {
+            if(!compressedFile) return;
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(compressedFile);
+            link.download = `compressed_${originalFile.name}`;
+            link.click();
+        });
+
+        // --- Core Functions ---
+
+        async function handleFile(file) {
+            if (!file || !file.type.startsWith('image/')) {
+                alert('이미지 파일만 가능합니다.');
+                return;
+            }
+
+            originalFile = file;
+            originalSizeEl.innerText = formatBytes(file.size);
+            
+            // UI Change
+            uploadScreen.style.display = 'none';
+            titleArea.style.display = 'none';
+            resultScreen.style.display = 'block';
+            
+            previewImg.src = URL.createObjectURL(file);
+            
+            // 즉시 압축 시작
+            await compressImage(file);
+        }
+
+        async function compressImage(file) {
+            // UI: Loading
+            downloadBtn.disabled = true;
+            btnTextSpan.style.display = 'none';
+            spinner.style.display = 'block';
+
+            try {
+                const sliderVal = parseInt(qualitySlider.value);
+                const quality = 1 - (sliderVal / 200); 
+
+                const options = {
+                    maxSizeMB: 100, 
+                    maxWidthOrHeight: 2048, 
+                    useWebWorker: true,
+                    initialQuality: quality 
+                };
+
+                compressedFile = await imageCompression(file, options);
+                
+                // 결과 업데이트
+                compressedSizeEl.innerText = formatBytes(compressedFile.size);
+                previewImg.src = URL.createObjectURL(compressedFile);
+
+            } catch (err) {
+                console.error(err);
+                alert("압축을 진행할 수 없는 이미지 형식이거나 오류가 발생했습니다.");
+            } finally {
+                downloadBtn.disabled = false;
+                btnTextSpan.style.display = 'block';
+                spinner.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
