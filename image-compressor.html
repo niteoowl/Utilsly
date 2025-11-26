@@ -8,8 +8,10 @@
     <title>무료 이미지 압축 - 1초 만에 사진 용량 줄이기 (모든 포맷 지원)</title>
     <meta name="description" content="설치 없이 브라우저에서 바로! 화질 저하 없이 사진 용량을 줄여보세요. JPG, PNG, WebP 등 모든 이미지 포맷 지원.">
     
-    <!-- 폰트 -->
-    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css" />
+    <!-- 폰트 (Preload 적용) -->
+    <link rel="preload" as="style" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css" />
+    
     <!-- 이미지 압축 라이브러리 -->
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/browser-image-compression@2.0.2/dist/browser-image-compression.js"></script>
     <!-- 구글 애드센스 -->
@@ -22,24 +24,21 @@
             --toss-blue-dark: #1b64da;
             --text-main: #191f28;
             --text-sub: #8b95a1;
-            --border-color: rgba(242, 244, 246, 0.8); /* 투명도 적용 */
+            --border-color: rgba(242, 244, 246, 0.8);
             --white: #ffffff;
-            --white-glass: rgba(255, 255, 255, 0.85); /* 유리 효과 배경 */
+            --white-glass: rgba(255, 255, 255, 0.75); /* 투명도 높임 */
             --light-bg: #f9fafb;
             
-            /* Animation */
-            --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            --ease-smooth: cubic-bezier(0.33, 1, 0.68, 1);
+            /* App-like Animation Physics (iOS Style) */
+            --ease-app: cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: "Pretendard Variable", Pretendard, sans-serif;
-            -webkit-tap-highlight-color: transparent;
+        /* 초기 로딩 제어 (Flash 방지) */
+        html.loading body {
+            opacity: 0;
+            visibility: hidden;
         }
-
+        
         body {
             background-color: var(--white);
             color: var(--text-main);
@@ -48,40 +47,54 @@
             min-height: 100vh;
             padding-top: 60px; 
             overflow-x: hidden;
+            font-family: "Pretendard Variable", Pretendard, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            
+            /* 부드러운 등장 */
+            opacity: 1;
+            visibility: visible;
+            transition: opacity 0.4s var(--ease-app);
+            margin: 0;
         }
 
-        /* --- 헤더 (Glassmorphism & Centered Content) --- */
+        * {
+            box-sizing: border-box;
+            padding: 0;
+            margin: 0;
+        }
+
+        /* --- 헤더 (Glassmorphism) --- */
         .app-header {
             width: 100%;
             height: 60px;
-            /* 배경 반투명 + 블러 처리 (Native Feel) */
             background: var(--white-glass);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
             border-bottom: 1px solid var(--border-color);
-            
             position: fixed; 
-            top: 0; 
-            left: 0; 
-            right: 0;
+            top: 0; left: 0; right: 0;
             z-index: 1000;
-            
-            /* 내부 콘텐츠 정렬을 위한 설정 */
             display: flex;
-            justify-content: center; /* 내부 inner를 중앙 정렬 */
+            justify-content: center;
         }
 
-        /* 헤더 내부 컨테이너 (본문과 동일한 너비/패딩 유지) */
         .header-inner {
             width: 100%;
-            max-width: 640px; /* 본문 max-width와 일치 */
+            max-width: 640px;
             height: 100%;
             margin: 0 auto;
-            padding: 0 24px;
+            padding: 0 24px; /* 기본 모바일 패딩 */
             display: flex;
             align-items: center;
             justify-content: space-between;
-            position: relative; /* 드롭다운 기준점 */
+            position: relative;
+        }
+
+        /* PC에서는 헤더 패딩 축소 */
+        @media (min-width: 768px) {
+            .header-inner {
+                padding: 0 16px;
+            }
         }
 
         .logo-link {
@@ -89,20 +102,11 @@
             align-items: center;
             text-decoration: none;
             cursor: pointer;
-            /* 터치 시 반응 */
-            transition: transform 0.1s;
+            transition: transform 0.2s var(--ease-app);
         }
-        
-        .logo-link:active {
-            transform: scale(0.96);
-        }
+        .logo-link:active { transform: scale(0.96); }
 
-        .logo-img {
-            height: 24px; /* 로고 높이 적절하게 조절 */
-            width: auto;
-            object-fit: contain;
-            display: block;
-        }
+        .logo-img { height: 24px; width: auto; object-fit: contain; display: block; }
 
         .menu-icon {
             font-size: 24px;
@@ -111,35 +115,37 @@
             margin-right: -8px;
             user-select: none;
             color: var(--text-main);
-            transition: transform 0.1s;
-        }
-        
-        .menu-icon:active {
-            transform: scale(0.92);
+            transition: opacity 0.2s;
         }
 
-        /* --- Dropdown Menu (Glassmorphism) --- */
+        /* --- Dropdown (Glassmorphism 적용) --- */
         .dropdown-menu {
             position: absolute;
-            top: 54px; /* header-inner 기준 */
-            right: 24px; /* header-inner padding과 일치 */
+            top: 54px;
+            right: 24px; /* 모바일 기준 */
             width: 200px;
             
-            background: var(--white-glass);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            /* Blur 효과 확실하게 적용 */
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
             
             border-radius: 16px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.12);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.12);
             padding: 8px;
-            border: 1px solid rgba(0,0,0,0.05);
+            border: 1px solid rgba(255,255,255,0.2);
             
             opacity: 0;
             visibility: hidden;
-            transform: translateY(-8px) scale(0.98);
+            transform: translateY(10px) scale(0.95);
             transform-origin: top right;
-            transition: all 0.25s var(--ease-spring);
+            transition: all 0.4s var(--ease-app);
             z-index: 2000;
+        }
+        
+        /* PC에서 드롭다운 위치 미세 조정 */
+        @media (min-width: 768px) {
+            .dropdown-menu { right: 16px; }
         }
 
         .dropdown-menu.show {
@@ -151,59 +157,50 @@
         .menu-item {
             display: flex;
             align-items: center;
-            padding: 14px 16px; 
+            padding: 14px 16px;
             text-decoration: none;
             color: var(--text-main);
             border-radius: 12px;
-            font-size: 16px; /* 모바일 가독성 최적화 */
+            font-size: 15px;
             font-weight: 500;
-            transition: background 0.2s, transform 0.1s;
+            transition: background 0.2s;
         }
 
-        .menu-item:active {
-            transform: scale(0.98);
+        .menu-item:active, .menu-item:hover {
             background-color: rgba(0,0,0,0.05);
         }
 
-        /* 데스크탑 호버 */
-        @media (hover: hover) {
-            .menu-item:hover {
-                background-color: rgba(0,0,0,0.03);
-            }
-        }
+        .menu-item .tag { color: var(--toss-blue); font-weight: 800; margin-right: 10px; font-size: 16px; }
+        .menu-divider { height: 1px; background-color: rgba(0,0,0,0.08); margin: 4px 12px; }
+        .menu-item.highlight { color: var(--toss-blue); font-weight: 600; }
 
-        .menu-item .tag {
-            color: var(--toss-blue);
-            font-weight: 800;
-            margin-right: 10px;
-            font-size: 16px;
-        }
-
-        .menu-divider {
-            height: 1px;
-            background-color: rgba(0,0,0,0.06);
-            margin: 4px 12px;
-        }
-
-        .menu-item.highlight {
-            color: var(--toss-blue);
-            font-weight: 600;
-        }
-
-        /* --- 메인 영역 --- */
+        /* --- Main Layout & Animations --- */
         .main-content {
             flex: 1;
             width: 100%;
-            max-width: 640px; /* 헤더와 동일한 폭 */
+            max-width: 640px;
             margin: 0 auto;
             padding: 40px 24px;
             display: flex;
             flex-direction: column;
             justify-content: flex-start;
-            animation: fadeIn 0.6s var(--ease-smooth);
         }
 
-        /* 나머지 CSS는 디자인 변경 금지로 인해 그대로 유지 */
+        /* 순차적 애니메이션 (Stagger) */
+        .animate-in {
+            opacity: 0;
+            transform: translateY(30px) scale(0.98);
+            animation: appSlideUp 0.8s var(--ease-app) forwards;
+        }
+        
+        .delay-1 { animation-delay: 0.1s; }
+        .delay-2 { animation-delay: 0.2s; }
+        .delay-3 { animation-delay: 0.3s; }
+
+        @keyframes appSlideUp {
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
         .title-area { margin-bottom: 40px; text-align: left; }
         .title-area h1 { font-size: 28px; font-weight: 800; margin-bottom: 10px; line-height: 1.3; }
         .title-area p { color: var(--text-sub); font-size: 16px; font-weight: 500; }
@@ -211,28 +208,37 @@
         .upload-area {
             width: 100%; height: 320px; background-color: var(--light-bg); border-radius: 24px;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
-            cursor: pointer; transition: transform 0.2s var(--ease-spring), background-color 0.2s;
+            cursor: pointer; transition: transform 0.2s var(--ease-app), background-color 0.2s;
             border: 1px solid transparent; margin-bottom: 40px; overflow: hidden;
+            /* 업로드 영역 애니메이션 */
+            transform: translateZ(0);
         }
-        .upload-area:active { transform: scale(0.98); }
+        .upload-area:active { transform: scale(0.97); }
         .upload-area:hover { background-color: #f2f4f6; }
 
-        .icon-circle { width: 100px; height: 100px; background: transparent; display: flex; align-items: center; justify-content: center; margin-bottom: 10px; }
-        .icon-circle img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.1)); }
+        .icon-circle { width: 100px; height: 100px; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; }
+        .icon-circle img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.1)); }
+        
         .upload-text { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
         .upload-sub { font-size: 14px; color: var(--text-sub); }
         input[type="file"] { display: none; }
 
-        .result-section { display: none; animation: slideUp 0.6s var(--ease-smooth); }
-        .preview-wrapper { width: 100%; border-radius: 20px; overflow: hidden; background-color: var(--light-bg); margin-bottom: 30px; max-height: 400px; }
+        /* 결과 화면 */
+        .result-section { display: none; }
+        
+        .preview-wrapper { width: 100%; border-radius: 20px; overflow: hidden; background-color: var(--light-bg); margin-bottom: 30px; max-height: 400px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
         .preview-img { width: 100%; height: 100%; object-fit: contain; display: block; }
 
         .control-panel { margin-bottom: 30px; }
-        .quality-control { padding: 10px 2px; }
         .range-header { display: flex; justify-content: space-between; margin-bottom: 16px; font-weight: 600; color: var(--text-main); }
         
         input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; }
-        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 24px; width: 24px; border-radius: 50%; background: var(--white); border: 2px solid var(--toss-blue); cursor: pointer; margin-top: -10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: transform 0.1s; }
+        input[type=range]::-webkit-slider-thumb { 
+            -webkit-appearance: none; height: 24px; width: 24px; border-radius: 50%; 
+            background: var(--white); border: 2px solid var(--toss-blue); 
+            cursor: pointer; margin-top: -10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
+            transition: transform 0.2s var(--ease-app);
+        }
         input[type=range]::-webkit-slider-thumb:active { transform: scale(1.1); }
         input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; background: #e5e8eb; border-radius: 2px; }
 
@@ -243,36 +249,84 @@
         .arrow-icon { color: var(--text-sub); font-size: 24px; padding-bottom: 2px; }
 
         .btn-group { display: flex; flex-direction: column; gap: 12px; margin-bottom: 40px; }
-        .btn { width: 100%; height: 56px; border: none; border-radius: 14px; font-size: 17px; font-weight: 700; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; }
+        
+        .btn { 
+            width: 100%; height: 56px; border: none; border-radius: 14px; 
+            font-size: 17px; font-weight: 700; cursor: pointer; 
+            transition: all 0.2s var(--ease-app); 
+            display: flex; align-items: center; justify-content: center; 
+            position: relative; overflow: hidden;
+        }
+        
         .btn-primary { background-color: var(--toss-blue); color: var(--white); }
-        .btn-primary:active { background-color: var(--toss-blue-dark); transform: scale(0.96); }
+        .btn-primary:active { transform: scale(0.96); }
+        
         .btn-text { background: transparent; color: var(--text-sub); }
         .btn-text:hover { background: var(--light-bg); color: var(--text-main); }
 
-        .spinner { width: 20px; height: 20px; border: 3px solid rgba(255,255,255,0.3); border-radius: 50%; border-top-color: white; animation: spin 0.8s linear infinite; display: none; }
+        /* --- Skeleton Bar Animation (로딩 스피너 대체) --- */
+        .btn.loading {
+            pointer-events: none;
+            background-color: #e5e8eb; /* 회색 배경 */
+            color: transparent; /* 글자 숨김 */
+        }
+        
+        .btn.loading::after {
+            content: "";
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.4),
+                transparent
+            );
+            transform: translateX(-100%);
+            animation: skeleton-shimmer 1.5s infinite;
+        }
+
+        /* 텍스트 대신 보여줄 스켈레톤 바 */
+        .skeleton-bar {
+            display: none;
+            width: 40%;
+            height: 6px;
+            background-color: rgba(0,0,0,0.1);
+            border-radius: 4px;
+        }
+        
+        .btn.loading .skeleton-bar {
+            display: block; /* 로딩 중에만 보임 */
+        }
+        
+        .btn.loading span {
+            display: none; /* 로딩 중 텍스트 숨김 */
+        }
+
+        @keyframes skeleton-shimmer {
+            100% { transform: translateX(100%); }
+        }
 
         .ad-box { width: 100%; min-height: 100px; padding: 20px 0; background-color: transparent; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
         .ad-label { font-size: 11px; color: #b0b8c1; margin-bottom: 8px; font-weight: 500; letter-spacing: 0.5px; }
         .ad-content { width: 100%; display: flex; justify-content: center; align-items: center; overflow: hidden; }
 
-        @keyframes spin { to { transform: rotate(360deg); } }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     </style>
 </head>
 <body>
 
-    <!-- 1. 헤더 (Glassmorphism & Centered Inner) -->
+    <!-- Global Loader (화이트 스크린) -->
+    <div id="global-loader" style="position:fixed; top:0; left:0; right:0; bottom:0; background:#fff; z-index:9999;"></div>
+
+    <!-- 1. 헤더 -->
     <header class="app-header">
         <div class="header-inner">
-            <!-- [NEW] Logo Image -->
             <a href="/" class="logo-link">
                 <img src="/image/logo.webp" alt="Logo" class="logo-img">
             </a>
             
             <div class="menu-icon" id="menu-trigger">≡</div>
 
-            <!-- Dropdown Menu -->
             <div class="dropdown-menu" id="dropdown-menu">
                 <a href="/tags" class="menu-item">
                     <span class="tag">#</span>
@@ -288,17 +342,16 @@
 
     <main class="main-content">
         
-        <!-- 타이틀 -->
-        <div class="title-area" id="title-area">
+        <!-- 타이틀 (순차 애니메이션) -->
+        <div class="title-area animate-in delay-1" id="title-area">
             <h1>모든 이미지를<br>용량만 가볍게</h1>
             <p>JPG, PNG, GIF 등 포맷 제한 없이 지원</p>
         </div>
 
-        <!-- 2. 업로드 영역 -->
-        <div id="upload-screen">
+        <!-- 2. 업로드 영역 (순차 애니메이션) -->
+        <div id="upload-screen" class="animate-in delay-2">
             <div class="upload-area" id="drop-zone">
                 <div class="icon-circle">
-                    <!-- 3D Icon -->
                     <img src="https://cdn3d.iconscout.com/3d/premium/thumb/upload-3d-icon-png-download-7924133.png" alt="Upload Icon">
                 </div>
                 <div class="upload-text">사진 선택하기</div>
@@ -306,11 +359,10 @@
                 <input type="file" id="file-input" accept="image/*">
             </div>
 
-            <!-- 첫 화면 하단 광고 -->
-            <div class="ad-box">
+            <!-- 하단 광고 -->
+            <div class="ad-box animate-in delay-3">
                 <span class="ad-label">ADVERTISEMENT</span>
                 <div class="ad-content">
-                    <!-- [AD] 실제 애드센스 적용 위치 -->
                     <ins class="adsbygoogle"
                          style="display:block; width:100%;"
                          data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
@@ -326,11 +378,11 @@
 
         <!-- 3. 결과 영역 -->
         <div id="result-screen" class="result-section">
-            <div class="preview-wrapper">
+            <div class="preview-wrapper animate-in delay-1">
                 <img id="preview-image" class="preview-img" src="" alt="Preview">
             </div>
 
-            <div class="control-panel">
+            <div class="control-panel animate-in delay-2">
                 <div class="quality-control" id="quality-control-box">
                     <div class="range-header">
                         <span>압축 강도</span>
@@ -340,7 +392,7 @@
                 </div>
             </div>
 
-            <div class="stats">
+            <div class="stats animate-in delay-2">
                 <div class="stat-item">
                     <span class="stat-label">원본</span>
                     <span class="stat-value" id="original-size">-</span>
@@ -352,19 +404,18 @@
                 </div>
             </div>
 
-            <div class="btn-group">
+            <div class="btn-group animate-in delay-3">
                 <button class="btn btn-primary" id="download-btn">
                     <span>저장하기</span>
-                    <div class="spinner" id="spinner"></div>
+                    <!-- 스켈레톤 바 -->
+                    <div class="skeleton-bar"></div>
                 </button>
                 <button class="btn btn-text" id="reset-btn">다른 이미지 선택</button>
             </div>
 
-            <!-- 결과 화면 하단 광고 -->
-            <div class="ad-box">
+            <div class="ad-box animate-in delay-3">
                 <span class="ad-label">SPONSORED</span>
                 <div class="ad-content">
-                    <!-- [AD] 실제 애드센스 적용 위치 -->
                     <ins class="adsbygoogle"
                          style="display:block; width:100%;"
                          data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
@@ -381,7 +432,16 @@
     </main>
 
     <script>
-        // DOM Elements
+        // --- Perfect Loading Logic (폰트 로딩 후 화면 표시) ---
+        // 폰트가 모두 로드되었는지 확인
+        document.fonts.ready.then(() => {
+            // 약간의 지연을 주어 레이아웃 계산 시간 확보
+            setTimeout(() => {
+                document.getElementById('global-loader').style.display = 'none';
+            }, 100);
+        });
+
+        // --- DOM Elements ---
         const dropZone = document.getElementById('drop-zone');
         const fileInput = document.getElementById('file-input');
         const uploadScreen = document.getElementById('upload-screen');
@@ -397,7 +457,6 @@
         
         const downloadBtn = document.getElementById('download-btn');
         const resetBtn = document.getElementById('reset-btn');
-        const spinner = document.getElementById('spinner');
 
         const menuTrigger = document.getElementById('menu-trigger');
         const dropdownMenu = document.getElementById('dropdown-menu');
@@ -413,7 +472,7 @@
             return parseFloat((bytes / Math.pow(1024, i)).toFixed(2)) + ' ' + sizes[i];
         }
 
-        // Dropdown
+        // Menu Toggle
         menuTrigger.addEventListener('click', (e) => {
             e.stopPropagation();
             dropdownMenu.classList.toggle('show');
@@ -444,7 +503,7 @@
             link.click();
         });
 
-        // Core
+        // Core Functions
         async function handleFile(file) {
             if (!file || !file.type.startsWith('image/')) {
                 alert('이미지 파일만 가능합니다.');
@@ -453,6 +512,7 @@
             originalFile = file;
             originalSizeEl.innerText = formatBytes(file.size);
             
+            // 화면 전환
             uploadScreen.style.display = 'none';
             titleArea.style.display = 'none';
             resultScreen.style.display = 'block';
@@ -462,9 +522,9 @@
         }
 
         async function compressImage(file) {
+            // 스켈레톤 로딩 시작
             downloadBtn.disabled = true;
-            spinner.style.display = 'block';
-            downloadBtn.querySelector('span').style.display = 'none';
+            downloadBtn.classList.add('loading'); // CSS 클래스로 제어
 
             try {
                 const sliderVal = parseInt(qualitySlider.value);
@@ -477,18 +537,24 @@
                     initialQuality: quality 
                 };
 
-                compressedFile = await imageCompression(file, options);
+                // 최소 0.8초는 보여줘서 스켈레톤 애니메이션이 보이게 함 (UX)
+                const [compressed] = await Promise.all([
+                    imageCompression(file, options),
+                    new Promise(r => setTimeout(r, 800)) 
+                ]);
+
+                compressedFile = compressed;
                 
                 compressedSizeEl.innerText = formatBytes(compressedFile.size);
                 previewImg.src = URL.createObjectURL(compressedFile);
 
             } catch (err) {
                 console.error(err);
-                alert("압축을 진행할 수 없는 이미지 형식이거나 오류가 발생했습니다.");
+                alert("오류가 발생했습니다.");
             } finally {
+                // 로딩 끝
                 downloadBtn.disabled = false;
-                downloadBtn.querySelector('span').style.display = 'block';
-                spinner.style.display = 'none';
+                downloadBtn.classList.remove('loading');
             }
         }
     </script>
