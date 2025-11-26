@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <!-- SEO 최적화 -->
+    <title>무료 이미지 자르기 - 원하는 비율로 사진 크롭 (Cropper)</title>
+    <meta name="description" content="별도 설치 없이 브라우저에서 바로! 원하는 비율로 이미지를 자유롭게 잘라보세요. 프로필 사진, 유튜브 썸네일 제작에 최적화.">
+    
+    <!-- 폰트 (Preload) -->
+    <link rel="preload" as="style" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css" />
+    
+    <!-- Cropper.js (이미지 자르기 라이브러리) -->
+    <link  href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
+
+    <!-- 구글 애드센스 -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script>
+
+    <style>
+        :root {
+            --toss-blue: #3182f6;
+            --toss-blue-dark: #1b64da;
+            --text-main: #191f28;
+            --text-sub: #8b95a1;
+            --border-color: rgba(242, 244, 246, 0.8);
+            --white: #ffffff;
+            --white-glass: rgba(255, 255, 255, 0.75);
+            --light-bg: #f9fafb;
+            --ease-app: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        html.loading body { opacity: 0; visibility: hidden; }
+        
+        body {
+            background-color: var(--white);
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            padding-top: 60px; 
+            overflow-x: hidden;
+            font-family: "Pretendard Variable", Pretendard, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            opacity: 1;
+            visibility: visible;
+            transition: opacity 0.4s var(--ease-app);
+            margin: 0;
+        }
+
+        * { box-sizing: border-box; padding: 0; margin: 0; }
+
+        /* --- 헤더 (이전과 동일) --- */
+        .app-header {
+            width: 100%;
+            height: 60px;
+            background: var(--white-glass);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border-color);
+            position: fixed; top: 0; left: 0; right: 0;
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+        }
+
+        .header-inner {
+            width: 100%;
+            max-width: 1200px; 
+            height: 100%;
+            margin: 0 auto;
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+        }
+
+        .logo-link {
+            display: flex; align-items: center; text-decoration: none; cursor: pointer;
+            transition: transform 0.2s var(--ease-app);
+        }
+        .logo-link:active { transform: scale(0.96); }
+        .logo-img { height: 24px; width: auto; object-fit: contain; display: block; }
+
+        .menu-icon {
+            font-size: 24px; cursor: pointer; padding: 8px; margin-right: -8px;
+            user-select: none; color: var(--text-main); transition: opacity 0.2s;
+        }
+
+        /* --- Dropdown --- */
+        .dropdown-menu {
+            position: absolute;
+            top: 54px;
+            right: 24px;
+            width: 200px;
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.12);
+            padding: 8px;
+            border: 1px solid rgba(0,0,0,0.05);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px) scale(0.95);
+            transform-origin: top right;
+            transition: all 0.4s var(--ease-app);
+            z-index: 2000;
+        }
+
+        @media (min-width: 768px) { .dropdown-menu { right: 16px; } }
+
+        .dropdown-menu.show { opacity: 1; visibility: visible; transform: translateY(0) scale(1); }
+
+        .menu-item {
+            display: flex; align-items: center; padding: 14px 16px; text-decoration: none;
+            color: var(--text-main); border-radius: 12px; font-size: 15px; font-weight: 500;
+            transition: background 0.2s;
+        }
+        .menu-item:active, .menu-item:hover { background-color: rgba(0,0,0,0.05); }
+        .menu-item .tag { color: var(--toss-blue); font-weight: 800; margin-right: 10px; font-size: 16px; }
+        .menu-divider { height: 1px; background-color: rgba(0,0,0,0.08); margin: 4px 12px; }
+        .menu-item.highlight { color: var(--toss-blue); font-weight: 600; }
+
+        /* --- Main Layout --- */
+        .main-content {
+            flex: 1; width: 100%; max-width: 640px; margin: 0 auto;
+            padding: 40px 24px; display: flex; flex-direction: column; justify-content: flex-start;
+        }
+
+        .animate-in { opacity: 0; transform: translateY(30px) scale(0.98); animation: appSlideUp 0.8s var(--ease-app) forwards; }
+        .delay-1 { animation-delay: 0.1s; }
+        .delay-2 { animation-delay: 0.2s; }
+        .delay-3 { animation-delay: 0.3s; }
+        @keyframes appSlideUp { to { opacity: 1; transform: translateY(0) scale(1); } }
+
+        .title-area { margin-bottom: 40px; text-align: left; }
+        .title-area h1 { font-size: 28px; font-weight: 800; margin-bottom: 10px; line-height: 1.3; }
+        .title-area p { color: var(--text-sub); font-size: 16px; font-weight: 500; }
+
+        .upload-area {
+            width: 100%; height: 320px; background-color: var(--light-bg); border-radius: 24px;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            cursor: pointer; transition: transform 0.2s var(--ease-app), background-color 0.2s;
+            border: 1px solid transparent; margin-bottom: 40px; overflow: hidden; transform: translateZ(0);
+        }
+        .upload-area:active { transform: scale(0.97); }
+        .upload-area:hover { background-color: #f2f4f6; }
+
+        .icon-circle { width: 100px; height: 100px; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; }
+        .icon-circle img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.1)); }
+        .upload-text { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
+        .upload-sub { font-size: 14px; color: var(--text-sub); }
+        input[type="file"] { display: none; }
+
+        /* --- Cropper Editor UI --- */
+        .editor-section { display: none; }
+        
+        .cropper-wrapper {
+            width: 100%;
+            height: 400px; /* 고정 높이 */
+            background-color: #2c2c2c; /* 이미지 배경 어둡게 */
+            border-radius: 20px;
+            overflow: hidden;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        }
+
+        /* 이미지 max-width 제한 해제 (Cropper.js가 처리) */
+        .cropper-wrapper img {
+            display: block;
+            max-width: 100%;
+        }
+
+        /* 툴바 (비율 선택 등) */
+        .toolbar {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 4px; /* 스크롤바 공간 */
+            margin-bottom: 30px;
+            -ms-overflow-style: none; /* IE, Edge scrollbar hide */
+            scrollbar-width: none; /* Firefox scrollbar hide */
+        }
+        .toolbar::-webkit-scrollbar { display: none; }
+
+        .tool-btn {
+            flex: 0 0 auto;
+            padding: 8px 16px;
+            border-radius: 20px;
+            background-color: var(--light-bg);
+            color: var(--text-sub);
+            font-size: 14px;
+            font-weight: 600;
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tool-btn.active {
+            background-color: #e8f3ff;
+            color: var(--toss-blue);
+            border-color: rgba(49, 130, 246, 0.2);
+        }
+        
+        .tool-btn:active { transform: scale(0.95); }
+
+        .icon-btn {
+            font-family: serif; /* 아이콘 폰트 대신 간단히 */
+        }
+
+        /* --- Buttons --- */
+        .btn-group { display: flex; flex-direction: column; gap: 12px; margin-bottom: 40px; }
+        
+        .btn { 
+            width: 100%; height: 56px; border: none; border-radius: 14px; 
+            font-size: 17px; font-weight: 700; cursor: pointer; 
+            transition: all 0.2s var(--ease-app); 
+            display: flex; align-items: center; justify-content: center; 
+            position: relative; overflow: hidden;
+        }
+        
+        .btn-primary { background-color: var(--toss-blue); color: var(--white); }
+        .btn-primary:active { transform: scale(0.96); }
+        .btn-text { background: transparent; color: var(--text-sub); }
+        .btn-text:hover { background: var(--light-bg); color: var(--text-main); }
+
+        .btn.loading { pointer-events: none; opacity: 0.9; }
+        .btn.loading::after {
+            content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transform: translateX(-100%); animation: shimmer 1.5s infinite;
+        }
+        @keyframes shimmer { 100% { transform: translateX(100%); } }
+
+        .ad-box { width: 100%; min-height: 100px; padding: 20px 0; background-color: transparent; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+        .ad-label { font-size: 11px; color: #b0b8c1; margin-bottom: 8px; font-weight: 500; letter-spacing: 0.5px; }
+        .ad-content { width: 100%; display: flex; justify-content: center; align-items: center; overflow: hidden; }
+
+    </style>
+</head>
+<body>
+
+    <!-- Global Loader -->
+    <div id="global-loader" style="position:fixed; top:0; left:0; right:0; bottom:0; background:#fff; z-index:9999;"></div>
+
+    <!-- 1. 헤더 (일관성 유지) -->
+    <header class="app-header">
+        <div class="header-inner">
+            <a href="/" class="logo-link">
+                <img src="/image/logo.webp" alt="Logo" class="logo-img">
+            </a>
+            
+            <div class="menu-icon" id="menu-trigger">≡</div>
+
+            <div class="dropdown-menu" id="dropdown-menu">
+                <a href="/tags" class="menu-item">
+                    <span class="tag">#</span>
+                    태그별 웹툴 보기
+                </a>
+                <div class="menu-divider"></div>
+                <a href="/tools" class="menu-item highlight">
+                    전체 웹툴 보기
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        
+        <!-- 타이틀 -->
+        <div class="title-area animate-in delay-1" id="title-area">
+            <h1>원하는 만큼<br>자유롭게 자르기</h1>
+            <p>비율 유지부터 자유 변형까지</p>
+        </div>
+
+        <!-- 2. 업로드 영역 -->
+        <div id="upload-screen" class="animate-in delay-2">
+            <div class="upload-area" id="drop-zone">
+                <div class="icon-circle">
+                    <!-- 3D 아이콘 (동일한 것 사용) -->
+                    <img src="https://cdn3d.iconscout.com/3d/premium/thumb/upload-3d-icon-png-download-7924133.png" alt="Upload Icon">
+                </div>
+                <div class="upload-text">사진 선택하기</div>
+                <div class="upload-sub">또는 여기에 드래그</div>
+                <input type="file" id="file-input" accept="image/*">
+            </div>
+
+            <div class="ad-box animate-in delay-3">
+                <span class="ad-label">ADVERTISEMENT</span>
+                <div class="ad-content">
+                    <ins class="adsbygoogle"
+                         style="display:block; width:100%;"
+                         data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+                         data-ad-slot="1234567890"
+                         data-ad-format="auto"
+                         data-full-width-responsive="true"></ins>
+                    <script>
+                         (adsbygoogle = window.adsbygoogle || []).push({});
+                    </script>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. 에디터 영역 (Cropper) -->
+        <div id="editor-screen" class="editor-section">
+            <div class="cropper-wrapper animate-in delay-1">
+                <!-- 이미지가 여기에 로드됨 -->
+                <img id="image-to-crop" src="" alt="Source">
+            </div>
+
+            <!-- 툴바: 비율 및 회전 -->
+            <div class="toolbar animate-in delay-2">
+                <button class="tool-btn active" data-ratio="NaN">자유</button>
+                <button class="tool-btn" data-ratio="1">1:1</button>
+                <button class="tool-btn" data-ratio="1.3333">4:3</button>
+                <button class="tool-btn" data-ratio="1.7777">16:9</button>
+                <!-- 회전 버튼 -->
+                <button class="tool-btn icon-btn" id="rotate-btn">↺ 90°</button>
+            </div>
+
+            <div class="btn-group animate-in delay-3">
+                <button class="btn btn-primary" id="crop-btn">
+                    <span>자르기 및 저장</span>
+                </button>
+                <button class="btn btn-text" id="reset-btn">다른 이미지 선택</button>
+            </div>
+
+            <div class="ad-box animate-in delay-3">
+                <span class="ad-label">SPONSORED</span>
+                <div class="ad-content">
+                    <ins class="adsbygoogle"
+                         style="display:block; width:100%;"
+                         data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+                         data-ad-slot="0987654321"
+                         data-ad-format="auto"
+                         data-full-width-responsive="true"></ins>
+                    <script>
+                         (adsbygoogle = window.adsbygoogle || []).push({});
+                    </script>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // --- Prevent FOUT ---
+        document.fonts.ready.then(() => {
+            setTimeout(() => {
+                document.getElementById('global-loader').style.display = 'none';
+            }, 100);
+        });
+
+        // --- DOM Elements ---
+        const dropZone = document.getElementById('drop-zone');
+        const fileInput = document.getElementById('file-input');
+        const uploadScreen = document.getElementById('upload-screen');
+        const editorScreen = document.getElementById('editor-screen');
+        const titleArea = document.getElementById('title-area');
+        
+        const imageElement = document.getElementById('image-to-crop');
+        const cropBtn = document.getElementById('crop-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const rotateBtn = document.getElementById('rotate-btn');
+        const ratioBtns = document.querySelectorAll('.tool-btn[data-ratio]');
+
+        const menuTrigger = document.getElementById('menu-trigger');
+        const dropdownMenu = document.getElementById('dropdown-menu');
+
+        let cropper = null;
+        let originalFileName = 'image';
+
+        // --- Menu Logic ---
+        menuTrigger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            dropdownMenu.classList.toggle('show');
+        });
+        document.addEventListener('click', (e) => {
+            if (!dropdownMenu.contains(e.target) && e.target !== menuTrigger) {
+                dropdownMenu.classList.remove('show');
+            }
+        });
+
+        // --- Upload Logic ---
+        dropZone.addEventListener('click', () => fileInput.click());
+        dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.style.backgroundColor = '#e8f3ff'; });
+        dropZone.addEventListener('dragleave', () => { dropZone.style.backgroundColor = ''; });
+        dropZone.addEventListener('drop', (e) => { e.preventDefault(); dropZone.style.backgroundColor = ''; handleFile(e.dataTransfer.files[0]); });
+        fileInput.addEventListener('change', (e) => handleFile(e.target.files[0]));
+
+        resetBtn.addEventListener('click', () => location.reload());
+
+        // --- Core Functions ---
+        function handleFile(file) {
+            if (!file || !file.type.startsWith('image/')) {
+                alert('이미지 파일만 가능합니다.');
+                return;
+            }
+            
+            originalFileName = file.name;
+            const reader = new FileReader();
+            
+            reader.onload = (e) => {
+                // UI 전환
+                uploadScreen.style.display = 'none';
+                titleArea.style.display = 'none';
+                editorScreen.style.display = 'block';
+                
+                // 이미지 소스 설정 및 Cropper 초기화
+                imageElement.src = e.target.result;
+                initCropper();
+            };
+            
+            reader.readAsDataURL(file);
+        }
+
+        function initCropper() {
+            if (cropper) {
+                cropper.destroy();
+            }
+
+            cropper = new Cropper(imageElement, {
+                viewMode: 1, // 캔버스를 벗어나지 않음
+                dragMode: 'move',
+                autoCropArea: 0.8,
+                restore: false,
+                guides: true,
+                center: true,
+                highlight: false,
+                cropBoxMovable: true,
+                cropBoxResizable: true,
+                toggleDragModeOnDblclick: false,
+                background: false, // 배경 격자 끔 (깔끔하게)
+            });
+        }
+
+        // --- Toolbar Actions ---
+        
+        // 비율 변경
+        ratioBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // 버튼 스타일 활성화
+                ratioBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+
+                // Cropper 적용
+                const ratio = parseFloat(btn.dataset.ratio);
+                cropper.setAspectRatio(ratio);
+            });
+        });
+
+        // 회전
+        rotateBtn.addEventListener('click', () => {
+            cropper.rotate(90);
+        });
+
+        // --- Crop & Download ---
+        cropBtn.addEventListener('click', () => {
+            if (!cropper) return;
+
+            cropBtn.disabled = true;
+            cropBtn.classList.add('loading');
+
+            // 약간의 딜레이 후 처리 (UI 반응성 확보 및 로딩 애니메이션 노출)
+            setTimeout(() => {
+                const canvas = cropper.getCroppedCanvas({
+                    // 원본 해상도 유지 노력 (너무 크면 브라우저가 알아서 줄임)
+                    imageSmoothingQuality: 'high',
+                });
+
+                canvas.toBlob((blob) => {
+                    if (!blob) {
+                        alert("이미지를 자르는데 실패했습니다.");
+                        cropBtn.disabled = false;
+                        cropBtn.classList.remove('loading');
+                        return;
+                    }
+
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    
+                    // 파일명 처리: cropped_원본이름
+                    let newName = `cropped_${originalFileName}`;
+                    link.download = newName;
+                    link.href = url;
+                    link.click();
+                    
+                    // Cleanup
+                    URL.revokeObjectURL(url);
+                    cropBtn.disabled = false;
+                    cropBtn.classList.remove('loading');
+
+                }, 'image/png'); // 기본 PNG 저장 (투명도 유지 등)
+            }, 600);
+        });
+
+    </script>
+</body>
+</html>
