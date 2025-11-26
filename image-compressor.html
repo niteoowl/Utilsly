@@ -8,7 +8,7 @@
     <title>무료 이미지 압축 - 1초 만에 사진 용량 줄이기 (모든 포맷 지원)</title>
     <meta name="description" content="설치 없이 브라우저에서 바로! 화질 저하 없이 사진 용량을 줄여보세요. JPG, PNG, WebP 등 모든 이미지 포맷 지원.">
     
-    <!-- 폰트 (Preload 적용) -->
+    <!-- 폰트 (Preload) -->
     <link rel="preload" as="style" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css" />
     
@@ -19,25 +19,18 @@
 
     <style>
         :root {
-            /* Palette */
             --toss-blue: #3182f6;
             --toss-blue-dark: #1b64da;
             --text-main: #191f28;
             --text-sub: #8b95a1;
             --border-color: rgba(242, 244, 246, 0.8);
             --white: #ffffff;
-            --white-glass: rgba(255, 255, 255, 0.75); /* 투명도 높임 */
+            --white-glass: rgba(255, 255, 255, 0.75);
             --light-bg: #f9fafb;
-            
-            /* App-like Animation Physics (iOS Style) */
             --ease-app: cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        /* 초기 로딩 제어 (Flash 방지) */
-        html.loading body {
-            opacity: 0;
-            visibility: hidden;
-        }
+        html.loading body { opacity: 0; visibility: hidden; }
         
         body {
             background-color: var(--white);
@@ -49,21 +42,15 @@
             overflow-x: hidden;
             font-family: "Pretendard Variable", Pretendard, sans-serif;
             -webkit-tap-highlight-color: transparent;
-            
-            /* 부드러운 등장 */
             opacity: 1;
             visibility: visible;
             transition: opacity 0.4s var(--ease-app);
             margin: 0;
         }
 
-        * {
-            box-sizing: border-box;
-            padding: 0;
-            margin: 0;
-        }
+        * { box-sizing: border-box; padding: 0; margin: 0; }
 
-        /* --- 헤더 (Glassmorphism) --- */
+        /* --- 헤더 (너비 확장) --- */
         .app-header {
             width: 100%;
             height: 60px;
@@ -71,8 +58,7 @@
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
             border-bottom: 1px solid var(--border-color);
-            position: fixed; 
-            top: 0; left: 0; right: 0;
+            position: fixed; top: 0; left: 0; right: 0;
             z-index: 1000;
             display: flex;
             justify-content: center;
@@ -80,60 +66,43 @@
 
         .header-inner {
             width: 100%;
-            max-width: 640px;
+            /* max-width 제거 또는 대폭 확대하여 양옆으로 벌어지게 함 */
+            max-width: 1200px; 
             height: 100%;
             margin: 0 auto;
-            padding: 0 24px; /* 기본 모바일 패딩 */
+            padding: 0 24px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             position: relative;
         }
 
-        /* PC에서는 헤더 패딩 축소 */
-        @media (min-width: 768px) {
-            .header-inner {
-                padding: 0 16px;
-            }
-        }
-
         .logo-link {
-            display: flex;
-            align-items: center;
-            text-decoration: none;
-            cursor: pointer;
+            display: flex; align-items: center; text-decoration: none; cursor: pointer;
             transition: transform 0.2s var(--ease-app);
         }
         .logo-link:active { transform: scale(0.96); }
-
         .logo-img { height: 24px; width: auto; object-fit: contain; display: block; }
 
         .menu-icon {
-            font-size: 24px;
-            cursor: pointer;
-            padding: 8px;
-            margin-right: -8px;
-            user-select: none;
-            color: var(--text-main);
-            transition: opacity 0.2s;
+            font-size: 24px; cursor: pointer; padding: 8px; margin-right: -8px;
+            user-select: none; color: var(--text-main); transition: opacity 0.2s;
         }
 
-        /* --- Dropdown (Glassmorphism 적용) --- */
+        /* --- Dropdown (블러 제거) --- */
         .dropdown-menu {
             position: absolute;
             top: 54px;
-            right: 24px; /* 모바일 기준 */
+            right: 24px;
             width: 200px;
             
-            /* Blur 효과 확실하게 적용 */
-            background: rgba(255, 255, 255, 0.75);
-            backdrop-filter: blur(20px) saturate(180%);
-            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            /* 순수한 흰색 배경 (블러 제거) */
+            background: #ffffff;
             
             border-radius: 16px;
             box-shadow: 0 12px 40px rgba(0,0,0,0.12);
             padding: 8px;
-            border: 1px solid rgba(255,255,255,0.2);
+            border: 1px solid rgba(0,0,0,0.05);
             
             opacity: 0;
             visibility: hidden;
@@ -142,64 +111,33 @@
             transition: all 0.4s var(--ease-app);
             z-index: 2000;
         }
-        
-        /* PC에서 드롭다운 위치 미세 조정 */
-        @media (min-width: 768px) {
-            .dropdown-menu { right: 16px; }
-        }
 
-        .dropdown-menu.show {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(0) scale(1);
-        }
+        @media (min-width: 768px) { .dropdown-menu { right: 16px; } }
+
+        .dropdown-menu.show { opacity: 1; visibility: visible; transform: translateY(0) scale(1); }
 
         .menu-item {
-            display: flex;
-            align-items: center;
-            padding: 14px 16px;
-            text-decoration: none;
-            color: var(--text-main);
-            border-radius: 12px;
-            font-size: 15px;
-            font-weight: 500;
+            display: flex; align-items: center; padding: 14px 16px; text-decoration: none;
+            color: var(--text-main); border-radius: 12px; font-size: 15px; font-weight: 500;
             transition: background 0.2s;
         }
-
-        .menu-item:active, .menu-item:hover {
-            background-color: rgba(0,0,0,0.05);
-        }
-
+        .menu-item:active, .menu-item:hover { background-color: rgba(0,0,0,0.05); }
         .menu-item .tag { color: var(--toss-blue); font-weight: 800; margin-right: 10px; font-size: 16px; }
         .menu-divider { height: 1px; background-color: rgba(0,0,0,0.08); margin: 4px 12px; }
         .menu-item.highlight { color: var(--toss-blue); font-weight: 600; }
 
-        /* --- Main Layout & Animations --- */
+        /* --- Main Layout --- */
         .main-content {
-            flex: 1;
-            width: 100%;
-            max-width: 640px;
-            margin: 0 auto;
-            padding: 40px 24px;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
+            flex: 1; width: 100%; max-width: 640px; margin: 0 auto;
+            padding: 40px 24px; display: flex; flex-direction: column; justify-content: flex-start;
         }
 
-        /* 순차적 애니메이션 (Stagger) */
-        .animate-in {
-            opacity: 0;
-            transform: translateY(30px) scale(0.98);
-            animation: appSlideUp 0.8s var(--ease-app) forwards;
-        }
-        
+        /* Animations */
+        .animate-in { opacity: 0; transform: translateY(30px) scale(0.98); animation: appSlideUp 0.8s var(--ease-app) forwards; }
         .delay-1 { animation-delay: 0.1s; }
         .delay-2 { animation-delay: 0.2s; }
         .delay-3 { animation-delay: 0.3s; }
-
-        @keyframes appSlideUp {
-            to { opacity: 1; transform: translateY(0) scale(1); }
-        }
+        @keyframes appSlideUp { to { opacity: 1; transform: translateY(0) scale(1); } }
 
         .title-area { margin-bottom: 40px; text-align: left; }
         .title-area h1 { font-size: 28px; font-weight: 800; margin-bottom: 10px; line-height: 1.3; }
@@ -209,44 +147,86 @@
             width: 100%; height: 320px; background-color: var(--light-bg); border-radius: 24px;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
             cursor: pointer; transition: transform 0.2s var(--ease-app), background-color 0.2s;
-            border: 1px solid transparent; margin-bottom: 40px; overflow: hidden;
-            /* 업로드 영역 애니메이션 */
-            transform: translateZ(0);
+            border: 1px solid transparent; margin-bottom: 40px; overflow: hidden; transform: translateZ(0);
         }
         .upload-area:active { transform: scale(0.97); }
         .upload-area:hover { background-color: #f2f4f6; }
 
         .icon-circle { width: 100px; height: 100px; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; }
         .icon-circle img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.1)); }
-        
         .upload-text { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
         .upload-sub { font-size: 14px; color: var(--text-sub); }
         input[type="file"] { display: none; }
 
-        /* 결과 화면 */
         .result-section { display: none; }
-        
         .preview-wrapper { width: 100%; border-radius: 20px; overflow: hidden; background-color: var(--light-bg); margin-bottom: 30px; max-height: 400px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
         .preview-img { width: 100%; height: 100%; object-fit: contain; display: block; }
 
         .control-panel { margin-bottom: 30px; }
         .range-header { display: flex; justify-content: space-between; margin-bottom: 16px; font-weight: 600; color: var(--text-main); }
         
-        input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; }
-        input[type=range]::-webkit-slider-thumb { 
-            -webkit-appearance: none; height: 24px; width: 24px; border-radius: 50%; 
-            background: var(--white); border: 2px solid var(--toss-blue); 
-            cursor: pointer; margin-top: -10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
-            transition: transform 0.2s var(--ease-app);
+        /* --- Slider Fix (터치 영역 개선) --- */
+        .quality-control {
+            position: relative;
+            padding: 10px 0;
         }
-        input[type=range]::-webkit-slider-thumb:active { transform: scale(1.1); }
-        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; background: #e5e8eb; border-radius: 2px; }
 
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 44px; /* 터치 영역 대폭 확대 */
+            background: transparent;
+            cursor: pointer;
+            position: relative;
+            z-index: 10;
+            margin: 0; /* 마진 초기화 */
+        }
+
+        /* 슬라이더 트랙 (가운데 정렬) */
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            background: #e5e8eb;
+            border-radius: 2px;
+            cursor: pointer;
+            /* 트랙을 수직 중앙으로 */
+            position: relative;
+            top: 0; 
+        }
+
+        /* 슬라이더 핸들 (Thumb) */
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 24px;
+            width: 24px;
+            border-radius: 50%;
+            background: var(--white);
+            border: 2px solid var(--toss-blue);
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: transform 0.2s var(--ease-app);
+            
+            /* 트랙 기준 중앙 정렬: (트랙높이 - 핸들높이) / 2 */
+            margin-top: -10px; 
+            position: relative;
+            z-index: 20;
+        }
+        
+        input[type=range]::-webkit-slider-thumb:active { transform: scale(1.1); }
+
+        /* --- Stats (화살표 고정) --- */
         .stats { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 30px; margin-bottom: 40px; padding: 20px; background-color: var(--light-bg); border-radius: 16px; }
-        .stat-item { display: flex; flex-direction: column; }
+        .stat-item { display: flex; flex-direction: column; flex: 1; } /* 양옆 균등 분배 */
+        .stat-item:last-child { align-items: flex-end; }
         .stat-label { font-size: 13px; color: var(--text-sub); margin-bottom: 6px; font-weight: 600; }
         .stat-value { font-size: 20px; font-weight: 800; }
-        .arrow-icon { color: var(--text-sub); font-size: 24px; padding-bottom: 2px; }
+        
+        /* 화살표 너비 고정 */
+        .arrow-icon { 
+            color: var(--text-sub); font-size: 24px; padding-bottom: 2px;
+            flex: 0 0 40px; /* 고정 너비 */
+            text-align: center;
+        }
 
         .btn-group { display: flex; flex-direction: column; gap: 12px; margin-bottom: 40px; }
         
@@ -260,17 +240,17 @@
         
         .btn-primary { background-color: var(--toss-blue); color: var(--white); }
         .btn-primary:active { transform: scale(0.96); }
-        
         .btn-text { background: transparent; color: var(--text-sub); }
         .btn-text:hover { background: var(--light-bg); color: var(--text-main); }
 
-        /* --- Skeleton Bar Animation (로딩 스피너 대체) --- */
+        /* --- Button Loading (Shimmer + Text Visible) --- */
         .btn.loading {
             pointer-events: none;
-            background-color: #e5e8eb; /* 회색 배경 */
-            color: transparent; /* 글자 숨김 */
+            /* 배경색을 살짝 연하게 */
+            opacity: 0.9;
         }
         
+        /* 빛이 지나가는 효과 */
         .btn.loading::after {
             content: "";
             position: absolute;
@@ -279,31 +259,14 @@
             background: linear-gradient(
                 90deg,
                 transparent,
-                rgba(255, 255, 255, 0.4),
+                rgba(255, 255, 255, 0.3),
                 transparent
             );
             transform: translateX(-100%);
-            animation: skeleton-shimmer 1.5s infinite;
+            animation: shimmer 1.5s infinite;
         }
 
-        /* 텍스트 대신 보여줄 스켈레톤 바 */
-        .skeleton-bar {
-            display: none;
-            width: 40%;
-            height: 6px;
-            background-color: rgba(0,0,0,0.1);
-            border-radius: 4px;
-        }
-        
-        .btn.loading .skeleton-bar {
-            display: block; /* 로딩 중에만 보임 */
-        }
-        
-        .btn.loading span {
-            display: none; /* 로딩 중 텍스트 숨김 */
-        }
-
-        @keyframes skeleton-shimmer {
+        @keyframes shimmer {
             100% { transform: translateX(100%); }
         }
 
@@ -315,7 +278,7 @@
 </head>
 <body>
 
-    <!-- Global Loader (화이트 스크린) -->
+    <!-- Global Loader -->
     <div id="global-loader" style="position:fixed; top:0; left:0; right:0; bottom:0; background:#fff; z-index:9999;"></div>
 
     <!-- 1. 헤더 -->
@@ -342,13 +305,13 @@
 
     <main class="main-content">
         
-        <!-- 타이틀 (순차 애니메이션) -->
+        <!-- 타이틀 -->
         <div class="title-area animate-in delay-1" id="title-area">
             <h1>모든 이미지를<br>용량만 가볍게</h1>
             <p>JPG, PNG, GIF 등 포맷 제한 없이 지원</p>
         </div>
 
-        <!-- 2. 업로드 영역 (순차 애니메이션) -->
+        <!-- 2. 업로드 영역 -->
         <div id="upload-screen" class="animate-in delay-2">
             <div class="upload-area" id="drop-zone">
                 <div class="icon-circle">
@@ -359,7 +322,6 @@
                 <input type="file" id="file-input" accept="image/*">
             </div>
 
-            <!-- 하단 광고 -->
             <div class="ad-box animate-in delay-3">
                 <span class="ad-label">ADVERTISEMENT</span>
                 <div class="ad-content">
@@ -398,7 +360,7 @@
                     <span class="stat-value" id="original-size">-</span>
                 </div>
                 <div class="arrow-icon">→</div>
-                <div class="stat-item" style="align-items: flex-end;">
+                <div class="stat-item">
                     <span class="stat-label">변경 후</span>
                     <span class="stat-value" style="color:var(--toss-blue)" id="compressed-size">-</span>
                 </div>
@@ -407,8 +369,6 @@
             <div class="btn-group animate-in delay-3">
                 <button class="btn btn-primary" id="download-btn">
                     <span>저장하기</span>
-                    <!-- 스켈레톤 바 -->
-                    <div class="skeleton-bar"></div>
                 </button>
                 <button class="btn btn-text" id="reset-btn">다른 이미지 선택</button>
             </div>
@@ -432,10 +392,8 @@
     </main>
 
     <script>
-        // --- Perfect Loading Logic (폰트 로딩 후 화면 표시) ---
-        // 폰트가 모두 로드되었는지 확인
+        // --- Prevent FOUT ---
         document.fonts.ready.then(() => {
-            // 약간의 지연을 주어 레이아웃 계산 시간 확보
             setTimeout(() => {
                 document.getElementById('global-loader').style.display = 'none';
             }, 100);
@@ -512,7 +470,6 @@
             originalFile = file;
             originalSizeEl.innerText = formatBytes(file.size);
             
-            // 화면 전환
             uploadScreen.style.display = 'none';
             titleArea.style.display = 'none';
             resultScreen.style.display = 'block';
@@ -522,9 +479,9 @@
         }
 
         async function compressImage(file) {
-            // 스켈레톤 로딩 시작
+            // Button Loading State (Shimmer Effect only)
             downloadBtn.disabled = true;
-            downloadBtn.classList.add('loading'); // CSS 클래스로 제어
+            downloadBtn.classList.add('loading'); 
 
             try {
                 const sliderVal = parseInt(qualitySlider.value);
@@ -537,7 +494,6 @@
                     initialQuality: quality 
                 };
 
-                // 최소 0.8초는 보여줘서 스켈레톤 애니메이션이 보이게 함 (UX)
                 const [compressed] = await Promise.all([
                     imageCompression(file, options),
                     new Promise(r => setTimeout(r, 800)) 
@@ -552,7 +508,6 @@
                 console.error(err);
                 alert("오류가 발생했습니다.");
             } finally {
-                // 로딩 끝
                 downloadBtn.disabled = false;
                 downloadBtn.classList.remove('loading');
             }
