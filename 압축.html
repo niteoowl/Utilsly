@@ -4,153 +4,288 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
-    <!-- SEO -->
-    <title>간편 파일 압축 해제 - Utilsly</title>
-    <meta name="description" content="설치 없이 브라우저에서 바로! ZIP 파일을 안전하게 해제하고 미리 확인하세요.">
+    <!-- SEO 최적화 -->
+    <title>무료 압축 해제 - 설치 없이 ZIP 파일 열기 (모바일 지원)</title>
+    <meta name="description" content="별도 프로그램 설치 없이 브라우저에서 바로 ZIP 파일 압축을 해제하세요. 아이폰, 안드로이드, PC 완벽 지원.">
     
-    <!-- 폰트 -->
+    <!-- 폰트 (Preload) -->
+    <link rel="preload" as="style" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css" />
     
-    <!-- JSZip (서버 없이 로컬에서 완벽 작동하는 라이브러리) -->
+    <!-- 압축 해제 라이브러리 (JSZip) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    
+    <!-- 구글 애드센스 -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script>
 
     <style>
         :root {
             --toss-blue: #3182f6;
+            --toss-blue-dark: #1b64da;
             --text-main: #191f28;
             --text-sub: #8b95a1;
+            --border-color: rgba(242, 244, 246, 0.8);
+            --white: #ffffff;
             --white-glass: rgba(255, 255, 255, 0.75);
             --light-bg: #f9fafb;
             --ease-app: cubic-bezier(0.16, 1, 0.3, 1);
         }
 
+        html.loading body { opacity: 0; visibility: hidden; }
+        
         body {
-            background-color: #ffffff;
+            background-color: var(--white);
             color: var(--text-main);
-            display: flex; flex-direction: column;
-            min-height: 100vh; padding-top: 60px; margin: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            padding-top: 60px; 
+            overflow-x: hidden;
             font-family: "Pretendard Variable", Pretendard, sans-serif;
             -webkit-tap-highlight-color: transparent;
+            opacity: 1;
+            visibility: visible;
+            transition: opacity 0.4s var(--ease-app);
+            margin: 0;
         }
 
         * { box-sizing: border-box; padding: 0; margin: 0; }
-        button { font-family: inherit; }
 
-        /* 헤더 */
+        /* --- 헤더 --- */
         .app-header {
-            width: 100%; height: 60px; background: var(--white-glass);
-            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-            border-bottom: 1px solid rgba(0,0,0,0.05);
-            position: fixed; top: 0; z-index: 1000; display: flex; justify-content: center;
+            width: 100%;
+            height: 60px;
+            background: var(--white-glass);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border-color);
+            position: fixed; top: 0; left: 0; right: 0;
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
         }
-        .header-inner {
-            width: 100%; max-width: 1200px; padding: 0 24px;
-            display: flex; align-items: center; justify-content: space-between;
-        }
-        .logo-img { height: 24px; object-fit: contain; }
-        .menu-icon { font-size: 24px; cursor: pointer; padding: 8px; margin-right: -8px; }
 
-        /* 메인 레이아웃 */
+        .header-inner {
+            width: 100%;
+            max-width: 1200px; 
+            height: 100%;
+            margin: 0 auto;
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+        }
+
+        .logo-link {
+            display: flex; align-items: center; text-decoration: none; cursor: pointer;
+            transition: transform 0.2s var(--ease-app);
+        }
+        .logo-link:active { transform: scale(0.96); }
+        .logo-img { height: 24px; width: auto; object-fit: contain; display: block; }
+
+        .menu-icon {
+            font-size: 24px; cursor: pointer; padding: 8px; margin-right: -8px;
+            user-select: none; color: var(--text-main); transition: opacity 0.2s;
+        }
+
+        /* --- Dropdown --- */
+        .dropdown-menu {
+            position: absolute;
+            top: 54px;
+            right: 24px;
+            width: 200px;
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.12);
+            padding: 8px;
+            border: 1px solid rgba(0,0,0,0.05);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px) scale(0.95);
+            transform-origin: top right;
+            transition: all 0.4s var(--ease-app);
+            z-index: 2000;
+        }
+
+        @media (min-width: 768px) { .dropdown-menu { right: 16px; } }
+        .dropdown-menu.show { opacity: 1; visibility: visible; transform: translateY(0) scale(1); }
+
+        .menu-item {
+            display: flex; align-items: center; padding: 14px 16px; text-decoration: none;
+            color: var(--text-main); border-radius: 12px; font-size: 15px; font-weight: 500;
+            transition: background 0.2s;
+        }
+        .menu-item:active, .menu-item:hover { background-color: rgba(0,0,0,0.05); }
+        .menu-item .tag { color: var(--toss-blue); font-weight: 800; margin-right: 10px; font-size: 16px; }
+        .menu-divider { height: 1px; background-color: rgba(0,0,0,0.08); margin: 4px 12px; }
+        .menu-item.highlight { color: var(--toss-blue); font-weight: 600; }
+
+        /* --- Main Layout --- */
         .main-content {
             flex: 1; width: 100%; max-width: 640px; margin: 0 auto;
-            padding: 40px 24px; display: flex; flex-direction: column;
+            padding: 40px 24px; display: flex; flex-direction: column; justify-content: flex-start;
         }
 
-        /* --- 애니메이션 설정 --- */
-        .animate-in { 
-            opacity: 0; 
-            transform: translateY(30px) scale(0.98); 
-            animation: appSlideUp 0.8s var(--ease-app) forwards; 
-        }
-        
-        /* 대기 상태 클래스 */
-        .animate-ready { opacity: 0; }
-
+        /* Animations */
+        .animate-in { opacity: 0; transform: translateY(30px) scale(0.98); animation: appSlideUp 0.8s var(--ease-app) forwards; }
         .delay-1 { animation-delay: 0.1s; }
         .delay-2 { animation-delay: 0.2s; }
         .delay-3 { animation-delay: 0.3s; }
-        
-        @keyframes appSlideUp { 
-            to { opacity: 1; transform: translateY(0) scale(1); } 
-        }
+        @keyframes appSlideUp { to { opacity: 1; transform: translateY(0) scale(1); } }
 
-        .title-area { margin-bottom: 40px; }
+        .title-area { margin-bottom: 40px; text-align: left; }
         .title-area h1 { font-size: 28px; font-weight: 800; margin-bottom: 10px; line-height: 1.3; }
         .title-area p { color: var(--text-sub); font-size: 16px; font-weight: 500; }
 
-        /* 업로드 박스 */
+        /* Upload Area */
         .upload-area {
             width: 100%; height: 320px; background-color: var(--light-bg); border-radius: 24px;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
-            cursor: pointer; transition: transform 0.2s; margin-bottom: 40px;
+            cursor: pointer; transition: transform 0.2s var(--ease-app), background-color 0.2s;
+            border: 1px solid transparent; margin-bottom: 40px; overflow: hidden; transform: translateZ(0);
         }
         .upload-area:active { transform: scale(0.97); }
-        .icon-circle { width: 120px; height: 120px; margin-bottom: 16px; display: flex; align-items: center; justify-content: center; }
+        .upload-area:hover { background-color: #f2f4f6; }
+
+        .icon-circle { width: 100px; height: 100px; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; }
         .icon-circle img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.1)); }
         .upload-text { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
         .upload-sub { font-size: 14px; color: var(--text-sub); }
         input[type="file"] { display: none; }
 
-        /* 결과 화면 */
+        /* Result Section & File List (New) */
         .result-section { display: none; }
+        
+        .file-list-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 16px; padding: 0 4px;
+        }
+        .file-count { font-weight: 700; font-size: 18px; color: var(--text-main); }
+        .file-total-size { font-size: 14px; color: var(--text-sub); font-weight: 500; }
 
-        .file-list-box {
-            background-color: var(--light-bg); border-radius: 24px; padding: 20px;
-            margin-bottom: 30px; max-height: 440px; overflow-y: auto;
+        .file-list-container {
+            width: 100%;
+            background: transparent;
+            margin-bottom: 30px;
         }
 
         .file-item {
-            background-color: #fff; border-radius: 16px; padding: 12px 16px;
-            margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.03); transition: transform 0.2s;
+            display: flex; align-items: center; justify-content: space-between;
+            background-color: var(--white);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 12px;
+            transition: transform 0.2s var(--ease-app), box-shadow 0.2s;
         }
-        .file-item:hover { transform: translateY(-2px); }
-        .file-left { display: flex; align-items: center; overflow: hidden; flex: 1; }
-        .file-thumb { width: 40px; height: 40px; margin-right: 14px; flex-shrink: 0; object-fit: contain; }
-        .file-info-text { display: flex; flex-direction: column; overflow: hidden; }
-        .file-name { font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .file-size { font-size: 12px; color: var(--text-sub); margin-top: 3px; }
-
-        .btn-download-item {
-            background-color: #f2f4f6; color: var(--toss-blue); border: none;
-            border-radius: 8px; padding: 8px 12px; font-weight: 700; font-size: 13px;
-            cursor: pointer; margin-left: 10px; min-width: 60px;
+        .file-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.04);
         }
-        .btn-download-item:hover { background-color: #e8f3ff; }
 
-        .stats { 
-            display: flex; justify-content: space-between; align-items: flex-end; 
-            margin-bottom: 40px; padding: 24px; background-color: var(--light-bg); border-radius: 16px; 
+        .file-info-box {
+            display: flex; align-items: center; gap: 14px;
+            flex: 1; min-width: 0; /* text-overflow fix */
         }
-        .stat-item { display: flex; flex-direction: column; }
-        .stat-label { font-size: 13px; color: var(--text-sub); margin-bottom: 6px; font-weight: 600; }
-        .stat-value { font-size: 20px; font-weight: 800; }
-        .arrow-icon { color: var(--text-sub); font-size: 24px; padding-bottom: 2px; }
+        
+        .file-icon {
+            width: 40px; height: 40px;
+            background-color: var(--light-bg);
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
 
+        .file-text {
+            display: flex; flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .file-name {
+            font-size: 15px; font-weight: 600; color: var(--text-main);
+            margin-bottom: 3px;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .file-meta {
+            font-size: 13px; color: var(--text-sub);
+        }
+
+        .file-action {
+            margin-left: 12px;
+            flex-shrink: 0;
+        }
+        
+        .btn-download-sm {
+            padding: 8px 14px;
+            background-color: rgba(49, 130, 246, 0.1);
+            color: var(--toss-blue);
+            font-size: 13px; font-weight: 700;
+            border-radius: 8px; border: none;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn-download-sm:hover { background-color: rgba(49, 130, 246, 0.15); }
+        .btn-download-sm:active { transform: scale(0.95); }
+
+        /* Buttons */
+        .btn-group { display: flex; flex-direction: column; gap: 12px; margin-bottom: 40px; }
+        
         .btn { 
             width: 100%; height: 56px; border: none; border-radius: 14px; 
-            font-size: 17px; font-weight: 700; cursor: pointer; display: flex; 
-            align-items: center; justify-content: center; margin-bottom: 12px;
-            transition: transform 0.2s;
+            font-size: 17px; font-weight: 700; cursor: pointer; 
+            transition: all 0.2s var(--ease-app); 
+            display: flex; align-items: center; justify-content: center; 
+            position: relative; overflow: hidden;
         }
-        .btn-primary { background-color: var(--toss-blue); color: #fff; }
+        
+        .btn-primary { background-color: var(--toss-blue); color: var(--white); }
         .btn-primary:active { transform: scale(0.96); }
         .btn-text { background: transparent; color: var(--text-sub); }
         .btn-text:hover { background: var(--light-bg); color: var(--text-main); }
         
-        .ad-box { text-align: center; padding: 20px 0; min-height: 100px; }
-        .ad-label { font-size: 11px; color: #b0b8c1; margin-bottom: 8px; font-weight: 500; }
+        /* Shimmer loading */
+        .btn.loading { pointer-events: none; opacity: 0.9; }
+        .btn.loading::after {
+            content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transform: translateX(-100%); animation: shimmer 1.5s infinite;
+        }
+        @keyframes shimmer { 100% { transform: translateX(100%); } }
+
+        /* Ads */
+        .ad-box { width: 100%; min-height: 100px; padding: 20px 0; background-color: transparent; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+        .ad-label { font-size: 11px; color: #b0b8c1; margin-bottom: 8px; font-weight: 500; letter-spacing: 0.5px; }
+        .ad-content { width: 100%; display: flex; justify-content: center; align-items: center; overflow: hidden; }
 
     </style>
 </head>
 <body>
 
+    <!-- Global Loader -->
+    <div id="global-loader" style="position:fixed; top:0; left:0; right:0; bottom:0; background:#fff; z-index:9999;"></div>
+
+    <!-- 1. 헤더 -->
     <header class="app-header">
         <div class="header-inner">
             <a href="/" class="logo-link">
+                <!-- 로고는 동일하게 유지 -->
                 <img src="/image/logo.webp" alt="Logo" class="logo-img">
             </a>
-            <div class="menu-icon">≡</div>
+            
+            <div class="menu-icon" id="menu-trigger">≡</div>
+
+            <div class="dropdown-menu" id="dropdown-menu">
+                <a href="/tags" class="menu-item">
+                    <span class="tag">#</span>
+                    태그별 웹툴 보기
+                </a>
+                <div class="menu-divider"></div>
+                <a href="/tools" class="menu-item highlight">
+                    전체 웹툴 보기
+                </a>
+            </div>
         </div>
     </header>
 
@@ -158,223 +293,228 @@
         
         <!-- 타이틀 -->
         <div class="title-area animate-in delay-1" id="title-area">
-            <h1>복잡한 압축 파일<br>간편하게 열어보세요</h1>
-            <p>ZIP 파일을 업로드하면 내용물을 즉시 확인합니다</p>
+            <h1>압축 파일 해제를<br>설치 없이 간편하게</h1>
+            <p>ZIP 파일을 업로드하면 즉시 파일이 열립니다.</p>
         </div>
 
-        <!-- 업로드 영역 -->
+        <!-- 2. 업로드 영역 -->
         <div id="upload-screen" class="animate-in delay-2">
             <div class="upload-area" id="drop-zone">
                 <div class="icon-circle">
-                    <!-- 요청하신 업로드 이미지 적용 -->
-                    <img src="https://cdn3d.iconscout.com/3d/premium/thumb/upload-3d-icon-png-download-7924133.png" alt="Upload Zip">
+                    <!-- 3D Folder Icon for Unzip Context -->
+                    <img src="https://cdn3d.iconscout.com/3d/premium/thumb/folder-3d-icon-download-in-png-blend-fbx-gltf-file-formats--file-directory-document-pack-user-interface-icons-4861073.png" alt="Zip Upload Icon">
                 </div>
-                <div class="upload-text">파일 선택하기</div>
-                <div class="upload-sub">.ZIP 파일 지원</div>
-                <input type="file" id="file-input" accept=".zip">
+                <div class="upload-text">ZIP 파일 선택하기</div>
+                <div class="upload-sub">또는 여기에 드래그</div>
+                <!-- accept 속성을 .zip으로 변경 -->
+                <input type="file" id="file-input" accept=".zip, .7z, .rar, application/zip, application/x-zip-compressed">
             </div>
 
             <div class="ad-box animate-in delay-3">
                 <span class="ad-label">ADVERTISEMENT</span>
+                <div class="ad-content">
+                    <ins class="adsbygoogle"
+                         style="display:block; width:100%;"
+                         data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+                         data-ad-slot="1234567890"
+                         data-ad-format="auto"
+                         data-full-width-responsive="true"></ins>
+                    <script>
+                         (adsbygoogle = window.adsbygoogle || []).push({});
+                    </script>
+                </div>
             </div>
         </div>
 
-        <!-- 결과 영역 (JS로 제어) -->
+        <!-- 3. 결과 영역 (리스트 형태) -->
         <div id="result-screen" class="result-section">
             
-            <div class="file-list-box animate-ready delay-1" id="file-list-container">
-                <!-- 파일 목록 들어가는 곳 -->
+            <div class="file-list-header animate-in delay-1">
+                <span class="file-count" id="file-count-text">0개의 파일</span>
+                <span class="file-total-size" id="total-size-text">0 MB</span>
             </div>
 
-            <div class="stats animate-ready delay-2">
-                <div class="stat-item">
-                    <span class="stat-label">압축 파일</span>
-                    <span class="stat-value" id="zip-size">0 MB</span>
-                </div>
-                <div class="arrow-icon">→</div>
-                <div class="stat-item">
-                    <span class="stat-label">파일 개수</span>
-                    <span class="stat-value" style="color:var(--toss-blue)" id="file-count">0개</span>
-                </div>
+            <!-- 파일 목록 컨테이너 -->
+            <div class="file-list-container animate-in delay-2" id="file-list">
+                <!-- JS로 file-item이 여기에 추가됨 -->
             </div>
 
-            <div class="btn-group animate-ready delay-3">
-                <button class="btn btn-primary" id="download-all-btn">전체 파일 저장하기</button>
-                <button class="btn btn-text" id="reset-btn">다른 파일 열기</button>
+            <div class="btn-group animate-in delay-3">
+                <button class="btn btn-primary" id="reset-btn">
+                    <span>다른 파일 압축 해제</span>
+                </button>
             </div>
 
-            <div class="ad-box animate-ready delay-3">
+            <div class="ad-box animate-in delay-3">
                 <span class="ad-label">SPONSORED</span>
+                <div class="ad-content">
+                    <ins class="adsbygoogle"
+                         style="display:block; width:100%;"
+                         data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+                         data-ad-slot="0987654321"
+                         data-ad-format="auto"
+                         data-full-width-responsive="true"></ins>
+                    <script>
+                         (adsbygoogle = window.adsbygoogle || []).push({});
+                    </script>
+                </div>
             </div>
         </div>
 
     </main>
 
     <script>
-        // --- 요소 선택 ---
+        // --- Prevent FOUT ---
+        document.fonts.ready.then(() => {
+            setTimeout(() => {
+                document.getElementById('global-loader').style.display = 'none';
+            }, 100);
+        });
+
+        // --- DOM Elements ---
         const dropZone = document.getElementById('drop-zone');
         const fileInput = document.getElementById('file-input');
         const uploadScreen = document.getElementById('upload-screen');
         const resultScreen = document.getElementById('result-screen');
         const titleArea = document.getElementById('title-area');
         
-        const fileListContainer = document.getElementById('file-list-container');
-        const zipSizeEl = document.getElementById('zip-size');
-        const fileCountEl = document.getElementById('file-count');
-        const downloadAllBtn = document.getElementById('download-all-btn');
-        const resetBtn = document.getElementById('reset-btn');
-
-        // 요청하신 결과창 파일 아이콘
-        const FILE_ICON_URL = "https://cdn3d.iconscout.com/3d/premium/thumb/-3d-icon-png-download-10436955.png";
+        const fileListContainer = document.getElementById('file-list');
+        const fileCountText = document.getElementById('file-count-text');
+        const totalSizeText = document.getElementById('total-size-text');
         
-        let extractedFiles = []; // 추출된 파일들을 담아둘 배열
+        const resetBtn = document.getElementById('reset-btn');
+        const menuTrigger = document.getElementById('menu-trigger');
+        const dropdownMenu = document.getElementById('dropdown-menu');
 
-        // 용량 포맷팅 함수
+        // Formatter
         function formatBytes(bytes) {
-            if (!bytes || bytes === 0) return '0 B';
+            if (bytes === 0) return '0 B';
             const sizes = ['B', 'KB', 'MB', 'GB'];
             const i = Math.floor(Math.log(bytes) / Math.log(1024));
             return parseFloat((bytes / Math.pow(1024, i)).toFixed(2)) + ' ' + sizes[i];
         }
 
-        // --- 이벤트 리스너 ---
+        // Menu Toggle
+        menuTrigger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            dropdownMenu.classList.toggle('show');
+        });
+        document.addEventListener('click', (e) => {
+            if (!dropdownMenu.contains(e.target) && e.target !== menuTrigger) {
+                dropdownMenu.classList.remove('show');
+            }
+        });
+
+        // Interactions
         dropZone.addEventListener('click', () => fileInput.click());
         dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.style.backgroundColor = '#e8f3ff'; });
         dropZone.addEventListener('dragleave', () => { dropZone.style.backgroundColor = ''; });
-        dropZone.addEventListener('drop', (e) => { 
-            e.preventDefault(); 
-            dropZone.style.backgroundColor = ''; 
-            handleFile(e.dataTransfer.files[0]); 
+        dropZone.addEventListener('drop', (e) => { e.preventDefault(); dropZone.style.backgroundColor = ''; handleFile(e.dataTransfer.files[0]); });
+        
+        fileInput.addEventListener('change', (e) => {
+            if(e.target.files.length > 0) handleFile(e.target.files[0]);
         });
-        fileInput.addEventListener('change', (e) => handleFile(e.target.files[0]));
+
         resetBtn.addEventListener('click', () => location.reload());
 
-        // --- 핵심 기능 (Handle File) ---
+        // Core Functions (Unzip Logic)
         async function handleFile(file) {
             if (!file) return;
+            
+            // ZIP 파일 확인 (확장자 또는 MIME 타입 체크 - 완벽하진 않으므로 try-catch로 보완)
+            const fileName = file.name.toLowerCase();
+            if (!fileName.endsWith('.zip')) {
+                // 경고를 주되 진행은 시도해볼 수 있음 (JSZip이 에러를 뱉을 것임)
+                // 하지만 UX상 명확히 함
+                if(!confirm('ZIP 파일 형식이 아닌 것 같습니다. 계속 진행하시겠습니까?')) return;
+            }
 
-            // 1. 화면 즉시 전환
+            // UI 전환: 로딩 상태 표시 등을 할 수 있으나 여기선 바로 전환
             uploadScreen.style.display = 'none';
             titleArea.style.display = 'none';
             resultScreen.style.display = 'block';
-
-            // 2. 애니메이션 강제 실행 (리플로우 트리거)
-            const animatedItems = resultScreen.querySelectorAll('.animate-ready');
-            animatedItems.forEach(el => {
-                el.classList.remove('animate-in');
-                void el.offsetWidth; // 브라우저가 변경사항을 인식하게 함
-                el.classList.add('animate-in');
-            });
-
+            
             // 초기화
-            zipSizeEl.innerText = formatBytes(file.size);
-            fileListContainer.innerHTML = '<div style="text-align:center; padding:40px; color:#888;">압축을 분석하고 있습니다...</div>';
-            extractedFiles = [];
-
+            fileListContainer.innerHTML = '';
+            fileCountText.innerText = '로딩 중...';
+            
             try {
                 // JSZip 로드
-                const jszip = new JSZip();
-                const zip = await jszip.loadAsync(file);
-
-                fileListContainer.innerHTML = ''; // 로딩 메시지 제거
+                const zip = await JSZip.loadAsync(file);
                 
-                // 파일 순회 및 리스트 생성
-                zip.forEach((relativePath, zipEntry) => {
-                    if (!zipEntry.dir) {
-                        extractedFiles.push(zipEntry); // 나중에 전체 다운로드용으로 저장
-                        renderFileItem(zipEntry);
-                    }
+                let count = 0;
+                let totalSize = 0;
+                const fragment = document.createDocumentFragment();
+
+                // 파일 순회
+                zip.forEach(function (relativePath, zipEntry) {
+                    if (zipEntry.dir) return; // 폴더는 리스트에 표시 안 함 (파일만)
+
+                    count++;
+                    totalSize += zipEntry._data.uncompressedSize; // 내부 속성 참조 (압축해제 사이즈)
+
+                    // DOM 요소 생성
+                    const itemEl = document.createElement('div');
+                    itemEl.className = 'file-item';
+                    
+                    // 아이콘 결정 (이미지/문서 등 단순 구분)
+                    let iconEmoji = '📄';
+                    const lowerName = zipEntry.name.toLowerCase();
+                    if(lowerName.match(/\.(jpg|jpeg|png|gif|webp|svg)$/)) iconEmoji = '🖼️';
+                    else if(lowerName.match(/\.(pdf|doc|docx|txt)$/)) iconEmoji = '📝';
+                    else if(lowerName.match(/\.(mp3|wav)$/)) iconEmoji = '🎵';
+                    else if(lowerName.match(/\.(mp4|mov)$/)) iconEmoji = '🎬';
+
+                    itemEl.innerHTML = `
+                        <div class="file-info-box">
+                            <div class="file-icon">${iconEmoji}</div>
+                            <div class="file-text">
+                                <span class="file-name">${zipEntry.name}</span>
+                                <span class="file-meta">${formatBytes(zipEntry._data.uncompressedSize)}</span>
+                            </div>
+                        </div>
+                        <div class="file-action">
+                            <button class="btn-download-sm">다운로드</button>
+                        </div>
+                    `;
+
+                    // 다운로드 버튼 이벤트
+                    const dwBtn = itemEl.querySelector('.btn-download-sm');
+                    dwBtn.addEventListener('click', async () => {
+                        // 버튼 로딩 효과
+                        const originalText = dwBtn.innerText;
+                        dwBtn.innerText = '...';
+                        dwBtn.disabled = true;
+
+                        try {
+                            const blob = await zipEntry.async("blob");
+                            const link = document.createElement('a');
+                            link.href = URL.createObjectURL(blob);
+                            link.download = zipEntry.name;
+                            link.click();
+                        } catch(e) {
+                            alert('다운로드 실패');
+                        } finally {
+                            dwBtn.innerText = originalText;
+                            dwBtn.disabled = false;
+                        }
+                    });
+
+                    fragment.appendChild(itemEl);
                 });
 
-                fileCountEl.innerText = `${extractedFiles.length}개`;
+                fileListContainer.appendChild(fragment);
                 
-                if (extractedFiles.length === 0) {
-                    fileListContainer.innerHTML = '<div style="text-align:center; padding:40px; color:#888;">내용이 없는 파일입니다.</div>';
-                }
+                // 통계 업데이트
+                fileCountText.innerText = `${count}개의 파일`;
+                totalSizeText.innerText = `총 ${formatBytes(totalSize)}`;
 
             } catch (err) {
                 console.error(err);
-                alert("ZIP 파일을 읽는 도중 오류가 발생했습니다.\n(알집/RAR 등의 전용 포맷은 지원하지 않습니다)");
+                alert('파일을 열 수 없습니다. 손상되었거나 암호가 걸린 ZIP 파일일 수 있습니다.');
                 location.reload();
             }
         }
-
-        // --- 개별 파일 아이템 렌더링 ---
-        function renderFileItem(zipEntry) {
-            const div = document.createElement('div');
-            div.className = 'file-item';
-            
-            // 압축 해제된 사이즈 정보 (없으면 압축된 사이즈라도 표시)
-            const sizeDisplay = zipEntry._data.uncompressedSize 
-                ? formatBytes(zipEntry._data.uncompressedSize) 
-                : (zipEntry._data.compressedSize ? formatBytes(zipEntry._data.compressedSize) + ' (압축됨)' : 'Unknown');
-
-            div.innerHTML = `
-                <div class="file-left">
-                    <img src="${FILE_ICON_URL}" class="file-thumb" alt="file">
-                    <div class="file-info-text">
-                        <span class="file-name">${zipEntry.name}</span>
-                        <span class="file-size">${sizeDisplay}</span>
-                    </div>
-                </div>
-                <button class="btn-download-item">다운로드</button>
-            `;
-
-            // 개별 다운로드 버튼 클릭
-            const btn = div.querySelector('.btn-download-item');
-            btn.onclick = async () => {
-                const originalText = btn.innerText;
-                btn.innerText = '...';
-                try {
-                    await downloadSingleEntry(zipEntry);
-                    btn.innerText = '완료';
-                    setTimeout(() => btn.innerText = originalText, 1500);
-                } catch(e) {
-                    alert('다운로드 실패');
-                    btn.innerText = originalText;
-                }
-            };
-
-            fileListContainer.appendChild(div);
-        }
-
-        // --- 파일 다운로드 함수 ---
-        async function downloadSingleEntry(zipEntry) {
-            const blob = await zipEntry.async('blob');
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            // 폴더 경로 제거하고 순수 파일명만
-            a.download = zipEntry.name.split('/').pop();
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            setTimeout(() => URL.revokeObjectURL(url), 1000);
-        }
-
-        // --- 전체 다운로드 기능 ---
-        downloadAllBtn.addEventListener('click', async () => {
-            if (extractedFiles.length === 0) return;
-            
-            if (extractedFiles.length > 20) {
-                if(!confirm(`총 ${extractedFiles.length}개의 파일을 다운로드합니다. 계속하시겠습니까?`)) return;
-            }
-
-            const originalText = downloadAllBtn.innerText;
-            downloadAllBtn.innerText = '다운로드 중...';
-
-            // 브라우저 멈춤 방지를 위해 순차적으로 조금씩 딜레이를 주며 다운로드
-            for (let i = 0; i < extractedFiles.length; i++) {
-                await downloadSingleEntry(extractedFiles[i]);
-                await new Promise(r => setTimeout(r, 300)); // 0.3초 대기
-            }
-
-            downloadAllBtn.innerText = '저장 완료!';
-            setTimeout(() => {
-                downloadAllBtn.innerText = originalText;
-            }, 2000);
-        });
-
     </script>
 </body>
 </html>
