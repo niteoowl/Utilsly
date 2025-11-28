@@ -4,244 +4,153 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
-    <!-- SEO 최적화 -->
+    <!-- SEO -->
     <title>만능 파일 압축 해제 - Utilsly</title>
     <meta name="description" content="ZIP, RAR, 7Z, TAR 지원! 설치 없이 브라우저에서 바로 압축을 해제하세요.">
     
-    <!-- 폰트 (Preload) -->
-    <link rel="preload" as="style" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css" />
+    <!-- 폰트 -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css" />
     
-    <!-- libarchive.js (다양한 포맷 지원을 위한 라이브러리) -->
+    <!-- libarchive.js (다양한 포맷 지원) -->
     <script src="https://unpkg.com/libarchive.js@1.3.0/libarchive.js"></script>
 
     <style>
         :root {
             --toss-blue: #3182f6;
-            --toss-blue-dark: #1b64da;
             --text-main: #191f28;
             --text-sub: #8b95a1;
-            --border-color: rgba(242, 244, 246, 0.8);
-            --white: #ffffff;
             --white-glass: rgba(255, 255, 255, 0.75);
             --light-bg: #f9fafb;
             --ease-app: cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        html.loading body { opacity: 0; visibility: hidden; }
-        
         body {
-            background-color: var(--white);
+            background-color: #ffffff;
             color: var(--text-main);
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-            padding-top: 60px; 
-            overflow-x: hidden;
+            display: flex; flex-direction: column;
+            min-height: 100vh; padding-top: 60px; margin: 0;
             font-family: "Pretendard Variable", Pretendard, sans-serif;
             -webkit-tap-highlight-color: transparent;
-            opacity: 1;
-            visibility: visible;
-            transition: opacity 0.4s var(--ease-app);
-            margin: 0;
         }
 
         * { box-sizing: border-box; padding: 0; margin: 0; }
         button { font-family: inherit; }
 
-        /* --- 헤더 --- */
+        /* 헤더 */
         .app-header {
-            width: 100%; height: 60px;
-            background: var(--white-glass);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border-bottom: 1px solid var(--border-color);
-            position: fixed; top: 0; left: 0; right: 0;
-            z-index: 1000;
-            display: flex; justify-content: center;
+            width: 100%; height: 60px; background: var(--white-glass);
+            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            position: fixed; top: 0; z-index: 1000; display: flex; justify-content: center;
         }
-
         .header-inner {
-            width: 100%; max-width: 1200px; height: 100%;
-            margin: 0 auto; padding: 0 24px;
+            width: 100%; max-width: 1200px; padding: 0 24px;
             display: flex; align-items: center; justify-content: space-between;
         }
+        .logo-img { height: 24px; object-fit: contain; }
+        .menu-icon { font-size: 24px; cursor: pointer; padding: 8px; margin-right: -8px; }
 
-        .logo-link {
-            display: flex; align-items: center; text-decoration: none; cursor: pointer;
-            transition: transform 0.2s var(--ease-app);
-        }
-        .logo-link:active { transform: scale(0.96); }
-        .logo-img { height: 24px; width: auto; object-fit: contain; display: block; }
-
-        .menu-icon {
-            font-size: 24px; cursor: pointer; padding: 8px; margin-right: -8px;
-            user-select: none; color: var(--text-main);
-        }
-
-        .dropdown-menu {
-            position: absolute; top: 54px; right: 24px; width: 200px;
-            background: #ffffff; border-radius: 16px;
-            box-shadow: 0 12px 40px rgba(0,0,0,0.12); padding: 8px;
-            border: 1px solid rgba(0,0,0,0.05);
-            opacity: 0; visibility: hidden;
-            transform: translateY(10px) scale(0.95); transform-origin: top right;
-            transition: all 0.4s var(--ease-app); z-index: 2000;
-        }
-        .dropdown-menu.show { opacity: 1; visibility: visible; transform: translateY(0) scale(1); }
-        .menu-item {
-            display: flex; align-items: center; padding: 14px 16px; text-decoration: none;
-            color: var(--text-main); border-radius: 12px; font-size: 15px; font-weight: 500;
-            transition: background 0.2s;
-        }
-        .menu-item:hover { background-color: rgba(0,0,0,0.05); }
-        .menu-item .tag { color: var(--toss-blue); font-weight: 800; margin-right: 10px; font-size: 16px; }
-        .menu-divider { height: 1px; background-color: rgba(0,0,0,0.08); margin: 4px 12px; }
-        .menu-item.highlight { color: var(--toss-blue); font-weight: 600; }
-
-        /* --- Main Layout --- */
+        /* 메인 레이아웃 */
         .main-content {
             flex: 1; width: 100%; max-width: 640px; margin: 0 auto;
-            padding: 40px 24px; display: flex; flex-direction: column; justify-content: flex-start;
+            padding: 40px 24px; display: flex; flex-direction: column;
         }
 
-        .animate-in { opacity: 0; transform: translateY(30px) scale(0.98); animation: appSlideUp 0.8s var(--ease-app) forwards; }
+        /* --- 애니메이션 핵심 --- */
+        .animate-in { 
+            opacity: 0; 
+            transform: translateY(30px) scale(0.98); 
+            animation: appSlideUp 0.8s var(--ease-app) forwards; 
+        }
+        
+        /* JS로 제어할 때는 처음에 opacity 0으로 숨겨둠 */
+        .animate-ready { opacity: 0; }
+
         .delay-1 { animation-delay: 0.1s; }
         .delay-2 { animation-delay: 0.2s; }
         .delay-3 { animation-delay: 0.3s; }
-        @keyframes appSlideUp { to { opacity: 1; transform: translateY(0) scale(1); } }
+        
+        @keyframes appSlideUp { 
+            to { opacity: 1; transform: translateY(0) scale(1); } 
+        }
 
-        .title-area { margin-bottom: 40px; text-align: left; }
+        .title-area { margin-bottom: 40px; }
         .title-area h1 { font-size: 28px; font-weight: 800; margin-bottom: 10px; line-height: 1.3; }
         .title-area p { color: var(--text-sub); font-size: 16px; font-weight: 500; }
 
-        /* --- Upload Area --- */
+        /* 업로드 박스 */
         .upload-area {
             width: 100%; height: 320px; background-color: var(--light-bg); border-radius: 24px;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
-            cursor: pointer; transition: transform 0.2s var(--ease-app), background-color 0.2s;
-            border: 1px solid transparent; margin-bottom: 40px; overflow: hidden; transform: translateZ(0);
+            cursor: pointer; transition: transform 0.2s; margin-bottom: 40px;
         }
         .upload-area:active { transform: scale(0.97); }
-        .upload-area:hover { background-color: #f2f4f6; }
-        
         .icon-circle { width: 120px; height: 120px; margin-bottom: 16px; display: flex; align-items: center; justify-content: center; }
         .icon-circle img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.1)); }
-        
         .upload-text { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
         .upload-sub { font-size: 14px; color: var(--text-sub); }
         input[type="file"] { display: none; }
 
-        /* --- Result Section (File List) --- */
+        /* 결과 화면 */
         .result-section { display: none; }
 
         .file-list-box {
-            background-color: var(--light-bg);
-            border-radius: 24px;
-            padding: 20px;
-            margin-bottom: 30px;
-            max-height: 440px;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
+            background-color: var(--light-bg); border-radius: 24px; padding: 20px;
+            margin-bottom: 30px; max-height: 440px; overflow-y: auto;
         }
 
         .file-item {
-            background-color: var(--white);
-            border-radius: 16px;
-            padding: 12px 16px;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
-            transition: transform 0.2s;
+            background-color: #fff; border-radius: 16px; padding: 12px 16px;
+            margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03); transition: transform 0.2s;
         }
-        .file-item:last-child { margin-bottom: 0; }
-        .file-item:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
-
+        .file-item:hover { transform: translateY(-2px); }
         .file-left { display: flex; align-items: center; overflow: hidden; flex: 1; }
-        .file-thumb {
-            width: 40px; height: 40px;
-            object-fit: contain;
-            margin-right: 14px;
-            flex-shrink: 0;
-            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
-        }
-        
-        .file-info-text { display: flex; flex-direction: column; overflow: hidden; padding-right: 10px; }
-        .file-name { font-size: 15px; font-weight: 600; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .file-size { font-size: 12px; color: var(--text-sub); margin-top: 3px; font-weight: 500; }
+        .file-thumb { width: 40px; height: 40px; margin-right: 14px; flex-shrink: 0; }
+        .file-info-text { display: flex; flex-direction: column; overflow: hidden; }
+        .file-name { font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .file-size { font-size: 12px; color: var(--text-sub); margin-top: 3px; }
 
-        /* 개별 다운로드 버튼 (Toss Secondary Style) */
         .btn-download-item {
-            background-color: #f2f4f6;
-            color: var(--toss-blue);
-            font-size: 13px;
-            font-weight: 700;
-            padding: 8px 12px;
-            border-radius: 8px;
-            border: none;
-            cursor: pointer;
-            white-space: nowrap;
-            transition: background 0.2s;
+            background-color: #f2f4f6; color: var(--toss-blue); border: none;
+            border-radius: 8px; padding: 8px 12px; font-weight: 700; font-size: 13px;
+            cursor: pointer; margin-left: 10px;
         }
         .btn-download-item:hover { background-color: #e8f3ff; }
-        .btn-download-item:active { transform: scale(0.96); }
 
-        /* --- Stats --- */
-        .stats { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 10px; margin-bottom: 40px; padding: 24px; background-color: var(--light-bg); border-radius: 16px; }
-        .stat-item { display: flex; flex-direction: column; flex: 1; }
-        .stat-item:last-child { align-items: flex-end; }
+        .stats { 
+            display: flex; justify-content: space-between; align-items: flex-end; 
+            margin-bottom: 40px; padding: 24px; background-color: var(--light-bg); border-radius: 16px; 
+        }
+        .stat-item { display: flex; flex-direction: column; }
         .stat-label { font-size: 13px; color: var(--text-sub); margin-bottom: 6px; font-weight: 600; }
-        .stat-value { font-size: 20px; font-weight: 800; color: var(--text-main); }
-        .arrow-icon { color: var(--text-sub); font-size: 24px; flex: 0 0 40px; text-align: center; padding-bottom: 2px; }
+        .stat-value { font-size: 20px; font-weight: 800; }
+        .arrow-icon { color: var(--text-sub); font-size: 24px; padding-bottom: 2px; }
 
-        .btn-group { display: flex; flex-direction: column; gap: 12px; margin-bottom: 40px; }
-        
-        /* Main Button (Gradient Shimmer) */
         .btn { 
             width: 100%; height: 56px; border: none; border-radius: 14px; 
-            font-size: 17px; font-weight: 700; cursor: pointer; 
-            transition: all 0.2s var(--ease-app); 
-            display: flex; align-items: center; justify-content: center; 
-            position: relative; overflow: hidden;
+            font-size: 17px; font-weight: 700; cursor: pointer; display: flex; 
+            align-items: center; justify-content: center; margin-bottom: 12px;
+            transition: transform 0.2s;
         }
-        .btn-primary { background-color: var(--toss-blue); color: var(--white); }
+        .btn-primary { background-color: var(--toss-blue); color: #fff; }
         .btn-primary:active { transform: scale(0.96); }
-        
-        .btn.loading { opacity: 0.9; pointer-events: none; }
-        .btn.loading::after {
-            content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-            transform: translateX(-100%); animation: shimmer 1.5s infinite;
-        }
-        @keyframes shimmer { 100% { transform: translateX(100%); } }
-
         .btn-text { background: transparent; color: var(--text-sub); }
         .btn-text:hover { background: var(--light-bg); color: var(--text-main); }
-
-        .ad-box { width: 100%; min-height: 100px; padding: 20px 0; background: transparent; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
-        .ad-label { font-size: 11px; color: #b0b8c1; margin-bottom: 8px; font-weight: 500; letter-spacing: 0.5px; }
+        
+        .ad-box { text-align: center; padding: 20px 0; min-height: 100px; }
+        .ad-label { font-size: 11px; color: #b0b8c1; margin-bottom: 8px; font-weight: 500; }
 
     </style>
 </head>
 <body>
 
-    <!-- Global Loader -->
-    <div id="global-loader" style="position:fixed; top:0; left:0; right:0; bottom:0; background:#fff; z-index:9999;"></div>
-
-    <!-- 1. 헤더 -->
     <header class="app-header">
         <div class="header-inner">
             <a href="/" class="logo-link">
                 <img src="/image/logo.webp" alt="Logo" class="logo-img">
             </a>
-            <div class="menu-icon" id="menu-trigger">≡</div>
-            <div class="dropdown-menu" id="dropdown-menu">
-                <a href="/tags" class="menu-item"><span class="tag">#</span>태그별 웹툴 보기</a>
-                <div class="menu-divider"></div>
-                <a href="/tools" class="menu-item highlight">전체 웹툴 보기</a>
-            </div>
+            <div class="menu-icon">≡</div>
         </div>
     </header>
 
@@ -250,19 +159,19 @@
         <!-- 타이틀 -->
         <div class="title-area animate-in delay-1" id="title-area">
             <h1>모든 압축 파일을<br>한 번에 열어보세요</h1>
-            <p>ZIP, RAR, 7Z, TAR 포맷을 모두 지원합니다.</p>
+            <p>ZIP, RAR, 7Z 등 포맷 제한 없이 지원</p>
         </div>
 
-        <!-- 2. 업로드 영역 -->
+        <!-- 업로드 영역 -->
         <div id="upload-screen" class="animate-in delay-2">
             <div class="upload-area" id="drop-zone">
                 <div class="icon-circle">
-                    <!-- 요청하신 새로운 업로드 3D 이미지 -->
+                    <!-- 요청하신 새 업로드 3D 아이콘 -->
                     <img src="https://cdn3d.iconscout.com/3d/premium/thumb/upload-3d-icon-png-download-7924133.png" alt="Upload Zip">
                 </div>
                 <div class="upload-text">파일 선택하기</div>
                 <div class="upload-sub">ZIP, RAR, 7Z, TAR 지원</div>
-                <input type="file" id="file-input" accept=".zip,.rar,.7z,.tar,.gz">
+                <input type="file" id="file-input">
             </div>
 
             <div class="ad-box animate-in delay-3">
@@ -271,16 +180,15 @@
             </div>
         </div>
 
-        <!-- 3. 결과 영역 -->
+        <!-- 결과 영역 (처음엔 숨김) -->
+        <!-- animate-ready 클래스로 애니메이션 준비 상태로 둠 -->
         <div id="result-screen" class="result-section">
             
-            <!-- 파일 목록 -->
-            <div class="file-list-box animate-in delay-1" id="file-list-container">
-                <!-- JS로 리스트 아이템 추가됨 -->
+            <div class="file-list-box animate-ready delay-1" id="file-list-container">
+                <!-- 파일 목록 들어감 -->
             </div>
 
-            <!-- 통계 -->
-            <div class="stats animate-in delay-2">
+            <div class="stats animate-ready delay-2">
                 <div class="stat-item">
                     <span class="stat-label">압축 파일</span>
                     <span class="stat-value" id="zip-size">0 MB</span>
@@ -292,38 +200,24 @@
                 </div>
             </div>
 
-            <div class="btn-group animate-in delay-3">
-                <button class="btn btn-primary" id="download-all-btn">
-                    <span>전체 파일 저장하기</span>
-                </button>
+            <div class="btn-group animate-ready delay-3">
+                <button class="btn btn-primary" id="download-all-btn">전체 파일 저장하기</button>
                 <button class="btn btn-text" id="reset-btn">다른 파일 열기</button>
             </div>
 
-            <div class="ad-box animate-in delay-3">
+            <div class="ad-box animate-ready delay-3">
                 <span class="ad-label">SPONSORED</span>
-                <!-- 광고 영역 -->
             </div>
         </div>
 
     </main>
 
     <script>
-        // --- Prevent FOUT ---
-        document.fonts.ready.then(() => {
-            setTimeout(() => { document.getElementById('global-loader').style.display = 'none'; }, 100);
-        });
-
-        // --- Init libarchive.js ---
-        // WASM Worker 설정 (중요: 로컬 서버 환경 필요)
+        // Init Libarchive
         try {
-            Archive.init({
-                workerUrl: 'https://unpkg.com/libarchive.js@1.3.0/src/worker-bundle.js'
-            });
-        } catch (e) {
-            console.warn("WASM Init Warning:", e);
-        }
+            Archive.init({ workerUrl: 'https://unpkg.com/libarchive.js@1.3.0/src/worker-bundle.js' });
+        } catch (e) { console.warn(e); }
 
-        // --- DOM Elements ---
         const dropZone = document.getElementById('drop-zone');
         const fileInput = document.getElementById('file-input');
         const uploadScreen = document.getElementById('upload-screen');
@@ -333,30 +227,19 @@
         const fileListContainer = document.getElementById('file-list-container');
         const zipSizeEl = document.getElementById('zip-size');
         const fileCountEl = document.getElementById('file-count');
-        
         const downloadAllBtn = document.getElementById('download-all-btn');
         const resetBtn = document.getElementById('reset-btn');
-        const menuTrigger = document.getElementById('menu-trigger');
-        const dropdownMenu = document.getElementById('dropdown-menu');
 
-        let extractedFiles = []; // 추출된 파일 객체 저장소
-
-        // 요청하신 3D 파일 아이콘 URL (결과 목록용)
+        let extractedFiles = [];
         const FILE_ICON_URL = "https://cdn3d.iconscout.com/3d/premium/thumb/-3d-icon-png-download-10436955.png";
 
-        // Formatter
         function formatBytes(bytes) {
-            if (bytes === 0 || !bytes) return '0 B';
+            if (!bytes) return '0 B';
             const sizes = ['B', 'KB', 'MB', 'GB'];
             const i = Math.floor(Math.log(bytes) / Math.log(1024));
             return parseFloat((bytes / Math.pow(1024, i)).toFixed(2)) + ' ' + sizes[i];
         }
 
-        // Menu Toggle
-        menuTrigger.addEventListener('click', (e) => { e.stopPropagation(); dropdownMenu.classList.toggle('show'); });
-        document.addEventListener('click', (e) => { if (!dropdownMenu.contains(e.target) && e.target !== menuTrigger) dropdownMenu.classList.remove('show'); });
-
-        // Interactions
         dropZone.addEventListener('click', () => fileInput.click());
         dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.style.backgroundColor = '#e8f3ff'; });
         dropZone.addEventListener('dragleave', () => { dropZone.style.backgroundColor = ''; });
@@ -364,67 +247,58 @@
         fileInput.addEventListener('change', (e) => handleFile(e.target.files[0]));
         resetBtn.addEventListener('click', () => location.reload());
 
-        // Core Logic
         async function handleFile(file) {
             if (!file) return;
 
-            // 1. 알집(ALZ, EGG) 체크
+            // ALZ, EGG 체크
             const ext = file.name.split('.').pop().toLowerCase();
             if (ext === 'alz' || ext === 'egg') {
-                alert("ALZ, EGG 파일은 이스트소프트 전용 포맷이라\n웹 브라우저에서 해제할 수 없습니다.\n전용 뷰어를 사용해주세요.");
-                fileInput.value = ''; // 초기화
+                alert("ALZ, EGG 포맷은 전용 뷰어가 필요합니다.");
                 return;
             }
 
-            // UI 전환
+            // 1. 화면 전환 (즉시)
             uploadScreen.style.display = 'none';
             titleArea.style.display = 'none';
             resultScreen.style.display = 'block';
 
-            zipSizeEl.innerText = formatBytes(file.size);
-            fileListContainer.innerHTML = '<div style="text-align:center; padding:40px; color:#888;">파일을 분석하고 있습니다...</div>';
+            // 2. 애니메이션 강제 실행 (Fix)
+            const animatedItems = resultScreen.querySelectorAll('.animate-ready');
+            animatedItems.forEach(el => {
+                el.classList.remove('animate-in'); // 혹시 모를 초기화
+                void el.offsetWidth; // Reflow Trigger (브라우저가 변경 인식하게 함)
+                el.classList.add('animate-in'); // 애니메이션 클래스 주입
+            });
 
-            extractedFiles = []; // 초기화
+            zipSizeEl.innerText = formatBytes(file.size);
+            fileListContainer.innerHTML = '<div style="text-align:center; padding:40px; color:#888;">분석 중...</div>';
+            extractedFiles = [];
 
             try {
-                // libarchive.js를 이용한 압축 해제
                 const archive = await Archive.open(file);
                 const obj = await archive.extractFiles();
-
-                fileListContainer.innerHTML = ''; // 로딩 메시지 제거
+                fileListContainer.innerHTML = ''; 
                 
-                // 재귀적으로 파일 목록 추출
                 await processExtractedFiles(obj);
-
                 fileCountEl.innerText = `${extractedFiles.length}개`;
                 
-                if(extractedFiles.length === 0) {
-                    fileListContainer.innerHTML = '<div style="text-align:center; padding:40px; color:#888;">내용이 없거나 암호가 걸려있을 수 있습니다.</div>';
-                }
+                if(extractedFiles.length === 0) fileListContainer.innerHTML = '<div style="text-align:center; padding:40px; color:#888;">파일이 없습니다.</div>';
 
             } catch (err) {
                 console.error(err);
-                let msg = "오류가 발생했습니다.";
-                if (err.message && err.message.includes('Worker')) {
-                    msg = "보안 문제로 로컬 파일에서 직접 실행할 수 없습니다.\n서버 환경에서 실행하거나 ZIP 파일만 사용해주세요.";
-                }
-                alert(msg + "\n(" + err.message + ")");
+                alert("파일을 열 수 없습니다. (ZIP 파일 권장)");
                 location.reload();
             }
         }
 
-        // 압축 해제된 객체 구조를 평탄화(Flat)하여 리스트업
-        async function processExtractedFiles(obj, path = '') {
+        async function processExtractedFiles(obj) {
             for (const key in obj) {
                 const item = obj[key];
-                // 파일인 경우 (File 객체)
                 if (item instanceof File) {
                     extractedFiles.push(item);
                     renderFileItem(item);
-                } 
-                // 폴더인 경우 (객체)
-                else if (typeof item === 'object') {
-                    await processExtractedFiles(item, path + key + '/');
+                } else if (typeof item === 'object') {
+                    await processExtractedFiles(item);
                 }
             }
         }
@@ -432,10 +306,9 @@
         function renderFileItem(file) {
             const div = document.createElement('div');
             div.className = 'file-item';
-
             div.innerHTML = `
                 <div class="file-left">
-                    <img src="${FILE_ICON_URL}" class="file-thumb" alt="file">
+                    <img src="${FILE_ICON_URL}" class="file-thumb">
                     <div class="file-info-text">
                         <span class="file-name">${file.name}</span>
                         <span class="file-size">${formatBytes(file.size)}</span>
@@ -443,52 +316,33 @@
                 </div>
                 <button class="btn-download-item">다운로드</button>
             `;
-
-            // 개별 다운로드
-            const btn = div.querySelector('.btn-download-item');
-            btn.onclick = () => {
-                downloadFile(file);
-            };
-
+            div.querySelector('button').onclick = () => downloadFile(file);
             fileListContainer.appendChild(div);
         }
 
         function downloadFile(file) {
             const url = URL.createObjectURL(file);
             const a = document.createElement('a');
-            a.href = url;
-            a.download = file.name;
-            document.body.appendChild(a);
-            a.click();
+            a.href = url; a.download = file.name;
+            document.body.appendChild(a); a.click();
             document.body.removeChild(a);
-            // 메모리 해제는 약간의 딜레이 후
             setTimeout(() => URL.revokeObjectURL(url), 1000);
         }
 
-        // 전체 다운로드 (순차적)
         downloadAllBtn.addEventListener('click', async () => {
             if (extractedFiles.length === 0) return;
-            if (extractedFiles.length > 10) {
-                if(!confirm(`총 ${extractedFiles.length}개의 파일이 있습니다. 연속 다운로드를 진행할까요?`)) return;
+            if (extractedFiles.length > 20 && !confirm(`${extractedFiles.length}개 파일을 모두 받으시겠습니까?`)) return;
+            
+            const btnText = downloadAllBtn.innerText;
+            downloadAllBtn.innerText = '다운로드 중...';
+            
+            for (const file of extractedFiles) {
+                downloadFile(file);
+                await new Promise(r => setTimeout(r, 200));
             }
-
-            downloadAllBtn.classList.add('loading');
-            const originalText = downloadAllBtn.querySelector('span').innerText;
-            downloadAllBtn.querySelector('span').innerText = '저장 중...';
-
-            for (let i = 0; i < extractedFiles.length; i++) {
-                downloadFile(extractedFiles[i]);
-                // 브라우저 멈춤 방지 딜레이
-                await new Promise(r => setTimeout(r, 300));
-            }
-
-            downloadAllBtn.classList.remove('loading');
-            downloadAllBtn.querySelector('span').innerText = '저장 완료!';
-            setTimeout(() => {
-                downloadAllBtn.querySelector('span').innerText = originalText;
-            }, 2000);
+            downloadAllBtn.innerText = '완료!';
+            setTimeout(() => downloadAllBtn.innerText = btnText, 2000);
         });
-
     </script>
 </body>
 </html>
