@@ -5,14 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
     <!-- SEO -->
-    <title>만능 파일 압축 해제 - Utilsly</title>
-    <meta name="description" content="ZIP, RAR, 7Z, TAR 지원! 설치 없이 브라우저에서 바로 압축을 해제하세요.">
+    <title>간편 파일 압축 해제 - Utilsly</title>
+    <meta name="description" content="설치 없이 브라우저에서 바로! ZIP 파일을 안전하게 해제하고 미리 확인하세요.">
     
     <!-- 폰트 -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css" />
     
-    <!-- libarchive.js (다양한 포맷 지원) -->
-    <script src="https://unpkg.com/libarchive.js@1.3.0/libarchive.js"></script>
+    <!-- JSZip (서버 없이 로컬에서 완벽 작동하는 라이브러리) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
     <style>
         :root {
@@ -56,14 +56,14 @@
             padding: 40px 24px; display: flex; flex-direction: column;
         }
 
-        /* --- 애니메이션 핵심 --- */
+        /* --- 애니메이션 설정 --- */
         .animate-in { 
             opacity: 0; 
             transform: translateY(30px) scale(0.98); 
             animation: appSlideUp 0.8s var(--ease-app) forwards; 
         }
         
-        /* JS로 제어할 때는 처음에 opacity 0으로 숨겨둠 */
+        /* 대기 상태 클래스 */
         .animate-ready { opacity: 0; }
 
         .delay-1 { animation-delay: 0.1s; }
@@ -106,7 +106,7 @@
         }
         .file-item:hover { transform: translateY(-2px); }
         .file-left { display: flex; align-items: center; overflow: hidden; flex: 1; }
-        .file-thumb { width: 40px; height: 40px; margin-right: 14px; flex-shrink: 0; }
+        .file-thumb { width: 40px; height: 40px; margin-right: 14px; flex-shrink: 0; object-fit: contain; }
         .file-info-text { display: flex; flex-direction: column; overflow: hidden; }
         .file-name { font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .file-size { font-size: 12px; color: var(--text-sub); margin-top: 3px; }
@@ -114,7 +114,7 @@
         .btn-download-item {
             background-color: #f2f4f6; color: var(--toss-blue); border: none;
             border-radius: 8px; padding: 8px 12px; font-weight: 700; font-size: 13px;
-            cursor: pointer; margin-left: 10px;
+            cursor: pointer; margin-left: 10px; min-width: 60px;
         }
         .btn-download-item:hover { background-color: #e8f3ff; }
 
@@ -158,34 +158,32 @@
         
         <!-- 타이틀 -->
         <div class="title-area animate-in delay-1" id="title-area">
-            <h1>모든 압축 파일을<br>한 번에 열어보세요</h1>
-            <p>ZIP, RAR, 7Z 등 포맷 제한 없이 지원</p>
+            <h1>복잡한 압축 파일<br>간편하게 열어보세요</h1>
+            <p>ZIP 파일을 업로드하면 내용물을 즉시 확인합니다</p>
         </div>
 
         <!-- 업로드 영역 -->
         <div id="upload-screen" class="animate-in delay-2">
             <div class="upload-area" id="drop-zone">
                 <div class="icon-circle">
-                    <!-- 요청하신 새 업로드 3D 아이콘 -->
+                    <!-- 요청하신 업로드 이미지 적용 -->
                     <img src="https://cdn3d.iconscout.com/3d/premium/thumb/upload-3d-icon-png-download-7924133.png" alt="Upload Zip">
                 </div>
                 <div class="upload-text">파일 선택하기</div>
-                <div class="upload-sub">ZIP, RAR, 7Z, TAR 지원</div>
-                <input type="file" id="file-input">
+                <div class="upload-sub">.ZIP 파일 지원</div>
+                <input type="file" id="file-input" accept=".zip">
             </div>
 
             <div class="ad-box animate-in delay-3">
                 <span class="ad-label">ADVERTISEMENT</span>
-                <!-- 광고 영역 -->
             </div>
         </div>
 
-        <!-- 결과 영역 (처음엔 숨김) -->
-        <!-- animate-ready 클래스로 애니메이션 준비 상태로 둠 -->
+        <!-- 결과 영역 (JS로 제어) -->
         <div id="result-screen" class="result-section">
             
             <div class="file-list-box animate-ready delay-1" id="file-list-container">
-                <!-- 파일 목록 들어감 -->
+                <!-- 파일 목록 들어가는 곳 -->
             </div>
 
             <div class="stats animate-ready delay-2">
@@ -213,11 +211,7 @@
     </main>
 
     <script>
-        // Init Libarchive
-        try {
-            Archive.init({ workerUrl: 'https://unpkg.com/libarchive.js@1.3.0/src/worker-bundle.js' });
-        } catch (e) { console.warn(e); }
-
+        // --- 요소 선택 ---
         const dropZone = document.getElementById('drop-zone');
         const fileInput = document.getElementById('file-input');
         const uploadScreen = document.getElementById('upload-screen');
@@ -230,119 +224,157 @@
         const downloadAllBtn = document.getElementById('download-all-btn');
         const resetBtn = document.getElementById('reset-btn');
 
-        let extractedFiles = [];
+        // 요청하신 결과창 파일 아이콘
         const FILE_ICON_URL = "https://cdn3d.iconscout.com/3d/premium/thumb/-3d-icon-png-download-10436955.png";
+        
+        let extractedFiles = []; // 추출된 파일들을 담아둘 배열
 
+        // 용량 포맷팅 함수
         function formatBytes(bytes) {
-            if (!bytes) return '0 B';
+            if (!bytes || bytes === 0) return '0 B';
             const sizes = ['B', 'KB', 'MB', 'GB'];
             const i = Math.floor(Math.log(bytes) / Math.log(1024));
             return parseFloat((bytes / Math.pow(1024, i)).toFixed(2)) + ' ' + sizes[i];
         }
 
+        // --- 이벤트 리스너 ---
         dropZone.addEventListener('click', () => fileInput.click());
         dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.style.backgroundColor = '#e8f3ff'; });
         dropZone.addEventListener('dragleave', () => { dropZone.style.backgroundColor = ''; });
-        dropZone.addEventListener('drop', (e) => { e.preventDefault(); dropZone.style.backgroundColor = ''; handleFile(e.dataTransfer.files[0]); });
+        dropZone.addEventListener('drop', (e) => { 
+            e.preventDefault(); 
+            dropZone.style.backgroundColor = ''; 
+            handleFile(e.dataTransfer.files[0]); 
+        });
         fileInput.addEventListener('change', (e) => handleFile(e.target.files[0]));
         resetBtn.addEventListener('click', () => location.reload());
 
+        // --- 핵심 기능 (Handle File) ---
         async function handleFile(file) {
             if (!file) return;
 
-            // ALZ, EGG 체크
-            const ext = file.name.split('.').pop().toLowerCase();
-            if (ext === 'alz' || ext === 'egg') {
-                alert("ALZ, EGG 포맷은 전용 뷰어가 필요합니다.");
-                return;
-            }
-
-            // 1. 화면 전환 (즉시)
+            // 1. 화면 즉시 전환
             uploadScreen.style.display = 'none';
             titleArea.style.display = 'none';
             resultScreen.style.display = 'block';
 
-            // 2. 애니메이션 강제 실행 (Fix)
+            // 2. 애니메이션 강제 실행 (리플로우 트리거)
             const animatedItems = resultScreen.querySelectorAll('.animate-ready');
             animatedItems.forEach(el => {
-                el.classList.remove('animate-in'); // 혹시 모를 초기화
-                void el.offsetWidth; // Reflow Trigger (브라우저가 변경 인식하게 함)
-                el.classList.add('animate-in'); // 애니메이션 클래스 주입
+                el.classList.remove('animate-in');
+                void el.offsetWidth; // 브라우저가 변경사항을 인식하게 함
+                el.classList.add('animate-in');
             });
 
+            // 초기화
             zipSizeEl.innerText = formatBytes(file.size);
-            fileListContainer.innerHTML = '<div style="text-align:center; padding:40px; color:#888;">분석 중...</div>';
+            fileListContainer.innerHTML = '<div style="text-align:center; padding:40px; color:#888;">압축을 분석하고 있습니다...</div>';
             extractedFiles = [];
 
             try {
-                const archive = await Archive.open(file);
-                const obj = await archive.extractFiles();
-                fileListContainer.innerHTML = ''; 
+                // JSZip 로드
+                const jszip = new JSZip();
+                const zip = await jszip.loadAsync(file);
+
+                fileListContainer.innerHTML = ''; // 로딩 메시지 제거
                 
-                await processExtractedFiles(obj);
+                // 파일 순회 및 리스트 생성
+                zip.forEach((relativePath, zipEntry) => {
+                    if (!zipEntry.dir) {
+                        extractedFiles.push(zipEntry); // 나중에 전체 다운로드용으로 저장
+                        renderFileItem(zipEntry);
+                    }
+                });
+
                 fileCountEl.innerText = `${extractedFiles.length}개`;
                 
-                if(extractedFiles.length === 0) fileListContainer.innerHTML = '<div style="text-align:center; padding:40px; color:#888;">파일이 없습니다.</div>';
+                if (extractedFiles.length === 0) {
+                    fileListContainer.innerHTML = '<div style="text-align:center; padding:40px; color:#888;">내용이 없는 파일입니다.</div>';
+                }
 
             } catch (err) {
                 console.error(err);
-                alert("파일을 열 수 없습니다. (ZIP 파일 권장)");
+                alert("ZIP 파일을 읽는 도중 오류가 발생했습니다.\n(알집/RAR 등의 전용 포맷은 지원하지 않습니다)");
                 location.reload();
             }
         }
 
-        async function processExtractedFiles(obj) {
-            for (const key in obj) {
-                const item = obj[key];
-                if (item instanceof File) {
-                    extractedFiles.push(item);
-                    renderFileItem(item);
-                } else if (typeof item === 'object') {
-                    await processExtractedFiles(item);
-                }
-            }
-        }
-
-        function renderFileItem(file) {
+        // --- 개별 파일 아이템 렌더링 ---
+        function renderFileItem(zipEntry) {
             const div = document.createElement('div');
             div.className = 'file-item';
+            
+            // 압축 해제된 사이즈 정보 (없으면 압축된 사이즈라도 표시)
+            const sizeDisplay = zipEntry._data.uncompressedSize 
+                ? formatBytes(zipEntry._data.uncompressedSize) 
+                : (zipEntry._data.compressedSize ? formatBytes(zipEntry._data.compressedSize) + ' (압축됨)' : 'Unknown');
+
             div.innerHTML = `
                 <div class="file-left">
-                    <img src="${FILE_ICON_URL}" class="file-thumb">
+                    <img src="${FILE_ICON_URL}" class="file-thumb" alt="file">
                     <div class="file-info-text">
-                        <span class="file-name">${file.name}</span>
-                        <span class="file-size">${formatBytes(file.size)}</span>
+                        <span class="file-name">${zipEntry.name}</span>
+                        <span class="file-size">${sizeDisplay}</span>
                     </div>
                 </div>
                 <button class="btn-download-item">다운로드</button>
             `;
-            div.querySelector('button').onclick = () => downloadFile(file);
+
+            // 개별 다운로드 버튼 클릭
+            const btn = div.querySelector('.btn-download-item');
+            btn.onclick = async () => {
+                const originalText = btn.innerText;
+                btn.innerText = '...';
+                try {
+                    await downloadSingleEntry(zipEntry);
+                    btn.innerText = '완료';
+                    setTimeout(() => btn.innerText = originalText, 1500);
+                } catch(e) {
+                    alert('다운로드 실패');
+                    btn.innerText = originalText;
+                }
+            };
+
             fileListContainer.appendChild(div);
         }
 
-        function downloadFile(file) {
-            const url = URL.createObjectURL(file);
+        // --- 파일 다운로드 함수 ---
+        async function downloadSingleEntry(zipEntry) {
+            const blob = await zipEntry.async('blob');
+            const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
-            a.href = url; a.download = file.name;
-            document.body.appendChild(a); a.click();
+            a.href = url;
+            // 폴더 경로 제거하고 순수 파일명만
+            a.download = zipEntry.name.split('/').pop();
+            document.body.appendChild(a);
+            a.click();
             document.body.removeChild(a);
             setTimeout(() => URL.revokeObjectURL(url), 1000);
         }
 
+        // --- 전체 다운로드 기능 ---
         downloadAllBtn.addEventListener('click', async () => {
             if (extractedFiles.length === 0) return;
-            if (extractedFiles.length > 20 && !confirm(`${extractedFiles.length}개 파일을 모두 받으시겠습니까?`)) return;
             
-            const btnText = downloadAllBtn.innerText;
-            downloadAllBtn.innerText = '다운로드 중...';
-            
-            for (const file of extractedFiles) {
-                downloadFile(file);
-                await new Promise(r => setTimeout(r, 200));
+            if (extractedFiles.length > 20) {
+                if(!confirm(`총 ${extractedFiles.length}개의 파일을 다운로드합니다. 계속하시겠습니까?`)) return;
             }
-            downloadAllBtn.innerText = '완료!';
-            setTimeout(() => downloadAllBtn.innerText = btnText, 2000);
+
+            const originalText = downloadAllBtn.innerText;
+            downloadAllBtn.innerText = '다운로드 중...';
+
+            // 브라우저 멈춤 방지를 위해 순차적으로 조금씩 딜레이를 주며 다운로드
+            for (let i = 0; i < extractedFiles.length; i++) {
+                await downloadSingleEntry(extractedFiles[i]);
+                await new Promise(r => setTimeout(r, 300)); // 0.3초 대기
+            }
+
+            downloadAllBtn.innerText = '저장 완료!';
+            setTimeout(() => {
+                downloadAllBtn.innerText = originalText;
+            }, 2000);
         });
+
     </script>
 </body>
 </html>
