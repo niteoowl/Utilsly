@@ -13,13 +13,13 @@
             border-radius: 16px;
             padding: 40px;
             text-align: center;
-            background: rgba(49, 130, 246, 0.05);
+            background: rgba(0, 0, 0, 0.02);
             cursor: pointer;
             transition: all 0.2s;
         }
 
         .drop-zone:hover {
-            background: rgba(49, 130, 246, 0.1);
+            background: rgba(0, 0, 0, 0.05);
             transform: scale(1.01);
         }
 
@@ -72,8 +72,11 @@
 
             <div class="content-area">
                 <div class="page-header">
-                    <div class="icon-large">🖼️</div>
+                    <div class="header-icon-wrapper">
+                        <span class="material-symbols-rounded">aspect_ratio</span>
+                    </div>
                     <h1>이미지 리사이저</h1>
+                    <p class="description">이미지 크기를 조절하고 포맷을 변경하여 저장하세요.</p>
                 </div>
 
                 <div class="tool-container">

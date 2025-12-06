@@ -77,6 +77,22 @@
         .btn-group .btn {
             flex: 1;
         }
+
+        .options-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            user-select: none;
+        }
     </style>
 </head>
 
@@ -121,21 +137,28 @@
                             <canvas id="wheel" width="480" height="480"></canvas>
                         </div>
 
-                        <button class="btn btn-primary" onclick="spin()"
+                        <button class="btn btn-primary" onclick="spin()" id="spinBtn"
                             style="font-size: 20px; padding: 18px 60px; border-radius: 50px; box-shadow: 0 10px 30px rgba(49, 130, 246, 0.4);">
                             돌리기
                         </button>
 
                         <div class="input-area">
-                            <label class="input-label">항목 입력</label>
-                            <textarea id="items" rows="5" placeholder="항목을 줄바꿈으로 구분하여 입력하세요">짜장면
+                            <div class="options-bar">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="removeWinner"> 당첨 후 항목 제거
+                                </label>
+                            </div>
+
+                            <label class="input-label">항목 입력 (예: 1~20 또는 항목 나열)</label>
+                            <textarea id="items" rows="5"
+                                placeholder="항목을 줄바꿈으로 구분하여 입력하세요.&#13;&#10;예시:&#13;&#10;짜장면&#13;&#10;짬뽕&#13;&#10;또는 1~10 처럼 범위 입력 가능">짜장면
 짬뽕
 볶음밥
 돈까스
 김치찌개
 햄버거</textarea>
                             <div class="btn-group">
-                                <button class="btn" onclick="drawWheel()">룰렛 업데이트</button>
+                                <button class="btn" onclick="parseAndDraw()">룰렛 업데이트</button>
                                 <button class="btn" onclick="resetItems()">초기화</button>
                             </div>
                         </div>
@@ -149,23 +172,44 @@
         const canvas = document.getElementById('wheel');
         const ctx = canvas.getContext('2d');
         const textarea = document.getElementById('items');
+        const removeWinnerCheckbox = document.getElementById('removeWinner');
+        const spinBtn = document.getElementById('spinBtn');
 
         let items = [];
         // Premium Palette
         const colors = [
-            '#FF8787', // Red
-            '#FFA94D', // Orange (Fixed typo)
-            '#FFD43B', // Yellow
-            '#69DB7C', // Green
-            '#4DABF7', // Blue
-            '#748FFC', // Indigo
-            '#DA77F2', // Violet
-            '#20C997', // Teal
+            '#FF8787', '#FFA94D', '#FFD43B', '#69DB7C',
+            '#4DABF7', '#748FFC', '#DA77F2', '#20C997'
         ];
         let currentRotation = 0;
+        let isSpinning = false;
+
+        function parseInput() {
+            const raw = textarea.value.trim();
+            // Check for range syntax "1~20" or "1-20"
+            const rangeMatch = raw.match(/^(\d+)\s*[~-]\s*(\d+)$/);
+
+            if (rangeMatch) {
+                const start = parseInt(rangeMatch[1]);
+                const end = parseInt(rangeMatch[2]);
+                const list = [];
+                if (start <= end) {
+                    for (let i = start; i <= end; i++) list.push(String(i));
+                } else {
+                    for (let i = start; i >= end; i--) list.push(String(i));
+                }
+                return list;
+            }
+
+            return raw.split('\n').filter(item => item.trim() !== '');
+        }
+
+        function parseAndDraw() {
+            items = parseInput();
+            drawWheel();
+        }
 
         function drawWheel() {
-            items = textarea.value.split('\n').filter(item => item.trim() !== '');
             if (items.length === 0) return;
 
             const arc = (2 * Math.PI) / items.length;
@@ -183,25 +227,22 @@
                 ctx.lineTo(centerX, centerY);
                 ctx.fill();
 
-                // Add white border between segments
                 ctx.strokeStyle = "#FFFFFF";
                 ctx.lineWidth = 4;
                 ctx.stroke();
 
-                // Text
                 ctx.save();
                 ctx.translate(centerX, centerY);
                 ctx.rotate(i * arc + arc / 2);
                 ctx.textAlign = "right";
                 ctx.fillStyle = "#FFFFFF";
-                ctx.font = "bold 20px Pretendard";
+                ctx.font = "bold 20px Pretendard, sans-serif";
                 ctx.shadowColor = "rgba(0,0,0,0.1)";
                 ctx.shadowBlur = 4;
                 ctx.fillText(item, radius - 40, 8);
                 ctx.restore();
             });
 
-            // Draw center circle (Hub)
             ctx.beginPath();
             ctx.arc(centerX, centerY, 40, 0, 2 * Math.PI);
             ctx.fillStyle = "#FFFFFF";
@@ -210,30 +251,78 @@
             ctx.lineWidth = 2;
             ctx.stroke();
 
-            // Draw center dot
             ctx.beginPath();
             ctx.arc(centerX, centerY, 10, 0, 2 * Math.PI);
-            ctx.fillStyle = "#3182F6";
+            ctx.fillStyle = "#000000";
             ctx.fill();
         }
 
         function spin() {
-            if (items.length === 0) return;
+            if (isSpinning || items.length === 0) return;
+            isSpinning = true;
+            spinBtn.disabled = true;
 
-            // Random spin between 5 and 10 full rotations + random offset
-            const spinAngle = (360 * 5) + Math.random() * (360 * 5);
+            // Random spin
+            const spinAngle = (360 * 5) + Math.random() * 360;
             currentRotation += spinAngle;
 
             canvas.style.transform = `rotate(${currentRotation}deg)`;
+
+            setTimeout(() => {
+                isSpinning = false;
+                spinBtn.disabled = false;
+
+                // Calculate winner
+                const actualRotation = currentRotation % 360;
+                const degreesPerItem = 360 / items.length;
+                // The pointer is at top (270 deg or -90 deg relative to 0 which is right)
+                // But CSS rotate rotates the canvas clockwise.
+                // So the item at the top is the one that ends up at 270 degrees (3/2 PI)
+                // Let's simplify: 
+                // Index = floor((360 - (rotation % 360)) / degreesPerItem)
+                // Adjust for pointer position (top)
+                // Canvas 0 is Right. Top is 270 (-90).
+                // If we rotate 90 deg, 0 moves to bottom.
+                // Let's just use the visual result or calculate properly.
+                // Correct calc:
+                // The item at angle A spans [A, A+arc].
+                // After rotation R, the item at Top (270 deg) is the one where:
+                // (StartAngle + R) % 360 <= 270 <= (EndAngle + R) % 360
+                // Actually easier:
+                // index = Math.floor(((360 - (currentRotation % 360) + 270) % 360) / degreesPerItem);
+
+                let winningIndex = Math.floor(((360 - (currentRotation % 360) + 270) % 360) / degreesPerItem);
+                winningIndex = winningIndex % items.length; // Safety
+
+                const winner = items[winningIndex];
+                alert(`당첨: ${winner}`);
+
+                if (removeWinnerCheckbox.checked) {
+                    items.splice(winningIndex, 1);
+                    // Update textarea to reflect removal (optional but good for UX)
+                    // If it was a range, we convert to list
+                    textarea.value = items.join('\n');
+                    drawWheel();
+                    // Reset rotation visually but keep logic consistent? 
+                    // Resetting rotation might jump. Better to reset to 0 with no transition then draw.
+                    canvas.style.transition = 'none';
+                    currentRotation = 0;
+                    canvas.style.transform = `rotate(0deg)`;
+                    setTimeout(() => {
+                        canvas.style.transition = 'transform 5s cubic-bezier(0.2, 0, 0, 1)';
+                    }, 50);
+                }
+            }, 5000);
         }
 
         function resetItems() {
             textarea.value = '';
-            drawWheel();
+            items = [];
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
         }
 
         // Init
-        drawWheel();
+        parseAndDraw();
     </script>
 </body>
 

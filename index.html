@@ -4,9 +4,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Utilsly - 세상의 모든 도구</title>
-    <meta name="description" content="개발자, 디자이너, 기획자를 위한 세상의 모든 유틸리티 도구 모음.">
+    <title>Utilsly - 웹 도구 모음</title>
+    <meta name="description" content="개발자, 디자이너, 기획자를 위한 유용한 웹 도구 모음입니다.">
     <link rel="stylesheet" href="css/style.css">
+    <style>
+        .hero-section {
+            text-align: center;
+            padding: 60px 20px;
+            background: linear-gradient(180deg, rgba(0, 0, 0, 0.02) 0%, rgba(255, 255, 255, 0) 100%);
+            border-bottom: 1px solid var(--border-color);
+            margin: -40px -60px 40px -60px;
+            /* Negative margin to stretch full width */
+        }
+
+        .hero-title {
+            font-size: 48px;
+            font-weight: 800;
+            margin-bottom: 16px;
+            letter-spacing: -0.02em;
+        }
+
+        .hero-subtitle {
+            font-size: 18px;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto 32px auto;
+        }
+
+        .search-container {
+            max-width: 500px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 16px 24px 16px 50px;
+            font-size: 18px;
+            border-radius: 50px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            transition: all 0.2s;
+        }
+
+        .search-input:focus {
+            border-color: var(--accent-blue);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-tertiary);
+            font-size: 24px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        @media (max-width: 768px) {
+            .hero-section {
+                margin: -24px -16px 24px -16px;
+            }
+        }
+    </style>
 </head>
 
 <body>
@@ -14,8 +87,8 @@
         <aside class="sidebar">
             <div class="sidebar-header">
                 <div class="user-profile">
-                    <div class="avatar">U</div>
-                    <span class="username">Utilsly</span>
+                    <div style="font-size: 24px; font-weight: 800; color: var(--text-primary); letter-spacing: -0.5px;">
+                        Utilsly.</div>
                 </div>
             </div>
             <nav class="sidebar-nav">
@@ -26,99 +99,173 @@
         <main class="main-content">
             <header class="top-bar">
                 <div class="breadcrumbs">
-                    <span class="breadcrumb-item">Utilsly</span>
-                    <span class="separator">/</span>
-                    <span class="breadcrumb-item current-page">대시보드</span>
+                    <span class="breadcrumb-item">홈</span>
                 </div>
             </header>
 
             <div class="content-area">
-                <div class="page-header">
-                    <div class="header-icon-wrapper">
-                        <span class="material-symbols-rounded">rocket_launch</span>
+                <div class="hero-section">
+                    <h1 class="hero-title">모든 도구를 한곳에서.</h1>
+                    <p class="hero-subtitle">이미지 변환부터 룰렛 돌리기까지,<br>설치 없이 브라우저에서 바로 사용하세요.</p>
+                </div>
+
+                <!-- Default Home View -->
+                <div id="homeDefaultView">
+                    <div class="section-header">
+                        <h2 class="section-title">🔥 오늘의 추천 도구</h2>
                     </div>
-                    <h1>무엇을 도와드릴까요?</h1>
-                    <p class="description">가장 강력하고 아름다운 웹 도구 모음, Utilsly입니다.</p>
+                    <div class="dashboard-grid" id="popularTools">
+                        <!-- Populated by JS -->
+                    </div>
+
+                    <div class="section-header" style="margin-top: 48px;">
+                        <h2 class="section-title">✨ 최신 업데이트</h2>
+                    </div>
+                    <div class="dashboard-grid" id="newTools">
+                        <!-- Populated by JS -->
+                    </div>
                 </div>
 
-                <h2 style="margin-bottom: 20px; font-size: 20px; font-weight: 700; color: var(--text-primary);">🔥 인기 도구
-                </h2>
-                <div class="dashboard-grid" style="margin-bottom: 56px;">
-                    <a href="/tools/text/word-counter.html" class="tool-card">
-                        <div class="card-icon"><span class="material-symbols-rounded">article</span></div>
-                        <div class="card-title">글자수 세기</div>
-                        <div class="card-desc">공백 포함/제외 실시간 계산</div>
-                    </a>
-                    <a href="/tools/random/roulette.html" class="tool-card">
-                        <div class="card-icon"><span class="material-symbols-rounded">casino</span></div>
-                        <div class="card-title">룰렛 돌리기</div>
-                        <div class="card-desc">점심 메뉴, 벌칙 정하기</div>
-                    </a>
-                    <a href="/tools/math/unit-converter.html" class="tool-card">
-                        <div class="card-icon"><span class="material-symbols-rounded">scale</span></div>
-                        <div class="card-title">단위 변환기</div>
-                        <div class="card-desc">길이, 무게, 넓이 완벽 변환</div>
-                    </a>
-                    <a href="/tools/image/image-resizer.html" class="tool-card">
-                        <div class="card-icon"><span class="material-symbols-rounded">image</span></div>
-                        <div class="card-title">이미지 리사이저</div>
-                        <div class="card-desc">빠르고 안전한 크기 조절</div>
-                    </a>
+                <!-- Search Results View -->
+                <div id="searchResultsView" style="display: none;">
+                    <div class="section-header">
+                        <h2 class="section-title">🔍 검색 결과</h2>
+                    </div>
+                    <div class="dashboard-grid" id="searchResults">
+                        <!-- Populated by JS -->
+                    </div>
+                    <div id="noResults"
+                        style="text-align: center; padding: 40px; color: var(--text-secondary); display: none;">
+                        검색 결과가 없습니다.
+                    </div>
                 </div>
 
-                <h2 style="margin-bottom: 20px; font-size: 20px; font-weight: 700; color: var(--text-primary);">🎲 랜덤 &
-                    재미</h2>
-                <div class="dashboard-grid" style="margin-bottom: 56px;">
-                    <a href="/tools/random/roulette.html" class="tool-card">
-                        <div class="card-icon"><span class="material-symbols-rounded">casino</span></div>
-                        <div class="card-title">룰렛 돌리기</div>
-                        <div class="card-desc">돌려돌려 돌림판!</div>
-                    </a>
-                    <a href="/tools/random/random-picker.html" class="tool-card">
-                        <div class="card-icon"><span class="material-symbols-rounded">confirmation_number</span></div>
-                        <div class="card-title">제비뽑기</div>
-                        <div class="card-desc">공정한 추첨을 위한 도구</div>
-                    </a>
-                    <a href="/tools/random/password-generator.html" class="tool-card">
-                        <div class="card-icon"><span class="material-symbols-rounded">password</span></div>
-                        <div class="card-title">비밀번호 생성</div>
-                        <div class="card-desc">강력하고 안전한 암호 생성</div>
-                    </a>
-                    <a href="/tools/random/dice-roller.html" class="tool-card">
-                        <div class="card-icon"><span class="material-symbols-rounded">deployed_code</span></div>
-                        <div class="card-title">주사위 굴리기</div>
-                        <div class="card-desc">3D 주사위 시뮬레이션</div>
-                    </a>
-                    <a href="/tools/random/vote.html" class="tool-card">
-                        <div class="card-icon"><span class="material-symbols-rounded">how_to_vote</span></div>
-                        <div class="card-title">투표 하기</div>
-                        <div class="card-desc">간편한 의사결정 투표</div>
-                    </a>
-                </div>
-
-                <h2 style="margin-bottom: 20px; font-size: 20px; font-weight: 700; color: var(--text-primary);">💻 개발 &
-                    텍스트</h2>
-                <div class="dashboard-grid">
-                    <a href="/tools/dev/json-formatter.html" class="tool-card">
-                        <div class="card-icon"><span class="material-symbols-rounded">data_object</span></div>
-                        <div class="card-title">JSON 포맷터</div>
-                        <div class="card-desc">JSON 정렬 및 검증</div>
-                    </a>
-                    <a href="/tools/dev/sql-formatter.html" class="tool-card">
-                        <div class="card-icon"><span class="material-symbols-rounded">database</span></div>
-                        <div class="card-title">SQL 포맷터</div>
-                        <div class="card-desc">SQL 쿼리 예쁘게 정리</div>
-                    </a>
-                    <a href="/tools/text/markdown-preview.html" class="tool-card">
-                        <div class="card-icon"><span class="material-symbols-rounded">markdown</span></div>
-                        <div class="card-title">마크다운 미리보기</div>
-                        <div class="card-desc">실시간 마크다운 에디터</div>
-                    </a>
-                </div>
             </div>
         </main>
     </div>
     <script src="js/common.js"></script>
+    <script>
+        // --- Recommendations Logic ---
+        const allTools = [
+            { name: "룰렛 돌리기", icon: "casino", path: "/tools/random/roulette.html", desc: "점심 메뉴 결정장애 해결!" },
+            { name: "제비뽑기", icon: "confirmation_number", path: "/tools/random/random-picker.html", desc: "랜덤으로 하나 뽑기" },
+            { name: "주사위 굴리기", icon: "deployed_code", path: "/tools/random/dice-roller.html", desc: "1~6 주사위 굴리기" },
+            { name: "투표 하기", icon: "how_to_vote", path: "/tools/random/vote.html", desc: "간단한 투표 만들기" },
+
+            { name: "이미지 리사이저", icon: "image", path: "/tools/image/image-resizer.html", desc: "이미지 크기 조절" },
+            { name: "이미지 변환기", icon: "transform", path: "/tools/image/image-converter.html", desc: "JPG, PNG, WEBP 변환" },
+            { name: "이미지 자르기", icon: "crop", path: "/tools/image/image-cropper.html", desc: "이미지 원하는 부분 자르기" },
+            { name: "이미지 필터", icon: "photo_filter", path: "/tools/image/image-filters.html", desc: "다양한 필터 적용" },
+            { name: "이미지 색상 추출", icon: "colorize", path: "/tools/image/color-extractor.html", desc: "이미지에서 색상 뽑기" },
+
+            { name: "비디오 플레이어", icon: "play_circle", path: "/tools/video/video-player.html", desc: "배속 재생, 거울 모드" },
+            { name: "GIF 변환기", icon: "gif", path: "/tools/video/video-to-gif.html", desc: "동영상을 GIF로 변환" },
+            { name: "화면 녹화", icon: "screen_record", path: "/tools/video/screen-recorder.html", desc: "설치 없는 화면 녹화" },
+
+            { name: "PDF 합치기", icon: "picture_as_pdf", path: "/tools/pdf/pdf-merge.html", desc: "여러 PDF를 하나로" },
+            { name: "PDF 분할", icon: "cut", path: "/tools/pdf/pdf-split.html", desc: "PDF 페이지 나누기" },
+            { name: "PDF → 이미지", icon: "image_search", path: "/tools/pdf/pdf-to-image.html", desc: "PDF를 이미지로 변환" },
+
+            { name: "음성 녹음기", icon: "mic", path: "/tools/audio/voice-recorder.html", desc: "간편한 웹 녹음기" },
+            { name: "주파수 생성기", icon: "graphic_eq", path: "/tools/audio/tone-generator.html", desc: "특정 주파수 소리 생성" },
+            { name: "백색 소음", icon: "waves", path: "/tools/audio/white-noise.html", desc: "집중을 위한 백색 소음" },
+
+            { name: "Utilsly Docs", icon: "description", path: "/tools/memo/docs.html", desc: "HWP 스타일 문서 편집" },
+            { name: "빠른 메모장", icon: "edit_note", path: "/tools/memo/notepad.html", desc: "서식 지원, 자동 저장" },
+            { name: "EPUB 리더", icon: "menu_book", path: "/tools/text/epub-reader.html", desc: "전자책 바로 읽기" },
+            { name: "텍스트 비교", icon: "difference", path: "/tools/text/text-diff.html", desc: "두 텍스트 차이점 비교" },
+            { name: "글자수 세기", icon: "article", path: "/tools/text/word-counter.html", desc: "공백 포함/제외 글자수" },
+            { name: "대소문자 변환", icon: "text_fields", path: "/tools/text/case-converter.html", desc: "영어 대소문자 변환" },
+            { name: "로렘 입숨 생성", icon: "description", path: "/tools/text/lorem-ipsum.html", desc: "더미 텍스트 생성" },
+            { name: "줄바꿈 제거", icon: "format_align_left", path: "/tools/text/remove-line-breaks.html", desc: "불필요한 줄바꿈 삭제" },
+            { name: "마크다운 미리보기", icon: "markdown", path: "/tools/text/markdown-preview.html", desc: "마크다운 실시간 렌더링" },
+
+            { name: "HTML 플레이그라운드", icon: "code", path: "/tools/dev/html-playground.html", desc: "실시간 코드 미리보기" },
+            { name: "QR 코드 생성", icon: "qr_code_2", path: "/tools/dev/qr-generator.html", desc: "링크를 QR 코드로 변환" },
+            { name: "코드 미니파이어", icon: "compress", path: "/tools/dev/code-minifier.html", desc: "코드 용량 줄이기" },
+            { name: "정규식 테스터", icon: "regular_expression", path: "/tools/dev/regex-tester.html", desc: "정규표현식 검사" },
+            { name: "JSON 포맷터", icon: "data_object", path: "/tools/dev/json-formatter.html", desc: "JSON 예쁘게 정렬" },
+            { name: "SQL 포맷터", icon: "database", path: "/tools/dev/sql-formatter.html", desc: "SQL 쿼리 정렬" },
+            { name: "URL 인코더", icon: "link", path: "/tools/dev/url-encoder.html", desc: "URL 인코딩/디코딩" },
+            { name: "Base64 인코더", icon: "package_2", path: "/tools/dev/base64-encoder.html", desc: "Base64 변환" },
+            { name: "UUID 생성기", icon: "fingerprint", path: "/tools/dev/uuid-generator.html", desc: "고유 식별자 생성" },
+
+            { name: "공학용 계산기", icon: "calculate", path: "/tools/math/scientific-calculator.html", desc: "복잡한 수식 계산" },
+            { name: "단위 변환기", icon: "scale", path: "/tools/math/unit-converter.html", desc: "길이, 무게, 넓이 변환" },
+            { name: "퍼센트 계산기", icon: "percent", path: "/tools/math/percentage-calculator.html", desc: "백분율 계산" },
+
+            { name: "타이머", icon: "timer", path: "/tools/date/timer.html", desc: "간편한 카운트다운" },
+            { name: "뽀모도로 타이머", icon: "check_circle", path: "/tools/date/pomodoro.html", desc: "집중력 향상 타이머" },
+            { name: "스톱워치", icon: "timer_off", path: "/tools/date/stopwatch.html", desc: "시간 측정" },
+            { name: "D-Day 계산기", icon: "event_upcoming", path: "/tools/date/d-day-counter.html", desc: "기념일 계산" },
+            { name: "세계 시간", icon: "public", path: "/tools/date/world-time.html", desc: "전 세계 현재 시간" },
+
+            { name: "컬러 피커", icon: "palette", path: "/tools/color/color-picker.html", desc: "색상 코드 추출" },
+
+            { name: "BMI 계산기", icon: "monitor_weight", path: "/tools/health/bmi-calculator.html", desc: "나의 비만도 확인" },
+            { name: "BMR 계산기", icon: "local_fire_department", path: "/tools/health/bmr-calculator.html", desc: "기초대사량 계산" },
+            { name: "호흡 운동", icon: "self_improvement", path: "/tools/health/breathing.html", desc: "스트레스 완화 호흡" },
+
+            { name: "비밀번호 생성", icon: "password", path: "/tools/security/password-generator.html", desc: "강력한 비밀번호 생성" },
+
+            { name: "AI 글쓰기", icon: "edit_note", path: "/tools/ai/writing-assistant.html", desc: "글 작성 보조 및 교정" },
+            { name: "AI 번역기", icon: "translate", path: "/tools/ai/translator.html", desc: "자연스러운 AI 번역" }
+        ];
+
+        function getRandomTools(count) {
+            const shuffled = [...allTools].sort(() => 0.5 - Math.random());
+            return shuffled.slice(0, count);
+        }
+
+        function renderCards(containerId, tools) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = tools.map(tool => `
+                <a href="${tool.path}" class="tool-card">
+                    <div class="card-icon">
+                        <span class="material-symbols-rounded">${tool.icon}</span>
+                    </div>
+                    <div class="card-title">${tool.name}</div>
+                    <div class="card-desc">${tool.desc}</div>
+                </a>
+            `).join('');
+        }
+
+        renderCards('popularTools', getRandomTools(4));
+        renderCards('newTools', allTools.slice(-4));
+
+        // --- Main Search Logic ---
+        const mainSearch = document.getElementById('mainSearch');
+        const homeDefaultView = document.getElementById('homeDefaultView');
+        const searchResultsView = document.getElementById('searchResultsView');
+        const searchResults = document.getElementById('searchResults');
+        const noResults = document.getElementById('noResults');
+
+        mainSearch.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase().trim();
+
+            if (query.length > 0) {
+                homeDefaultView.style.display = 'none';
+                searchResultsView.style.display = 'block';
+
+                const filtered = allTools.filter(tool =>
+                    tool.name.toLowerCase().includes(query) ||
+                    tool.desc.toLowerCase().includes(query)
+                );
+
+                if (filtered.length > 0) {
+                    renderCards('searchResults', filtered);
+                    searchResults.style.display = 'grid';
+                    noResults.style.display = 'none';
+                } else {
+                    searchResults.style.display = 'none';
+                    noResults.style.display = 'block';
+                }
+            } else {
+                homeDefaultView.style.display = 'block';
+                searchResultsView.style.display = 'none';
+            }
+        });
+    </script>
 </body>
 
 </html>
