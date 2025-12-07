@@ -5,7 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>텍스트 비교 - Utilsly</title>
-    <meta name="description" content="두 텍스트의 차이점을 비교하여 시각적으로 확인하세요.">    <script>
+    <meta name="description" content="두 텍스트의 차이점을 비교하여 시각적으로 확인하세요.">
+    <script>
         (function () {
             const savedTheme = localStorage.getItem('theme');
             const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -42,10 +43,7 @@
         }
 
         .result-container {
-            background: var(--bg-primary);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 24px;
+            padding: 24px 0;
             white-space: pre-wrap;
             font-family: monospace;
             line-height: 1.6;

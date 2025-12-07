@@ -5,7 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>타이머 - Utilsly</title>
-    <meta name="description" content="간편한 카운트다운 타이머입니다.">    <script>
+    <meta name="description" content="간편한 카운트다운 타이머입니다.">
+    <script>
         (function () {
             const savedTheme = localStorage.getItem('theme');
             const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -17,14 +18,6 @@
 
     <link rel="stylesheet" href="../../css/style.css">
     <style>
-        .content-area {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 60vh;
-        }
-
         .timer-display {
             font-size: 120px;
             font-weight: 800;
@@ -167,36 +160,46 @@
             </header>
 
             <div class="content-area">
-                <div class="presets">
-                    <div class="preset-chip" onclick="setTimer(1, 0)">1분</div>
-                    <div class="preset-chip" onclick="setTimer(3, 0)">3분</div>
-                    <div class="preset-chip" onclick="setTimer(5, 0)">5분</div>
-                    <div class="preset-chip" onclick="setTimer(10, 0)">10분</div>
-                    <div class="preset-chip" onclick="setTimer(30, 0)">30분</div>
+                <div class="page-header">
+                    <div class="header-icon-wrapper">
+                        <span class="material-symbols-rounded">timer</span>
+                    </div>
+                    <h1>타이머</h1>
+                    <p class="description">간편한 카운트다운 타이머로 시간을 관리하세요.</p>
                 </div>
 
-                <div class="timer-display" id="display" onclick="toggleEdit()">05:00</div>
+                <div class="tool-container"
+                    style="display: flex; flex-direction: column; align-items: center; gap: 24px;">
+                    <div class="presets">
+                        <div class="preset-chip" onclick="setTimer(1, 0)">1분</div>
+                        <div class="preset-chip" onclick="setTimer(3, 0)">3분</div>
+                        <div class="preset-chip" onclick="setTimer(5, 0)">5분</div>
+                        <div class="preset-chip" onclick="setTimer(10, 0)">10분</div>
+                        <div class="preset-chip" onclick="setTimer(30, 0)">30분</div>
+                    </div>
 
-                <div class="time-input-container" id="inputContainer">
-                    <input type="number" class="time-input" id="inputMin" value="05" min="0" max="99"
-                        onchange="updateFromInput()">
-                    <span class="separator">:</span>
-                    <input type="number" class="time-input" id="inputSec" value="00" min="0" max="59"
-                        onchange="updateFromInput()">
-                </div>
+                    <div class="timer-display" id="display" onclick="toggleEdit()">05:00</div>
 
-                <div class="controls">
-                    <button class="btn-control" onclick="resetTimer()">
-                        <span class="material-symbols-rounded">refresh</span>
-                    </button>
-                    <button class="btn-control btn-main" id="toggleBtn" onclick="toggleTimer()">
-                        <span class="material-symbols-rounded" id="toggleIcon">play_arrow</span>
-                    </button>
-                    <button class="btn-control" onclick="toggleEdit()">
-                        <span class="material-symbols-rounded">edit</span>
-                    </button>
+                    <div class="time-input-container" id="inputContainer">
+                        <input type="number" class="time-input" id="inputMin" value="05" min="0" max="99"
+                            onchange="updateFromInput()">
+                        <span class="separator">:</span>
+                        <input type="number" class="time-input" id="inputSec" value="00" min="0" max="59"
+                            onchange="updateFromInput()">
+                    </div>
+
+                    <div class="controls">
+                        <button class="btn-control" onclick="resetTimer()">
+                            <span class="material-symbols-rounded">refresh</span>
+                        </button>
+                        <button class="btn-control btn-main" id="toggleBtn" onclick="toggleTimer()">
+                            <span class="material-symbols-rounded" id="toggleIcon">play_arrow</span>
+                        </button>
+                        <button class="btn-control" onclick="toggleEdit()">
+                            <span class="material-symbols-rounded">edit</span>
+                        </button>
+                    </div>
                 </div>
-            </div>
         </main>
     </div>
     <script src="../../js/common.js"></script>

@@ -54,9 +54,19 @@ const Utilsly = {
         if (!document.getElementById('material-symbols-link')) {
             const link = document.createElement('link');
             link.id = 'material-symbols-link';
-            link.rel = 'stylesheet';
+            link.rel = 'preload';
+            link.as = 'style';
             link.href = 'https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0';
+            link.onload = function () { this.rel = 'stylesheet'; };
             document.head.appendChild(link);
+
+            // Add noscript fallback
+            const noscript = document.createElement('noscript');
+            const fallbackLink = document.createElement('link');
+            fallbackLink.rel = 'stylesheet';
+            fallbackLink.href = 'https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0';
+            noscript.appendChild(fallbackLink);
+            document.head.appendChild(noscript);
         }
     },
 
@@ -210,6 +220,10 @@ const Utilsly = {
         const sidebarNav = document.querySelector('.sidebar-nav');
         if (!sidebarNav) return;
 
+        // Save scroll position before re-rendering
+        const sidebar = document.querySelector('.sidebar');
+        const scrollPosition = sidebar ? sidebar.scrollTop : 0;
+
         // Search Bar
         let html = `
             <div class="sidebar-search-container">
@@ -322,6 +336,11 @@ const Utilsly = {
             closeBtn.innerHTML = '<span class="material-symbols-rounded">close</span>';
             closeBtn.onclick = () => this.toggleSidebar(false);
             sidebarHeader.appendChild(closeBtn);
+        }
+
+        // Restore scroll position after re-rendering
+        if (sidebar) {
+            sidebar.scrollTop = scrollPosition;
         }
     },
 

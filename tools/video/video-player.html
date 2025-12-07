@@ -5,7 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>비디오 플레이어 - Utilsly</title>
-    <meta name="description" content="배속 재생, 거울 모드, 회전 기능을 제공하는 웹 비디오 플레이어입니다.">    <script>
+    <meta name="description" content="배속 재생, 거울 모드, 회전 기능을 제공하는 웹 비디오 플레이어입니다.">
+    <script>
         (function () {
             const savedTheme = localStorage.getItem('theme');
             const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -34,10 +35,7 @@
         }
 
         .controls-wrapper {
-            padding: 16px;
-            background: var(--bg-primary);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
+            padding: 16px 0;
             display: none;
             flex-direction: column;
             gap: 16px;

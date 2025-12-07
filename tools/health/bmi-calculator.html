@@ -5,7 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BMI 계산기 - Utilsly</title>
-    <meta name="description" content="신체질량지수(BMI)를 계산하고 비만도를 확인하세요.">    <script>
+    <meta name="description" content="신체질량지수(BMI)를 계산하고 비만도를 확인하세요.">
+    <script>
         (function () {
             const savedTheme = localStorage.getItem('theme');
             const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -17,16 +18,6 @@
 
     <link rel="stylesheet" href="../../css/style.css">
     <style>
-        .calculator-card {
-            background: var(--bg-primary);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 32px;
-            max-width: 480px;
-            margin: 0 auto;
-            text-align: center;
-        }
-
         .input-group {
             margin-bottom: 24px;
             text-align: left;
@@ -103,10 +94,6 @@
             background: #FFEBEE;
             color: #C62828;
         }
-
-        [data-theme="dark"] .calculator-card {
-            background: var(--bg-sidebar);
-        }
     </style>
 </head>
 
@@ -139,7 +126,7 @@
                     <p class="description">키와 체중을 입력하여 비만도를 확인하세요.</p>
                 </div>
 
-                <div class="calculator-card">
+                <div class="tool-container" style="max-width: 480px; margin: 0 auto;">
                     <div class="input-group">
                         <label>신장 (키)</label>
                         <div class="input-wrapper">

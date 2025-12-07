@@ -638,6 +638,8 @@ input[type="range"]::-webkit-slider-thumb:hover {
     direction: ltr;
     -webkit-font-feature-settings: 'liga';
     -webkit-font-smoothing: antialiased;
+    font-display: block;
+    /* Prevent text showing before icon loads */
 }
 
 /* Custom Modal System */

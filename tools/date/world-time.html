@@ -5,7 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>세계 시간 변환기 - Utilsly</title>
-    <meta name="description" content="전 세계 주요 도시의 현재 시간을 한눈에 확인하고 비교하세요.">    <script>
+    <meta name="description" content="전 세계 주요 도시의 현재 시간을 한눈에 확인하고 비교하세요.">
+    <script>
         (function () {
             const savedTheme = localStorage.getItem('theme');
             const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -24,12 +25,8 @@
         }
 
         .clock-card {
-            background: var(--bg-primary);
             padding: 24px;
-            border-radius: 16px;
             text-align: center;
-            box-shadow: var(--shadow-sm);
-            border: 1px solid var(--border-light);
         }
 
         .city-name {
