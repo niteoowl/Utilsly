@@ -1,11 +1,20 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ko">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>이미지 변환기 - Utilsly</title>
-    <meta name="description" content="이미지 파일을 JPG, PNG, WEBP 등 원하는 포맷으로 간편하게 변환하세요.">
+    <meta name="description" content="이미지 파일을 JPG, PNG, WEBP 등 원하는 포맷으로 간편하게 변환하세요.">    <script>
+        (function () {
+            const savedTheme = localStorage.getItem('theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            }
+        })();
+    </script>
+
     <link rel="stylesheet" href="../../css/style.css">
     <style>
         .drop-zone {
@@ -52,7 +61,6 @@
             <div class="sidebar-header">
                 <div class="user-profile">
                     <div class="avatar">U</div>
-                    <span class="username">Utilsly</span>
                 </div>
             </div>
             <nav class="sidebar-nav">
@@ -63,11 +71,7 @@
         <main class="main-content">
             <header class="top-bar">
                 <div class="breadcrumbs">
-                    <span class="breadcrumb-item">Utilsly</span>
-                    <span class="separator">/</span>
-                    <span class="breadcrumb-item">이미지</span>
-                    <span class="separator">/</span>
-                    <span class="breadcrumb-item current-page">이미지 변환기</span>
+                    <span class="breadcrumb-item">이미지 변환기</span>
                 </div>
             </header>
 

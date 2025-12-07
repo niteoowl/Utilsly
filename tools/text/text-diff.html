@@ -1,11 +1,20 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ko">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>텍스트 비교 - Utilsly</title>
-    <meta name="description" content="두 텍스트의 차이점을 비교하여 시각적으로 확인하세요.">
+    <meta name="description" content="두 텍스트의 차이점을 비교하여 시각적으로 확인하세요.">    <script>
+        (function () {
+            const savedTheme = localStorage.getItem('theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            }
+        })();
+    </script>
+
     <link rel="stylesheet" href="../../css/style.css">
     <style>
         .diff-container {
@@ -33,7 +42,7 @@
         }
 
         .result-container {
-            background: white;
+            background: var(--bg-primary);
             border: 1px solid var(--border-color);
             border-radius: 8px;
             padding: 24px;
@@ -63,7 +72,6 @@
             <div class="sidebar-header">
                 <div class="user-profile">
                     <div class="avatar">U</div>
-                    <span class="username">Utilsly</span>
                 </div>
             </div>
             <nav class="sidebar-nav">
@@ -74,11 +82,7 @@
         <main class="main-content">
             <header class="top-bar">
                 <div class="breadcrumbs">
-                    <span class="breadcrumb-item">Utilsly</span>
-                    <span class="separator">/</span>
-                    <span class="breadcrumb-item">텍스트</span>
-                    <span class="separator">/</span>
-                    <span class="breadcrumb-item current-page">텍스트 비교</span>
+                    <span class="breadcrumb-item">텍스트 비교</span>
                 </div>
             </header>
 

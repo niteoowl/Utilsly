@@ -1,11 +1,20 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ko">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>단위 변환기 - Utilsly</title>
-    <meta name="description" content="길이, 무게, 넓이, 부피 등 다양한 단위를 간편하게 변환하세요.">
+    <meta name="description" content="길이, 무게, 넓이, 부피 등 다양한 단위를 간편하게 변환하세요.">    <script>
+        (function () {
+            const savedTheme = localStorage.getItem('theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            }
+        })();
+    </script>
+
     <link rel="stylesheet" href="../../css/style.css">
 </head>
 
@@ -15,7 +24,6 @@
             <div class="sidebar-header">
                 <div class="user-profile">
                     <div class="avatar">U</div>
-                    <span class="username">Utilsly</span>
                 </div>
             </div>
             <nav class="sidebar-nav">
@@ -26,11 +34,7 @@
         <main class="main-content">
             <header class="top-bar">
                 <div class="breadcrumbs">
-                    <span class="breadcrumb-item">Utilsly</span>
-                    <span class="separator">/</span>
-                    <span class="breadcrumb-item">수학/계산</span>
-                    <span class="separator">/</span>
-                    <span class="breadcrumb-item current-page">단위 변환기</span>
+                    <span class="breadcrumb-item">단위 변환기</span>
                 </div>
             </header>
 

@@ -1,11 +1,20 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ko">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QR 코드 생성기 - Utilsly</title>
-    <meta name="description" content="URL이나 텍스트를 QR 코드로 변환하세요.">
+    <meta name="description" content="URL이나 텍스트를 QR 코드로 변환하세요.">    <script>
+        (function () {
+            const savedTheme = localStorage.getItem('theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            }
+        })();
+    </script>
+
     <link rel="stylesheet" href="../../css/style.css">
     <!-- QR Code Lib -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -21,7 +30,7 @@
 
         #qrcode {
             padding: 24px;
-            background: white;
+            background: var(--bg-primary);
             border: 1px solid var(--border-color);
             border-radius: 16px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
@@ -55,11 +64,7 @@
         <main class="main-content">
             <header class="top-bar">
                 <div class="breadcrumbs">
-                    <span class="breadcrumb-item">Utilsly</span>
-                    <span class="separator">/</span>
-                    <span class="breadcrumb-item">개발</span>
-                    <span class="separator">/</span>
-                    <span class="breadcrumb-item current-page">QR 코드 생성</span>
+                    <span class="breadcrumb-item">QR 코드 생성</span>
                 </div>
             </header>
 

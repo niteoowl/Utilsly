@@ -1,11 +1,20 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ko">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PDF 분할 - Utilsly</title>
-    <meta name="description" content="PDF 파일을 페이지별로 분할하여 저장하세요.">
+    <meta name="description" content="PDF 파일을 페이지별로 분할하여 저장하세요.">    <script>
+        (function () {
+            const savedTheme = localStorage.getItem('theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            }
+        })();
+    </script>
+
     <link rel="stylesheet" href="../../css/style.css">
     <style>
         .page-grid {
@@ -20,7 +29,7 @@
             border-radius: 8px;
             padding: 8px;
             cursor: pointer;
-            background: white;
+            background: var(--bg-primary);
             transition: all 0.2s;
         }
 
@@ -49,7 +58,6 @@
             <div class="sidebar-header">
                 <div class="user-profile">
                     <div class="avatar">U</div>
-                    <span class="username">Utilsly</span>
                 </div>
             </div>
             <nav class="sidebar-nav">
@@ -60,11 +68,7 @@
         <main class="main-content">
             <header class="top-bar">
                 <div class="breadcrumbs">
-                    <span class="breadcrumb-item">Utilsly</span>
-                    <span class="separator">/</span>
-                    <span class="breadcrumb-item">PDF</span>
-                    <span class="separator">/</span>
-                    <span class="breadcrumb-item current-page">PDF 분할</span>
+                    <span class="breadcrumb-item">PDF 분할</span>
                 </div>
             </header>
 

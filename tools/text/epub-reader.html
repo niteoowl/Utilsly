@@ -1,18 +1,27 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ko">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EPUB 리더 - Utilsly</title>
-    <meta name="description" content="웹 브라우저에서 EPUB 전자책을 바로 읽으세요.">
+    <meta name="description" content="웹 브라우저에서 EPUB 전자책을 바로 읽으세요.">    <script>
+        (function () {
+            const savedTheme = localStorage.getItem('theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            }
+        })();
+    </script>
+
     <link rel="stylesheet" href="../../css/style.css">
     <style>
         .reader-container {
             display: flex;
             flex-direction: column;
             height: calc(100vh - 140px);
-            background: white;
+            background: var(--bg-primary);
             border: 1px solid var(--border-color);
             border-radius: 12px;
             overflow: hidden;
@@ -22,7 +31,7 @@
         #viewer {
             flex: 1;
             overflow: hidden;
-            background: white;
+            background: var(--bg-primary);
         }
 
         .reader-controls {
@@ -71,7 +80,7 @@
             top: 0;
             bottom: 0;
             width: 250px;
-            background: white;
+            background: var(--bg-primary);
             border-right: 1px solid var(--border-color);
             transform: translateX(-100%);
             transition: transform 0.3s ease;

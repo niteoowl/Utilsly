@@ -1,17 +1,26 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ko">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>공학용 계산기 - Utilsly</title>
-    <meta name="description" content="복잡한 수식과 공학 기능을 지원하는 계산기입니다.">
+    <meta name="description" content="복잡한 수식과 공학 기능을 지원하는 계산기입니다.">    <script>
+        (function () {
+            const savedTheme = localStorage.getItem('theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            }
+        })();
+    </script>
+
     <link rel="stylesheet" href="../../css/style.css">
     <style>
         .calculator-container {
             max-width: 400px;
             margin: 0 auto;
-            background: white;
+            background: var(--bg-primary);
             border: 1px solid var(--border-color);
             border-radius: 16px;
             overflow: hidden;
@@ -47,7 +56,7 @@
         }
 
         .key {
-            background: white;
+            background: var(--bg-primary);
             border: none;
             padding: 20px;
             font-size: 18px;

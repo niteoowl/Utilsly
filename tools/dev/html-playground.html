@@ -1,11 +1,20 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ko">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HTML 플레이그라운드 - Utilsly</title>
-    <meta name="description" content="HTML, CSS, JS 코드를 실시간으로 작성하고 미리보세요.">
+    <meta name="description" content="HTML, CSS, JS 코드를 실시간으로 작성하고 미리보세요.">    <script>
+        (function () {
+            const savedTheme = localStorage.getItem('theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            }
+        })();
+    </script>
+
     <link rel="stylesheet" href="../../css/style.css">
     <style>
         .playground-container {
@@ -65,7 +74,7 @@
         }
 
         .preview-pane {
-            background: white;
+            background: var(--bg-primary);
             display: flex;
             flex-direction: column;
         }

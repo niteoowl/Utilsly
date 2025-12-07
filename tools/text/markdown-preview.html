@@ -1,11 +1,20 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ko">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>마크다운 미리보기 - Utilsly</title>
-    <meta name="description" content="마크다운 문법을 실시간으로 미리보기 할 수 있는 에디터입니다.">
+    <meta name="description" content="마크다운 문법을 실시간으로 미리보기 할 수 있는 에디터입니다.">    <script>
+        (function () {
+            const savedTheme = localStorage.getItem('theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            }
+        })();
+    </script>
+
     <link rel="stylesheet" href="../../css/style.css">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
@@ -20,7 +29,7 @@
             border: 1px solid var(--border-light);
             border-radius: 12px;
             padding: 24px;
-            background: white;
+            background: var(--bg-primary);
             overflow-y: auto;
             line-height: 1.6;
         }
@@ -60,7 +69,6 @@
             <div class="sidebar-header">
                 <div class="user-profile">
                     <div class="avatar">U</div>
-                    <span class="username">Utilsly</span>
                 </div>
             </div>
             <nav class="sidebar-nav">
@@ -71,11 +79,7 @@
         <main class="main-content">
             <header class="top-bar">
                 <div class="breadcrumbs">
-                    <span class="breadcrumb-item">Utilsly</span>
-                    <span class="separator">/</span>
-                    <span class="breadcrumb-item">텍스트</span>
-                    <span class="separator">/</span>
-                    <span class="breadcrumb-item current-page">마크다운 미리보기</span>
+                    <span class="breadcrumb-item">마크다운 미리보기</span>
                 </div>
             </header>
 

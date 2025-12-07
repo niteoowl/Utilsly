@@ -1,11 +1,20 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ko">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GIF 변환기 - Utilsly</title>
-    <meta name="description" content="동영상을 움짤(GIF)로 변환하세요. 구간 설정과 크기 조절이 가능합니다.">
+    <meta name="description" content="동영상을 움짤(GIF)로 변환하세요. 구간 설정과 크기 조절이 가능합니다.">    <script>
+        (function () {
+            const savedTheme = localStorage.getItem('theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            }
+        })();
+    </script>
+
     <link rel="stylesheet" href="../../css/style.css">
     <style>
         .preview-area {
@@ -44,7 +53,6 @@
             <div class="sidebar-header">
                 <div class="user-profile">
                     <div class="avatar">U</div>
-                    <span class="username">Utilsly</span>
                 </div>
             </div>
             <nav class="sidebar-nav">
@@ -55,11 +63,7 @@
         <main class="main-content">
             <header class="top-bar">
                 <div class="breadcrumbs">
-                    <span class="breadcrumb-item">Utilsly</span>
-                    <span class="separator">/</span>
-                    <span class="breadcrumb-item">비디오</span>
-                    <span class="separator">/</span>
-                    <span class="breadcrumb-item current-page">GIF 변환기</span>
+                    <span class="breadcrumb-item">GIF 변환기</span>
                 </div>
             </header>
 

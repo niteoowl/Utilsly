@@ -1,11 +1,20 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ko">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>이미지 색상 추출 - Utilsly</title>
-    <meta name="description" content="이미지에서 주요 색상 팔레트를 추출하세요.">
+    <meta name="description" content="이미지에서 주요 색상 팔레트를 추출하세요.">    <script>
+        (function () {
+            const savedTheme = localStorage.getItem('theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            }
+        })();
+    </script>
+
     <link rel="stylesheet" href="../../css/style.css">
     <style>
         .extractor-container {
@@ -31,7 +40,7 @@
         }
 
         .color-card {
-            background: white;
+            background: var(--bg-primary);
             border: 1px solid var(--border-color);
             border-radius: 8px;
             overflow: hidden;
@@ -61,7 +70,7 @@
             align-items: center;
             gap: 24px;
             padding: 24px;
-            background: white;
+            background: var(--bg-primary);
             border: 1px solid var(--border-color);
             border-radius: 12px;
             margin-bottom: 24px;

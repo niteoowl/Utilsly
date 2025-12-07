@@ -1,11 +1,20 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ko">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>음성 녹음기 - Utilsly</title>
-    <meta name="description" content="웹 브라우저에서 바로 음성을 녹음하고 파일로 저장하세요.">
+    <meta name="description" content="웹 브라우저에서 바로 음성을 녹음하고 파일로 저장하세요.">    <script>
+        (function () {
+            const savedTheme = localStorage.getItem('theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            }
+        })();
+    </script>
+
     <link rel="stylesheet" href="../../css/style.css">
     <style>
         .recorder-container {
@@ -45,7 +54,7 @@
         }
 
         .record-btn.recording {
-            background: white;
+            background: var(--bg-primary);
             border: 2px solid #FF4B4B;
             animation: pulse 2s infinite;
         }
@@ -82,7 +91,7 @@
             display: flex;
             align-items: center;
             gap: 16px;
-            background: white;
+            background: var(--bg-primary);
             padding: 16px;
             border-radius: 12px;
             border: 1px solid var(--border-color);

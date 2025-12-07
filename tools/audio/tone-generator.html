@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ko">
 
 <head>
@@ -6,6 +6,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>주파수 생성기 - Utilsly</title>
     <meta name="description" content="특정 주파수(Hz)의 소리를 생성합니다. 스피커 테스트나 청력 테스트에 활용하세요.">
+    <script>
+        (function () {
+            const savedTheme = localStorage.getItem('theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            }
+        })();
+    </script>
     <link rel="stylesheet" href="../../css/style.css">
     <style>
         .generator-container {
@@ -90,7 +99,6 @@
             <div class="sidebar-header">
                 <div class="user-profile">
                     <div class="avatar">U</div>
-                    <span class="username">Utilsly</span>
                 </div>
             </div>
             <nav class="sidebar-nav">
@@ -101,11 +109,7 @@
         <main class="main-content">
             <header class="top-bar">
                 <div class="breadcrumbs">
-                    <span class="breadcrumb-item">Utilsly</span>
-                    <span class="separator">/</span>
-                    <span class="breadcrumb-item">오디오</span>
-                    <span class="separator">/</span>
-                    <span class="breadcrumb-item current-page">주파수 생성기</span>
+                    <span class="breadcrumb-item">주파수 생성기</span>
                 </div>
             </header>
 

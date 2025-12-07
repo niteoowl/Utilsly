@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ko">
 
 <head>
@@ -6,17 +6,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>기초대사량(BMR) 계산기 - Utilsly</title>
     <meta name="description" content="하루에 필요한 최소 칼로리(기초대사량)를 계산하세요.">
+    <script>
+        (function () {
+            const savedTheme = localStorage.getItem('theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            }
+        })();
+    </script>
     <link rel="stylesheet" href="../../css/style.css">
     <style>
-        .calculator-card {
-            background: white;
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 32px;
-            max-width: 480px;
-            margin: 0 auto;
-        }
-
         .input-group {
             margin-bottom: 20px;
         }
@@ -95,10 +95,6 @@
             color: var(--text-primary);
             margin-bottom: 4px;
         }
-
-        [data-theme="dark"] .calculator-card {
-            background: var(--bg-sidebar);
-        }
     </style>
 </head>
 
@@ -131,7 +127,7 @@
                     <p class="description">숨만 쉬어도 소모되는 하루 최소 칼로리를 계산해보세요.</p>
                 </div>
 
-                <div class="calculator-card">
+                <div class="tool-container">
                     <label style="display: block; font-weight: 600; margin-bottom: 8px;">성별</label>
                     <div class="radio-group">
                         <label class="radio-label">

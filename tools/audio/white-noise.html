@@ -1,11 +1,20 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ko">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>백색 소음 - Utilsly</title>
-    <meta name="description" content="집중력 향상과 수면 유도를 위한 백색 소음, 핑크 노이즈, 브라운 노이즈를 재생합니다.">
+    <meta name="description" content="집중력 향상과 수면 유도를 위한 백색 소음, 핑크 노이즈, 브라운 노이즈를 재생합니다.">    <script>
+        (function () {
+            const savedTheme = localStorage.getItem('theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            }
+        })();
+    </script>
+
     <link rel="stylesheet" href="../../css/style.css">
     <style>
         .noise-grid {
@@ -16,7 +25,7 @@
         }
 
         .noise-card {
-            background: white;
+            background: var(--bg-primary);
             border: 1px solid var(--border-color);
             border-radius: 16px;
             padding: 24px;
@@ -66,7 +75,6 @@
             <div class="sidebar-header">
                 <div class="user-profile">
                     <div class="avatar">U</div>
-                    <span class="username">Utilsly</span>
                 </div>
             </div>
             <nav class="sidebar-nav">
@@ -77,11 +85,7 @@
         <main class="main-content">
             <header class="top-bar">
                 <div class="breadcrumbs">
-                    <span class="breadcrumb-item">Utilsly</span>
-                    <span class="separator">/</span>
-                    <span class="breadcrumb-item">오디오</span>
-                    <span class="separator">/</span>
-                    <span class="breadcrumb-item current-page">백색 소음</span>
+                    <span class="breadcrumb-item">백색 소음</span>
                 </div>
             </header>
 

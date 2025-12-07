@@ -1,11 +1,20 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ko">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>로렘 입숨 생성기 - Utilsly</title>
-    <meta name="description" content="디자인 및 퍼블리싱을 위한 더미 텍스트(Lorem Ipsum) 생성기입니다.">
+    <meta name="description" content="디자인 및 퍼블리싱을 위한 더미 텍스트(Lorem Ipsum) 생성기입니다.">    <script>
+        (function () {
+            const savedTheme = localStorage.getItem('theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            }
+        })();
+    </script>
+
     <link rel="stylesheet" href="../../css/style.css">
 </head>
 
@@ -15,7 +24,6 @@
             <div class="sidebar-header">
                 <div class="user-profile">
                     <div class="avatar">U</div>
-                    <span class="username">Utilsly</span>
                 </div>
             </div>
             <nav class="sidebar-nav">
@@ -26,11 +34,7 @@
         <main class="main-content">
             <header class="top-bar">
                 <div class="breadcrumbs">
-                    <span class="breadcrumb-item">Utilsly</span>
-                    <span class="separator">/</span>
-                    <span class="breadcrumb-item">텍스트</span>
-                    <span class="separator">/</span>
-                    <span class="breadcrumb-item current-page">로렘 입숨 생성</span>
+                    <span class="breadcrumb-item">로렘 입숨 생성</span>
                 </div>
             </header>
 

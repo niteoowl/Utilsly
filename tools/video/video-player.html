@@ -1,11 +1,20 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ko">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>비디오 플레이어 - Utilsly</title>
-    <meta name="description" content="배속 재생, 거울 모드, 회전 기능을 제공하는 웹 비디오 플레이어입니다.">
+    <meta name="description" content="배속 재생, 거울 모드, 회전 기능을 제공하는 웹 비디오 플레이어입니다.">    <script>
+        (function () {
+            const savedTheme = localStorage.getItem('theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            }
+        })();
+    </script>
+
     <link rel="stylesheet" href="../../css/style.css">
     <style>
         .player-container {
@@ -51,7 +60,7 @@
             padding: 6px 12px;
             border: 1px solid var(--border-color);
             border-radius: 6px;
-            background: white;
+            background: var(--bg-primary);
             cursor: pointer;
             font-size: 14px;
         }
@@ -70,7 +79,6 @@
             <div class="sidebar-header">
                 <div class="user-profile">
                     <div class="avatar">U</div>
-                    <span class="username">Utilsly</span>
                 </div>
             </div>
             <nav class="sidebar-nav">
@@ -81,11 +89,7 @@
         <main class="main-content">
             <header class="top-bar">
                 <div class="breadcrumbs">
-                    <span class="breadcrumb-item">Utilsly</span>
-                    <span class="separator">/</span>
-                    <span class="breadcrumb-item">비디오</span>
-                    <span class="separator">/</span>
-                    <span class="breadcrumb-item current-page">비디오 플레이어</span>
+                    <span class="breadcrumb-item">비디오 플레이어</span>
                 </div>
             </header>
 
