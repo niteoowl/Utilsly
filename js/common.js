@@ -12,6 +12,8 @@ const Utilsly = {
         this.renderSidebar();
         this.highlightActivePage();
         this.initMobileMenu();
+        this.restoreSidebarScroll(); // Restore scroll position
+        this.initScrollSave(); // Save scroll on navigation
     },
 
     hiddenTools: new Set(),
@@ -342,6 +344,34 @@ const Utilsly = {
         if (sidebar) {
             sidebar.scrollTop = scrollPosition;
         }
+    },
+
+    restoreSidebarScroll() {
+        const sidebar = document.querySelector('.sidebar');
+        if (sidebar) {
+            const savedScroll = localStorage.getItem('utilsly_sidebar_scroll');
+            if (savedScroll) {
+                sidebar.scrollTop = parseInt(savedScroll, 10);
+            }
+        }
+    },
+
+    initScrollSave() {
+        const sidebar = document.querySelector('.sidebar');
+        if (!sidebar) return;
+
+        // Save scroll position when clicking any link
+        document.addEventListener('click', (e) => {
+            const link = e.target.closest('a');
+            if (link && link.href) {
+                localStorage.setItem('utilsly_sidebar_scroll', sidebar.scrollTop);
+            }
+        });
+
+        // Also save on page unload as backup
+        window.addEventListener('beforeunload', () => {
+            localStorage.setItem('utilsly_sidebar_scroll', sidebar.scrollTop);
+        });
     },
 
     highlightActivePage() {
