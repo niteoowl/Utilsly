@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>ZIP 압축 해제 - Utilsly</title>
+    <meta name="description" content="ZIP 파일의 압축을 해제하세요.">
+    <script>
+        !function () { const e = localStorage.getItem("theme"), t = window.matchMedia("(prefers-color-scheme: dark)").matches; "dark" !== e && (e || !t) || document.documentElement.setAttribute("data-theme", "dark") }();
+    </script>
+    <link rel="preload" href="../../css/style.css" as="style">
+    <link rel="stylesheet" href="../../css/style.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="user-profile">
+                    <div class="avatar">U</div>
+                </div>
+            </div>
+            <nav class="sidebar-nav"></nav>
+        </aside>
+        <main class="main-content">
+            <header class="top-bar">
+                <div class="breadcrumbs"><span class="breadcrumb-item">ZIP 압축 해제</span></div>
+            </header>
+            <div class="content-area">
+                <div class="page-header">
+                    <div class="header-icon-wrapper"><span class="material-symbols-rounded">folder_open</span></div>
+                    <h1>ZIP 압축 해제</h1>
+                    <p class="description">ZIP 파일의 압축을 해제하고 파일을 다운로드하세요.</p>
+                </div>
+                <div class="tool-container">
+                    <div class="drop-zone" id="dropZone"
+                        style="border: 2px dashed var(--border-color); padding: 40px; text-align: center; cursor: pointer; margin-bottom: 24px;">
+                        <span class="material-symbols-rounded"
+                            style="font-size: 48px; color: var(--text-tertiary);">cloud_upload</span>
+                        <p style="margin-top: 16px;">ZIP 파일을 업로드하세요</p>
+                        <input type="file" id="fileInput" accept=".zip,application/zip" style="display: none;">
+                    </div>
+                    <div id="fileList" style="margin-bottom: 24px;"></div>
+                    <div id="controls" style="display: none;">
+                        <button class="btn btn-primary" onclick="downloadAll()"
+                            style="width: 100%; margin-bottom: 12px;">모든 파일 다운로드</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="../../js/common.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script>
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const fileList = document.getElementById('fileList');
+        const controls = document.getElementById('controls');
+
+        let extractedFiles = [];
+
+        dropZone.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', handleFile);
+
+        async function handleFile(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            try {
+                const zip = new JSZip();
+                const contents = await zip.loadAsync(file);
+                extractedFiles = [];
+
+                for (const [filename, fileData] of Object.entries(contents.files)) {
+                    if (!fileData.dir) {
+                        const blob = await fileData.async('blob');
+                        extractedFiles.push({ name: filename, blob: blob });
+                    }
+                }
+
+                renderFileList();
+                dropZone.style.display = 'none';
+                controls.style.display = 'block';
+            } catch (error) {
+                alert('ZIP 파일을 읽는 중 오류가 발생했습니다.');
+            }
+        }
+
+        function renderFileList() {
+            fileList.innerHTML = '<div style="font-weight: 600; margin-bottom: 12px;">압축 해제된 파일 (' + extractedFiles.length + '개)</div>';
+            extractedFiles.forEach((file, index) => {
+                const item = document.createElement('div');
+                item.style.cssText = 'display: flex; justify-content: space-between; align-items: center; padding: 12px; background: var(--bg-sidebar); border-radius: 8px; margin-bottom: 8px;';
+                item.innerHTML = `
+                    <span>${file.name} (${formatFileSize(file.blob.size)})</span>
+                    <button class="btn btn-primary" onclick="downloadFile(${index})" style="padding: 8px 16px;">
+                        <span class="material-symbols-rounded" style="font-size: 18px;">download</span>
+                    </button>
+                `;
+                fileList.appendChild(item);
+            });
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+        }
+
+        function downloadFile(index) {
+            const file = extractedFiles[index];
+            const url = URL.createObjectURL(file.blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = file.name;
+            link.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function downloadAll() {
+            extractedFiles.forEach((file, index) => {
+                setTimeout(() => downloadFile(index), index * 100);
+            });
+        }
+    </script>
+</body>
+
+</html>

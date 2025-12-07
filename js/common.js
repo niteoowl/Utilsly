@@ -117,9 +117,11 @@ const Utilsly = {
         {
             category: "이미지 (Image)",
             items: [
-                { name: "이미지 정렬", icon: "photo_library", path: "/tools/image/image-sorter.html" },
                 { name: "이미지 리사이저", icon: "image", path: "/tools/image/image-resizer.html" },
-                { name: "이미지 변환기", icon: "transform", path: "/tools/image/image-converter.html" },
+                { name: "JPG ↔ PNG 변환", icon: "transform", path: "/tools/image/jpg-png-converter.html" },
+                { name: "PNG ↔ WebP 변환", icon: "transform", path: "/tools/image/png-webp-converter.html" },
+                { name: "WebP → JPG 변환", icon: "transform", path: "/tools/image/webp-jpg-converter.html" },
+                { name: "SVG → PNG 변환", icon: "transform", path: "/tools/image/svg-png-converter.html" },
                 { name: "이미지 자르기", icon: "crop", path: "/tools/image/image-cropper.html" },
                 { name: "이미지 필터", icon: "photo_filter", path: "/tools/image/image-filters.html" },
                 { name: "이미지 색상 추출", icon: "colorize", path: "/tools/image/color-extractor.html" },

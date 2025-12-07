@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>SVG PNG 변환기 - Utilsly</title>
+    <meta name="description" content="SVG를 PNG로 무료 변환하세요.">
+    <script>
+        !function () { const e = localStorage.getItem("theme"), t = window.matchMedia("(prefers-color-scheme: dark)").matches; "dark" !== e && (e || !t) || document.documentElement.setAttribute("data-theme", "dark") }();
+    </script>
+    <link rel="preload" href="../../css/style.css" as="style">
+    <link rel="stylesheet" href="../../css/style.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="user-profile">
+                    <div class="avatar">U</div>
+                </div>
+            </div>
+            <nav class="sidebar-nav"></nav>
+        </aside>
+        <main class="main-content">
+            <header class="top-bar">
+                <div class="breadcrumbs"><span class="breadcrumb-item">SVG → PNG 변환</span></div>
+            </header>
+            <div class="content-area">
+                <div class="page-header">
+                    <div class="header-icon-wrapper"><span class="material-symbols-rounded">transform</span></div>
+                    <h1>SVG → PNG 변환기</h1>
+                    <p class="description">SVG 벡터 이미지를 PNG로 무료 변환하세요.</p>
+                </div>
+                <div class="tool-container">
+                    <div class="drop-zone" id="dropZone"
+                        style="border: 2px dashed var(--border-color); padding: 40px; text-align: center; cursor: pointer; margin-bottom: 24px;">
+                        <span class="material-symbols-rounded"
+                            style="font-size: 48px; color: var(--text-tertiary);">cloud_upload</span>
+                        <p style="margin-top: 16px;">SVG 파일을 업로드하세요</p>
+                        <input type="file" id="fileInput" accept="image/svg+xml,.svg" style="display: none;">
+                    </div>
+                    <div id="previewArea" style="display: none; text-align: center; margin-bottom: 24px;">
+                        <div id="svgContainer" style="max-width: 100%; max-height: 400px; display: inline-block;"></div>
+                    </div>
+                    <div id="controls" style="display: none;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                            <div>
+                                <label style="font-weight: 600; display: block; margin-bottom: 8px;">너비 (px)</label>
+                                <input type="number" id="width" value="800" min="1"
+                                    style="width: 100%; padding: 8px; border: 1px solid var(--border-color); border-radius: 4px;">
+                            </div>
+                            <div>
+                                <label style="font-weight: 600; display: block; margin-bottom: 8px;">높이 (px)</label>
+                                <input type="number" id="height" value="600" min="1"
+                                    style="width: 100%; padding: 8px; border: 1px solid var(--border-color); border-radius: 4px;">
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" onclick="convert()" style="width: 100%;">PNG로 변환 및 다운로드</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="../../js/common.js"></script>
+    <script>
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const previewArea = document.getElementById('previewArea');
+        const svgContainer = document.getElementById('svgContainer');
+        const controls = document.getElementById('controls');
+        const widthInput = document.getElementById('width');
+        const heightInput = document.getElementById('height');
+
+        let svgData = null;
+
+        dropZone.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', handleFile);
+
+        function handleFile(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                svgData = e.target.result;
+                svgContainer.innerHTML = svgData;
+
+                // Get original SVG dimensions
+                const svg = svgContainer.querySelector('svg');
+                if (svg) {
+                    const viewBox = svg.getAttribute('viewBox');
+                    if (viewBox) {
+                        const [, , w, h] = viewBox.split(' ').map(Number);
+                        widthInput.value = Math.round(w);
+                        heightInput.value = Math.round(h);
+                    }
+                }
+
+                dropZone.style.display = 'none';
+                previewArea.style.display = 'block';
+                controls.style.display = 'block';
+            };
+            reader.readAsText(file);
+        }
+
+        function convert() {
+            if (!svgData) return;
+
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const width = parseInt(widthInput.value);
+            const height = parseInt(heightInput.value);
+
+            canvas.width = width;
+            canvas.height = height;
+
+            const img = new Image();
+            const blob = new Blob([svgData], { type: 'image/svg+xml' });
+            const url = URL.createObjectURL(blob);
+
+            img.onload = () => {
+                ctx.drawImage(img, 0, 0, width, height);
+                canvas.toBlob((blob) => {
+                    const downloadUrl = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = downloadUrl;
+                    link.download = 'converted.png';
+                    link.click();
+                    URL.revokeObjectURL(downloadUrl);
+                    URL.revokeObjectURL(url);
+                }, 'image/png');
+            };
+
+            img.src = url;
+        }
+    </script>
+</body>
+
+</html>
