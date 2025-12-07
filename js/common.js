@@ -122,10 +122,13 @@ const Utilsly = {
                 { name: "PNG ↔ WebP 변환", icon: "transform", path: "/tools/image/png-webp-converter.html" },
                 { name: "WebP → JPG 변환", icon: "transform", path: "/tools/image/webp-jpg-converter.html" },
                 { name: "SVG → PNG 변환", icon: "transform", path: "/tools/image/svg-png-converter.html" },
+                { name: "HEIC → JPG 변환", icon: "transform", path: "/tools/image/heic-jpg-converter.html" },
+                { name: "HEIC → PNG 변환", icon: "transform", path: "/tools/image/heic-png-converter.html" },
                 { name: "이미지 자르기", icon: "crop", path: "/tools/image/image-cropper.html" },
                 { name: "이미지 필터", icon: "photo_filter", path: "/tools/image/image-filters.html" },
                 { name: "이미지 색상 추출", icon: "colorize", path: "/tools/image/color-extractor.html" },
                 { name: "플레이스홀더 생성", icon: "image", path: "/tools/image/placeholder-generator.html" },
+                { name: "ASCII 아트", icon: "grid_on", path: "/tools/image/ascii-art.html" },
             ]
         },
         {
@@ -161,10 +164,10 @@ const Utilsly = {
                 { name: "텍스트 비교", icon: "difference", path: "/tools/text/text-diff.html" },
                 { name: "글자수 세기", icon: "article", path: "/tools/text/word-counter.html" },
                 { name: "대소문자 변환", icon: "text_fields", path: "/tools/text/case-converter.html" },
-                { name: "로렘 입숨 생성", icon: "description", path: "/tools/text/lorem-ipsum.html" },
+                { name: "로눘 입숨 생성", icon: "description", path: "/tools/text/lorem-ipsum.html" },
                 { name: "줄바꿈 제거", icon: "format_align_left", path: "/tools/text/remove-line-breaks.html" },
                 { name: "마크다운 미리보기", icon: "markdown", path: "/tools/text/markdown-preview.html" },
-                { name: "마크다운 테이블", icon: "table", path: "/tools/text/markdown-table.html" },
+                { name: "특수문자 폰트", icon: "text_fields", path: "/tools/text/fancy-text.html" },
             ]
         },
         {

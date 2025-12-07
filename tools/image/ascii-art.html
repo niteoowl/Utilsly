@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>ASCII 아트 생성기 - Utilsly</title>
+    <meta name="description" content="이미지를 ASCII 아트로 변환하세요.">
+    <script>
+        !function () { const e = localStorage.getItem("theme"), t = window.matchMedia("(prefers-color-scheme: dark)").matches; "dark" !== e && (e || !t) || document.documentElement.setAttribute("data-theme", "dark") }();
+    </script>
+    <link rel="preload" href="../../css/style.css" as="style">
+    <link rel="stylesheet" href="../../css/style.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="user-profile">
+                    <div class="avatar">U</div>
+                </div>
+            </div>
+            <nav class="sidebar-nav"></nav>
+        </aside>
+        <main class="main-content">
+            <header class="top-bar">
+                <div class="breadcrumbs"><span class="breadcrumb-item">ASCII 아트</span></div>
+            </header>
+            <div class="content-area">
+                <div class="page-header">
+                    <div class="header-icon-wrapper"><span class="material-symbols-rounded">grid_on</span></div>
+                    <h1>ASCII 아트 생성기</h1>
+                    <p class="description">이미지를 ASCII 문자로 변환하세요.</p>
+                </div>
+                <div class="tool-container">
+                    <div class="drop-zone" id="dropZone"
+                        style="border: 2px dashed var(--border-color); padding: 40px; text-align: center; cursor: pointer; margin-bottom: 24px;">
+                        <span class="material-symbols-rounded"
+                            style="font-size: 48px; color: var(--text-tertiary);">cloud_upload</span>
+                        <p style="margin-top: 16px;">이미지를 업로드하세요</p>
+                        <input type="file" id="fileInput" accept="image/*" style="display: none;">
+                    </div>
+                    <div id="controls" style="display: none; margin-bottom: 24px;">
+                        <div
+                            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px;">
+                            <div>
+                                <label style="font-weight: 600; display: block; margin-bottom: 8px;">너비 (<span
+                                        id="widthValue">100</span>자)</label>
+                                <input type="range" id="width" min="20" max="200" value="100" style="width: 100%;">
+                            </div>
+                            <div>
+                                <label style="font-weight: 600; display: block; margin-bottom: 8px;">문자 세트</label>
+                                <select id="charset"
+                                    style="width: 100%; padding: 8px; border: 1px solid var(--border-color); border-radius: 4px;">
+                                    <option value="standard">표준 (@ # $ % + - .)</option>
+                                    <option value="detailed">상세 (@ # W $ 9 8 7 + = - .)</option>
+                                    <option value="blocks">블록 (█ ▓ ▒ ░)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="output" style="display: none;">
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <label style="font-weight: 600;">ASCII 아트</label>
+                            <button class="btn" onclick="copyAscii()">복사</button>
+                        </div>
+                        <pre id="ascii"
+                            style="background: var(--bg-sidebar); padding: 16px; border-radius: 8px; overflow-x: auto; font-family: monospace; font-size: 8px; line-height: 1;"></pre>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="../../js/common.js"></script>
+    <script>
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const controls = document.getElementById('controls');
+        const output = document.getElementById('output');
+        const ascii = document.getElementById('ascii');
+        const widthInput = document.getElementById('width');
+        const widthValue = document.getElementById('widthValue');
+        const charset = document.getElementById('charset');
+
+        const charsets = {
+            standard: '@#$%+-. ',
+            detailed: '@#W$9876543210?!abc;:+=-,._  ',
+            blocks: '█▓▒░ '
+        };
+
+        let currentImage = null;
+
+        dropZone.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', handleFile);
+        widthInput.addEventListener('input', () => {
+            widthValue.textContent = widthInput.value;
+            if (currentImage) generateAscii();
+        });
+        charset.addEventListener('change', () => {
+            if (currentImage) generateAscii();
+        });
+
+        function handleFile(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                currentImage = new Image();
+                currentImage.onload = () => {
+                    dropZone.style.display = 'none';
+                    controls.style.display = 'block';
+                    output.style.display = 'block';
+                    generateAscii();
+                };
+                currentImage.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function generateAscii() {
+            const width = parseInt(widthInput.value);
+            const chars = charsets[charset.value];
+
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+
+            const aspectRatio = currentImage.height / currentImage.width;
+            const height = Math.floor(width * aspectRatio * 0.5);
+
+            canvas.width = width;
+            canvas.height = height;
+            ctx.drawImage(currentImage, 0, 0, width, height);
+
+            const imageData = ctx.getImageData(0, 0, width, height);
+            let asciiArt = '';
+
+            for (let y = 0; y < height; y++) {
+                for (let x = 0; x < width; x++) {
+                    const i = (y * width + x) * 4;
+                    const r = imageData.data[i];
+                    const g = imageData.data[i + 1];
+                    const b = imageData.data[i + 2];
+                    const brightness = (r + g + b) / 3;
+                    const charIndex = Math.floor((brightness / 255) * (chars.length - 1));
+                    asciiArt += chars[chars.length - 1 - charIndex];
+                }
+                asciiArt += '\n';
+            }
+
+            ascii.textContent = asciiArt;
+        }
+
+        function copyAscii() {
+            navigator.clipboard.writeText(ascii.textContent);
+        }
+    </script>
+</body>
+
+</html>
