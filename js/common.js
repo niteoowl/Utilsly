@@ -117,11 +117,13 @@ const Utilsly = {
         {
             category: "이미지 (Image)",
             items: [
+                { name: "이미지 정렬", icon: "photo_library", path: "/tools/image/image-sorter.html" },
                 { name: "이미지 리사이저", icon: "image", path: "/tools/image/image-resizer.html" },
                 { name: "이미지 변환기", icon: "transform", path: "/tools/image/image-converter.html" },
                 { name: "이미지 자르기", icon: "crop", path: "/tools/image/image-cropper.html" },
                 { name: "이미지 필터", icon: "photo_filter", path: "/tools/image/image-filters.html" },
                 { name: "이미지 색상 추출", icon: "colorize", path: "/tools/image/color-extractor.html" },
+                { name: "플레이스홀더 생성", icon: "image", path: "/tools/image/placeholder-generator.html" },
             ]
         },
         {
@@ -160,6 +162,7 @@ const Utilsly = {
                 { name: "로렘 입숨 생성", icon: "description", path: "/tools/text/lorem-ipsum.html" },
                 { name: "줄바꿈 제거", icon: "format_align_left", path: "/tools/text/remove-line-breaks.html" },
                 { name: "마크다운 미리보기", icon: "markdown", path: "/tools/text/markdown-preview.html" },
+                { name: "마크다운 테이블", icon: "table", path: "/tools/text/markdown-table.html" },
             ]
         },
         {
@@ -198,6 +201,7 @@ const Utilsly = {
             category: "색상 (Color)",
             items: [
                 { name: "컬러 피커", icon: "palette", path: "/tools/color/color-picker.html" },
+                { name: "그라디언트 생성", icon: "gradient", path: "/tools/color/gradient-generator.html" },
             ]
         },
         {
