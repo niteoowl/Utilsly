@@ -6,20 +6,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>퍼센트 계산기 - Utilsly</title>
-    <meta name="description" content="전체값의 비율, 값의 변화율, 증감 계산 등 다양한 퍼센트 계산을 지원합니다."><script>
-        !function(){const e=localStorage.getItem("theme"),t=window.matchMedia("(prefers-color-scheme: dark)").matches;"dark"!==e&&(e||!t)||document.documentElement.setAttribute("data-theme","dark")}();
+    <meta name="description" content="전체값의 비율, 값의 변화율, 증감 계산 등 다양한 퍼센트 계산을 지원합니다.">
+    <script>
+        !function () { const e = localStorage.getItem("theme"), t = window.matchMedia("(prefers-color-scheme: dark)").matches; "dark" !== e && (e || !t) || document.documentElement.setAttribute("data-theme", "dark") }();
     </script>
 
     <link rel="preload" href="../../css/style.css" as="style">
     <link rel="stylesheet" href="../../css/style.css">
     <style>
         .calc-row {
-            background: #f9f9f9;
+            background: var(--bg-sidebar);
             padding: 16px;
             border-radius: 8px;
             margin-bottom: 16px;
             display: flex;
-                        gap: 12px;
+            align-items: center;
+            gap: 12px;
             flex-wrap: wrap;
         }
 
