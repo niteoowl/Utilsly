@@ -6,8 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>백색 소음 - Utilsly</title>
-    <meta name="description" content="집중력 향상과 수면 유도를 위한 백색 소음, 핑크 노이즈, 브라운 노이즈를 재생합니다."><script>
-        !function(){const e=localStorage.getItem("theme"),t=window.matchMedia("(prefers-color-scheme: dark)").matches;"dark"!==e&&(e||!t)||document.documentElement.setAttribute("data-theme","dark")}();
+    <meta name="description" content="집중력 향상과 수면 유도를 위한 백색 소음, 핑크 노이즈, 브라운 노이즈를 재생합니다.">
+    <script>
+        !function () { const e = localStorage.getItem("theme"), t = window.matchMedia("(prefers-color-scheme: dark)").matches; "dark" !== e && (e || !t) || document.documentElement.setAttribute("data-theme", "dark") }();
     </script>
 
     <link rel="preload" href="../../css/style.css" as="style">
@@ -58,7 +59,7 @@
         }
 
         .volume-control {
-            
+
             text-align: center;
         }
     </style>
@@ -96,7 +97,7 @@
                 <div class="tool-container">
                     <div class="noise-grid">
                         <div class="noise-card" onclick="playNoise('white', this)">
-                            <div class="material-symbols-rounded noise-icon">static_audio</div>
+                            <div class="material-symbols-rounded noise-icon">graphic_eq</div>
                             <div class="noise-name">White Noise</div>
                             <div class="noise-desc">모든 주파수가 균일한 소리. 집중력 향상에 좋습니다.</div>
                         </div>

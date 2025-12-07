@@ -6,8 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>음성 녹음기 - Utilsly</title>
-    <meta name="description" content="웹 브라우저에서 바로 음성을 녹음하고 파일로 저장하세요."><script>
-        !function(){const e=localStorage.getItem("theme"),t=window.matchMedia("(prefers-color-scheme: dark)").matches;"dark"!==e&&(e||!t)||document.documentElement.setAttribute("data-theme","dark")}();
+    <meta name="description" content="웹 브라우저에서 바로 음성을 녹음하고 파일로 저장하세요.">
+    <script>
+        !function () { const e = localStorage.getItem("theme"), t = window.matchMedia("(prefers-color-scheme: dark)").matches; "dark" !== e && (e || !t) || document.documentElement.setAttribute("data-theme", "dark") }();
     </script>
 
     <link rel="preload" href="../../css/style.css" as="style">
@@ -39,7 +40,8 @@
             box-shadow: 0 4px 12px rgba(255, 75, 75, 0.3);
             transition: all 0.2s;
             display: flex;
-                        justify-content: center;
+            align-items: center;
+            justify-content: center;
             margin: 0 auto;
         }
 
@@ -84,7 +86,7 @@
 
         .audio-item {
             display: flex;
-                        gap: 16px;
+            gap: 16px;
             background: var(--bg-primary);
             padding: 16px;
             border-radius: 12px;
