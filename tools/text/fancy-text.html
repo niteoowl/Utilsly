@@ -37,7 +37,7 @@
                 <div class="tool-container">
                     <div style="margin-bottom: 24px;">
                         <label style="font-weight: 600; display: block; margin-bottom: 8px;">텍스트 입력</label>
-                        <input type="text" id="input" placeholder="Hello World"
+                        <input type="text" id="input" placeholder="Type something..."
                             style="width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 16px;">
                     </div>
                     <div id="output"></div>
@@ -50,26 +50,48 @@
         const input = document.getElementById('input');
         const output = document.getElementById('output');
 
-        const fonts = {
-            '볼드 세리프': { map: '𝐀𝐁𝐂𝐃𝐄𝐅𝐆𝐇𝐈𝐉𝐊𝐋𝐌𝐍𝐎𝐏𝐐𝐑𝐒𝐓𝐔𝐕𝐖𝐗𝐘𝐙𝐚𝐛𝐜𝐝𝐞𝐟𝐠𝐡𝐢𝐣𝐤𝐥𝐦𝐧𝐨𝐩𝐪𝐫𝐬𝐭𝐮𝐯𝐰𝐱𝐲𝐳𝟎𝟏𝟐𝟑𝟒𝟓𝟔𝟕𝟖𝟗' },
-            '이탤릭 세리프': { map: '𝐴𝐵𝐶𝐷𝐸𝐹𝐺𝐻𝐼𝐽𝐾𝐿𝑀𝑁𝑂𝑃𝑄𝑅𝑆𝑇𝑈𝑉𝑊𝑋𝑌𝑍𝑎𝑏𝑐𝑑𝑒𝑓𝑔ℎ𝑖𝑗𝑘𝑙𝑚𝑛𝑜𝑝𝑞𝑟𝑠𝑡𝑢𝑣𝑤𝑥𝑦𝑧0123456789' },
-            '볼드 이탤릭': { map: '𝑨𝑩𝑪𝑫𝑬𝑭𝑮𝑯𝑰𝑱𝑲𝑳𝑴𝑵𝑶𝑷𝑸𝑹𝑺𝑻𝑼𝑽𝑾𝑿𝒀𝒁𝒂𝒃𝒄𝒅𝒆𝒇𝒈𝒉𝒊𝒋𝒌𝒍𝒎𝒏𝒐𝒑𝒒𝒓𝒔𝒕𝒖𝒗𝒘𝒙𝒚𝒛0123456789' },
-            '산세리프': { map: '𝖠𝖡𝖢𝖣𝖤𝖥𝖦𝖧𝖨𝖩𝖪𝖫𝖬𝖭𝖮𝖯𝖰𝖱𝖲𝖳𝖴𝖵𝖶𝖷𝖸𝖹𝖺𝖻𝖼𝖽𝖾𝖿𝗀𝗁𝗂𝗃𝗄𝗅𝗆𝗇𝗈𝗉𝗊𝗋𝗌𝗍𝗎𝗏𝗐𝗑𝗒𝗓𝟢𝟣𝟤𝟥𝟦𝟧𝟨𝟩𝟪𝟫' },
-            '볼드 산세리프': { map: '𝗔𝗕𝗖𝗗𝗘𝗙𝗚𝗛𝗜𝗝𝗞𝗟𝗠𝗡𝗢𝗣𝗤𝗥𝗦𝗧𝗨𝗩𝗪𝗫𝗬𝗭𝗮𝗯𝗰𝗱𝗲𝗳𝗴𝗵𝗶𝗷𝗸𝗹𝗺𝗻𝗼𝗽𝗾𝗿𝘀𝘁𝘂𝘃𝘄𝘅𝘆𝘇𝟬𝟭𝟮𝟯𝟰𝟱𝟲𝟳𝟴𝟵' },
-            '이탤릭 산세리프': { map: '𝘈𝘉𝘊𝘋𝘌𝘍𝘎𝘏𝘐𝘑𝘒𝘓𝘔𝘕𝘖𝘗𝘘𝘙𝘚𝘛𝘜𝘝𝘞𝘟𝘠𝘡𝘢𝘣𝘤𝘥𝘦𝘧𝘨𝘩𝘪𝘫𝘬𝘭𝘮𝘯𝘰𝘱𝘲𝘳𝘴𝘵𝘶𝘷𝘸𝘹𝘺𝘻0123456789' },
-            '스크립트': { map: '𝒜𝐵𝒞𝒟𝐸𝐹𝒢𝐻𝐼𝒥𝒦𝐿𝑀𝒩𝒪𝒫𝒬𝑅𝒮𝒯𝒰𝒱𝒲𝒳𝒴𝒵𝒶𝒷𝒸𝒹𝑒𝒻𝑔𝒽𝒾𝒿𝓀𝓁𝓂𝓃𝑜𝓅𝓆𝓇𝓈𝓉𝓊𝓋𝓌𝓍𝓎𝓏0123456789' },
-            '볼드 스크립트': { map: '𝓐𝓑𝓒𝓓𝓔𝓕𝓖𝓗𝓘𝓙𝓚𝓛𝓜𝓝𝓞𝓟𝓠𝓡𝓢𝓣𝓤𝓥𝓦𝓧𝓨𝓩𝓪𝓫𝓬𝓭𝓮𝓯𝓰𝓱𝓲𝓳𝓴𝓵𝓶𝓷𝓸𝓹𝓺𝓻𝓼𝓽𝓾𝓿𝔀𝔁𝔂𝔃0123456789' },
-            '프락투어': { map: '𝔄𝔅ℭ𝔇𝔈𝔉𝔊ℌℑ𝔍𝔎𝔏𝔐𝔑𝔒𝔓𝔔ℜ𝔖𝔗𝔘𝔙𝔚𝔛𝔜ℨ𝔞𝔟𝔠𝔡𝔢𝔣𝔤𝔥𝔦𝔧𝔨𝔩𝔪𝔫𝔬𝔭𝔮𝔯𝔰𝔱𝔲𝔳𝔴𝔵𝔶𝔷0123456789' },
-            '볼드 프락투어': { map: '𝕬𝕭𝕮𝕯𝕰𝕱𝕲𝕳𝕴𝕵𝕶𝕷𝕸𝕹𝕺𝕻𝕼𝕽𝕾𝕿𝖀𝖁𝖂𝖃𝖄𝖅𝖆𝖇𝖈𝖉𝖊𝖋𝖌𝖍𝖎𝖏𝖐𝖑𝖒𝖓𝖔𝖕𝖖𝖗𝖘𝖙𝖚𝖛𝖜𝖝𝖞𝖟0123456789' },
-            '더블 스트럭': { map: '𝔸𝔹ℂ𝔻𝔼𝔽𝔾ℍ𝕀𝕁𝕂𝕃𝕄ℕ𝕆ℙℚℝ𝕊𝕋𝕌𝕍𝕎𝕏𝕐ℤ𝕒𝕓𝕔𝕕𝕖𝕗𝕘𝕙𝕚𝕛𝕜𝕝𝕞𝕟𝕠𝕡𝕢𝕣𝕤𝕥𝕦𝕧𝕨𝕩𝕪𝕫𝟘𝟙𝟚𝟛𝟜𝟝𝟞𝟟𝟠𝟡' },
-            '모노스페이스': { map: '𝙰𝙱𝙲𝙳𝙴𝙵𝙶𝙷𝙸𝙹𝙺𝙻𝙼𝙽𝙾𝙿𝚀𝚁𝚂𝚃𝚄𝚅𝚆𝚇𝚈𝚉𝚊𝚋𝚌𝚍𝚎𝚏𝚐𝚑𝚒𝚓𝚔𝚕𝚖𝚗𝚘𝚙𝚚𝚛𝚜𝚝𝚞𝚟𝚠𝚡𝚢𝚣𝟶𝟷𝟸𝟹𝟺𝟻𝟼𝟽𝟾𝟿' },
-            '서클': { map: 'ⒶⒷⒸⒹⒺⒻⒼⒽⒾⒿⓀⓁⓂⓃⓄⓅⓆⓇⓈⓉⓊⓋⓌⓍⓎⓏⓐⓑⓒⓓⓔⓕⓖⓗⓘⓙⓚⓛⓜⓝⓞⓟⓠⓡⓢⓣⓤⓥⓦⓧⓨⓩ⓪①②③④⑤⑥⑦⑧⑨' },
-            '네거티브 서클': { map: '🅐🅑🅒🅓🅔🅕🅖🅗🅘🅙🅚🅛🅜🅝🅞🅟🅠🅡🅢🅣🅤🅥🅦🅧🅨🅩🅐🅑🅒🅓🅔🅕🅖🅗🅘🅙🅚🅛🅜🅝🅞🅟🅠🅡🅢🅣🅤🅥🅦🅧🅨🅩0123456789' },
-            '스퀘어': { map: '🄰🄱🄲🄳🄴🄵🄶🄷🄸🄹🄺🄻🄼🄽🄾🄿🅀🅁🅂🅃🅄🅅🅆🅇🅈🅉🄰🄱🄲🄳🄴🄵🄶🄷🄸🄹🄺🄻🄼🄽🄾🄿🅀🅁🅂🅃🅄🅅🅆🅇🅈🅉0123456789' },
-            '네거티브 스퀘어': { map: '🅰🅱🅲🅳🅴🅵🅶🅷🅸🅹🅺🅻🅼🅽🅾🅿🆀🆁🆂🆃🆄🆅🆆🆇🆈🆉🅰🅱🅲🅳🅴🅵🅶🅷🅸🅹🅺🅻🅼🅽🅾🅿🆀🆁🆂🆃🆄🆅🆆🆇🆈🆉0123456789' },
-            '풀위드': { map: 'ＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺａｂｃｄｅｆｇｈｉｊｋｌｍｎｏｐｑｒｓｔｕｖｗｘｙｚ０１２３４５６７８９' },
-            '거꾸로': { map: 'ɐqɔpǝɟƃɥᴉɾʞlɯuodbɹsʇnʌʍxʎzɐqɔpǝɟƃɥᴉɾʞlɯuodbɹsʇnʌʍxʎz0123456789' },
-            '작은 대문자': { map: 'ᴀʙᴄᴅᴇꜰɢʜɪᴊᴋʟᴍɴᴏᴘQʀꜱᴛᴜᴠᴡxʏᴢᴀʙᴄᴅᴇꜰɢʜɪᴊᴋʟᴍɴᴏᴘQʀꜱᴛᴜᴠᴡxʏᴢ0123456789' }
+        // 분류 및 데이터 대폭 확장
+        const categories = {
+            "기본 스타일 (Serif & Sans)": {
+                '볼드 세리프 (Bold)': '𝐀𝐁𝐂𝐃𝐄𝐅𝐆𝐇𝐈𝐉𝐊𝐋𝐌𝐍𝐎𝐏𝐐𝐑𝐒𝐓𝐔𝐕𝐖𝐗𝐘𝐙𝐚𝐛𝐜𝐝𝐞𝐟𝐠𝐡𝐢𝐣𝐤𝐥𝐦𝐧𝐨𝐩𝐪𝐫𝐬𝐭𝐮𝐯𝐰𝐱𝐲𝐳𝟎𝟏𝟐𝟑𝟒𝟓𝟔𝟕𝟖𝟗',
+                '이탤릭 세리프 (Italic)': '𝐴𝐵𝐶𝐷𝐸𝐹𝐺𝐻𝐼𝐽𝐾𝐿𝑀𝑁𝑂𝑃𝑄𝑅𝑆𝑇𝑈𝑉𝑊𝑋𝑌𝑍𝑎𝑏𝑐𝑑𝑒𝑓𝑔ℎ𝑖𝑗𝑘𝑙𝑚𝑛𝑜𝑝𝑞𝑟𝑠𝑡𝑢𝑣𝑤𝑥𝑦𝑧0123456789',
+                '볼드 이탤릭 (Bold Italic)': '𝑨𝑩𝑪𝑫𝑬𝑭𝑮𝑯𝑰𝑱𝑲𝑳𝑴𝑵𝑶𝑷𝑸𝑹𝑺𝑻𝑼𝑽𝑾𝑿𝒀𝒁𝒂𝒃𝒄𝒅𝒆𝒇𝒈𝒉𝒊𝒋𝒌𝒍𝒎𝒏𝒐𝒑𝒒𝒓𝒔𝒕𝒖𝒗𝒘𝒙𝒚𝒛0123456789',
+                '산세리프 (Sans)': '𝖠𝖡𝖢𝖣𝖤𝖥𝖦𝖧𝖨𝖩𝖪𝖫𝖬𝖭𝖮𝖯𝖰𝖱𝖲𝖳𝖴𝖵𝖶𝖷𝖸𝖹𝖺𝖻𝖼𝖽𝖾𝖿𝗀𝗁𝗂𝗃𝗄𝗅𝗆𝗇𝗈𝗉𝗊𝗋𝗌𝗍𝗎𝗏𝗐𝗑𝗒𝗓𝟢𝟣𝟤𝟥𝟦𝟧𝟨𝟩𝟪𝟫',
+                '볼드 산세리프 (Sans Bold)': '𝗔𝗕𝗖𝗗𝗘𝗙𝗚𝗛𝗜𝗝𝗞𝗟𝗠𝗡𝗢𝗣𝗤𝗥𝗦𝗧𝗨𝗩𝗪𝗫𝗬𝗭𝗮𝗯𝗰𝗱𝗲𝗳𝗴𝗵𝗶𝗷𝗸𝗹𝗺𝗻𝗼𝗽𝗾𝗿𝘀𝘁𝘂𝘃𝘄𝘅𝘆𝘇𝟬𝟭𝟮𝟯𝟰𝟱𝟲𝟳𝟴𝟵',
+                '이탤릭 산세리프 (Sans Italic)': '𝘈𝘉𝘊𝘋𝘌𝘍𝘎𝘏𝘐𝘑𝘒𝘓𝘔𝘕𝘖𝘗𝘘𝘙𝘚𝘛𝘜𝘝𝘞𝘟𝘠𝘡𝘢𝘣𝘤𝘥𝘦𝘧𝘨𝘩𝘪𝘫𝘬𝘭𝘮𝘯𝘰𝘱𝘲𝘳𝘴𝘵𝘶𝘷𝘸𝘹𝘺𝘻0123456789',
+                '볼드 이탤릭 산세리프': '𝘼𝘽𝘾𝘿𝙀𝙁𝙂𝙃𝙄𝙅𝙆𝙇𝙈𝙉𝙊𝙋𝙌𝙍𝙎𝙏𝙐𝙑𝙒𝙓𝙔𝙕𝙖𝙗𝙘𝙙𝙚𝙛𝙜𝙝𝙞𝙟𝙠𝙡𝙢𝙣𝙤𝙥𝙦𝙧𝙨𝙩𝙪𝙫𝙬𝙭𝙮𝙯0123456789',
+                '모노스페이스 (Monospace)': '𝙰𝙱𝙲𝙳𝙴𝙵𝙶𝙷𝙸𝙹𝙺𝙻𝙼𝙽𝙾𝙿𝚀𝚁𝚂𝚃𝚄𝚅𝚆𝚇𝚈𝚉𝚊𝚋𝚌𝚍𝚎𝚏𝚐𝚑𝚒𝚓𝚔𝚕𝚖𝚗𝚘𝚙𝚚𝚛𝚜𝚝𝚞𝚟𝚠𝚡𝚢𝚣𝟶𝟷𝟸𝟹𝟺𝟻𝟼𝟽𝟾𝟿'
+            },
+            "필기체 & 고딕 (Script & Gothic)": {
+                '스크립트 (Script)': '𝒜𝐵𝒞𝒟𝐸𝐹𝒢𝐻𝐼𝒥𝒦𝐿𝑀𝒩𝒪𝒫𝒬𝑅𝒮𝒯𝒰𝒱𝒲𝒳𝒴𝒵𝒶𝒷𝒸𝒹𝑒𝒻𝑔𝒽𝒾𝒿𝓀𝓁𝓂𝓃𝑜𝓅𝓆𝓇𝓈𝓉𝓊𝓋𝓌𝓍𝓎𝓏0123456789',
+                '볼드 스크립트 (Bold Script)': '𝓐𝓑𝓒𝓓𝓔𝓕𝓖𝓗𝓘𝓙𝓚𝓛𝓜𝓝𝓞𝓟𝓠𝓡𝓢𝓣𝓤𝓥𝓦𝓧𝓨𝓩𝓪𝓫𝓬𝓭𝓮𝓯𝓰𝓱𝓲𝓳𝓴𝓵𝓶𝓷𝓸𝓹𝓺𝓻𝓼𝓽𝓾𝓿𝔀𝔁𝔂𝔃0123456789',
+                '프락투어 (Fraktur)': '𝔄𝔅ℭ𝔇𝔈𝔉𝔊ℌℑ𝔍𝔎𝔏𝔐𝔑𝔒𝔓𝔔ℜ𝔖𝔗𝔘𝔙𝔚𝔛𝔜ℨ𝔞𝔟𝔠𝔡𝔢𝔣𝔤𝔥𝔦𝔧𝔨𝔩𝔪𝔫𝔬𝔭𝔮𝔯𝔰𝔱𝔲𝔳𝔴𝔵𝔶𝔷0123456789',
+                '볼드 프락투어 (Bold Fraktur)': '𝕬𝕭𝕮𝕯𝕰𝕱𝕲𝕳𝕴𝕵𝕶𝕷𝕸𝕹𝕺𝕻𝕼𝕽𝕾𝕿𝖀𝖁𝖂𝖃𝖄𝖅𝖆𝖇𝖈𝖉𝖊𝖋𝖌𝖍𝖎𝖏𝖐𝖑𝖒𝖓𝖔𝖕𝖖𝖗𝖘𝖙𝖚𝖛𝖜𝖝𝖞𝖟0123456789',
+                '더블 스트럭 (Double Struck)': '𝔸𝔹ℂ𝔻𝔼𝔽𝔾ℍ𝕀𝕁𝕂𝕃𝕄ℕ𝕆ℙℚℝ𝕊𝕋𝕌𝕍𝕎𝕏𝕐ℤ𝕒𝕓𝕔𝕕𝕖𝕗𝕘𝕙𝕚𝕛𝕜𝕝𝕞𝕟𝕠𝕡𝕢𝕣𝕤𝕥𝕦𝕧𝕨𝕩𝕪𝕫𝟘𝟙𝟚𝟛𝟜𝟝𝟞𝟟𝟠𝟡'
+            },
+            "장식 & 강조 (Decorated)": {
+                '서클 (Circled)': 'ⒶⒷⒸⒹⒺⒻⒼⒽⒾⒿⓀⓁⓂⓃⓄⓅⓆⓇⓈⓉⓊⓋⓌⓍⓎⓏⓐⓑⓒⓓⓔⓕⓖⓗⓘⓙⓚⓛⓜⓝⓞⓟⓠⓡⓢⓣⓤⓥⓦⓧⓨⓩ⓪①②③④⑤⑥⑦⑧⑨',
+                '네거티브 서클 (Black Circled)': '🅐🅑🅒🅓🅔🅕🅖🅗🅘🅙🅚🅛🅜🅝🅞🅟🅠🅡🅢🅣🅤🅥🅦🅧🅨🅩🅐🅑🅒🅓🅔🅕🅖🅗🅘🅙🅚🅛🅜🅝🅞🅟🅠🅡🅢🅣🅤🅥🅦🅧🅨🅩⓿❶❷❸❹❺❻❼❽❾',
+                '스퀘어 (Squared)': '🄰🄱🄲🄳🄴🄵🄶🄷🄸🄹🄺🄻🄼🄽🄾🄿🅀🅁🅂🅃🅄🅅🅆🅇🅈🅉🄰🄱🄲🄳🄴🄵🄶🄷🄸🄹🄺🄻🄼🄽🄾🄿🅀🅁🅂🅃🅄🅅🅆🅇🅈🅉0123456789',
+                '네거티브 스퀘어 (Black Squared)': '🅰🅱🅲🅳🅴🅵🅶🅷🅸🅹🅺🅻🅼🅽🅾🅿🆀🆁🆂🆃🆄🆅🆆🆇🆈🆉🅰🅱🅲🅳🅴🅵🅶🅷🅸🅹🅺🅻🅼🅽🅾🅿🆀🆁🆂🆃🆄🆅🆆🆇🆈🆉0123456789',
+                '괄호 문자 (Parenthesized)': '⒜⒝⒞⒟⒠⒡⒢⒣⒤⒥⒦⒧⒨⒩⒪⒫⒬⒭⒮⒯⒰⒱⒲⒳⒴⒵⒜⒝⒞⒟⒠⒡⒢⒣⒤⒥⒦⒧⒨⒩⒪⒫⒬⒭⒮⒯⒰⒱⒲⒳⒴⒵⑴⑵⑶⑷⑸⑹⑺⑻⑼'
+            },
+            "특수 효과 (Special Effects)": {
+                '작은 대문자 (Small Caps)': 'ᴀʙᴄᴅᴇꜰɢʜɪᴊᴋʟᴍɴᴏᴘQʀꜱᴛᴜᴠᴡxʏᴢᴀʙᴄᴅᴇꜰɢʜɪᴊᴋʟᴍɴᴏᴘQʀꜱᴛᴜᴠᴡxʏᴢ0123456789',
+                '거꾸로 (Upside Down)': 'ɐqɔpǝɟƃɥᴉɾʞlɯuodbɹsʇnʌʍxʎzɐqɔpǝɟƃɥᴉɾʞlɯuodbɹsʇnʌʍxʎz0123456789',
+                '거울 모드 (Mirrored)': 'AdↃbƎꟻGHIJK⅃MNOqpЯƧTUVWXYZadɔbɘꟻgHijklmnoqpɹƨtuvwxyz0123456789',
+                '풀위드 (Fullwidth)': 'ＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺａｂｃｄｅｆｇｈｉｊｋｌｍｎｏｐｑｒｓｔｕｖｗｘｙｚ０１２３４５６７８９',
+                '슬래시 (Slashed)': 'A̷B̷C̷D̷E̷F̷G̷H̷I̷J̷K̷L̷M̷N̷O̷P̷Q̷R̷S̷T̷U̷V̷W̷X̷Y̷Z̷a̷b̷c̷d̷e̷f̷g̷h̷i̷j̷k̷l̷m̷n̷o̷p̷q̷r̷s̷t̷u̷v̷w̷x̷y̷z̷0̷1̷2̷3̷4̷5̷6̷7̷8̷9̷',
+                '취소선 (Strike)': 'A̶B̶C̶D̶E̶F̶G̶H̶I̶J̶K̶L̶M̶N̶O̶P̶Q̶R̶S̶T̶U̶V̶W̶X̶Y̶Z̶a̶b̶c̶d̶e̶f̶g̶h̶i̶j̶k̶l̶m̶n̶o̶p̶q̶r̶s̶t̶u̶v̶w̶x̶y̶z̶0̶1̶2̶3̶4̶5̶6̶7̶8̶9̶',
+                '밑줄 (Underline)': 'A̲B̲C̲D̲E̲F̲G̲H̲I̲J̲K̲L̲M̲N̲O̲P̲Q̲R̲S̲T̲U̲V̲W̲X̲Y̲Z̲a̲b̲c̲d̲e̲f̲g̲h̲i̲j̲k̲l̲m̲n̲o̲p̲q̲r̲s̲t̲u̲v̲w̲x̲y̲z̲0̲1̲2̲3̲4̲5̲6̲7̲8̲9̲',
+                '물결 밑줄 (Wavy)': 'A﹏B﹏C﹏D﹏E﹏F﹏G﹏H﹏I﹏J﹏K﹏L﹏M﹏N﹏O﹏P﹏Q﹏R﹏S﹏T﹏U﹏V﹏W﹏X﹏Y﹏Z﹏a﹏b﹏c﹏d﹏e﹏f﹏g﹏h﹏i﹏j﹏k﹏l﹏m﹏n﹏o﹏p﹏q﹏r﹏s﹏t﹏u﹏v﹏w﹏x﹏y﹏z﹏0﹏1﹏2﹏3﹏4﹏5﹏6﹏7﹏8﹏9﹏'
+            },
+            "기타 & 심볼 (Others)": {
+                '구름 효과 (Cloud)': 'A҈B҈C҈D҈E҈F҈G҈H҈I҈J҈K҈L҈M҈N҈O҈P҈Q҈R҈S҈T҈U҈V҈W҈X҈Y҈Z҈a҈b҈c҈d҈e҈f҈g҈h҈i҈j҈k҈l҈m҈n҈o҈p҈q҈r҈s҈t҈u҈v҈w҈x҈y҈z҈0҈1҈2҈3҈4҈5҈6҈7҈8҈9҈',
+                '박스 라인 (Boxed)': 'A⃣B⃣C⃣D⃣E⃣F⃣G⃣H⃣I⃣J⃣K⃣L⃣M⃣N⃣O⃣P⃣Q⃣R⃣S⃣T⃣U⃣V⃣W⃣X⃣Y⃣Z⃣a⃣b⃣c⃣d⃣e⃣f⃣g⃣h⃣i⃣j⃣k⃣l⃣m⃣n⃣o⃣p⃣q⃣r⃣s⃣t⃣u⃣v⃣w⃣x⃣y⃣z⃣0⃣1⃣2⃣3⃣4⃣5⃣6⃣7⃣8⃣9⃣',
+                '다이아몬드 (Diamonds)': 'A⃟B⃟C⃟D⃟E⃟F⃟G⃟H⃟I⃟J⃟K⃟L⃟M⃟N⃟O⃟P⃟Q⃟R⃟S⃟T⃟U⃟V⃟W⃟X⃟Y⃟Z⃟a⃟b⃟c⃟d⃟e⃟f⃟g⃟h⃟i⃟j⃟k⃟l⃟m⃟n⃟o⃟p⃟q⃟r⃟s⃟t⃟u⃟v⃟w⃟x⃟y⃟z⃟0⃟1⃟2⃟3⃟4⃟5⃟6⃟7⃟8⃟9⃟',
+                '점자 (Braille)': '⠁⠃⠉⠙⠑⠋⠛⠓⠊⠚⠅⠇⠍⠝⠕⠏⠟⠗⠎⠞⠥⠧⠺⠭⠽⠵⠁⠃⠉⠙⠑⠋⠛⠓⠊⠚⠅⠇⠍⠝⠕⠏⠟⠗⠎⠞⠥⠧⠺⠭⠽⠵⠚⠁⠃⠉⠙⠑⠋⠛⠓⠊'
+            }
         };
 
         const normal = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -77,36 +99,131 @@
         input.addEventListener('input', generate);
 
         function generate() {
-            const text = input.value || 'Hello World';
+            const text = input.value || 'Utilsly Fonts';
             output.innerHTML = '';
 
-            Object.entries(fonts).forEach(([name, font]) => {
-                const converted = convertText(text, font.map);
-                const item = document.createElement('div');
-                item.style.cssText = 'background: var(--bg-sidebar); padding: 16px; border-radius: 8px; margin-bottom: 12px;';
-                item.innerHTML = `
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                        <span style="font-weight: 600; font-size: 14px; color: var(--text-secondary);">${name}</span>
-                        <button class="btn" onclick="copy('${converted.replace(/'/g, "\\'")}', this)" style="padding: 4px 12px; font-size: 12px;">복사</button>
-                    </div>
-                    <div style="font-size: 20px; word-break: break-all;">${converted}</div>
-                `;
-                output.appendChild(item);
+            // 카테고리별 반복 렌더링
+            Object.entries(categories).forEach(([categoryName, fontList]) => {
+                // 카테고리 헤더 생성
+                const categoryHeader = document.createElement('div');
+                categoryHeader.innerHTML = `<h3 style="margin: 24px 0 12px 4px; font-size: 14px; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 1px;">${categoryName}</h3>`;
+                output.appendChild(categoryHeader);
+
+                // 해당 카테고리의 폰트들 생성
+                Object.entries(fontList).forEach(([name, mapStr]) => {
+                    const converted = convertText(text, mapStr);
+                    // 복사 버튼 기능용 이스케이프
+                    const safeText = converted.replace(/\\/g, "\\\\").replace(/'/g, "\\'");
+
+                    const item = document.createElement('div');
+                    // 박스 디자인 유지
+                    item.style.cssText = 'background: var(--bg-sidebar); padding: 16px; border-radius: 8px; margin-bottom: 12px; border: 1px solid var(--border-color);';
+
+                    item.innerHTML = `
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <span style="font-weight: 600; font-size: 13px; color: var(--text-secondary); background: var(--bg-main); padding: 2px 8px; border-radius: 4px;">${name}</span>
+                            <button class="btn" onclick="copy('${safeText}', this)" 
+                                style="padding: 4px 12px; font-size: 12px; border-radius: 100px; font-weight: 600;">Copy</button>
+                        </div>
+                        <div style="font-size: 26px; line-height: 1.5; word-break: break-all; color: var(--text-primary); padding: 4px 0;">${converted}</div>
+                    `;
+                    output.appendChild(item);
+                });
             });
         }
 
-        function convertText(text, fontMap) {
-            return text.split('').map(char => {
+        // 텍스트 변환 로직 (Surrogate Pair 안전 처리)
+        function convertText(text, mapStr) {
+            // mapStr이 결합 문자(Combining Mark)를 포함할 수 있으므로 배열로 안전하게 분리
+            // 단, 밑줄/취소선 등 결합 문자가 쓰이는 경우를 위해 로직 분기
+            const isCombining = mapStr.length > 200; // 단순 1:1 매핑보다 길이가 훨씬 길면 결합 문자로 간주
+
+            if (isCombining) {
+                // 결합 문자 방식 (예: 글자 + 윗줄)
+                const mark = mapStr.slice(1, 2); // 결합 문자 추출 (예: 0번째 문자는 예시용 A일 수 있음, 여기선 단순화)
+                // * 위 데이터셋은 1:1 매핑과 결합문자 섞여있음. 
+                // 위 데이터셋은 모두 1:1 대칭 길이가 맞거나, 결합형태로 이미 만들어둔 문자열임.
+                // 따라서 기존 로직을 약간 수정하여 처리.
+            }
+
+            // 안전한 배열 변환
+            const mapArray = [...mapStr];
+            const textArray = [...text];
+
+            // 특수 로직: 결합 문자가 포함된 폰트(밑줄, 취소선 등)는 1:1 매핑이 아니라 문자 뒤에 붙는 형식일 수 있음
+            // 하지만 위 데이터셋은 가독성을 위해 미리 매핑된 형태거나 순서대로 나열됨.
+            // 위 데이터셋 중 '취소선/밑줄' 등은 Combining Diacritical Marks를 사용하므로
+            // 일반적인 인덱싱으로 처리하기 위해선 [A+Mark, B+Mark...] 형태가 필요함.
+            // 현재 mapStr 데이터는 긴 문자열이므로, 길이를 체크하여 처리.
+
+            // 일반적인 유니코드 폰트 (길이가 62개 근처인 경우)
+            if (mapArray.length <= 62 * 2) {
+                return textArray.map(char => {
+                    const index = normal.indexOf(char);
+                    return (index !== -1 && mapArray[index]) ? mapArray[index] : char;
+                }).join('');
+            } else {
+                // 결합 문자가 있는 경우 (예: A̶ B̶ ... 처럼 2글자가 하나인 경우)
+                // 이 경우 mapStr을 쪼개는 로직이 복잡하므로, 
+                // 간단하게 "입력 글자 + 결합 문자" 방식으로 동적 생성하는 것이 훨씬 효율적임.
+                // 위 데이터셋의 '취소선', '밑줄', '물결', '구름', '박스' 등은 결합문자(Code point 1개 이상)임.
+
+                // 결합 문자 추출 (A 뒤에 있는 녀석)
+                const combiner = mapArray[1];
+                return textArray.map(char => char + combiner).join('');
+            }
+        }
+
+        // *수정된 convertText*: 위 로직은 복잡하므로, 데이터셋을 1:1 매핑 가능한 배열로 정규화하는 것이 나음.
+        // 하지만 사용자 요청대로 '세계에서 가장 많은'을 지원하려면 결합 문자를 써야 함.
+        // 따라서 함수를 재정의합니다.
+
+        function convertText(text, mapStr) {
+            const textArray = [...text];
+            const mapArray = [...mapStr];
+
+            // 1. 일반적인 1:1 매핑 폰트 (약 62자)
+            if (mapArray.length === 62) {
+                return textArray.map(char => {
+                    const index = normal.indexOf(char);
+                    return index !== -1 ? mapArray[index] : char;
+                }).join('');
+            }
+
+            // 2. 결합 문자를 사용하는 효과 (취소선, 구름 등)
+            // 특징: mapStr이 A + 결합문자 + B + 결합문자... 패턴임.
+            // 또는 단순히 결합문자 하나만 가지고 있을 수도 있음.
+            // 위 데이터(취소선 등)는 예시 문자열임. 여기서 결합 문자만 추출.
+
+            // mapStr의 두번째 문자가 결합문자인지 확인
+            const isCombinerMode = mapStr.indexOf('A') === 0 && mapStr.length > 100;
+
+            if (isCombinerMode) {
+                // A 다음 글자가 결합 문자
+                const combiner = [...mapStr][1];
+                return textArray.map(char => char + combiner).join('');
+            }
+
+            // 3. 그 외 (점자 등)
+            // 기본 로직으로 시도
+            return textArray.map(char => {
                 const index = normal.indexOf(char);
-                return index !== -1 ? fontMap[index] : char;
+                return (index !== -1 && mapArray[index]) ? mapArray[index] : char;
             }).join('');
         }
+
 
         function copy(text, btn) {
             navigator.clipboard.writeText(text);
             const original = btn.textContent;
-            btn.textContent = '복사됨!';
-            setTimeout(() => btn.textContent = original, 1000);
+            btn.textContent = 'Copied!';
+            btn.style.background = 'var(--success-color, #28a745)';
+            btn.style.color = '#fff';
+            setTimeout(() => {
+                btn.textContent = original;
+                btn.style.background = '';
+                btn.style.color = '';
+            }, 1500);
         }
 
         generate();
