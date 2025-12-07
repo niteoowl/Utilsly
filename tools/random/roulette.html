@@ -6,6 +6,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>룰렛 돌리기 - Utilsly</title>
     <meta name="description" content="점심 메뉴, 벌칙 정하기 등 결정을 위한 온라인 룰렛 돌리기 도구입니다.">
+    <script>
+        // Prevent dark mode flash
+        (function () {
+            const savedTheme = localStorage.getItem('theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            }
+        })();
+    </script>
     <link rel="stylesheet" href="../../css/style.css">
     <style>
         .roulette-container {
@@ -113,11 +123,7 @@
         <main class="main-content">
             <header class="top-bar">
                 <div class="breadcrumbs">
-                    <span class="breadcrumb-item">Utilsly</span>
-                    <span class="separator">/</span>
-                    <span class="breadcrumb-item">랜덤</span>
-                    <span class="separator">/</span>
-                    <span class="breadcrumb-item current-page">룰렛 돌리기</span>
+                    <span class="breadcrumb-item">룰렛 돌리기</span>
                 </div>
             </header>
 
@@ -295,7 +301,7 @@
                 winningIndex = winningIndex % items.length; // Safety
 
                 const winner = items[winningIndex];
-                alert(`당첨: ${winner}`);
+                Utilsly.showAlert(`당첨: ${winner}`, '🎰 결과');
 
                 if (removeWinnerCheckbox.checked) {
                     items.splice(winningIndex, 1);

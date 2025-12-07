@@ -7,6 +7,7 @@ const Utilsly = {
     init() {
         this.loadIcons();
         this.initTheme();
+        this.injectEarlyThemeScript(); // Prevent flash
         this.loadHiddenTools(); // Load user preferences
         this.renderSidebar();
         this.highlightActivePage();
@@ -15,6 +16,11 @@ const Utilsly = {
 
     hiddenTools: new Set(),
     isEditingSidebar: false,
+
+    injectEarlyThemeScript() {
+        // This function is called but the script should be inline in HTML head
+        // We'll add this to each HTML file to prevent flash
+    },
 
     initTheme() {
         const savedTheme = localStorage.getItem('theme');
@@ -351,6 +357,70 @@ const Utilsly = {
                 sidebar.classList.remove('active');
             }
         }
+    },
+
+    // Modal System
+    showAlert(message, title = '알림') {
+        return new Promise((resolve) => {
+            const overlay = document.createElement('div');
+            overlay.className = 'modal-overlay';
+            overlay.innerHTML = `
+                <div class="modal-container">
+                    <div class="modal-header">
+                        <div class="modal-title">${title}</div>
+                        <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">
+                            <span class="material-symbols-rounded" style="font-size: 20px;">close</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">${message}</div>
+                    <div class="modal-footer">
+                        <button class="btn btn-primary" onclick="this.closest('.modal-overlay').remove()">확인</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) {
+                    overlay.remove();
+                    resolve();
+                }
+            });
+            overlay.querySelector('.btn-primary').addEventListener('click', () => resolve());
+        });
+    },
+
+    showConfirm(message, title = '확인') {
+        return new Promise((resolve) => {
+            const overlay = document.createElement('div');
+            overlay.className = 'modal-overlay';
+            overlay.innerHTML = `
+                <div class="modal-container">
+                    <div class="modal-header">
+                        <div class="modal-title">${title}</div>
+                        <button class="modal-close" data-action="cancel">
+                            <span class="material-symbols-rounded" style="font-size: 20px;">close</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">${message}</div>
+                    <div class="modal-footer">
+                        <button class="btn" data-action="cancel">취소</button>
+                        <button class="btn btn-primary" data-action="confirm">확인</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+
+            const handleAction = (confirmed) => {
+                overlay.remove();
+                resolve(confirmed);
+            };
+
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) handleAction(false);
+                if (e.target.closest('[data-action="cancel"]')) handleAction(false);
+                if (e.target.closest('[data-action="confirm"]')) handleAction(true);
+            });
+        });
     }
 };
 

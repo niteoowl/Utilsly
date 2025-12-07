@@ -6,6 +6,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>제비뽑기 - Utilsly</title>
     <meta name="description" content="공정한 추첨을 위한 제비뽑기 도구입니다. 당첨자를 랜덤으로 선정하세요.">
+    <script>
+        // Prevent dark mode flash
+        (function () {
+            const savedTheme = localStorage.getItem('theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            }
+        })();
+    </script>
     <link rel="stylesheet" href="../../css/style.css">
     <style>
         .winner-display {
@@ -49,11 +59,7 @@
         <main class="main-content">
             <header class="top-bar">
                 <div class="breadcrumbs">
-                    <span class="breadcrumb-item">Utilsly</span>
-                    <span class="separator">/</span>
-                    <span class="breadcrumb-item">랜덤</span>
-                    <span class="separator">/</span>
-                    <span class="breadcrumb-item current-page">제비뽑기</span>
+                    <span class="breadcrumb-item">제비뽑기</span>
                 </div>
             </header>
 
@@ -96,7 +102,7 @@
             const candidates = text.split('\n').filter(item => item.trim() !== '');
 
             if (candidates.length === 0) {
-                alert('참여자를 입력해주세요!');
+                Utilsly.showAlert('참여자를 입력해주세요!');
                 return;
             }
 

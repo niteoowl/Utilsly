@@ -6,6 +6,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI 번역기 - Utilsly</title>
     <meta name="description" content="문맥을 이해하는 자연스러운 AI 번역기입니다.">
+    <script>
+        // Prevent dark mode flash
+        (function () {
+            const savedTheme = localStorage.getItem('theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            }
+        })();
+    </script>
     <link rel="stylesheet" href="../../css/style.css">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
@@ -118,7 +128,7 @@
     </div>
     <script src="../../js/common.js"></script>
     <script>
-        const API_KEY = 'AIzaSyCiybBbAgbHxrsmXuwGIwylFVchkRuQXJw';
+        const API_KEY = 'AIzaSyD6VZ8TspQs2IPUxLFmbWvGJuBTnEVYUYI';
         const sourceText = document.getElementById('sourceText');
         const targetText = document.getElementById('targetText');
         const sourceLang = document.getElementById('sourceLang');
