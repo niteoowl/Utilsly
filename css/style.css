@@ -25,6 +25,19 @@
     /* Typography */
     --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol";
     --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+
+    /* Prevent flickering on page load */
+    --transition-speed: 0s;
+}
+
+/* Enable transitions after page load */
+html.loaded {
+    --transition-speed: 0.15s;
+}
+
+/* Prevent flash of unstyled content */
+html:not(.loaded) body {
+    opacity: 0;
 }
 
 [data-theme="dark"] {
@@ -67,6 +80,8 @@ body {
     background-color: var(--bg-primary);
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
+    transition: background-color var(--transition-speed) ease, color var(--transition-speed) ease;
+    opacity: 1;
 }
 
 /* No Background Animation */

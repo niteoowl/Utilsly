@@ -14,6 +14,11 @@ const Utilsly = {
         this.initMobileMenu();
         this.restoreSidebarScroll(); // Restore scroll position
         this.initScrollSave(); // Save scroll on navigation
+
+        // Mark page as loaded to enable transitions and show content
+        requestAnimationFrame(() => {
+            document.documentElement.classList.add('loaded');
+        });
     },
 
     hiddenTools: new Set(),
