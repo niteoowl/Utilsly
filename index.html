@@ -111,86 +111,70 @@
                     <p class="hero-subtitle">이미지 변환부터 룰렛 돌리기까지,<br>설치 없이 브라우저에서 바로 사용하세요.</p>
                 </div>
 
-                <!-- Communication Sections -->
-                <div
-                    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; margin-bottom: 48px;">
-                    <!-- Feature Request -->
-                    <div
-                        style="background: var(--bg-sidebar); padding: 24px; border-radius: 12px; border: 1px solid var(--border-color);">
-                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+                <!-- Communication Sections - 3 Rows -->
+                <div style="display: flex; flex-direction: column; gap: 16px; margin-bottom: 48px;">
+                    <!-- Feature Request Board -->
+                    <a href="/boards/feature-requests.html"
+                        style="text-decoration: none; color: inherit; display: block; background: var(--bg-sidebar); padding: 24px; border-radius: 12px; border: 1px solid var(--border-color); transition: all 0.2s; cursor: pointer;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div style="display: flex; align-items: center; gap: 16px;">
+                                <span class="material-symbols-rounded"
+                                    style="font-size: 32px; color: var(--accent-blue);">lightbulb</span>
+                                <div>
+                                    <h3 style="font-size: 20px; font-weight: 700; margin-bottom: 4px;">💡 기능 추가 요청</h3>
+                                    <p style="color: var(--text-secondary); font-size: 14px; margin: 0;">필요한 도구를 제안하고 다른
+                                        사용자의 요청에 투표하세요</p>
+                                </div>
+                            </div>
                             <span class="material-symbols-rounded"
-                                style="font-size: 28px; color: var(--accent-blue);">lightbulb</span>
-                            <h3 style="font-size: 18px; font-weight: 700;">기능 추가 요청</h3>
+                                style="font-size: 24px; color: var(--text-tertiary);">arrow_forward</span>
                         </div>
-                        <p style="color: var(--text-secondary); margin-bottom: 16px; font-size: 14px;">필요한 도구가
-                            있으신가요?<br>의견을 남겨주세요!</p>
-                        <textarea id="featureRequest" placeholder="예: 이미지 배경 제거 도구가 필요해요"
-                            style="width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; min-height: 80px; font-family: inherit; resize: vertical; margin-bottom: 12px;"></textarea>
-                        <button class="btn btn-primary" onclick="submitFeatureRequest()"
-                            style="width: 100%;">제출하기</button>
-                    </div>
+                    </a>
 
-                    <!-- Updates -->
-                    <div
-                        style="background: var(--bg-sidebar); padding: 24px; border-radius: 12px; border: 1px solid var(--border-color);">
-                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+                    <!-- Updates Board -->
+                    <a href="/boards/updates.html"
+                        style="text-decoration: none; color: inherit; display: block; background: var(--bg-sidebar); padding: 24px; border-radius: 12px; border: 1px solid var(--border-color); transition: all 0.2s; cursor: pointer;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div style="display: flex; align-items: center; gap: 16px;">
+                                <span class="material-symbols-rounded"
+                                    style="font-size: 32px; color: #10B981;">new_releases</span>
+                                <div>
+                                    <h3 style="font-size: 20px; font-weight: 700; margin-bottom: 4px;">✨ 업데이트 내역</h3>
+                                    <p style="color: var(--text-secondary); font-size: 14px; margin: 0;">최신 업데이트와 새로운
+                                        기능을 확인하세요</p>
+                                </div>
+                            </div>
                             <span class="material-symbols-rounded"
-                                style="font-size: 28px; color: #10B981;">new_releases</span>
-                            <h3 style="font-size: 18px; font-weight: 700;">최근 업데이트</h3>
+                                style="font-size: 24px; color: var(--text-tertiary);">arrow_forward</span>
                         </div>
-                        <div style="display: flex; flex-direction: column; gap: 12px;">
-                            <div style="padding: 12px; background: var(--bg-primary); border-radius: 8px;">
-                                <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 4px;">
-                                    2025.12.07</div>
-                                <div style="font-weight: 600; margin-bottom: 4px;">🎨 특수문자 폰트 생성기 추가</div>
-                                <div style="font-size: 14px; color: var(--text-secondary);">17가지 유니코드 폰트 스타일</div>
-                            </div>
-                            <div style="padding: 12px; background: var(--bg-primary); border-radius: 8px;">
-                                <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 4px;">
-                                    2025.12.07</div>
-                                <div style="font-weight: 600; margin-bottom: 4px;">📸 HEIC 변환기 추가</div>
-                                <div style="font-size: 14px; color: var(--text-secondary);">iPhone 사진을 JPG/PNG로 변환</div>
-                            </div>
-                            <div style="padding: 12px; background: var(--bg-primary); border-radius: 8px;">
-                                <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 4px;">
-                                    2025.12.07</div>
-                                <div style="font-weight: 600; margin-bottom: 4px;">🎯 SEO 최적화 완료</div>
-                                <div style="font-size: 14px; color: var(--text-secondary);">개별 이미지 변환기로 분리</div>
-                            </div>
-                        </div>
-                    </div>
+                    </a>
 
-                    <!-- Announcements -->
-                    <div
-                        style="background: var(--bg-sidebar); padding: 24px; border-radius: 12px; border: 1px solid var(--border-color);">
-                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+                    <!-- Announcements Board -->
+                    <a href="/boards/announcements.html"
+                        style="text-decoration: none; color: inherit; display: block; background: var(--bg-sidebar); padding: 24px; border-radius: 12px; border: 1px solid var(--border-color); transition: all 0.2s; cursor: pointer;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div style="display: flex; align-items: center; gap: 16px;">
+                                <span class="material-symbols-rounded"
+                                    style="font-size: 32px; color: #F59E0B;">campaign</span>
+                                <div>
+                                    <h3 style="font-size: 20px; font-weight: 700; margin-bottom: 4px;">📢 공지사항</h3>
+                                    <p style="color: var(--text-secondary); font-size: 14px; margin: 0;">중요한 공지사항과 안내를
+                                        확인하세요</p>
+                                </div>
+                            </div>
                             <span class="material-symbols-rounded"
-                                style="font-size: 28px; color: #F59E0B;">campaign</span>
-                            <h3 style="font-size: 18px; font-weight: 700;">공지사항</h3>
+                                style="font-size: 24px; color: var(--text-tertiary);">arrow_forward</span>
                         </div>
-                        <div style="display: flex; flex-direction: column; gap: 12px;">
-                            <div style="padding: 12px; background: var(--bg-primary); border-radius: 8px;">
-                                <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 4px;">📢 중요
-                                </div>
-                                <div style="font-weight: 600; margin-bottom: 4px;">모든 도구 무료 제공</div>
-                                <div style="font-size: 14px; color: var(--text-secondary);">설치 없이 브라우저에서 바로 사용 가능합니다
-                                </div>
-                            </div>
-                            <div style="padding: 12px; background: var(--bg-primary); border-radius: 8px;">
-                                <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 4px;">🔒 개인정보
-                                </div>
-                                <div style="font-weight: 600; margin-bottom: 4px;">모든 작업은 로컬에서 처리</div>
-                                <div style="font-size: 14px; color: var(--text-secondary);">파일이 서버로 전송되지 않습니다</div>
-                            </div>
-                            <div style="padding: 12px; background: var(--bg-primary); border-radius: 8px;">
-                                <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 4px;">💡 팁
-                                </div>
-                                <div style="font-weight: 600; margin-bottom: 4px;">북마크 추천</div>
-                                <div style="font-size: 14px; color: var(--text-secondary);">자주 사용하는 도구를 즐겨찾기하세요</div>
-                            </div>
-                        </div>
-                    </div>
+                    </a>
                 </div>
+
+                <style>
+                    a[href^="/boards/"]:hover {
+                        transform: translateY(-2px);
+                        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+                        border-color: var(--accent-blue);
+                    }
+                </style>
 
                 <!-- Default Home View -->
                 <div id="homeDefaultView">
