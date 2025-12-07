@@ -24,8 +24,7 @@
             font-weight: 800;
             margin-bottom: 16px;
             letter-spacing: -0.02em;
-            /* 타이핑 효과를 위해 텍스트 깜빡임 커서를 추가 */
-            border-right: 2px solid var(--text-primary);
+            /* 타이핑 효과 관련 CSS 제거됨 */
             white-space: nowrap;
             overflow: hidden;
             display: inline-block;
@@ -112,8 +111,8 @@
 
             <div class="content-area">
                 <div class="hero-section">
-                    <!-- 초기 텍스트를 비워두고 JavaScript에서 타이핑 효과로 채웁니다. -->
-                    <h1 class="hero-title"></h1>
+                    <!-- 타이핑 효과 제거, 고정 텍스트로 변경 -->
+                    <h1 class="hero-title">모든 도구를 한곳에서.</h1>
                     <p class="hero-subtitle">이미지 변환부터 룰렛 돌리기까지,<br>설치 없이 브라우저에서 바로 사용하세요.</p>
                 </div>
 
@@ -277,45 +276,8 @@
             }
         });
 
-        // --- Typewriter Effect Logic ---
-        document.addEventListener('DOMContentLoaded', () => {
-            const heroTitle = document.querySelector('.hero-title');
-            const phrases = ["모든 도구를 한곳에서.", "모두를 위한 도구.", "Utilsly."];
-            let phraseIndex = 0;
-            let charIndex = 0;
-            const typingSpeed = 150;
-            const deletingSpeed = 75;
-            const pauseTime = 1500;
-
-            function type() {
-                const currentPhrase = phrases[phraseIndex];
-                if (charIndex < currentPhrase.length) {
-                    heroTitle.textContent += currentPhrase.charAt(charIndex);
-                    charIndex++;
-                    setTimeout(type, typingSpeed);
-                } else {
-                    setTimeout(erase, pauseTime);
-                }
-            }
-
-            function erase() {
-                const currentPhrase = phrases[phraseIndex];
-                if (charIndex > 0) {
-                    // heroTitle.textContent에서 마지막 글자를 제거합니다.
-                    heroTitle.textContent = currentPhrase.substring(0, charIndex - 1);
-                    charIndex--;
-                    setTimeout(erase, deletingSpeed);
-                } else {
-                    // 다음 문장으로 넘어갑니다.
-                    phraseIndex = (phraseIndex + 1) % phrases.length;
-                    setTimeout(type, 500); // 다음 타이핑을 시작하기 전 잠시 대기
-                }
-            }
-
-            // 초기 실행
-            heroTitle.textContent = ''; // 초기 텍스트를 비웁니다.
-            setTimeout(type, 500);
-        });
+        // --- Typewriter Effect Logic (삭제됨) ---
+        // 타이핑 효과가 제거되었으므로 관련 코드는 삭제됩니다.
 
         // Feature Request Submission (기존 로직 유지)
         function submitFeatureRequest() {
