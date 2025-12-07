@@ -24,6 +24,11 @@
             font-weight: 800;
             margin-bottom: 16px;
             letter-spacing: -0.02em;
+            /* 타이핑 효과를 위해 텍스트 깜빡임 커서를 추가 */
+            border-right: 2px solid var(--text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            display: inline-block;
         }
 
         .hero-subtitle {
@@ -107,74 +112,12 @@
 
             <div class="content-area">
                 <div class="hero-section">
-                    <h1 class="hero-title">모든 도구를 한곳에서.</h1>
+                    <!-- 초기 텍스트를 비워두고 JavaScript에서 타이핑 효과로 채웁니다. -->
+                    <h1 class="hero-title"></h1>
                     <p class="hero-subtitle">이미지 변환부터 룰렛 돌리기까지,<br>설치 없이 브라우저에서 바로 사용하세요.</p>
                 </div>
 
-                <!-- Communication Sections - 3 Rows -->
-                <div style="display: flex; flex-direction: column; gap: 16px; margin-bottom: 48px;">
-                    <!-- Feature Request Board -->
-                    <a href="/boards/feature-requests.html"
-                        style="text-decoration: none; color: inherit; display: block; background: var(--bg-sidebar); padding: 24px; border-radius: 12px; border: 1px solid var(--border-color); transition: all 0.2s; cursor: pointer;">
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <div style="display: flex; align-items: center; gap: 16px;">
-                                <span class="material-symbols-rounded"
-                                    style="font-size: 32px; color: var(--accent-blue);">lightbulb</span>
-                                <div>
-                                    <h3 style="font-size: 20px; font-weight: 700; margin-bottom: 4px;">💡 기능 추가 요청</h3>
-                                    <p style="color: var(--text-secondary); font-size: 14px; margin: 0;">필요한 도구를 제안하고 다른
-                                        사용자의 요청에 투표하세요</p>
-                                </div>
-                            </div>
-                            <span class="material-symbols-rounded"
-                                style="font-size: 24px; color: var(--text-tertiary);">arrow_forward</span>
-                        </div>
-                    </a>
-
-                    <!-- Updates Board -->
-                    <a href="/boards/updates.html"
-                        style="text-decoration: none; color: inherit; display: block; background: var(--bg-sidebar); padding: 24px; border-radius: 12px; border: 1px solid var(--border-color); transition: all 0.2s; cursor: pointer;">
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <div style="display: flex; align-items: center; gap: 16px;">
-                                <span class="material-symbols-rounded"
-                                    style="font-size: 32px; color: #10B981;">new_releases</span>
-                                <div>
-                                    <h3 style="font-size: 20px; font-weight: 700; margin-bottom: 4px;">✨ 업데이트 내역</h3>
-                                    <p style="color: var(--text-secondary); font-size: 14px; margin: 0;">최신 업데이트와 새로운
-                                        기능을 확인하세요</p>
-                                </div>
-                            </div>
-                            <span class="material-symbols-rounded"
-                                style="font-size: 24px; color: var(--text-tertiary);">arrow_forward</span>
-                        </div>
-                    </a>
-
-                    <!-- Announcements Board -->
-                    <a href="/boards/announcements.html"
-                        style="text-decoration: none; color: inherit; display: block; background: var(--bg-sidebar); padding: 24px; border-radius: 12px; border: 1px solid var(--border-color); transition: all 0.2s; cursor: pointer;">
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <div style="display: flex; align-items: center; gap: 16px;">
-                                <span class="material-symbols-rounded"
-                                    style="font-size: 32px; color: #F59E0B;">campaign</span>
-                                <div>
-                                    <h3 style="font-size: 20px; font-weight: 700; margin-bottom: 4px;">📢 공지사항</h3>
-                                    <p style="color: var(--text-secondary); font-size: 14px; margin: 0;">중요한 공지사항과 안내를
-                                        확인하세요</p>
-                                </div>
-                            </div>
-                            <span class="material-symbols-rounded"
-                                style="font-size: 24px; color: var(--text-tertiary);">arrow_forward</span>
-                        </div>
-                    </a>
-                </div>
-
-                <style>
-                    a[href^="/boards/"]:hover {
-                        transform: translateY(-2px);
-                        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-                        border-color: var(--accent-blue);
-                    }
-                </style>
+                <!-- Communication Sections (기능 추가 요청, 업데이트 내역) 제거됨 -->
 
                 <!-- Default Home View -->
                 <div id="homeDefaultView">
@@ -213,70 +156,71 @@
     <script src="js/common.js"></script>
     <script>
         // --- Recommendations Logic ---
+        // 모든 path에서 .html 확장자를 제거합니다.
         const allTools = [
-            { name: "룰렛 돌리기", icon: "casino", path: "/tools/random/roulette.html", desc: "점심 메뉴 결정장애 해결!" },
-            { name: "제비뽑기", icon: "confirmation_number", path: "/tools/random/random-picker.html", desc: "랜덤으로 하나 뽑기" },
-            { name: "주사위 굴리기", icon: "deployed_code", path: "/tools/random/dice-roller.html", desc: "1~6 주사위 굴리기" },
-            { name: "투표 하기", icon: "how_to_vote", path: "/tools/random/vote.html", desc: "간단한 투표 만들기" },
+            { name: "룰렛 돌리기", icon: "casino", path: "/tools/random/roulette", desc: "점심 메뉴 결정장애 해결!" },
+            { name: "제비뽑기", icon: "confirmation_number", path: "/tools/random/random-picker", desc: "랜덤으로 하나 뽑기" },
+            { name: "주사위 굴리기", icon: "deployed_code", path: "/tools/random/dice-roller", desc: "1~6 주사위 굴리기" },
+            { name: "투표 하기", icon: "how_to_vote", path: "/tools/random/vote", desc: "간단한 투표 만들기" },
 
-            { name: "이미지 리사이저", icon: "image", path: "/tools/image/image-resizer.html", desc: "이미지 크기 조절" },
-            { name: "이미지 변환기", icon: "transform", path: "/tools/image/image-converter.html", desc: "JPG, PNG, WEBP 변환" },
-            { name: "이미지 자르기", icon: "crop", path: "/tools/image/image-cropper.html", desc: "이미지 원하는 부분 자르기" },
-            { name: "이미지 필터", icon: "photo_filter", path: "/tools/image/image-filters.html", desc: "다양한 필터 적용" },
-            { name: "이미지 색상 추출", icon: "colorize", path: "/tools/image/color-extractor.html", desc: "이미지에서 색상 뽑기" },
+            { name: "이미지 리사이저", icon: "image", path: "/tools/image/image-resizer", desc: "이미지 크기 조절" },
+            { name: "이미지 변환기", icon: "transform", path: "/tools/image/image-converter", desc: "JPG, PNG, WEBP 변환" },
+            { name: "이미지 자르기", icon: "crop", path: "/tools/image/image-cropper", desc: "이미지 원하는 부분 자르기" },
+            { name: "이미지 필터", icon: "photo_filter", path: "/tools/image/image-filters", desc: "다양한 필터 적용" },
+            { name: "이미지 색상 추출", icon: "colorize", path: "/tools/image/color-extractor", desc: "이미지에서 색상 뽑기" },
 
-            { name: "비디오 플레이어", icon: "play_circle", path: "/tools/video/video-player.html", desc: "배속 재생, 거울 모드" },
-            { name: "GIF 변환기", icon: "gif", path: "/tools/video/video-to-gif.html", desc: "동영상을 GIF로 변환" },
-            { name: "화면 녹화", icon: "screen_record", path: "/tools/video/screen-recorder.html", desc: "설치 없는 화면 녹화" },
+            { name: "비디오 플레이어", icon: "play_circle", path: "/tools/video/video-player", desc: "배속 재생, 거울 모드" },
+            { name: "GIF 변환기", icon: "gif", path: "/tools/video/video-to-gif", desc: "동영상을 GIF로 변환" },
+            { name: "화면 녹화", icon: "screen_record", path: "/tools/video/screen-recorder", desc: "설치 없는 화면 녹화" },
 
-            { name: "PDF 합치기", icon: "picture_as_pdf", path: "/tools/pdf/pdf-merge.html", desc: "여러 PDF를 하나로" },
-            { name: "PDF 분할", icon: "cut", path: "/tools/pdf/pdf-split.html", desc: "PDF 페이지 나누기" },
-            { name: "PDF → 이미지", icon: "image_search", path: "/tools/pdf/pdf-to-image.html", desc: "PDF를 이미지로 변환" },
+            { name: "PDF 합치기", icon: "picture_as_pdf", path: "/tools/pdf/pdf-merge", desc: "여러 PDF를 하나로" },
+            { name: "PDF 분할", icon: "cut", path: "/tools/pdf/pdf-split", desc: "PDF 페이지 나누기" },
+            { name: "PDF → 이미지", icon: "image_search", path: "/tools/pdf/pdf-to-image", desc: "PDF를 이미지로 변환" },
 
-            { name: "음성 녹음기", icon: "mic", path: "/tools/audio/voice-recorder.html", desc: "간편한 웹 녹음기" },
-            { name: "주파수 생성기", icon: "graphic_eq", path: "/tools/audio/tone-generator.html", desc: "특정 주파수 소리 생성" },
-            { name: "백색 소음", icon: "waves", path: "/tools/audio/white-noise.html", desc: "집중을 위한 백색 소음" },
+            { name: "음성 녹음기", icon: "mic", path: "/tools/audio/voice-recorder", desc: "간편한 웹 녹음기" },
+            { name: "주파수 생성기", icon: "graphic_eq", path: "/tools/audio/tone-generator", desc: "특정 주파수 소리 생성" },
+            { name: "백색 소음", icon: "waves", path: "/tools/audio/white-noise", desc: "집중을 위한 백색 소음" },
 
-            { name: "Utilsly Docs", icon: "description", path: "/tools/memo/docs.html", desc: "HWP 스타일 문서 편집" },
-            { name: "빠른 메모장", icon: "edit_note", path: "/tools/memo/notepad.html", desc: "서식 지원, 자동 저장" },
-            { name: "EPUB 리더", icon: "menu_book", path: "/tools/text/epub-reader.html", desc: "전자책 바로 읽기" },
-            { name: "텍스트 비교", icon: "difference", path: "/tools/text/text-diff.html", desc: "두 텍스트 차이점 비교" },
-            { name: "글자수 세기", icon: "article", path: "/tools/text/word-counter.html", desc: "공백 포함/제외 글자수" },
-            { name: "대소문자 변환", icon: "text_fields", path: "/tools/text/case-converter.html", desc: "영어 대소문자 변환" },
-            { name: "로렘 입숨 생성", icon: "description", path: "/tools/text/lorem-ipsum.html", desc: "더미 텍스트 생성" },
-            { name: "줄바꿈 제거", icon: "format_align_left", path: "/tools/text/remove-line-breaks.html", desc: "불필요한 줄바꿈 삭제" },
-            { name: "마크다운 미리보기", icon: "markdown", path: "/tools/text/markdown-preview.html", desc: "마크다운 실시간 렌더링" },
+            { name: "Utilsly Docs", icon: "description", path: "/tools/memo/docs", desc: "HWP 스타일 문서 편집" },
+            { name: "빠른 메모장", icon: "edit_note", path: "/tools/memo/notepad", desc: "서식 지원, 자동 저장" },
+            { name: "EPUB 리더", icon: "menu_book", path: "/tools/text/epub-reader", desc: "전자책 바로 읽기" },
+            { name: "텍스트 비교", icon: "difference", path: "/tools/text/text-diff", desc: "두 텍스트 차이점 비교" },
+            { name: "글자수 세기", icon: "article", path: "/tools/text/word-counter", desc: "공백 포함/제외 글자수" },
+            { name: "대소문자 변환", icon: "text_fields", path: "/tools/text/case-converter", desc: "영어 대소문자 변환" },
+            { name: "로렘 입숨 생성", icon: "description", path: "/tools/text/lorem-ipsum", desc: "더미 텍스트 생성" },
+            { name: "줄바꿈 제거", icon: "format_align_left", path: "/tools/text/remove-line-breaks", desc: "불필요한 줄바꿈 삭제" },
+            { name: "마크다운 미리보기", icon: "markdown", path: "/tools/text/markdown-preview", desc: "마크다운 실시간 렌더링" },
 
-            { name: "HTML 플레이그라운드", icon: "code", path: "/tools/dev/html-playground.html", desc: "실시간 코드 미리보기" },
-            { name: "QR 코드 생성", icon: "qr_code_2", path: "/tools/dev/qr-generator.html", desc: "링크를 QR 코드로 변환" },
-            { name: "코드 미니파이어", icon: "compress", path: "/tools/dev/code-minifier.html", desc: "코드 용량 줄이기" },
-            { name: "정규식 테스터", icon: "regular_expression", path: "/tools/dev/regex-tester.html", desc: "정규표현식 검사" },
-            { name: "JSON 포맷터", icon: "data_object", path: "/tools/dev/json-formatter.html", desc: "JSON 예쁘게 정렬" },
-            { name: "SQL 포맷터", icon: "database", path: "/tools/dev/sql-formatter.html", desc: "SQL 쿼리 정렬" },
-            { name: "URL 인코더", icon: "link", path: "/tools/dev/url-encoder.html", desc: "URL 인코딩/디코딩" },
-            { name: "Base64 인코더", icon: "package_2", path: "/tools/dev/base64-encoder.html", desc: "Base64 변환" },
-            { name: "UUID 생성기", icon: "fingerprint", path: "/tools/dev/uuid-generator.html", desc: "고유 식별자 생성" },
+            { name: "HTML 플레이그라운드", icon: "code", path: "/tools/dev/html-playground", desc: "실시간 코드 미리보기" },
+            { name: "QR 코드 생성", icon: "qr_code_2", path: "/tools/dev/qr-generator", desc: "링크를 QR 코드로 변환" },
+            { name: "코드 미니파이어", icon: "compress", path: "/tools/dev/code-minifier", desc: "코드 용량 줄이기" },
+            { name: "정규식 테스터", icon: "regular_expression", path: "/tools/dev/regex-tester", desc: "정규표현식 검사" },
+            { name: "JSON 포맷터", icon: "data_object", path: "/tools/dev/json-formatter", desc: "JSON 예쁘게 정렬" },
+            { name: "SQL 포맷터", icon: "database", path: "/tools/dev/sql-formatter", desc: "SQL 쿼리 정렬" },
+            { name: "URL 인코더", icon: "link", path: "/tools/dev/url-encoder", desc: "URL 인코딩/디코딩" },
+            { name: "Base64 인코더", icon: "package_2", path: "/tools/dev/base64-encoder", desc: "Base64 변환" },
+            { name: "UUID 생성기", icon: "fingerprint", path: "/tools/dev/uuid-generator", desc: "고유 식별자 생성" },
 
-            { name: "공학용 계산기", icon: "calculate", path: "/tools/math/scientific-calculator.html", desc: "복잡한 수식 계산" },
-            { name: "단위 변환기", icon: "scale", path: "/tools/math/unit-converter.html", desc: "길이, 무게, 넓이 변환" },
-            { name: "퍼센트 계산기", icon: "percent", path: "/tools/math/percentage-calculator.html", desc: "백분율 계산" },
+            { name: "공학용 계산기", icon: "calculate", path: "/tools/math/scientific-calculator", desc: "복잡한 수식 계산" },
+            { name: "단위 변환기", icon: "scale", path: "/tools/math/unit-converter", desc: "길이, 무게, 넓이 변환" },
+            { name: "퍼센트 계산기", icon: "percent", path: "/tools/math/percentage-calculator", desc: "백분율 계산" },
 
-            { name: "타이머", icon: "timer", path: "/tools/date/timer.html", desc: "간편한 카운트다운" },
-            { name: "뽀모도로 타이머", icon: "check_circle", path: "/tools/date/pomodoro.html", desc: "집중력 향상 타이머" },
-            { name: "스톱워치", icon: "timer_off", path: "/tools/date/stopwatch.html", desc: "시간 측정" },
-            { name: "D-Day 계산기", icon: "event_upcoming", path: "/tools/date/d-day-counter.html", desc: "기념일 계산" },
-            { name: "세계 시간", icon: "public", path: "/tools/date/world-time.html", desc: "전 세계 현재 시간" },
+            { name: "타이머", icon: "timer", path: "/tools/date/timer", desc: "간편한 카운트다운" },
+            { name: "뽀모도로 타이머", icon: "check_circle", path: "/tools/date/pomodoro", desc: "집중력 향상 타이머" },
+            { name: "스톱워치", icon: "timer_off", path: "/tools/date/stopwatch", desc: "시간 측정" },
+            { name: "D-Day 계산기", icon: "event_upcoming", path: "/tools/date/d-day-counter", desc: "기념일 계산" },
+            { name: "세계 시간", icon: "public", path: "/tools/date/world-time", desc: "전 세계 현재 시간" },
 
-            { name: "컬러 피커", icon: "palette", path: "/tools/color/color-picker.html", desc: "색상 코드 추출" },
+            { name: "컬러 피커", icon: "palette", path: "/tools/color/color-picker", desc: "색상 코드 추출" },
 
-            { name: "BMI 계산기", icon: "monitor_weight", path: "/tools/health/bmi-calculator.html", desc: "나의 비만도 확인" },
-            { name: "BMR 계산기", icon: "local_fire_department", path: "/tools/health/bmr-calculator.html", desc: "기초대사량 계산" },
-            { name: "호흡 운동", icon: "self_improvement", path: "/tools/health/breathing.html", desc: "스트레스 완화 호흡" },
+            { name: "BMI 계산기", icon: "monitor_weight", path: "/tools/health/bmi-calculator", desc: "나의 비만도 확인" },
+            { name: "BMR 계산기", icon: "local_fire_department", path: "/tools/health/bmr-calculator", desc: "기초대사량 계산" },
+            { name: "호흡 운동", icon: "self_improvement", path: "/tools/health/breathing", desc: "스트레스 완화 호흡" },
 
-            { name: "비밀번호 생성", icon: "password", path: "/tools/security/password-generator.html", desc: "강력한 비밀번호 생성" },
+            { name: "비밀번호 생성", icon: "password", path: "/tools/security/password-generator", desc: "강력한 비밀번호 생성" },
 
-            { name: "AI 글쓰기", icon: "edit_note", path: "/tools/ai/writing-assistant.html", desc: "글 작성 보조 및 교정" },
-            { name: "AI 번역기", icon: "translate", path: "/tools/ai/translator.html", desc: "자연스러운 AI 번역" }
+            { name: "AI 글쓰기", icon: "edit_note", path: "/tools/ai/writing-assistant", desc: "글 작성 보조 및 교정" },
+            { name: "AI 번역기", icon: "translate", path: "/tools/ai/translator", desc: "자연스러운 AI 번역" }
         ];
 
         function getRandomTools(count) {
@@ -286,7 +230,6 @@
 
         function renderCards(containerId, tools) {
             const container = document.getElementById(containerId);
-            // 앵커 태그(<a>) 템플릿의 문법 오류 수정: 불필요한 공백 제거
             container.innerHTML = tools.map(tool => `
                 <a href="${tool.path}" class="tool-card">
                     <div class="card-icon">
@@ -334,15 +277,53 @@
             }
         });
 
-        // Feature Request Submission
+        // --- Typewriter Effect Logic ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const heroTitle = document.querySelector('.hero-title');
+            const phrases = ["모든 도구를 한곳에서.", "모두를 위한 도구.", "Utilsly."];
+            let phraseIndex = 0;
+            let charIndex = 0;
+            const typingSpeed = 150;
+            const deletingSpeed = 75;
+            const pauseTime = 1500;
+
+            function type() {
+                const currentPhrase = phrases[phraseIndex];
+                if (charIndex < currentPhrase.length) {
+                    heroTitle.textContent += currentPhrase.charAt(charIndex);
+                    charIndex++;
+                    setTimeout(type, typingSpeed);
+                } else {
+                    setTimeout(erase, pauseTime);
+                }
+            }
+
+            function erase() {
+                const currentPhrase = phrases[phraseIndex];
+                if (charIndex > 0) {
+                    // heroTitle.textContent에서 마지막 글자를 제거합니다.
+                    heroTitle.textContent = currentPhrase.substring(0, charIndex - 1);
+                    charIndex--;
+                    setTimeout(erase, deletingSpeed);
+                } else {
+                    // 다음 문장으로 넘어갑니다.
+                    phraseIndex = (phraseIndex + 1) % phrases.length;
+                    setTimeout(type, 500); // 다음 타이핑을 시작하기 전 잠시 대기
+                }
+            }
+
+            // 초기 실행
+            heroTitle.textContent = ''; // 초기 텍스트를 비웁니다.
+            setTimeout(type, 500);
+        });
+
+        // Feature Request Submission (기존 로직 유지)
         function submitFeatureRequest() {
             const textarea = document.getElementById('featureRequest');
             const request = textarea.value.trim();
 
             if (!request) {
-                // 경고 창 대신 console.error를 사용하거나 사용자 정의 모달 UI를 사용해야 합니다.
                 console.error('요청 내용을 입력해주세요.');
-                // 사용자 정의 모달 UI를 대신 보여주는 로직이 필요합니다.
                 return;
             }
 
@@ -359,9 +340,7 @@
             textarea.value = '';
 
             // Show success message
-            // 경고 창 대신 console.log를 사용하거나 사용자 정의 모달 UI를 사용해야 합니다.
             console.log('✅ 소중한 의견 감사합니다! 검토 후 반영하도록 하겠습니다.');
-            // 사용자 정의 모달 UI를 대신 보여주는 로직이 필요합니다.
         }
     </script>
 </body>

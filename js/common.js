@@ -104,130 +104,131 @@ const Utilsly = {
     },
 
     // Centralized Tool Registry for Sidebar
+    // 수정됨: 모든 path에서 .html 제거
     tools: [
         {
             category: "랜덤 (Random)",
             items: [
-                { name: "룰렛 돌리기", icon: "casino", path: "/tools/random/roulette.html" },
-                { name: "제비뽑기", icon: "confirmation_number", path: "/tools/random/random-picker.html" },
-                { name: "주사위 굴리기", icon: "deployed_code", path: "/tools/random/dice-roller.html" },
-                { name: "투표 하기", icon: "how_to_vote", path: "/tools/random/vote.html" },
+                { name: "룰렛 돌리기", icon: "casino", path: "/tools/random/roulette" },
+                { name: "제비뽑기", icon: "confirmation_number", path: "/tools/random/random-picker" },
+                { name: "주사위 굴리기", icon: "deployed_code", path: "/tools/random/dice-roller" },
+                { name: "투표 하기", icon: "how_to_vote", path: "/tools/random/vote" },
             ]
         },
         {
             category: "이미지 (Image)",
             items: [
-                { name: "이미지 리사이저", icon: "image", path: "/tools/image/image-resizer.html" },
-                { name: "JPG ↔ PNG 변환", icon: "transform", path: "/tools/image/jpg-png-converter.html" },
-                { name: "PNG ↔ WebP 변환", icon: "transform", path: "/tools/image/png-webp-converter.html" },
-                { name: "WebP → JPG 변환", icon: "transform", path: "/tools/image/webp-jpg-converter.html" },
-                { name: "SVG → PNG 변환", icon: "transform", path: "/tools/image/svg-png-converter.html" },
-                { name: "HEIC → JPG 변환", icon: "transform", path: "/tools/image/heic-jpg-converter.html" },
-                { name: "HEIC → PNG 변환", icon: "transform", path: "/tools/image/heic-png-converter.html" },
-                { name: "이미지 자르기", icon: "crop", path: "/tools/image/image-cropper.html" },
-                { name: "이미지 필터", icon: "photo_filter", path: "/tools/image/image-filters.html" },
-                { name: "이미지 색상 추출", icon: "colorize", path: "/tools/image/color-extractor.html" },
-                { name: "플레이스홀더 생성", icon: "image", path: "/tools/image/placeholder-generator.html" },
-                { name: "ASCII 아트", icon: "grid_on", path: "/tools/image/ascii-art.html" },
+                { name: "이미지 리사이저", icon: "image", path: "/tools/image/image-resizer" },
+                { name: "JPG ↔ PNG 변환", icon: "transform", path: "/tools/image/jpg-png-converter" },
+                { name: "PNG ↔ WebP 변환", icon: "transform", path: "/tools/image/png-webp-converter" },
+                { name: "WebP → JPG 변환", icon: "transform", path: "/tools/image/webp-jpg-converter" },
+                { name: "SVG → PNG 변환", icon: "transform", path: "/tools/image/svg-png-converter" },
+                { name: "HEIC → JPG 변환", icon: "transform", path: "/tools/image/heic-jpg-converter" },
+                { name: "HEIC → PNG 변환", icon: "transform", path: "/tools/image/heic-png-converter" },
+                { name: "이미지 자르기", icon: "crop", path: "/tools/image/image-cropper" },
+                { name: "이미지 필터", icon: "photo_filter", path: "/tools/image/image-filters" },
+                { name: "이미지 색상 추출", icon: "colorize", path: "/tools/image/color-extractor" },
+                { name: "플레이스홀더 생성", icon: "image", path: "/tools/image/placeholder-generator" },
+                { name: "ASCII 아트", icon: "grid_on", path: "/tools/image/ascii-art" },
             ]
         },
         {
             category: "비디오 (Video)",
             items: [
-                { name: "비디오 플레이어", icon: "play_circle", path: "/tools/video/video-player.html" },
-                { name: "GIF 변환기", icon: "gif", path: "/tools/video/video-to-gif.html" },
-                { name: "화면 녹화", icon: "screen_record", path: "/tools/video/screen-recorder.html" },
+                { name: "비디오 플레이어", icon: "play_circle", path: "/tools/video/video-player" },
+                { name: "GIF 변환기", icon: "gif", path: "/tools/video/video-to-gif" },
+                { name: "화면 녹화", icon: "screen_record", path: "/tools/video/screen-recorder" },
             ]
         },
         {
             category: "PDF",
             items: [
-                { name: "PDF 합치기", icon: "picture_as_pdf", path: "/tools/pdf/pdf-merge.html" },
-                { name: "PDF 분할", icon: "cut", path: "/tools/pdf/pdf-split.html" },
-                { name: "PDF → 이미지", icon: "image_search", path: "/tools/pdf/pdf-to-image.html" },
+                { name: "PDF 합치기", icon: "picture_as_pdf", path: "/tools/pdf/pdf-merge" },
+                { name: "PDF 분할", icon: "cut", path: "/tools/pdf/pdf-split" },
+                { name: "PDF → 이미지", icon: "image_search", path: "/tools/pdf/pdf-to-image" },
             ]
         },
         {
             category: "오디오 (Audio)",
             items: [
-                { name: "음성 녹음기", icon: "mic", path: "/tools/audio/voice-recorder.html" },
-                { name: "주파수 생성기", icon: "graphic_eq", path: "/tools/audio/tone-generator.html" },
-                { name: "백색 소음", icon: "waves", path: "/tools/audio/white-noise.html" },
+                { name: "음성 녹음기", icon: "mic", path: "/tools/audio/voice-recorder" },
+                { name: "주파수 생성기", icon: "graphic_eq", path: "/tools/audio/tone-generator" },
+                { name: "백색 소음", icon: "waves", path: "/tools/audio/white-noise" },
             ]
         },
         {
             category: "메모/텍스트 (Memo)",
             items: [
-                { name: "Utilsly Docs (문서)", icon: "description", path: "/tools/memo/docs.html" },
-                { name: "빠른 메모장", icon: "edit_note", path: "/tools/memo/notepad.html" },
-                { name: "EPUB 리더", icon: "menu_book", path: "/tools/text/epub-reader.html" },
-                { name: "텍스트 비교", icon: "difference", path: "/tools/text/text-diff.html" },
-                { name: "글자수 세기", icon: "article", path: "/tools/text/word-counter.html" },
-                { name: "대소문자 변환", icon: "text_fields", path: "/tools/text/case-converter.html" },
-                { name: "로눘 입숨 생성", icon: "description", path: "/tools/text/lorem-ipsum.html" },
-                { name: "줄바꿈 제거", icon: "format_align_left", path: "/tools/text/remove-line-breaks.html" },
-                { name: "마크다운 미리보기", icon: "markdown", path: "/tools/text/markdown-preview.html" },
-                { name: "특수문자 폰트", icon: "text_fields", path: "/tools/text/fancy-text.html" },
+                { name: "Utilsly Docs (문서)", icon: "description", path: "/tools/memo/docs" },
+                { name: "빠른 메모장", icon: "edit_note", path: "/tools/memo/notepad" },
+                { name: "EPUB 리더", icon: "menu_book", path: "/tools/text/epub-reader" },
+                { name: "텍스트 비교", icon: "difference", path: "/tools/text/text-diff" },
+                { name: "글자수 세기", icon: "article", path: "/tools/text/word-counter" },
+                { name: "대소문자 변환", icon: "text_fields", path: "/tools/text/case-converter" },
+                { name: "로눘 입숨 생성", icon: "description", path: "/tools/text/lorem-ipsum" },
+                { name: "줄바꿈 제거", icon: "format_align_left", path: "/tools/text/remove-line-breaks" },
+                { name: "마크다운 미리보기", icon: "markdown", path: "/tools/text/markdown-preview" },
+                { name: "특수문자 폰트", icon: "text_fields", path: "/tools/text/fancy-text" },
             ]
         },
         {
             category: "개발 (Dev)",
             items: [
-                { name: "HTML 플레이그라운드", icon: "code", path: "/tools/dev/html-playground.html" },
-                { name: "QR 코드 생성", icon: "qr_code_2", path: "/tools/dev/qr-generator.html" },
-                { name: "코드 미니파이어", icon: "compress", path: "/tools/dev/code-minifier.html" },
-                { name: "정규식 테스터", icon: "regular_expression", path: "/tools/dev/regex-tester.html" },
-                { name: "JSON 포맷터", icon: "data_object", path: "/tools/dev/json-formatter.html" },
-                { name: "SQL 포맷터", icon: "database", path: "/tools/dev/sql-formatter.html" },
-                { name: "URL 인코더", icon: "link", path: "/tools/dev/url-encoder.html" },
-                { name: "Base64 인코더", icon: "package_2", path: "/tools/dev/base64-encoder.html" },
-                { name: "UUID 생성기", icon: "fingerprint", path: "/tools/dev/uuid-generator.html" },
+                { name: "HTML 플레이그라운드", icon: "code", path: "/tools/dev/html-playground" },
+                { name: "QR 코드 생성", icon: "qr_code_2", path: "/tools/dev/qr-generator" },
+                { name: "코드 미니파이어", icon: "compress", path: "/tools/dev/code-minifier" },
+                { name: "정규식 테스터", icon: "regular_expression", path: "/tools/dev/regex-tester" },
+                { name: "JSON 포맷터", icon: "data_object", path: "/tools/dev/json-formatter" },
+                { name: "SQL 포맷터", icon: "database", path: "/tools/dev/sql-formatter" },
+                { name: "URL 인코더", icon: "link", path: "/tools/dev/url-encoder" },
+                { name: "Base64 인코더", icon: "package_2", path: "/tools/dev/base64-encoder" },
+                { name: "UUID 생성기", icon: "fingerprint", path: "/tools/dev/uuid-generator" },
             ]
         },
         {
             category: "수학/계산 (Math)",
             items: [
-                { name: "공학용 계산기", icon: "calculate", path: "/tools/math/scientific-calculator.html" },
-                { name: "단위 변환기", icon: "scale", path: "/tools/math/unit-converter.html" },
-                { name: "퍼센트 계산기", icon: "percent", path: "/tools/math/percentage-calculator.html" },
+                { name: "공학용 계산기", icon: "calculate", path: "/tools/math/scientific-calculator" },
+                { name: "단위 변환기", icon: "scale", path: "/tools/math/unit-converter" },
+                { name: "퍼센트 계산기", icon: "percent", path: "/tools/math/percentage-calculator" },
             ]
         },
         {
             category: "날짜/시간 (Date)",
             items: [
-                { name: "타이머", icon: "timer", path: "/tools/date/timer.html" },
-                { name: "뽀모도로 타이머", icon: "check_circle", path: "/tools/date/pomodoro.html" },
-                { name: "스톱워치", icon: "timer_off", path: "/tools/date/stopwatch.html" },
-                { name: "D-Day 계산기", icon: "event_upcoming", path: "/tools/date/d-day-counter.html" },
-                { name: "세계 시간", icon: "public", path: "/tools/date/world-time.html" },
+                { name: "타이머", icon: "timer", path: "/tools/date/timer" },
+                { name: "뽀모도로 타이머", icon: "check_circle", path: "/tools/date/pomodoro" },
+                { name: "스톱워치", icon: "timer_off", path: "/tools/date/stopwatch" },
+                { name: "D-Day 계산기", icon: "event_upcoming", path: "/tools/date/d-day-counter" },
+                { name: "세계 시간", icon: "public", path: "/tools/date/world-time" },
             ]
         },
         {
             category: "색상 (Color)",
             items: [
-                { name: "컬러 피커", icon: "palette", path: "/tools/color/color-picker.html" },
-                { name: "그라디언트 생성", icon: "gradient", path: "/tools/color/gradient-generator.html" },
+                { name: "컬러 피커", icon: "palette", path: "/tools/color/color-picker" },
+                { name: "그라디언트 생성", icon: "gradient", path: "/tools/color/gradient-generator" },
             ]
         },
         {
             category: "건강 (Health)",
             items: [
-                { name: "BMI 계산기", icon: "monitor_weight", path: "/tools/health/bmi-calculator.html" },
-                { name: "BMR 계산기", icon: "local_fire_department", path: "/tools/health/bmr-calculator.html" },
-                { name: "호흡 운동", icon: "self_improvement", path: "/tools/health/breathing.html" },
+                { name: "BMI 계산기", icon: "monitor_weight", path: "/tools/health/bmi-calculator" },
+                { name: "BMR 계산기", icon: "local_fire_department", path: "/tools/health/bmr-calculator" },
+                { name: "호흡 운동", icon: "self_improvement", path: "/tools/health/breathing" },
             ]
         },
         {
             category: "보안 (Security)",
             items: [
-                { name: "비밀번호 생성", icon: "password", path: "/tools/security/password-generator.html" },
+                { name: "비밀번호 생성", icon: "password", path: "/tools/security/password-generator" },
             ]
         },
         {
             category: "AI 도구 (Beta)",
             items: [
-                { name: "AI 글쓰기 도우미", icon: "edit_note", path: "/tools/ai/writing-assistant.html" },
-                { name: "AI 번역기", icon: "translate", path: "/tools/ai/translator.html" },
+                { name: "AI 글쓰기 도우미", icon: "edit_note", path: "/tools/ai/writing-assistant" },
+                { name: "AI 번역기", icon: "translate", path: "/tools/ai/translator" },
             ]
         }
     ],
@@ -250,14 +251,14 @@ const Utilsly = {
             </div>
         `;
 
-        // Home Link
+        // Home Link (수정됨: /index.html -> /)
         html += `
             <div class="nav-section">
-                <a href="/index.html" class="nav-item" id="nav-home">
+                <a href="/" class="nav-item" id="nav-home">
                     <span class="material-symbols-rounded icon">home</span>
                     <span class="label">홈</span>
                 </a>
-                <a href="/settings.html" class="nav-item" id="nav-settings">
+                <a href="/settings" class="nav-item" id="nav-settings">
                     <span class="material-symbols-rounded icon">settings</span>
                     <span class="label">설정</span>
                 </a>
@@ -389,12 +390,14 @@ const Utilsly = {
     },
 
     highlightActivePage() {
+        // 수정됨: Clean URL 대응을 위해 로직 단순화
         const currentPath = window.location.pathname;
         const navItems = document.querySelectorAll('.nav-item');
 
         navItems.forEach(item => {
             const href = item.getAttribute('href');
-            if (currentPath.endsWith(href) || (currentPath === '/' && href === '/index.html')) {
+            // 정확히 일치하거나(홈), 해당 경로로 끝나면서 홈이 아닌 경우
+            if (currentPath === href || (currentPath.endsWith(href) && href !== '/')) {
                 item.classList.add('active');
             }
         });
