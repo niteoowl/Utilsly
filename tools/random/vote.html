@@ -21,7 +21,7 @@
     <link rel="stylesheet" href="../../css/style.css">
     <style>
         .vote-container {
-            
+
             display: flex;
             flex-direction: column;
             gap: 32px;
@@ -48,7 +48,7 @@
         .candidate-item-setup {
             display: flex;
             justify-content: space-between;
-                        padding: 16px;
+            padding: 16px;
             background: var(--bg-primary);
             border: 1px solid var(--border-color);
             border-radius: 12px;
@@ -113,7 +113,7 @@
             z-index: 2;
             display: flex;
             justify-content: space-between;
-                    }
+        }
 
         .key-hint {
             display: inline-block;
@@ -127,6 +127,21 @@
             font-weight: 700;
             margin-right: 8px;
             color: #555;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .candidate-input-row {
+                flex-direction: column;
+            }
+
+            .voting-instruction {
+                font-size: 18px;
+            }
+
+            #votingListPreview {
+                padding: 16px !important;
+            }
         }
     </style>
 </head>
@@ -169,6 +184,7 @@
                                 <input type="text" id="candidateInput" placeholder="후보 이름 입력 (예: 짜장면)"
                                     onkeypress="handleEnter(event)">
                                 <button class="btn btn-primary" onclick="addCandidate()">추가</button>
+                                <button class="btn" onclick="quickFill()">1~20 자동입력</button>
                             </div>
 
                             <div id="setupList" class="candidate-list-setup">
@@ -209,9 +225,11 @@
                         <div id="resultPhase" class="result-phase">
                             <div id="resultList"></div>
 
-                            <div style="display: flex; gap: 12px; margin-top: 24px;">
+                            <div style="display: flex; gap: 12px; margin-top: 24px; flex-wrap: wrap;">
                                 <button class="btn btn-primary" onclick="resetAll()">새로운 투표</button>
                                 <button class="btn" onclick="backToVoting()">투표 계속하기</button>
+                                <button class="btn" onclick="removeWinner()"
+                                    style="color: #FF4B4B; border-color: #FF4B4B;">1등 제거</button>
                             </div>
                         </div>
 
@@ -337,6 +355,22 @@
             document.getElementById('resultPhase').style.display = 'none';
             document.getElementById('setupPhase').style.display = 'flex';
             renderSetupList();
+        }
+
+        function quickFill() {
+            candidates = [];
+            for (let i = 1; i <= 20; i++) {
+                candidates.push({ id: Date.now() + i, name: `${i}번`, votes: 0 });
+            }
+            renderSetupList();
+        }
+
+        function removeWinner() {
+            if (candidates.length === 0) return;
+            const sorted = [...candidates].sort((a, b) => b.votes - a.votes);
+            const winner = sorted[0];
+            candidates = candidates.filter(c => c.id !== winner.id);
+            showResults();
         }
 
         // Init

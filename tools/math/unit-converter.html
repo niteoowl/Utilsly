@@ -6,8 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>단위 변환기 - Utilsly</title>
-    <meta name="description" content="길이, 무게, 넓이, 부피 등 다양한 단위를 간편하게 변환하세요."><script>
-        !function(){const e=localStorage.getItem("theme"),t=window.matchMedia("(prefers-color-scheme: dark)").matches;"dark"!==e&&(e||!t)||document.documentElement.setAttribute("data-theme","dark")}();
+    <meta name="description" content="길이, 무게, 넓이, 부피 등 다양한 단위를 간편하게 변환하세요.">
+    <script>
+        !function () { const e = localStorage.getItem("theme"), t = window.matchMedia("(prefers-color-scheme: dark)").matches; "dark" !== e && (e || !t) || document.documentElement.setAttribute("data-theme", "dark") }();
     </script>
 
     <link rel="preload" href="../../css/style.css" as="style">
@@ -68,7 +69,7 @@
                         <div class="input-group">
                             <label style="font-size: 14px; margin-bottom: 4px;">결과</label>
                             <input type="number" id="to-value" readonly
-                                style="width: 100%; padding: 8px; border: 1px solid var(--border-color); border-radius: 4px; margin-bottom: 4px; background: #f9f9f9;">
+                                style="width: 100%; padding: 8px; border: 1px solid var(--border-color); border-radius: 4px; margin-bottom: 4px; background: var(--bg-sidebar);">
                             <select id="to-unit"
                                 style="width: 100%; padding: 8px; border: 1px solid var(--border-color); border-radius: 4px;"></select>
                         </div>

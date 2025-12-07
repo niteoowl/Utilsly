@@ -23,8 +23,8 @@
         .roulette-container {
             display: flex;
             flex-direction: column;
-                        gap: 32px;
-            
+            gap: 32px;
+
         }
 
         .wheel-wrapper {
@@ -90,16 +90,44 @@
 
         .options-bar {
             display: flex;
-                        gap: 12px;
+            gap: 12px;
             margin-bottom: 16px;
         }
 
         .checkbox-label {
             display: flex;
-                        gap: 8px;
+            align-items: center;
+            gap: 8px;
             cursor: pointer;
             font-size: 14px;
             user-select: none;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            canvas {
+                width: 300px !important;
+                height: 300px !important;
+            }
+
+            .wheel-wrapper {
+                padding: 10px;
+            }
+
+            .pointer::after {
+                border-left: 15px solid transparent;
+                border-right: 15px solid transparent;
+                border-top: 30px solid var(--text-primary);
+            }
+
+            .btn-group {
+                flex-direction: column;
+            }
+
+            .options-bar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
         }
     </style>
 </head>
