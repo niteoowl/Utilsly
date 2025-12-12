@@ -501,6 +501,13 @@ const Utilsly = {
             const link = e.target.closest('a');
             if (this.isInternalLink(link, e)) {
                 e.preventDefault();
+
+                // Instant Visual Feedback
+                const navItems = document.querySelectorAll('.nav-item');
+                navItems.forEach(item => item.classList.remove('active'));
+                const navItem = link.closest('.nav-item');
+                if (navItem) navItem.classList.add('active');
+
                 this.navigateTo(link.href);
             }
         });
