@@ -239,8 +239,7 @@ const Utilsly = {
         if (!sidebarNav) return;
 
         // Save scroll position before re-rendering
-        const sidebar = document.querySelector('.sidebar');
-        const scrollPosition = sidebar ? sidebar.scrollTop : 0;
+        const scrollPosition = sidebarNav.scrollTop;
 
         // Search Bar
         let html = `
@@ -357,36 +356,39 @@ const Utilsly = {
         }
 
         // Restore scroll position after re-rendering
-        if (sidebar) {
-            sidebar.scrollTop = scrollPosition;
+        if (sidebarNav) {
+            sidebarNav.scrollTop = scrollPosition;
         }
     },
 
     restoreSidebarScroll() {
-        const sidebar = document.querySelector('.sidebar');
-        if (sidebar) {
+        const sidebarNav = document.querySelector('.sidebar-nav');
+        if (sidebarNav) {
             const savedScroll = localStorage.getItem('utilsly_sidebar_scroll');
             if (savedScroll) {
-                sidebar.scrollTop = parseInt(savedScroll, 10);
+                sidebarNav.scrollTop = parseInt(savedScroll, 10);
             }
         }
     },
 
     initScrollSave() {
-        const sidebar = document.querySelector('.sidebar');
-        if (!sidebar) return;
-
-        // Save scroll position when clicking any link
+        // Use event delegation for better performance and to handle dynamic content
         document.addEventListener('click', (e) => {
             const link = e.target.closest('a');
             if (link && link.href) {
-                localStorage.setItem('utilsly_sidebar_scroll', sidebar.scrollTop);
+                const sidebarNav = document.querySelector('.sidebar-nav');
+                if (sidebarNav) {
+                    localStorage.setItem('utilsly_sidebar_scroll', sidebarNav.scrollTop);
+                }
             }
         });
 
         // Also save on page unload as backup
         window.addEventListener('beforeunload', () => {
-            localStorage.setItem('utilsly_sidebar_scroll', sidebar.scrollTop);
+            const sidebarNav = document.querySelector('.sidebar-nav');
+            if (sidebarNav) {
+                localStorage.setItem('utilsly_sidebar_scroll', sidebarNav.scrollTop);
+            }
         });
     },
 
