@@ -444,6 +444,86 @@ const Utilsly = {
             const html = await response.text();
 
             // Parse HTML
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+
+            // 1. Update Head (Title, Meta, Styles)
+            document.title = doc.title;
+
+            // Meta description
+            const newDesc = doc.querySelector('meta[name="description"]');
+            const currentDesc = document.querySelector('meta[name="description"]');
+            if (newDesc && currentDesc) {
+                currentDesc.content = newDesc.content;
+            } else if (newDesc) {
+                document.head.appendChild(newDesc.cloneNode(true));
+            }
+
+            // CSS/Styles - Add new ones from HEAD
+            const newLinks = Array.from(doc.head.querySelectorAll('link[rel="stylesheet"], style'));
+            const currentLinks = Array.from(document.head.querySelectorAll('link[rel="stylesheet"], style'));
+
+            // Pre-load CSS to prevent FOUC (Flash of Unstyled Content)
+            const cssPromises = newLinks.map(newLink => {
+                const exists = currentLinks.some(curr => {
+                    if (newLink.tagName === 'LINK' && curr.tagName === 'LINK') return newLink.href === curr.href;
+                    if (newLink.tagName === 'STYLE' && curr.tagName === 'STYLE') return newLink.innerHTML === curr.innerHTML;
+                    return false;
+                });
+
+                if (!exists) {
+                    const clone = newLink.cloneNode(true);
+                    document.head.appendChild(clone);
+                    if (clone.tagName === 'LINK') {
+                        return new Promise(resolve => {
+                            clone.onload = resolve;
+                            clone.onerror = resolve; // Continue even on error
+                        });
+                    }
+                }
+                return Promise.resolve();
+            });
+
+            await Promise.all(cssPromises);
+
+            // 2. Replace Content
+            const newMain = doc.querySelector('.main-content');
+            const currentMain = document.querySelector('.main-content');
+
+            if (newMain && currentMain) {
+                currentMain.innerHTML = newMain.innerHTML;
+            } else {
+                window.location.reload();
+                return;
+            }
+
+            // 3. Re-init Sidebar & UI
+            this.highlightActivePage();
+            this.initMobileMenu();
+
+            // 4. Handle Scripts (Body scripts) - Execute cleanly
+            const newScripts = Array.from(doc.body.querySelectorAll('script'));
+
+            for (const script of newScripts) {
+                // Skip common.js to avoid re-binding events/state reset loop
+                if (script.src && script.src.includes('common.js')) continue;
+
+                const newScript = document.createElement('script');
+                Array.from(script.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+                if (script.innerHTML) newScript.appendChild(document.createTextNode(script.innerHTML));
+
+                document.body.appendChild(newScript);
+            }
+
+            requestAnimationFrame(() => {
+                window.scrollTo(0, 0);
+            });
+
+        } catch (error) {
+            console.error('Navigation failed:', error);
+            window.location.href = url;
+        } finally {
+            this.hideLoadingBar();
         }
     },
 
