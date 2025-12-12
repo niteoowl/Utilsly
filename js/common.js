@@ -357,38 +357,36 @@ const Utilsly = {
         }
 
         // Restore scroll position after re-rendering
-        const sidebarNav = document.querySelector('.sidebar-nav');
-        if (sidebarNav) {
-            const savedScroll = localStorage.getItem('utilsly_sidebar_scroll');
-            if (savedScroll) sidebarNav.scrollTop = parseInt(savedScroll, 10);
+        if (sidebar) {
+            sidebar.scrollTop = scrollPosition;
         }
     },
 
     restoreSidebarScroll() {
-        const sidebarNav = document.querySelector('.sidebar-nav');
-        if (sidebarNav) {
+        const sidebar = document.querySelector('.sidebar');
+        if (sidebar) {
             const savedScroll = localStorage.getItem('utilsly_sidebar_scroll');
             if (savedScroll) {
-                sidebarNav.scrollTop = parseInt(savedScroll, 10);
+                sidebar.scrollTop = parseInt(savedScroll, 10);
             }
         }
     },
 
     initScrollSave() {
-        const sidebarNav = document.querySelector('.sidebar-nav');
-        if (!sidebarNav) return;
+        const sidebar = document.querySelector('.sidebar');
+        if (!sidebar) return;
 
         // Save scroll position when clicking any link
         document.addEventListener('click', (e) => {
             const link = e.target.closest('a');
             if (link && link.href) {
-                localStorage.setItem('utilsly_sidebar_scroll', sidebarNav.scrollTop);
+                localStorage.setItem('utilsly_sidebar_scroll', sidebar.scrollTop);
             }
         });
 
         // Also save on page unload as backup
         window.addEventListener('beforeunload', () => {
-            localStorage.setItem('utilsly_sidebar_scroll', sidebarNav.scrollTop);
+            localStorage.setItem('utilsly_sidebar_scroll', sidebar.scrollTop);
         });
     },
 
