@@ -501,11 +501,6 @@ const Utilsly = {
             const link = e.target.closest('a');
             if (this.isInternalLink(link, e)) {
                 e.preventDefault();
-
-                // Immediate visual feedback (Instant Active State)
-                document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-                link.classList.add('active');
-
                 this.navigateTo(link.href);
             }
         });
