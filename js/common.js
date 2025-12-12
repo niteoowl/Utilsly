@@ -529,6 +529,85 @@ const Utilsly = {
             const response = await fetch(url);
             if (!response.ok) throw new Error('Network response was not ok');
             const html = await response.text();
+
+            // Parse HTML
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+
+            // 1. Update Head (Title, Meta, Styles)
+            document.title = doc.title;
+
+            // Meta description
+            const newDesc = doc.querySelector('meta[name="description"]');
+            const currentDesc = document.querySelector('meta[name="description"]');
+            if (newDesc && currentDesc) {
+                currentDesc.content = newDesc.content;
+            } else if (newDesc) {
+                document.head.appendChild(newDesc.cloneNode(true));
+            }
+
+            // CSS/Styles - Wait for loading
+            const newLinks = Array.from(doc.head.querySelectorAll('link[rel="stylesheet"], style'));
+            const currentLinks = Array.from(document.head.querySelectorAll('link[rel="stylesheet"], style'));
+            const cssPromises = [];
+
+            newLinks.forEach(newLink => {
+                // Check if already exists
+                const exists = currentLinks.some(curr => {
+                    if (newLink.tagName === 'LINK' && curr.tagName === 'LINK') return newLink.href === curr.href;
+                    if (newLink.tagName === 'STYLE' && curr.tagName === 'STYLE') return newLink.innerHTML === curr.innerHTML;
+                    return false;
+                });
+
+                if (!exists) {
+                    const clonedLink = newLink.cloneNode(true);
+                    document.head.appendChild(clonedLink);
+
+                    if (clonedLink.tagName === 'LINK') {
+                        cssPromises.push(new Promise(resolve => {
+                            clonedLink.onload = resolve;
+                            clonedLink.onerror = resolve;
+                            setTimeout(resolve, 500); // 500ms timeout
+                        }));
+                    }
+                }
+            });
+
+            if (cssPromises.length > 0) {
+                await Promise.all(cssPromises);
+            }
+
+            // 2. Replace Content
+            const newMain = doc.querySelector('.main-content');
+            const currentMain = document.querySelector('.main-content');
+
+            if (newMain && currentMain) {
+                currentMain.innerHTML = newMain.innerHTML;
+            } else {
+                window.location.reload();
+                return;
+            }
+
+            // 3. Re-init Sidebar
+            this.highlightActivePage();
+            this.initMobileMenu();
+
+            // 4. Handle Scripts (Body scripts)
+            const newScripts = Array.from(doc.body.querySelectorAll('script'));
+
+            for (const script of newScripts) {
+                if (script.src && script.src.includes('common.js')) continue;
+
+                const newScript = document.createElement('script');
+                Array.from(script.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+                if (script.innerHTML) newScript.appendChild(document.createTextNode(script.innerHTML));
+
+                document.body.appendChild(newScript);
+            }
+
+            window.scrollTo(0, 0);
+
+        } catch (error) {
             console.error('Navigation failed:', error);
             window.location.href = url;
         } finally {
