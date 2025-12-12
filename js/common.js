@@ -391,11 +391,11 @@ const Utilsly = {
     },
 
     highlightActivePage() {
-        // 수정됨: Clean URL 대응을 위해 로직 단순화
         const currentPath = window.location.pathname;
         const navItems = document.querySelectorAll('.nav-item');
 
         navItems.forEach(item => {
+            item.classList.remove('active');
             const href = item.getAttribute('href');
             // 정확히 일치하거나(홈), 해당 경로로 끝나면서 홈이 아닌 경우
             if (currentPath === href || (currentPath.endsWith(href) && href !== '/')) {
