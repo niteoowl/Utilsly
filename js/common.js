@@ -390,6 +390,70 @@ const Utilsly = {
         });
     },
 
+    // Modal System
+    showAlert(message, title = '알림') {
+        return new Promise((resolve) => {
+            const overlay = document.createElement('div');
+            overlay.className = 'modal-overlay';
+            overlay.innerHTML = `
+                <div class="modal-container">
+                    <div class="modal-header">
+                        <div class="modal-title">${title}</div>
+                        <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">
+                            <span class="material-symbols-rounded" style="font-size: 20px;">close</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">${message}</div>
+                    <div class="modal-footer">
+                        <button class="btn btn-primary" onclick="this.closest('.modal-overlay').remove()">확인</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) {
+                    overlay.remove();
+                    resolve();
+                }
+            });
+            overlay.querySelector('.btn-primary').addEventListener('click', () => resolve());
+        });
+    },
+
+    showConfirm(message, title = '확인') {
+        return new Promise((resolve) => {
+            const overlay = document.createElement('div');
+            overlay.className = 'modal-overlay';
+            overlay.innerHTML = `
+                <div class="modal-container">
+                    <div class="modal-header">
+                        <div class="modal-title">${title}</div>
+                        <button class="modal-close" data-action="cancel">
+                            <span class="material-symbols-rounded" style="font-size: 20px;">close</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">${message}</div>
+                    <div class="modal-footer">
+                        <button class="btn" data-action="cancel">취소</button>
+                        <button class="btn btn-primary" data-action="confirm">확인</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+
+            const handleAction = (confirmed) => {
+                overlay.remove();
+                resolve(confirmed);
+            };
+
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) handleAction(false);
+                if (e.target.closest('[data-action="cancel"]')) handleAction(false);
+                if (e.target.closest('[data-action="confirm"]')) handleAction(true);
+            });
+        });
+    },
+
     highlightActivePage() {
         const currentPath = window.location.pathname;
         const navItems = document.querySelectorAll('.nav-item');
@@ -403,6 +467,28 @@ const Utilsly = {
             }
         });
     },
+    initMobileMenu() {
+        const topBar = document.querySelector('.top-bar');
+        if (topBar && !topBar.querySelector('.menu-toggle-btn')) {
+            const menuBtn = document.createElement('button');
+            menuBtn.className = 'menu-toggle-btn';
+            menuBtn.innerHTML = '<span class="material-symbols-rounded">menu</span>';
+            menuBtn.onclick = () => this.toggleSidebar(true);
+            topBar.insertBefore(menuBtn, topBar.firstChild);
+        }
+    },
+
+    toggleSidebar(show) {
+        const sidebar = document.querySelector('.sidebar');
+        if (sidebar) {
+            if (show) {
+                sidebar.classList.add('active');
+            } else {
+                sidebar.classList.remove('active');
+            }
+        }
+    },
+
     // SPA Navigation Logic (Turbo Mode)
     initSpaNavigation() {
         // Handle clicks on internal links
