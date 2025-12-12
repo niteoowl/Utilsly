@@ -184,8 +184,6 @@ const Utilsly = {
                 { name: "URL 인코더", icon: "link", path: "/tools/dev/url-encoder" },
                 { name: "Base64 인코더", icon: "package_2", path: "/tools/dev/base64-encoder" },
                 { name: "UUID 생성기", icon: "fingerprint", path: "/tools/dev/uuid-generator" },
-                { name: "인터넷 속도 측정", icon: "speed", path: "/tools/dev/speed-test" },
-                { name: "QR 코드 스캐너", icon: "qr_code_scanner", path: "/tools/dev/qr-scanner" },
             ]
         },
         {
@@ -225,12 +223,6 @@ const Utilsly = {
             category: "보안 (Security)",
             items: [
                 { name: "비밀번호 생성", icon: "password", path: "/tools/security/password-generator" },
-            ]
-        },
-        {
-            category: "커뮤니티 (Community)",
-            items: [
-                { name: "기능 추가 요청", icon: "campaign", path: "/tools/community/feature-requests" },
             ]
         },
         {
@@ -401,33 +393,15 @@ const Utilsly = {
     },
 
     highlightActivePage() {
-        // Normalize: remove .html extension and trailing slash
-        const normalize = path => path.replace('.html', '').replace(/\/$/, '');
-        const currentPath = normalize(window.location.pathname);
+        const currentPath = window.location.pathname;
         const navItems = document.querySelectorAll('.nav-item');
 
         navItems.forEach(item => {
             item.classList.remove('active');
             const href = item.getAttribute('href');
-            if (!href) return;
-
-            const normalizedHref = normalize(href);
-
-            // Handle home strictly
-            if (normalizedHref === '' && (currentPath === '' || currentPath === '/index')) {
+            // 정확히 일치하거나(홈), 해당 경로로 끝나면서 홈이 아닌 경우
+            if (currentPath === href || (currentPath.endsWith(href) && href !== '/')) {
                 item.classList.add('active');
-                return;
-            }
-
-            // Exact match (robust for /tools/memo/notepad vs /tools/memo/notepad.html)
-            if (currentPath === normalizedHref || currentPath.endsWith(normalizedHref)) {
-                // Ensure we don't partial match distinct folders (e.g. /tool vs /tools)
-                // but since paths are fairly specific, endsWith is usually okay if href is long enough.
-                // Better: exact match or strict subdirectory logic.
-                // Given the clean URLs, exact match of the normalized path is best.
-                if (currentPath === normalizedHref) {
-                    item.classList.add('active');
-                }
             }
         });
     },
@@ -527,6 +501,11 @@ const Utilsly = {
             const link = e.target.closest('a');
             if (this.isInternalLink(link, e)) {
                 e.preventDefault();
+
+                // Immediate visual feedback (Instant Active State)
+                document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+                link.classList.add('active');
+
                 this.navigateTo(link.href);
             }
         });
