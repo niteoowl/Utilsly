@@ -1,3 +1,15 @@
+/* Turbo Progress Bar */
+#turbo-progress-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
+    z-index: 9999;
+    transition: width 0.2s ease-out, opacity 0.2s;
+    width: 0%;
+}
+
 :root {
     /* Prevent dark mode flash */
     color-scheme: light;

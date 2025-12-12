@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>스마트 화이트보드 - Utilsly</title>
+    <meta name="description" content="아이디어를 자유롭게 그리세요. 다양한 도구와 무한한 캔버스를 제공합니다.">
+    <script>
+        !function () { const e = localStorage.getItem("theme"), t = window.matchMedia("(prefers-color-scheme: dark)").matches; "dark" !== e && (e || !t) || document.documentElement.setAttribute("data-theme", "dark") }();
+    </script>
+    <link rel="preload" href="../../css/style.css" as="style">
+    <link rel="stylesheet" href="../../css/style.css">
+    <style>
+        .whiteboard-container {
+            position: relative;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+            height: 700px;
+            display: flex;
+            flex-direction: column;
+            user-select: none;
+        }
+
+        .wb-toolbar {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--bg-sidebar);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .tool-group {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            padding: 0 8px;
+            border-right: 1px solid var(--border-color);
+        }
+
+        .tool-group:last-child {
+            border-right: none;
+        }
+
+        .tool-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            border: 1px solid transparent;
+            background: transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .tool-btn:hover {
+            background: rgba(0, 0, 0, 0.05);
+            color: var(--text-primary);
+        }
+
+        .tool-btn.active {
+            background: var(--accent-blue);
+            color: white;
+            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+        }
+
+        .color-picker-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        input[type="color"] {
+            -webkit-appearance: none;
+            border: none;
+            width: 28px;
+            height: 28px;
+            cursor: pointer;
+            border-radius: 50%;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        input[type="color"]::-webkit-color-swatch-wrapper {
+            padding: 0;
+        }
+
+        input[type="color"]::-webkit-color-swatch {
+            border: 2px solid var(--border-color);
+            border-radius: 50%;
+        }
+
+        input[type="range"] {
+            width: 80px;
+            height: 4px;
+            background: var(--border-color);
+            border-radius: 2px;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            background: var(--accent-blue);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        #canvas-wrapper {
+            flex: 1;
+            position: relative;
+            background-color: #ffffff;
+            /* Always white unless dark mode specific logic used */
+            overflow: hidden;
+            cursor: crosshair;
+        }
+
+        [data-theme="dark"] #canvas-wrapper {
+            background-color: #1a1a1a;
+        }
+
+        canvas {
+            display: block;
+            touch-action: none;
+        }
+
+        /* Tooltip */
+        .tool-btn[data-title]:hover::after {
+            content: attr(data-title);
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            white-space: nowrap;
+            z-index: 100;
+            pointer-events: none;
+        }
+
+        .tool-btn {
+            position: relative;
+        }
+
+        /* For tooltip positioning */
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="user-profile">
+                    <div style="font-size: 24px; font-weight: 800; color: var(--text-primary); letter-spacing: -0.5px;">
+                        Utilsly.</div>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <!-- Sidebar content generated by js/common.js -->
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="top-bar">
+                <div class="breadcrumbs">
+                    <span class="breadcrumb-item">스마트 화이트보드</span>
+                </div>
+            </header>
+
+            <div class="content-area">
+                <div class="page-header">
+                    <div class="header-icon-wrapper">
+                        <span class="material-symbols-rounded">draw</span>
+                    </div>
+                    <h1>스마트 화이트보드</h1>
+                    <p class="description">자유롭게 그리고, 저장하고, 공유하세요.</p>
+                </div>
+
+                <div class="whiteboard-container">
+                    <div class="wb-toolbar">
+                        <!-- Drawing Tools -->
+                        <div class="tool-group">
+                            <button class="tool-btn active" id="tool-pencil" data-tool="pencil" data-title="연필">
+                                <span class="material-symbols-rounded">edit</span>
+                            </button>
+                            <button class="tool-btn" id="tool-line" data-tool="line" data-title="직선">
+                                <span class="material-symbols-rounded">remove</span>
+                            </button>
+                            <button class="tool-btn" id="tool-rect" data-tool="rect" data-title="사각형">
+                                <span class="material-symbols-rounded">rectangle</span>
+                            </button>
+                            <button class="tool-btn" id="tool-circle" data-tool="circle" data-title="원">
+                                <span class="material-symbols-rounded">circle</span>
+                            </button>
+                            <button class="tool-btn" id="tool-eraser" data-tool="eraser" data-title="지우개">
+                                <span class="material-symbols-rounded">ink_eraser</span>
+                            </button>
+                        </div>
+
+                        <!-- Properties -->
+                        <div class="tool-group">
+                            <div class="color-picker-wrapper">
+                                <input type="color" id="strokeColor" value="#000000">
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <span class="material-symbols-rounded" style="font-size: 16px;">line_weight</span>
+                                <input type="range" id="lineWidth" min="1" max="50" value="3">
+                            </div>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="tool-group" style="border-right: none; margin-left: auto;">
+                            <button class="tool-btn" onclick="wb.undo()" data-title="되돌리기 (Ctrl+Z)">
+                                <span class="material-symbols-rounded">undo</span>
+                            </button>
+                            <button class="tool-btn" onclick="wb.redo()" data-title="다시실행 (Ctrl+Y)">
+                                <span class="material-symbols-rounded">redo</span>
+                            </button>
+                            <button class="tool-btn" onclick="wb.clear()" data-title="모두 지우기" style="color: #ef4444;">
+                                <span class="material-symbols-rounded">delete</span>
+                            </button>
+                            <button class="tool-btn" onclick="wb.download()" data-title="이미지 저장"
+                                style="color: var(--accent-blue);">
+                                <span class="material-symbols-rounded">save_alt</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="canvas-wrapper">
+                        <canvas id="whiteboard"></canvas>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="../../js/common.js"></script>
+    <script>
+        class Whiteboard {
+            constructor() {
+                this.canvas = document.getElementById('whiteboard');
+                this.ctx = this.canvas.getContext('2d');
+                this.wrapper = document.getElementById('canvas-wrapper');
+
+                this.isDrawing = false;
+                this.currentTool = 'pencil';
+                this.startX = 0;
+                this.startY = 0;
+
+                this.history = [];
+                this.historyStep = -1;
+                this.maxHistory = 50;
+
+                this.properties = {
+                    color: '#000000',
+                    width: 3,
+                    cap: 'round',
+                    join: 'round'
+                };
+
+                // Dark mode adjustment
+                this.isDarkMode = document.documentElement.getAttribute('data-theme') === 'dark';
+                if (this.isDarkMode) {
+                    this.properties.color = '#ffffff';
+                    document.getElementById('strokeColor').value = '#ffffff';
+                }
+
+                this.init();
+            }
+
+            init() {
+                this.resizeCanvas();
+                window.addEventListener('resize', () => this.resizeCanvas());
+
+                // Events
+                this.canvas.addEventListener('mousedown', this.startDrawing.bind(this));
+                this.canvas.addEventListener('mousemove', this.draw.bind(this));
+                this.canvas.addEventListener('mouseup', this.stopDrawing.bind(this));
+                this.canvas.addEventListener('mouseout', this.stopDrawing.bind(this));
+
+                // Touch support
+                this.canvas.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    const touch = e.touches[0];
+                    const rect = this.canvas.getBoundingClientRect();
+                    const mouseEvent = new MouseEvent('mousedown', {
+                        clientX: touch.clientX,
+                        clientY: touch.clientY
+                    });
+                    this.canvas.dispatchEvent(mouseEvent);
+                }, { passive: false });
+
+                this.canvas.addEventListener('touchmove', (e) => {
+                    e.preventDefault();
+                    const touch = e.touches[0];
+                    const mouseEvent = new MouseEvent('mousemove', {
+                        clientX: touch.clientX,
+                        clientY: touch.clientY
+                    });
+                    this.canvas.dispatchEvent(mouseEvent);
+                }, { passive: false });
+
+                this.canvas.addEventListener('touchend', () => {
+                    const mouseEvent = new MouseEvent('mouseup', {});
+                    this.canvas.dispatchEvent(mouseEvent);
+                });
+
+                // Controls
+                document.querySelectorAll('[data-tool]').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const tool = e.currentTarget.dataset.tool;
+                        this.setTool(tool);
+                        document.querySelectorAll('[data-tool]').forEach(b => b.classList.remove('active'));
+                        e.currentTarget.classList.add('active');
+                    });
+                });
+
+                document.getElementById('strokeColor').addEventListener('input', (e) => {
+                    this.properties.color = e.target.value;
+                });
+
+                document.getElementById('lineWidth').addEventListener('input', (e) => {
+                    this.properties.width = parseInt(e.target.value);
+                });
+
+                // Shortcuts
+                document.addEventListener('keydown', (e) => {
+                    if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
+                        e.preventDefault();
+                        this.undo();
+                    }
+                    if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.shiftKey && e.key === 'Z'))) {
+                        e.preventDefault();
+                        this.redo();
+                    }
+                });
+
+                // Initial snapshot
+                this.saveState();
+            }
+
+            resizeCanvas() {
+                // Save content
+                const tempCanvas = document.createElement('canvas');
+                const tempCtx = tempCanvas.getContext('2d');
+                tempCanvas.width = this.canvas.width;
+                tempCanvas.height = this.canvas.height;
+                tempCtx.drawImage(this.canvas, 0, 0);
+
+                // Resize
+                const rect = this.wrapper.getBoundingClientRect();
+                this.canvas.width = rect.width;
+                this.canvas.height = rect.height;
+
+                // Restore content
+                if (this.history.length > 0) {
+                    this.ctx.drawImage(tempCanvas, 0, 0);
+                    // If the new canvas is larger, we might want to fill the background
+                    // But transparent is fine for now usually, or handle dark mode bg
+                }
+            }
+
+            getMousePos(e) {
+                const rect = this.canvas.getBoundingClientRect();
+                return {
+                    x: e.clientX - rect.left,
+                    y: e.clientY - rect.top
+                };
+            }
+
+            startDrawing(e) {
+                this.isDrawing = true;
+                const pos = this.getMousePos(e);
+                this.startX = pos.x;
+                this.startY = pos.y;
+
+                // Initialize context for drawing
+                this.ctx.lineWidth = this.properties.width;
+                this.ctx.lineCap = this.properties.cap;
+                this.ctx.lineJoin = this.properties.join;
+                this.ctx.strokeStyle = this.currentTool === 'eraser' ?
+                    (this.isDarkMode ? '#1a1a1a' : '#ffffff') :
+                    this.properties.color;
+
+                if (this.currentTool === 'pencil' || this.currentTool === 'eraser') {
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(this.startX, this.startY);
+                } else {
+                    // For shapes, we save the image data to restore while dragging
+                    this.snapshot = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
+                }
+            }
+
+            draw(e) {
+                if (!this.isDrawing) return;
+                const pos = this.getMousePos(e);
+
+                if (this.currentTool === 'pencil' || this.currentTool === 'eraser') {
+                    this.ctx.lineTo(pos.x, pos.y);
+                    this.ctx.stroke();
+                } else {
+                    // Restore snapshot to avoid trails
+                    this.ctx.putImageData(this.snapshot, 0, 0);
+                    this.ctx.beginPath();
+
+                    if (this.currentTool === 'line') {
+                        this.ctx.moveTo(this.startX, this.startY);
+                        this.ctx.lineTo(pos.x, pos.y);
+                    } else if (this.currentTool === 'rect') {
+                        this.ctx.rect(this.startX, this.startY, pos.x - this.startX, pos.y - this.startY);
+                    } else if (this.currentTool === 'circle') {
+                        const radius = Math.sqrt(Math.pow(pos.x - this.startX, 2) + Math.pow(pos.y - this.startY, 2));
+                        this.ctx.arc(this.startX, this.startY, radius, 0, 2 * Math.PI);
+                    }
+                    this.ctx.stroke();
+                }
+            }
+
+            stopDrawing() {
+                if (!this.isDrawing) return;
+                this.isDrawing = false;
+                this.saveState();
+            }
+
+            setTool(tool) {
+                this.currentTool = tool;
+                if (tool === 'eraser') {
+                    this.canvas.style.cursor = 'cell'; // Or a custom cursor
+                } else {
+                    this.canvas.style.cursor = 'crosshair';
+                }
+            }
+
+            saveState() {
+                // Remove future states if we were in the middle
+                if (this.historyStep < this.history.length - 1) {
+                    this.history = this.history.slice(0, this.historyStep + 1);
+                }
+
+                this.history.push(this.canvas.toDataURL());
+                if (this.history.length > this.maxHistory) {
+                    this.history.shift();
+                } else {
+                    this.historyStep++;
+                }
+            }
+
+            undo() {
+                if (this.historyStep > 0) {
+                    this.historyStep--;
+                    const img = new Image();
+                    img.src = this.history[this.historyStep];
+                    img.onload = () => {
+                        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                        this.ctx.drawImage(img, 0, 0);
+                    };
+                }
+            }
+
+            redo() {
+                if (this.historyStep < this.history.length - 1) {
+                    this.historyStep++;
+                    const img = new Image();
+                    img.src = this.history[this.historyStep];
+                    img.onload = () => {
+                        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                        this.ctx.drawImage(img, 0, 0);
+                    };
+                }
+            }
+
+            clear() {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                this.saveState();
+            }
+
+            download() {
+                // Create a temporary canvas to fill background if transparent
+                const tempCanvas = document.createElement('canvas');
+                const tempCtx = tempCanvas.getContext('2d');
+                tempCanvas.width = this.canvas.width;
+                tempCanvas.height = this.canvas.height;
+
+                // Fill background based on theme or white
+                tempCtx.fillStyle = this.isDarkMode ? '#1a1a1a' : '#ffffff';
+                tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+
+                // Draw content
+                tempCtx.drawImage(this.canvas, 0, 0);
+
+                const link = document.createElement('a');
+                link.download = `whiteboard-${new Date().toISOString().slice(0, 10)}.png`;
+                link.href = tempCanvas.toDataURL();
+                link.click();
+            }
+        }
+
+        const wb = new Whiteboard();
+    </script>
+</body>
+
+</html>

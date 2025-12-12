@@ -161,6 +161,7 @@ const Utilsly = {
             items: [
                 { name: "Utilsly Docs (문서)", icon: "description", path: "/tools/memo/docs" },
                 { name: "빠른 메모장", icon: "edit_note", path: "/tools/memo/notepad" },
+                { name: "스마트 화이트보드", icon: "draw", path: "/tools/memo/whiteboard" },
                 { name: "EPUB 리더", icon: "menu_book", path: "/tools/text/epub-reader" },
                 { name: "텍스트 비교", icon: "difference", path: "/tools/text/text-diff" },
                 { name: "글자수 세기", icon: "article", path: "/tools/text/word-counter" },
@@ -487,9 +488,132 @@ const Utilsly = {
                 if (e.target.closest('[data-action="confirm"]')) handleAction(true);
             });
         });
+    },
+    // SPA Navigation Logic (Turbo Mode)
+    initSpaNavigation() {
+        // Handle clicks on internal links
+        document.addEventListener('click', (e) => {
+            const link = e.target.closest('a');
+            if (
+                link &&
+                link.href &&
+                link.origin === location.origin &&
+                !link.hasAttribute('download') &&
+                !link.target && // Ignore _blank etc.
+                !e.ctrlKey && !e.metaKey && !e.shiftKey // Ignore modifier keys
+            ) {
+                const url = new URL(link.href);
+                // Only intercept internal pages, not anchors on same page
+                if (url.pathname !== location.pathname) {
+                    e.preventDefault();
+                    this.navigateTo(url.href);
+                }
+            }
+        });
+
+        // Handle Back/Forward buttons
+        window.addEventListener('popstate', (e) => {
+            this.loadPage(location.href, false);
+        });
+    },
+
+    async navigateTo(url) {
+        history.pushState(null, '', url);
+        await this.loadPage(url, true);
+    },
+
+    async loadPage(url, isPush) {
+        this.showLoadingBar();
+
+        try {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error('Network response was not ok');
+            const html = await response.text();
+
+            // Parse HTML
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+
+            // Replace Content
+            // We expect a .main-content or .app-container structure. 
+            // Ideally we just replace .content-area to keep sidebar state if possible,
+            // but for full correctness (like breadcrumbs, title) we might need to replace more or update fields.
+            // Let's try to replace .main-content to be safe, or just .content-area if we want to be faster.
+            // However, Sidebar might change active state.
+
+            const newMain = doc.querySelector('.main-content');
+            const currentMain = document.querySelector('.main-content');
+
+            if (newMain && currentMain) {
+                currentMain.innerHTML = newMain.innerHTML;
+
+                // Update specific head elements
+                document.title = doc.title;
+                const newDesc = doc.querySelector('meta[name="description"]');
+                const currentDesc = document.querySelector('meta[name="description"]');
+                if (newDesc && currentDesc) currentDesc.content = newDesc.content;
+            } else {
+                // Fallback if structure is different
+                window.location.reload();
+                return;
+            }
+
+            // re-init sidebar active state (URL changed)
+            this.highlightActivePage();
+
+            // Re-run any scripts found in the new content
+            // internal scripts in the new body need to be executed
+            const scripts = currentMain.querySelectorAll('script');
+            scripts.forEach(oldScript => {
+                const newScript = document.createElement('script');
+                Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+                newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+                oldScript.parentNode.replaceChild(newScript, oldScript);
+            });
+
+            // Re-init any common listeners
+            this.initMobileMenu();
+
+            // Scroll to top
+            window.scrollTo(0, 0);
+
+        } catch (error) {
+            console.error('Navigation failed:', error);
+            window.location.href = url; // Fallback to full reload
+        } finally {
+            this.hideLoadingBar();
+        }
+    },
+
+    showLoadingBar() {
+        let bar = document.getElementById('turbo-progress-bar');
+        if (!bar) {
+            bar = document.createElement('div');
+            bar.id = 'turbo-progress-bar';
+            document.body.appendChild(bar);
+        }
+        // Force reflow
+        bar.style.width = '0%';
+        bar.style.opacity = '1';
+        void bar.offsetWidth;
+        bar.style.width = '70%'; // Simulation
+    },
+
+    hideLoadingBar() {
+        const bar = document.getElementById('turbo-progress-bar');
+        if (bar) {
+            bar.style.width = '100%';
+            setTimeout(() => {
+                bar.style.opacity = '0';
+                setTimeout(() => {
+                    bar.style.width = '0%';
+                }, 200);
+            }, 200);
+        }
     }
 };
 
 document.addEventListener('DOMContentLoaded', () => {
     Utilsly.init();
+    setTimeout(() => Utilsly.initSpaNavigation(), 100); // Init SPA after initial render
 });
