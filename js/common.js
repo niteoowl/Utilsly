@@ -103,9 +103,57 @@ const Utilsly = {
         this.renderSidebar();
     },
 
-    // Centralized Tool Registry for Sidebar
+    // --- Tool Registry & Lifecycle Management ---
+    tools: {}, // Registry of tool controllers
+    currentTool: null, // Currently active tool instance
+
+    /**
+     * Registers a new tool controller.
+     * @param {string} id - Unique identifier for the tool (e.g., 'timer').
+     * @param {object} controller - Object containing init() and cleanup() methods.
+     */
+    registerTool(id, controller) {
+        if (this.tools[id]) {
+            console.warn(`Tool '${id}' is already registered. Replacing existing controller.`);
+        }
+
+        // Ensure init and cleanup exist
+        if (typeof controller.init !== 'function') {
+            console.error(`Tool '${id}' missing init() method.`);
+            return;
+        }
+        if (typeof controller.cleanup !== 'function') {
+            // Provide default cleanup if missing (though strictly recommended)
+            controller.cleanup = () => { };
+        }
+
+        this.tools[id] = controller;
+
+        // If this tool corresponds to the current page (during initial load or navigation),
+        // we might need to verify if it should be active immediately.
+        // However, the loadPage logic handles the actual init call.
+    },
+
+    /**
+     * Cleans up the currently active tool.
+     */
+    cleanupCurrentTool() {
+        if (this.currentTool) {
+            try {
+                console.log(`Cleaning up tool: ${this.currentTool.id}`);
+                this.currentTool.controller.cleanup();
+            } catch (e) {
+                console.error(`Error cleaning up tool '${this.currentTool.id}':`, e);
+            }
+            this.currentTool = null;
+        }
+    },
+
+    // Centralized Tool Registry for Sidebar list generation
+    // (Renamed to sidebarTools to avoid confusion with the active tool registry)
+
     // 수정됨: 모든 path에서 .html 제거
-    tools: [
+    sidebarTools: [
         {
             category: "커뮤니티 (Community)",
             items: [
@@ -275,7 +323,7 @@ const Utilsly = {
         `;
 
         // Tools
-        this.tools.forEach(section => {
+        this.sidebarTools.forEach(section => {
             // Filter hidden items unless in edit mode
             const visibleItems = this.isEditingSidebar
                 ? section.items
@@ -545,7 +593,14 @@ const Utilsly = {
             const parser = new DOMParser();
             const doc = parser.parseFromString(html, 'text/html');
 
-            // 1. Update Head (Title, Meta, Styles)
+            // --- 1. Cleanup Phase ---
+            this.cleanupCurrentTool();
+
+            // Remove previous page-specific styles
+            document.querySelectorAll('.page-specific-style').forEach(el => el.remove());
+
+
+            // --- 2. Update Head (Title, Meta) ---
             document.title = doc.title;
 
             // Meta description
@@ -557,47 +612,66 @@ const Utilsly = {
                 document.head.appendChild(newDesc.cloneNode(true));
             }
 
-            // CSS/Styles - Wait for loading
+            // --- 3. CSS Handling (Load & Tag) ---
             const newLinks = Array.from(doc.head.querySelectorAll('link[rel="stylesheet"], style'));
             const currentLinks = Array.from(document.head.querySelectorAll('link[rel="stylesheet"], style'));
             const cssPromises = [];
 
             newLinks.forEach(newLink => {
-                // Check if already exists
+                // Check if already exists broadly (to avoid re-loading common.css)
+                // We add a specific class to new checks to ensure we can remove them later.
+                const isCommon = newLink.getAttribute('href')?.includes('common.css') || newLink.getAttribute('href')?.includes('style.css');
+
                 const exists = currentLinks.some(curr => {
                     if (newLink.tagName === 'LINK' && curr.tagName === 'LINK') return newLink.href === curr.href;
                     if (newLink.tagName === 'STYLE' && curr.tagName === 'STYLE') return newLink.innerHTML === curr.innerHTML;
                     return false;
                 });
 
-                if (!exists) {
+                if (!exists && !isCommon) {
                     const clonedLink = newLink.cloneNode(true);
+                    clonedLink.classList.add('page-specific-style'); // TAG for removal
                     document.head.appendChild(clonedLink);
 
                     if (clonedLink.tagName === 'LINK') {
                         cssPromises.push(new Promise(resolve => {
                             clonedLink.onload = resolve;
                             clonedLink.onerror = resolve;
-                            setTimeout(resolve, 500); // 500ms timeout
+                            setTimeout(resolve, 500); // Timeout
                         }));
                     }
                 }
             });
 
-            if (cssPromises.length > 0) {
-                await Promise.all(cssPromises);
+            // --- 5. Tool Initialization ---
+            // Check for data-tool-id in the new content
+            const toolContainer = document.querySelector('[data-tool-id]');
+            if (toolContainer) {
+                const toolId = toolContainer.dataset.toolId;
+                if (this.tools[toolId]) {
+                    console.log(`Initializing tool: ${toolId}`);
+                    this.tools[toolId].init();
+                    this.currentTool = { id: toolId, controller: this.tools[toolId] };
+                } else {
+                    console.warn(`Tool ID '${toolId}' found but no matching controller registered.`);
+                }
             }
 
-            // 2. Replace Content
-            const newMain = doc.querySelector('.main-content');
-            const currentMain = document.querySelector('.main-content');
+            // Scroll to top
+            window.scrollTo(0, 0);
 
-            if (newMain && currentMain) {
-                currentMain.innerHTML = newMain.innerHTML;
-            } else {
-                window.location.reload();
-                return;
+            // Update URL
+            if (isPush) {
+                // We manually update state. 
+                // Note: The caller (navigateTo) already did pushState usually? 
+                // No, checking logic: navigateTo does pushState BEFORE loadPage.
+                // Wait, if we fail, we might want to replaceState? 
+                // For now, assume success.
             }
+
+        } catch (e) {
+            console.error("SPA Navigation Failed:", e);
+            // Fallback
             window.location.href = url;
         } finally {
             this.hideLoadingBar();

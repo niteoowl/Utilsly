@@ -7,8 +7,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>타이머 - Utilsly</title>
     <meta name="description" content="간편한 카운트다운 타이머입니다.">
-<script>
-        !function(){const e=localStorage.getItem("theme"),t=window.matchMedia("(prefers-color-scheme: dark)").matches;"dark"!==e&&(e||!t)||document.documentElement.setAttribute("data-theme","dark")}();
+    <script>
+        !function () { const e = localStorage.getItem("theme"), t = window.matchMedia("(prefers-color-scheme: dark)").matches; "dark" !== e && (e || !t) || document.documentElement.setAttribute("data-theme", "dark") }();
     </script>
 
     <link rel="preload" href="../../css/style.css" as="style">
@@ -32,7 +32,7 @@
         .time-input-container {
             display: none;
             gap: 16px;
-                        margin: 40px 0;
+            margin: 40px 0;
         }
 
         .time-input-container.editing {
@@ -65,7 +65,7 @@
         .controls {
             display: flex;
             gap: 24px;
-                    }
+        }
 
         .btn-control {
             width: 64px;
@@ -77,7 +77,7 @@
             font-size: 28px;
             cursor: pointer;
             display: flex;
-                        justify-content: center;
+            justify-content: center;
             transition: all 0.2s;
         }
 
@@ -161,34 +161,32 @@
                     <p class="description">간편한 카운트다운 타이머로 시간을 관리하세요.</p>
                 </div>
 
-                <div class="tool-container"
+                <div class="tool-container" data-tool-id="timer"
                     style="display: flex; flex-direction: column; align-items: center; gap: 24px;">
                     <div class="presets">
-                        <div class="preset-chip" onclick="setTimer(1, 0)">1분</div>
-                        <div class="preset-chip" onclick="setTimer(3, 0)">3분</div>
-                        <div class="preset-chip" onclick="setTimer(5, 0)">5분</div>
-                        <div class="preset-chip" onclick="setTimer(10, 0)">10분</div>
-                        <div class="preset-chip" onclick="setTimer(30, 0)">30분</div>
+                        <div class="preset-chip" data-time="60">1분</div>
+                        <div class="preset-chip" data-time="180">3분</div>
+                        <div class="preset-chip" data-time="300">5분</div>
+                        <div class="preset-chip" data-time="600">10분</div>
+                        <div class="preset-chip" data-time="1800">30분</div>
                     </div>
 
-                    <div class="timer-display" id="display" onclick="toggleEdit()">05:00</div>
+                    <div class="timer-display" id="display">05:00</div>
 
                     <div class="time-input-container" id="inputContainer">
-                        <input type="number" class="time-input" id="inputMin" value="05" min="0" max="99"
-                            onchange="updateFromInput()">
+                        <input type="number" class="time-input" id="inputMin" value="05" min="0" max="99">
                         <span class="separator">:</span>
-                        <input type="number" class="time-input" id="inputSec" value="00" min="0" max="59"
-                            onchange="updateFromInput()">
+                        <input type="number" class="time-input" id="inputSec" value="00" min="0" max="59">
                     </div>
 
                     <div class="controls">
-                        <button class="btn-control" onclick="resetTimer()">
+                        <button class="btn-control" id="resetBtn">
                             <span class="material-symbols-rounded">refresh</span>
                         </button>
-                        <button class="btn-control btn-main" id="toggleBtn" onclick="toggleTimer()">
+                        <button class="btn-control btn-main" id="toggleBtn">
                             <span class="material-symbols-rounded" id="toggleIcon">play_arrow</span>
                         </button>
-                        <button class="btn-control" onclick="toggleEdit()">
+                        <button class="btn-control" id="editBtn">
                             <span class="material-symbols-rounded">edit</span>
                         </button>
                     </div>
@@ -197,95 +195,141 @@
     </div>
     <script src="../../js/common.js"></script>
     <script>
-        let totalSeconds = 5 * 60;
-        let initialSeconds = 5 * 60;
-        let timerId = null;
-        let isRunning = false;
-        let isEditing = false;
+        Utilsly.registerTool('timer', {
+            timerId: null,
+            totalSeconds: 300,
+            initialSeconds: 300,
+            isRunning: false,
+            isEditing: false,
 
-        const display = document.getElementById('display');
-        const inputContainer = document.getElementById('inputContainer');
-        const inputMin = document.getElementById('inputMin');
-        const inputSec = document.getElementById('inputSec');
-        const toggleIcon = document.getElementById('toggleIcon');
+            // DOM Elements
+            display: null,
+            inputContainer: null,
+            inputMin: null,
+            inputSec: null,
+            toggleIcon: null,
+            toggleBtn: null,
+            resetBtn: null,
+            editBtn: null,
 
-        function updateDisplay() {
-            const m = Math.floor(totalSeconds / 60).toString().padStart(2, '0');
-            const s = (totalSeconds % 60).toString().padStart(2, '0');
-            display.textContent = `${m}:${s}`;
-            document.title = isRunning ? `${m}:${s} - 타이머` : '타이머';
-        }
+            init() {
+                // Initialize Elements
+                this.display = document.getElementById('display');
+                this.inputContainer = document.getElementById('inputContainer');
+                this.inputMin = document.getElementById('inputMin');
+                this.inputSec = document.getElementById('inputSec');
+                this.toggleIcon = document.getElementById('toggleIcon');
+                this.toggleBtn = document.getElementById('toggleBtn');
+                this.resetBtn = document.getElementById('resetBtn');
+                this.editBtn = document.getElementById('editBtn');
 
-        function toggleTimer() {
-            if (isEditing) toggleEdit();
+                // Attach Listeners
+                this.toggleBtn.onclick = () => this.toggleTimer();
+                this.resetBtn.onclick = () => this.resetTimer();
+                this.editBtn.onclick = () => this.toggleEdit();
+                this.display.onclick = () => this.toggleEdit();
 
-            if (isRunning) {
-                clearInterval(timerId);
-                toggleIcon.textContent = 'play_arrow';
-            } else {
-                if (totalSeconds <= 0) return;
+                this.inputMin.onchange = () => this.updateFromInput();
+                this.inputSec.onchange = () => this.updateFromInput();
 
-                timerId = setInterval(() => {
-                    totalSeconds--;
-                    updateDisplay();
-                    if (totalSeconds <= 0) {
-                        clearInterval(timerId);
-                        isRunning = false;
-                        toggleIcon.textContent = 'play_arrow';
-                        new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg').play();
-                        alert('타이머 종료!');
-                    }
-                }, 1000);
-                toggleIcon.textContent = 'pause';
+                // Presets
+                document.querySelectorAll('.preset-chip').forEach(chip => {
+                    chip.onclick = (e) => {
+                        const seconds = parseInt(e.target.dataset.time);
+                        this.setTimer(Math.floor(seconds / 60), seconds % 60);
+                    };
+                });
+
+                // Initial Display
+                this.updateDisplay();
+                console.log('Timer initialized');
+            },
+
+            cleanup() {
+                if (this.timerId) clearInterval(this.timerId);
+                // Remove listeners (optional since DOM is being replaced, but good practice if we reused DOM)
+                this.toggleBtn.onclick = null;
+                // ...
+                console.log('Timer cleanup done');
+            },
+
+            updateDisplay() {
+                if (!this.display) return;
+                const m = Math.floor(this.totalSeconds / 60).toString().padStart(2, '0');
+                const s = (this.totalSeconds % 60).toString().padStart(2, '0');
+                this.display.textContent = `${m}:${s}`;
+                document.title = this.isRunning ? `${m}:${s} - 타이머` : '타이머';
+            },
+
+            toggleTimer() {
+                if (this.isEditing) this.toggleEdit();
+
+                if (this.isRunning) {
+                    clearInterval(this.timerId);
+                    this.toggleIcon.textContent = 'play_arrow';
+                } else {
+                    if (this.totalSeconds <= 0) return;
+
+                    this.timerId = setInterval(() => {
+                        this.totalSeconds--;
+                        this.updateDisplay();
+                        if (this.totalSeconds <= 0) {
+                            clearInterval(this.timerId);
+                            this.isRunning = false;
+                            this.toggleIcon.textContent = 'play_arrow';
+                            new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg').play();
+                            alert('타이머 종료!'); // Should use Utilsly.showAlert in future
+                        }
+                    }, 1000);
+                    this.toggleIcon.textContent = 'pause';
+                }
+                this.isRunning = !this.isRunning;
+            },
+
+            resetTimer() {
+                clearInterval(this.timerId);
+                this.isRunning = false;
+                if (this.toggleIcon) this.toggleIcon.textContent = 'play_arrow';
+                this.totalSeconds = this.initialSeconds;
+                this.updateDisplay();
+            },
+
+            setTimer(m, s) {
+                if (this.isRunning) this.toggleTimer();
+                this.initialSeconds = m * 60 + s;
+                this.totalSeconds = this.initialSeconds;
+                if (this.inputMin) this.inputMin.value = m.toString().padStart(2, '0');
+                if (this.inputSec) this.inputSec.value = s.toString().padStart(2, '0');
+                this.updateDisplay();
+            },
+
+            toggleEdit() {
+                if (this.isRunning) return;
+                this.isEditing = !this.isEditing;
+                if (this.isEditing) {
+                    this.display.classList.add('editing');
+                    this.inputContainer.classList.add('editing');
+                    this.inputMin.focus();
+                } else {
+                    this.display.classList.remove('editing');
+                    this.inputContainer.classList.remove('editing');
+                    this.updateFromInput();
+                }
+            },
+
+            updateFromInput() {
+                let m = parseInt(this.inputMin.value) || 0;
+                let s = parseInt(this.inputSec.value) || 0;
+                if (s > 59) { m += Math.floor(s / 60); s = s % 60; }
+
+                this.inputMin.value = m.toString().padStart(2, '0');
+                this.inputSec.value = s.toString().padStart(2, '0');
+
+                this.initialSeconds = m * 60 + s;
+                this.totalSeconds = this.initialSeconds;
+                this.updateDisplay();
             }
-            isRunning = !isRunning;
-        }
-
-        function resetTimer() {
-            clearInterval(timerId);
-            isRunning = false;
-            toggleIcon.textContent = 'play_arrow';
-            totalSeconds = initialSeconds;
-            updateDisplay();
-        }
-
-        function setTimer(m, s) {
-            if (isRunning) toggleTimer();
-            initialSeconds = m * 60 + s;
-            totalSeconds = initialSeconds;
-            inputMin.value = m.toString().padStart(2, '0');
-            inputSec.value = s.toString().padStart(2, '0');
-            updateDisplay();
-        }
-
-        function toggleEdit() {
-            if (isRunning) return;
-            isEditing = !isEditing;
-            if (isEditing) {
-                display.classList.add('editing');
-                inputContainer.classList.add('editing');
-                inputMin.focus();
-            } else {
-                display.classList.remove('editing');
-                inputContainer.classList.remove('editing');
-                updateFromInput();
-            }
-        }
-
-        function updateFromInput() {
-            let m = parseInt(inputMin.value) || 0;
-            let s = parseInt(inputSec.value) || 0;
-            if (s > 59) { m += Math.floor(s / 60); s = s % 60; }
-
-            inputMin.value = m.toString().padStart(2, '0');
-            inputSec.value = s.toString().padStart(2, '0');
-
-            initialSeconds = m * 60 + s;
-            totalSeconds = initialSeconds;
-            updateDisplay();
-        }
-
-        updateDisplay();
+        });
     </script>
 </body>
 
