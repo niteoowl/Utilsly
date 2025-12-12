@@ -393,15 +393,33 @@ const Utilsly = {
     },
 
     highlightActivePage() {
-        const currentPath = window.location.pathname;
+        // Normalize: remove .html extension and trailing slash
+        const normalize = path => path.replace('.html', '').replace(/\/$/, '');
+        const currentPath = normalize(window.location.pathname);
         const navItems = document.querySelectorAll('.nav-item');
 
         navItems.forEach(item => {
             item.classList.remove('active');
             const href = item.getAttribute('href');
-            // 정확히 일치하거나(홈), 해당 경로로 끝나면서 홈이 아닌 경우
-            if (currentPath === href || (currentPath.endsWith(href) && href !== '/')) {
+            if (!href) return;
+
+            const normalizedHref = normalize(href);
+
+            // Handle home strictly
+            if (normalizedHref === '' && (currentPath === '' || currentPath === '/index')) {
                 item.classList.add('active');
+                return;
+            }
+
+            // Exact match (robust for /tools/memo/notepad vs /tools/memo/notepad.html)
+            if (currentPath === normalizedHref || currentPath.endsWith(normalizedHref)) {
+                // Ensure we don't partial match distinct folders (e.g. /tool vs /tools)
+                // but since paths are fairly specific, endsWith is usually okay if href is long enough.
+                // Better: exact match or strict subdirectory logic.
+                // Given the clean URLs, exact match of the normalized path is best.
+                if (currentPath === normalizedHref) {
+                    item.classList.add('active');
+                }
             }
         });
     },
