@@ -400,7 +400,8 @@ const Utilsly = {
             // 정확히 일치하거나(홈), 해당 경로로 끝나면서 홈이 아닌 경우
             if (currentPath === href || (currentPath.endsWith(href) && href !== '/')) {
                 item.classList.add('active');
-            });
+            }
+        });
     },
     // SPA Navigation Logic (Turbo Mode)
     initSpaNavigation() {
