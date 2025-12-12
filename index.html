@@ -245,36 +245,38 @@
 
         // --- Main Search Logic ---
         const mainSearch = document.getElementById('mainSearch');
-        const homeDefaultView = document.getElementById('homeDefaultView');
-        const searchResultsView = document.getElementById('searchResultsView');
-        const searchResults = document.getElementById('searchResults');
-        const noResults = document.getElementById('noResults');
+        if (mainSearch) {
+            const homeDefaultView = document.getElementById('homeDefaultView');
+            const searchResultsView = document.getElementById('searchResultsView');
+            const searchResults = document.getElementById('searchResults');
+            const noResults = document.getElementById('noResults');
 
-        mainSearch.addEventListener('input', (e) => {
-            const query = e.target.value.toLowerCase().trim();
+            mainSearch.addEventListener('input', (e) => {
+                const query = e.target.value.toLowerCase().trim();
 
-            if (query.length > 0) {
-                homeDefaultView.style.display = 'none';
-                searchResultsView.style.display = 'block';
+                if (query.length > 0) {
+                    homeDefaultView.style.display = 'none';
+                    searchResultsView.style.display = 'block';
 
-                const filtered = allTools.filter(tool =>
-                    tool.name.toLowerCase().includes(query) ||
-                    tool.desc.toLowerCase().includes(query)
-                );
+                    const filtered = allTools.filter(tool =>
+                        tool.name.toLowerCase().includes(query) ||
+                        tool.desc.toLowerCase().includes(query)
+                    );
 
-                if (filtered.length > 0) {
-                    renderCards('searchResults', filtered);
-                    searchResults.style.display = 'grid';
-                    noResults.style.display = 'none';
+                    if (filtered.length > 0) {
+                        renderCards('searchResults', filtered);
+                        searchResults.style.display = 'grid';
+                        noResults.style.display = 'none';
+                    } else {
+                        searchResults.style.display = 'none';
+                        noResults.style.display = 'block';
+                    }
                 } else {
-                    searchResults.style.display = 'none';
-                    noResults.style.display = 'block';
+                    homeDefaultView.style.display = 'block';
+                    searchResultsView.style.display = 'none';
                 }
-            } else {
-                homeDefaultView.style.display = 'block';
-                searchResultsView.style.display = 'none';
-            }
-        });
+            });
+        }
 
         // --- Typewriter Effect Logic (삭제됨) ---
         // 타이핑 효과가 제거되었으므로 관련 코드는 삭제됩니다.
