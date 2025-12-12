@@ -126,7 +126,8 @@ a {
     height: 100vh;
     top: 0;
     left: 0;
-    overflow-y: auto;
+    overflow-y: hidden;
+    /* Prevent full sidebar scroll */
     z-index: 100;
     transition: transform 0.2s ease;
 }
@@ -192,6 +193,9 @@ a {
 
 .sidebar-nav {
     flex: 1;
+    overflow-y: auto;
+    /* Scroll only the list */
+    padding-bottom: 20px;
 }
 
 .nav-section {

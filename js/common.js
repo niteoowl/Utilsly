@@ -244,7 +244,7 @@ const Utilsly = {
 
         // Search Bar
         let html = `
-            <div class="sidebar-search-container">
+            <div class="sidebar-search-container" style="position: sticky; top: 0; background: var(--bg-sidebar); z-index: 10; padding-bottom: 8px;">
                 <div style="position: relative;">
                     <span class="material-symbols-rounded" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 18px; color: var(--text-tertiary);">search</span>
                     <input type="text" id="sidebarSearch" placeholder="검색..." style="padding-left: 36px; background: rgba(0,0,0,0.03); border: none; width: 100%;">
@@ -587,28 +587,6 @@ const Utilsly = {
                 window.location.reload();
                 return;
             }
-
-            // 3. Re-init Sidebar
-            this.highlightActivePage();
-            this.initMobileMenu();
-
-            // 4. Handle Scripts (Body scripts)
-            const newScripts = Array.from(doc.body.querySelectorAll('script'));
-
-            for (const script of newScripts) {
-                if (script.src && script.src.includes('common.js')) continue;
-
-                const newScript = document.createElement('script');
-                Array.from(script.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
-                if (script.innerHTML) newScript.appendChild(document.createTextNode(script.innerHTML));
-
-                document.body.appendChild(newScript);
-            }
-
-            window.scrollTo(0, 0);
-
-        } catch (error) {
-            console.error('Navigation failed:', error);
             window.location.href = url;
         } finally {
             this.hideLoadingBar();
