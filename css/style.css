@@ -35,10 +35,10 @@ html.loaded {
     --transition-speed: 0.15s;
 }
 
-/* Prevent flash of unstyled content */
-html:not(.loaded) body {
+/* Prevent flash of unstyled content - REMOVED for safety */
+/* html:not(.loaded) body {
     opacity: 0;
-}
+} */
 
 [data-theme="dark"] {
     /* Prevent dark mode flash */

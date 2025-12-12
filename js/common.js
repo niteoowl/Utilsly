@@ -14,7 +14,7 @@ const Utilsly = {
         this.initMobileMenu();
         this.restoreSidebarScroll(); // Restore scroll position
         this.initScrollSave(); // Save scroll on navigation
-        this.initSpeed(); // Initialize instant page loading
+        // this.initSpeed(); // DISABLED: Causing white screen / performance regression
 
         // Mark page as loaded to enable transitions and show content
         requestAnimationFrame(() => {
