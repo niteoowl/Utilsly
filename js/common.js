@@ -14,11 +14,65 @@ const Utilsly = {
         this.initMobileMenu();
         this.restoreSidebarScroll(); // Restore scroll position
         this.initScrollSave(); // Save scroll on navigation
+        this.initSpeed(); // Initialize instant page loading
 
         // Mark page as loaded to enable transitions and show content
         requestAnimationFrame(() => {
             document.documentElement.classList.add('loaded');
         });
+    },
+
+    /**
+     * Initialize Speculation Rules API for SPA-like instant speeds.
+     * This pre-renders pages in the background when user hovers/clicks.
+     */
+    initSpeed() {
+        // 1. Speculation Rules API (Chrome 108+, Edge 108+)
+        // This is the most powerful "Instant" feature.
+        if (HTMLScriptElement.supports && HTMLScriptElement.supports('speculationrules')) {
+            const specScript = document.createElement('script');
+            specScript.type = 'speculationrules';
+            const rules = {
+                prerender: [
+                    {
+                        // Match all links on the same origin
+                        source: 'document',
+                        where: {
+                            and: [
+                                { href_matches: '/*' } // All internal pages
+                            ]
+                        },
+                        // "moderate" triggers on hover (200ms) or pointerdown (click)
+                        // This uses more data but is "instant".
+                        eagerness: 'moderate'
+                    }
+                ]
+            };
+            specScript.textContent = JSON.stringify(rules);
+            document.head.appendChild(specScript);
+            console.log('🚀 Utilsly Speed: Speculation Rules injected.');
+        } else {
+            // 2. Fallback: Classic Link Prefetching on Hover
+            // For Safari / Firefox or older browsers
+            console.log('🚀 Utilsly Speed: Speculation Rules not supported. Using fallback prefetch.');
+            this.initFallbackPrefetch();
+        }
+    },
+
+    initFallbackPrefetch() {
+        // Simple hover prefetcher
+        const processed = new Set();
+
+        document.addEventListener('mouseover', (e) => {
+            const link = e.target.closest('a');
+            if (link && link.href && link.origin === location.origin && !processed.has(link.href)) {
+                processed.add(link.href);
+                const prefetchLink = document.createElement('link');
+                prefetchLink.rel = 'prefetch';
+                prefetchLink.href = link.href;
+                document.head.appendChild(prefetchLink);
+            }
+        }, { passive: true });
     },
 
     hiddenTools: new Set(),
