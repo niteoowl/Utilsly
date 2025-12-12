@@ -44,7 +44,8 @@
 
 /* Enable transitions after page load */
 html.loaded {
-    --transition-speed: 0.15s;
+    --transition-speed: 0s;
+    /* Instant simple transitions */
 }
 
 /* Prevent flash of unstyled content */
