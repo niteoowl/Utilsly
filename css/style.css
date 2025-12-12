@@ -35,7 +35,7 @@
     --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.05);
 
     /* Typography */
-    --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol";
+    --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
     --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
 
     /* Prevent flickering on page load */
@@ -77,8 +77,8 @@ html:not(.loaded) body {
     --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.3);
 }
 
-@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css");
-/* Material Symbols imported via JS in common.js for reliability */
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-dynamic-subset.min.css");
+/* Optimized Font Loading */
 
 * {
     box-sizing: border-box;
@@ -668,6 +668,7 @@ input[type="range"]::-webkit-slider-thumb:hover {
     word-wrap: normal;
     direction: ltr;
     -webkit-font-feature-settings: 'liga';
+    font-feature-settings: 'liga';
     -webkit-font-smoothing: antialiased;
     font-display: block;
     /* Prevent text showing before icon loads */
