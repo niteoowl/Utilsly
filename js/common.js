@@ -491,25 +491,25 @@ const Utilsly = {
             });
         });
     },
+    // Prefetch Cache
+    prefetchCache: new Map(),
+
     // SPA Navigation Logic (Turbo Mode)
     initSpaNavigation() {
         // Handle clicks on internal links
         document.addEventListener('click', (e) => {
             const link = e.target.closest('a');
-            if (
-                link &&
-                link.href &&
-                link.origin === location.origin &&
-                !link.hasAttribute('download') &&
-                !link.target && // Ignore _blank etc.
-                !e.ctrlKey && !e.metaKey && !e.shiftKey // Ignore modifier keys
-            ) {
-                const url = new URL(link.href);
-                // Only intercept internal pages, not anchors on same page
-                if (url.pathname !== location.pathname) {
-                    e.preventDefault();
-                    this.navigateTo(url.href);
-                }
+            if (this.isInternalLink(link, e)) {
+                e.preventDefault();
+                this.navigateTo(link.href);
+            }
+        });
+
+        // Prefetch on hover
+        document.addEventListener('mouseover', (e) => {
+            const link = e.target.closest('a');
+            if (this.isInternalLink(link, e)) {
+                this.prefetchPage(link.href);
             }
         });
 
@@ -517,6 +517,31 @@ const Utilsly = {
         window.addEventListener('popstate', (e) => {
             this.loadPage(location.href, false);
         });
+    },
+
+    isInternalLink(link, e) {
+        return (
+            link &&
+            link.href &&
+            link.origin === location.origin &&
+            !link.hasAttribute('download') &&
+            !link.target &&
+            !e.ctrlKey && !e.metaKey && !e.shiftKey
+        );
+    },
+
+    async prefetchPage(url) {
+        if (this.prefetchCache.has(url)) return;
+
+        try {
+            const response = await fetch(url);
+            if (response.ok) {
+                const html = await response.text();
+                this.prefetchCache.set(url, html);
+            }
+        } catch (err) {
+            // Ignore prefetch errors
+        }
     },
 
     async navigateTo(url) {
@@ -528,9 +553,14 @@ const Utilsly = {
         this.showLoadingBar();
 
         try {
-            const response = await fetch(url);
-            if (!response.ok) throw new Error('Network response was not ok');
-            const html = await response.text();
+            let html;
+            if (this.prefetchCache.has(url)) {
+                html = this.prefetchCache.get(url);
+            } else {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('Network response was not ok');
+                html = await response.text();
+            }
 
             // Parse HTML
             const parser = new DOMParser();
@@ -589,7 +619,7 @@ const Utilsly = {
                 window.location.reload();
                 return;
             }
-            window.location.href = url;
+            // window.location.href = url; // Success!
         } finally {
             this.hideLoadingBar();
         }
