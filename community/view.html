@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Utilsly Community</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <script src="../../js/common.js"></script>
+    <style>
+        .view-container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .post-header {
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 16px;
+            margin-bottom: 24px;
+        }
+
+        .post-category {
+            font-size: 14px;
+            color: var(--accent-blue);
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .post-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+
+        .post-info {
+            display: flex;
+            gap: 16px;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .post-content {
+            min-height: 200px;
+            line-height: 1.8;
+            font-size: 16px;
+            margin-bottom: 40px;
+            white-space: pre-wrap;
+            color: var(--text-primary);
+        }
+
+        .post-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 24px;
+            margin-bottom: 24px;
+        }
+
+        /* Comments */
+        .comments-section {
+            background: var(--bg-sidebar);
+            padding: 24px;
+            border-radius: 8px;
+        }
+
+        .comments-header {
+            font-weight: 700;
+            margin-bottom: 16px;
+            font-size: 16px;
+        }
+
+        .comment-list {
+            margin-bottom: 24px;
+        }
+
+        .comment-item {
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .comment-item:last-child {
+            border-bottom: none;
+        }
+
+        .comment-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 4px;
+            font-size: 13px;
+        }
+
+        .comment-writer {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .comment-date {
+            color: var(--text-tertiary);
+        }
+
+        .comment-content {
+            font-size: 14px;
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+
+        .comment-form {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            background: var(--bg-primary);
+            padding: 16px;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+        }
+
+        .comment-inputs {
+            display: flex;
+            gap: 8px;
+        }
+
+        .comment-inputs input {
+            flex: 1;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar"></aside>
+
+        <div class="main-content">
+            <div class="top-bar">
+                <div class="breadcrumbs">
+                    <span class="breadcrumb-item">커뮤니티</span>
+                    <span class="separator">/</span>
+                    <span class="breadcrumb-item current-page">게시글 보기</span>
+                </div>
+            </div>
+
+            <div class="content-area">
+                <div class="view-container" id="post-container">
+                    <div style="text-align: center; padding: 40px;">
+                        <span class="material-symbols-rounded"
+                            style="animation: spin 1s linear infinite;">refresh</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, doc, getDoc, updateDoc, increment, collection, addDoc, query, orderBy, getDocs, serverTimestamp, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCbSmDuJNCSrIB7Fx9IzbePERD_2ka3rQE",
+            authDomain: "utilsly.firebaseapp.com",
+            projectId: "utilsly",
+            storageBucket: "utilsly.firebasestorage.app",
+            messagingSenderId: "713000931988",
+            appId: "1:713000931988:web:8891efe6d0ab2d61b61a81",
+            measurementId: "G-WSRTSNGT8G"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const postId = urlParams.get('id');
+
+        if (!postId) {
+            alert('잘못된 접근입니다.');
+            window.location.href = '/community/index.html';
+        }
+
+        async function loadPost() {
+            const docRef = doc(db, "posts", postId);
+
+            try {
+                // Increment views
+                await updateDoc(docRef, {
+                    views: increment(1)
+                });
+
+                const docSnap = await getDoc(docRef);
+
+                if (docSnap.exists()) {
+                    const post = docSnap.data();
+                    renderPost(post);
+                    loadComments();
+                } else {
+                    alert('삭제되었거나 존재하지 않는 게시글입니다.');
+                    window.location.href = '/community/index.html';
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                document.getElementById('post-container').innerHTML = '오류가 발생했습니다.';
+            }
+        }
+
+        function renderPost(post) {
+            const date = post.createdAt ? post.createdAt.toDate().toLocaleString() : '-';
+            const catMap = { 'free': '자유', 'bug': '버그', 'suggestion': '건의' };
+
+            const html = `
+                <div class="post-header">
+                    <div class="post-category">${catMap[post.category] || '자유'}</div>
+                    <div class="post-title">${post.title}</div>
+                    <div class="post-info">
+                        <span>${post.nickname}</span>
+                        <span>${date}</span>
+                        <span>조회 ${post.views}</span>
+                    </div>
+                </div>
+
+                <div class="post-content">${post.content}</div>
+
+                <div class="post-actions">
+                    <button class="btn" onclick="window.location.href='/community/index.html?category=${post.category}'">목록으로</button>
+                    ${post.password ? `<button class="btn" onclick="deletePost('${post.password}')" style="color: #d32f2f;">삭제</button>` : ''}
+                </div>
+
+                <div class="comments-section">
+                    <div class="comments-header">댓글 <span id="comment-count">0</span></div>
+                    <div class="comment-list" id="comment-list"></div>
+                    
+                    <form class="comment-form" id="comment-form">
+                        <div class="comment-inputs">
+                            <input type="text" id="c-nickname" placeholder="닉네임" required style="flex:1;">
+                            <input type="password" id="c-password" placeholder="비밀번호" required style="flex:1;">
+                        </div>
+                        <div style="display:flex; gap:8px;">
+                            <input type="text" id="c-content" placeholder="댓글을 입력하세요" required style="flex:4;">
+                            <button type="submit" class="btn btn-primary" style="flex:1;">등록</button>
+                        </div>
+                    </form>
+                </div>
+            `;
+            document.getElementById('post-container').innerHTML = html;
+
+            // Bind delete event manually since function is not global
+            window.deletePost = async (correctPassword) => {
+                const input = prompt("게시글 비밀번호를 입력하세요:");
+                if (input === correctPassword) {
+                    if (confirm('정말 삭제하시겠습니까?')) {
+                        await deleteDoc(doc(db, "posts", postId));
+                        alert('삭제되었습니다.');
+                        window.location.href = '/community/index.html';
+                    }
+                } else if (input !== null) {
+                    alert('비밀번호가 일치하지 않습니다.');
+                }
+            };
+
+            // Re-bind form submit
+            document.getElementById('comment-form').addEventListener('submit', handleCommentSubmit);
+        }
+
+        async function loadComments() {
+            const q = query(collection(db, `posts/${postId}/comments`), orderBy("createdAt", "asc"));
+            const snapshot = await getDocs(q);
+            const list = document.getElementById('comment-list');
+            const count = document.getElementById('comment-count');
+
+            count.textContent = snapshot.size;
+
+            let html = '';
+            snapshot.forEach(doc => {
+                const c = doc.data();
+                const d = c.createdAt ? c.createdAt.toDate().toLocaleString() : '';
+                html += `
+                    <div class="comment-item">
+                        <div class="comment-meta">
+                            <span class="comment-writer">${c.nickname}</span>
+                            <span class="comment-date">${d}</span>
+                        </div>
+                        <div class="comment-content">${c.content}</div>
+                    </div>
+                `;
+            });
+            list.innerHTML = html;
+        }
+
+        async function handleCommentSubmit(e) {
+            e.preventDefault();
+            const nick = document.getElementById('c-nickname').value;
+            const pass = document.getElementById('c-password').value;
+            const content = document.getElementById('c-content').value;
+
+            try {
+                await addDoc(collection(db, `posts/${postId}/comments`), {
+                    nickname: nick,
+                    password: pass,
+                    content: content,
+                    createdAt: serverTimestamp()
+                });
+
+                // Update comment count on post
+                await updateDoc(doc(db, "posts", postId), {
+                    commentCount: increment(1)
+                });
+
+                document.getElementById('c-content').value = '';
+                loadComments(); // Reload comments
+            } catch (err) {
+                console.error(err);
+                alert('댓글 등록 실패');
+            }
+        }
+
+        loadPost();
+    </script>
+</body>
+
+</html>

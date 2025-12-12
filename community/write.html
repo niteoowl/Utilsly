@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>글쓰기 - Utilsly Community</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <script src="../../js/common.js"></script>
+    <style>
+        .write-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .write-header {
+            border-bottom: 2px solid var(--text-primary);
+            padding-bottom: 16px;
+            margin-bottom: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 16px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            border-radius: 4px;
+        }
+
+        textarea {
+            min-height: 400px;
+            resize: vertical;
+            line-height: 1.6;
+        }
+
+        .btn-group {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 24px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar"></aside>
+
+        <div class="main-content">
+            <div class="top-bar">
+                <div class="breadcrumbs">
+                    <span class="breadcrumb-item">커뮤니티</span>
+                    <span class="separator">/</span>
+                    <span class="breadcrumb-item current-page">글쓰기</span>
+                </div>
+            </div>
+
+            <div class="content-area">
+                <div class="write-container">
+                    <div class="write-header">
+                        <h2>글쓰기</h2>
+                    </div>
+
+                    <form id="write-form">
+                        <div class="form-group">
+                            <label>분류</label>
+                            <select id="category" required>
+                                <option value="free">자유</option>
+                                <option value="bug">버그 제보</option>
+                                <option value="suggestion">기능 건의</option>
+                            </select>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>닉네임</label>
+                                <input type="text" id="nickname" required placeholder="닉네임 입력" maxlength="20">
+                            </div>
+                            <div class="form-group">
+                                <label>비밀번호</label>
+                                <input type="password" id="password" required placeholder="삭제 시 필요" maxlength="20">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>제목</label>
+                            <input type="text" id="title" required placeholder="제목을 입력해 주세요" maxlength="100">
+                        </div>
+
+                        <div class="form-group">
+                            <textarea id="content" required placeholder="내용을 입력해 주세요"></textarea>
+                        </div>
+
+                        <div class="btn-group">
+                            <button type="button" class="btn" onclick="history.back()">취소</button>
+                            <button type="submit" class="btn btn-primary" id="submit-btn">등록</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCbSmDuJNCSrIB7Fx9IzbePERD_2ka3rQE",
+            authDomain: "utilsly.firebaseapp.com",
+            projectId: "utilsly",
+            storageBucket: "utilsly.firebasestorage.app",
+            messagingSenderId: "713000931988",
+            appId: "1:713000931988:web:8891efe6d0ab2d61b61a81",
+            measurementId: "G-WSRTSNGT8G"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Set default category from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlCat = urlParams.get('category');
+        if (urlCat && urlCat !== 'all') {
+            document.getElementById('category').value = urlCat;
+        }
+
+        document.getElementById('write-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const submitBtn = document.getElementById('submit-btn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = '등록 중...';
+
+            const category = document.getElementById('category').value;
+            const nickname = document.getElementById('nickname').value;
+            const password = document.getElementById('password').value; // In a real app, hash this!
+            const title = document.getElementById('title').value;
+            const content = document.getElementById('content').value;
+
+            try {
+                await addDoc(collection(db, "posts"), {
+                    category,
+                    nickname,
+                    password,
+                    title,
+                    content,
+                    views: 0,
+                    commentCount: 0,
+                    createdAt: serverTimestamp()
+                });
+
+                window.location.href = `/community/index.html?category=${category}`;
+            } catch (e) {
+                console.error("Error adding document: ", e);
+                alert("글 등록 중 오류가 발생했습니다.");
+                submitBtn.disabled = false;
+                submitBtn.textContent = '등록';
+            }
+        });
+    </script>
+</body>
+
+</html>

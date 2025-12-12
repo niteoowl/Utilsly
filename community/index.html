@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Utilsly Community</title>
+    <meta name="description" content="Utilsly 커뮤니티 - 자유, 버그 제보, 기능 건의">
+    <link rel="stylesheet" href="../../css/style.css">
+    <script src="../../js/common.js"></script>
+    <style>
+        .community-container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .board-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .board-title h2 {
+            font-size: 24px;
+            font-weight: 700;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .category-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+        }
+
+        .category-tab {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            background: var(--bg-hover);
+            cursor: pointer;
+            text-decoration: none;
+            white-space: nowrap;
+            display: inline-block;
+        }
+
+        .category-tab.active {
+            background: var(--accent-blue);
+            color: white;
+        }
+
+        [data-theme="dark"] .category-tab.active {
+            color: black;
+        }
+
+        .post-list {
+            width: 100%;
+            border-top: 2px solid var(--text-primary);
+            border-collapse: collapse;
+        }
+
+        .post-list th,
+        .post-list td {
+            padding: 12px 8px;
+            text-align: center;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 14px;
+        }
+
+        .post-list th {
+            font-weight: 600;
+            background: var(--bg-sidebar);
+            color: var(--text-secondary);
+        }
+
+        .post-list td.title {
+            text-align: left;
+            width: 50%;
+        }
+
+        .post-list td.title a {
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+
+        .post-list td.title a:hover {
+            text-decoration: underline;
+        }
+
+        .post-list .notice {
+            background: rgba(255, 0, 0, 0.05);
+            font-weight: bold;
+        }
+
+        .post-list .notice td.title a {
+            color: #d32f2f;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 30px;
+        }
+
+        .page-btn {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background: var(--bg-primary);
+            cursor: pointer;
+            color: var(--text-secondary);
+        }
+
+        .page-btn.active {
+            background: var(--accent-blue);
+            color: white;
+            border-color: var(--accent-blue);
+        }
+
+        [data-theme="dark"] .page-btn.active {
+            color: black;
+        }
+
+        .loading-spinner {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-tertiary);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar"></aside>
+
+        <div class="main-content">
+            <!-- Top Bar -->
+            <div class="top-bar">
+                <div class="breadcrumbs">
+                    <span class="breadcrumb-item">커뮤니티</span>
+                    <span class="separator">/</span>
+                    <span class="breadcrumb-item current-page" id="category-name">전체</span>
+                </div>
+            </div>
+
+            <div class="content-area">
+                <div class="community-container">
+                    <div class="board-header">
+                        <div class="board-title">
+                            <h2><span class="material-symbols-rounded">forum</span> 커뮤니티</h2>
+                        </div>
+                        <a href="/community/write.html" class="btn btn-primary" style="text-decoration: none;">
+                            <span class="material-symbols-rounded"
+                                style="font-size: 18px; margin-right: 4px;">edit</span>
+                            글쓰기
+                        </a>
+                    </div>
+
+                    <div class="category-tabs">
+                        <a href="/community/index.html?category=all" class="category-tab active" data-cat="all">전체</a>
+                        <a href="/community/index.html?category=free" class="category-tab" data-cat="free">자유</a>
+                        <a href="/community/index.html?category=bug" class="category-tab" data-cat="bug">버그 제보</a>
+                        <a href="/community/index.html?category=suggestion" class="category-tab"
+                            data-cat="suggestion">기능 건의</a>
+                    </div>
+
+                    <div class="table-container">
+                        <table class="post-list">
+                            <thead>
+                                <tr>
+                                    <th style="width: 60px;">번호</th>
+                                    <th style="width: 80px;">말머리</th>
+                                    <th>제목</th>
+                                    <th style="width: 100px;">글쓴이</th>
+                                    <th style="width: 100px;">날짜</th>
+                                    <th style="width: 60px;">조회</th>
+                                </tr>
+                            </thead>
+                            <tbody id="post-list-body">
+                                <tr>
+                                    <td colspan="6" class="loading-spinner">
+                                        <span class="material-symbols-rounded"
+                                            style="animation: spin 1s linear infinite;">refresh</span>
+                                        <div style="margin-top: 8px;">게시글을 불러오는 중...</div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="pagination" id="pagination">
+                        <!-- Pagination rendered by JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, query, where, orderBy, limit, getDocs, startAfter } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCbSmDuJNCSrIB7Fx9IzbePERD_2ka3rQE",
+            authDomain: "utilsly.firebaseapp.com",
+            projectId: "utilsly",
+            storageBucket: "utilsly.firebasestorage.app",
+            messagingSenderId: "713000931988",
+            appId: "1:713000931988:web:8891efe6d0ab2d61b61a81",
+            measurementId: "G-WSRTSNGT8G"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Get Category from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const currentCategory = urlParams.get('category') || 'all';
+
+        // UI Setup
+        function setupUI() {
+            // Highlight Tab
+            document.querySelectorAll('.category-tab').forEach(tab => {
+                tab.classList.remove('active');
+                if (tab.dataset.cat === currentCategory) {
+                    tab.classList.add('active');
+                }
+            });
+
+            // Update Breadcrumb/Title
+            const catMap = {
+                'all': '전체',
+                'free': '자유',
+                'bug': '버그 제보',
+                'suggestion': '기능 건의'
+            };
+            document.getElementById('category-name').textContent = catMap[currentCategory] || '전체';
+
+            // Update Write Button Link
+            const writeBtn = document.querySelector('.btn-primary');
+            writeBtn.href = `/community/write.html?category=${currentCategory}`;
+        }
+
+        // Format Date (Simple)
+        function formatDate(timestamp) {
+            if (!timestamp) return '-';
+            const date = timestamp.toDate();
+            const now = new Date();
+            const isToday = date.toDateString() === now.toDateString();
+
+            if (isToday) {
+                return date.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false });
+            } else {
+                return date.toLocaleDateString('ko-KR', { month: '2-digit', day: '2-digit' });
+            }
+        }
+
+        async function loadPosts() {
+            const listBody = document.getElementById('post-list-body');
+            const postsRef = collection(db, "posts");
+
+            let q;
+            if (currentCategory === 'all') {
+                q = query(postsRef, orderBy("createdAt", "desc"), limit(20));
+            } else {
+                q = query(postsRef, where("category", "==", currentCategory), orderBy("createdAt", "desc"), limit(20));
+            }
+
+            try {
+                const querySnapshot = await getDocs(q);
+
+                if (querySnapshot.empty) {
+                    listBody.innerHTML = `<tr><td colspan="6" style="padding: 40px; color: var(--text-tertiary);">아직 게시글이 없습니다.</td></tr>`;
+                    return;
+                }
+
+                let html = '';
+                querySnapshot.forEach((doc) => {
+                    const post = doc.data();
+                    const catMap = { 'free': '자유', 'bug': '버그', 'suggestion': '건의' };
+
+                    html += `
+                        <tr>
+                            <td>${doc.id.substring(0, 4)}..</td>
+                            <td><span style="color: var(--text-secondary); font-size: 12px; border: 1px solid var(--border-color); padding: 2px 6px; border-radius: 4px;">${catMap[post.category] || '자유'}</span></td>
+                            <td class="title">
+                                <a href="/community/view.html?id=${doc.id}">${post.title}</a>
+                                ${post.commentCount ? `<span style="color: #ff3b30; font-size: 12px; font-weight: bold; margin-left: 4px;">[${post.commentCount}]</span>` : ''}
+                            </td>
+                            <td>${post.nickname}</td>
+                            <td>${formatDate(post.createdAt)}</td>
+                            <td>${post.views || 0}</td>
+                        </tr>
+                    `;
+                });
+
+                listBody.innerHTML = html;
+
+            } catch (error) {
+                console.error("Error getting documents: ", error);
+                listBody.innerHTML = `<tr><td colspan="6" style="color: red; padding: 20px;">게시글을 불러오는데 실패했습니다.<br>${error.message}</td></tr>`;
+            }
+        }
+
+        setupUI();
+        loadPosts();
+    </script>
+</body>
+
+</html>

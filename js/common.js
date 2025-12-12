@@ -107,6 +107,15 @@ const Utilsly = {
     // 수정됨: 모든 path에서 .html 제거
     tools: [
         {
+            category: "커뮤니티 (Community)",
+            items: [
+                { name: "전체글 보기", icon: "forum", path: "/community/index.html?category=all" },
+                { name: "자유게시판", icon: "chat_bubble", path: "/community/index.html?category=free" },
+                { name: "버그 제보", icon: "bug_report", path: "/community/index.html?category=bug" },
+                { name: "기능 건의", icon: "lightbulb", path: "/community/index.html?category=suggestion" },
+            ]
+        },
+        {
             category: "랜덤 (Random)",
             items: [
                 { name: "룰렛 돌리기", icon: "casino", path: "/tools/random/roulette" },
