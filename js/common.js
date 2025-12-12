@@ -228,6 +228,12 @@ const Utilsly = {
             ]
         },
         {
+            category: "커뮤니티 (Community)",
+            items: [
+                { name: "기능 추가 요청", icon: "campaign", path: "/tools/community/feature-requests" },
+            ]
+        },
+        {
             category: "AI 도구 (Beta)",
             items: [
                 { name: "AI 글쓰기 도우미", icon: "edit_note", path: "/tools/ai/writing-assistant" },
