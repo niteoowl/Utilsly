@@ -534,52 +534,82 @@ const Utilsly = {
             const parser = new DOMParser();
             const doc = parser.parseFromString(html, 'text/html');
 
-            // Replace Content
-            // We expect a .main-content or .app-container structure. 
-            // Ideally we just replace .content-area to keep sidebar state if possible,
-            // but for full correctness (like breadcrumbs, title) we might need to replace more or update fields.
-            // Let's try to replace .main-content to be safe, or just .content-area if we want to be faster.
-            // However, Sidebar might change active state.
+            // 1. Update Head (Title, Meta, Styles)
+            document.title = doc.title;
 
+            // Meta description
+            const newDesc = doc.querySelector('meta[name="description"]');
+            const currentDesc = document.querySelector('meta[name="description"]');
+            if (newDesc && currentDesc) {
+                currentDesc.content = newDesc.content;
+            } else if (newDesc) {
+                document.head.appendChild(newDesc.cloneNode(true));
+            }
+
+            // CSS/Styles - Add new ones from HEAD
+            const newLinks = Array.from(doc.head.querySelectorAll('link[rel="stylesheet"], style'));
+            const currentLinks = Array.from(document.head.querySelectorAll('link[rel="stylesheet"], style'));
+
+            newLinks.forEach(newLink => {
+                // Check if already exists
+                const exists = currentLinks.some(curr => {
+                    if (newLink.tagName === 'LINK' && curr.tagName === 'LINK') {
+                        return newLink.href === curr.href;
+                    }
+                    if (newLink.tagName === 'STYLE' && curr.tagName === 'STYLE') {
+                        return newLink.innerHTML === curr.innerHTML;
+                    }
+                    return false;
+                });
+
+                if (!exists) {
+                    document.head.appendChild(newLink.cloneNode(true));
+                }
+            });
+
+            // 2. Replace Content
             const newMain = doc.querySelector('.main-content');
             const currentMain = document.querySelector('.main-content');
 
             if (newMain && currentMain) {
                 currentMain.innerHTML = newMain.innerHTML;
-
-                // Update specific head elements
-                document.title = doc.title;
-                const newDesc = doc.querySelector('meta[name="description"]');
-                const currentDesc = document.querySelector('meta[name="description"]');
-                if (newDesc && currentDesc) currentDesc.content = newDesc.content;
             } else {
-                // Fallback if structure is different
                 window.location.reload();
                 return;
             }
 
-            // re-init sidebar active state (URL changed)
+            // 3. Re-init Sidebar
             this.highlightActivePage();
-
-            // Re-run any scripts found in the new content
-            // internal scripts in the new body need to be executed
-            const scripts = currentMain.querySelectorAll('script');
-            scripts.forEach(oldScript => {
-                const newScript = document.createElement('script');
-                Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
-                newScript.appendChild(document.createTextNode(oldScript.innerHTML));
-                oldScript.parentNode.replaceChild(newScript, oldScript);
-            });
-
-            // Re-init any common listeners
             this.initMobileMenu();
 
-            // Scroll to top
+            // 4. Handle Scripts (Body scripts)
+            // We need to run scripts that are in the new body, EXCLUDING common.js (already loaded)
+            // We look at all scripts in the new body
+            const newScripts = Array.from(doc.body.querySelectorAll('script'));
+
+            for (const script of newScripts) {
+                // Skip common.js to avoid re-binding events/state reset
+                if (script.src && script.src.includes('common.js')) continue;
+
+                const newScript = document.createElement('script');
+
+                // Copy attributes
+                Array.from(script.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+
+                // Copy content
+                if (script.innerHTML) {
+                    newScript.appendChild(document.createTextNode(script.innerHTML));
+                }
+
+                // Append to body (which executes it)
+                document.body.appendChild(newScript);
+            }
+
             window.scrollTo(0, 0);
 
         } catch (error) {
             console.error('Navigation failed:', error);
-            window.location.href = url; // Fallback to full reload
+            window.location.href = url;
         } finally {
             this.hideLoadingBar();
         }
