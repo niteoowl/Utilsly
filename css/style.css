@@ -170,6 +170,85 @@ a {
 .username {
     font-weight: 500;
     font-size: 14px;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.close-sidebar-btn {
+    display: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-secondary);
+    padding: 4px;
+    border-radius: 4px;
+}
+
+.close-sidebar-btn:hover {
+    background: var(--bg-hover);
+}
+
+.sidebar-nav {
+    flex: 1;
+}
+
+.nav-section {
+    margin-bottom: 16px;
+}
+
+.section-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    padding: 0 8px;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    padding: 4px 8px;
+    margin-bottom: 1px;
+    border-radius: 4px;
+    cursor: pointer;
+    color: var(--text-secondary);
+    font-size: 14px;
+    font-weight: 400;
+    transition: background 0.1s;
+    min-height: 28px;
+}
+
+.nav-item:hover {
+    background-color: var(--bg-hover);
+    color: var(--text-primary);
+}
+
+.nav-item.active {
+    background-color: var(--bg-hover);
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.nav-item .material-symbols-rounded {
+    margin-right: 8px;
+    font-size: 18px;
+    color: var(--text-secondary);
+}
+
+.nav-item:hover .material-symbols-rounded,
+.nav-item.active .material-symbols-rounded {
+    color: var(--text-primary);
+}
+
+/* Main Content */
+.main-content {
+    flex: 1;
+    margin-left: 240px;
+    display: flex;
     flex-direction: column;
     min-height: 100vh;
     background-color: var(--bg-primary);

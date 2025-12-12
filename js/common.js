@@ -390,6 +390,42 @@ const Utilsly = {
         });
     },
 
+    highlightActivePage() {
+        const currentPath = window.location.pathname;
+        const navItems = document.querySelectorAll('.nav-item');
+
+        navItems.forEach(item => {
+            item.classList.remove('active');
+            const href = item.getAttribute('href');
+            // 정확히 일치하거나(홈), 해당 경로로 끝나면서 홈이 아닌 경우
+            if (currentPath === href || (currentPath.endsWith(href) && href !== '/')) {
+                item.classList.add('active');
+            }
+        });
+    },
+
+    initMobileMenu() {
+        const topBar = document.querySelector('.top-bar');
+        if (topBar && !topBar.querySelector('.menu-toggle-btn')) {
+            const menuBtn = document.createElement('button');
+            menuBtn.className = 'menu-toggle-btn';
+            menuBtn.innerHTML = '<span class="material-symbols-rounded">menu</span>';
+            menuBtn.onclick = () => this.toggleSidebar(true);
+            topBar.insertBefore(menuBtn, topBar.firstChild);
+        }
+    },
+
+    toggleSidebar(show) {
+        const sidebar = document.querySelector('.sidebar');
+        if (sidebar) {
+            if (show) {
+                sidebar.classList.add('active');
+            } else {
+                sidebar.classList.remove('active');
+            }
+        }
+    },
+
     // Modal System
     showAlert(message, title = '알림') {
         return new Promise((resolve) => {
@@ -453,42 +489,6 @@ const Utilsly = {
             });
         });
     },
-
-    highlightActivePage() {
-        const currentPath = window.location.pathname;
-        const navItems = document.querySelectorAll('.nav-item');
-
-        navItems.forEach(item => {
-            item.classList.remove('active');
-            const href = item.getAttribute('href');
-            // 정확히 일치하거나(홈), 해당 경로로 끝나면서 홈이 아닌 경우
-            if (currentPath === href || (currentPath.endsWith(href) && href !== '/')) {
-                item.classList.add('active');
-            }
-        });
-    },
-    initMobileMenu() {
-        const topBar = document.querySelector('.top-bar');
-        if (topBar && !topBar.querySelector('.menu-toggle-btn')) {
-            const menuBtn = document.createElement('button');
-            menuBtn.className = 'menu-toggle-btn';
-            menuBtn.innerHTML = '<span class="material-symbols-rounded">menu</span>';
-            menuBtn.onclick = () => this.toggleSidebar(true);
-            topBar.insertBefore(menuBtn, topBar.firstChild);
-        }
-    },
-
-    toggleSidebar(show) {
-        const sidebar = document.querySelector('.sidebar');
-        if (sidebar) {
-            if (show) {
-                sidebar.classList.add('active');
-            } else {
-                sidebar.classList.remove('active');
-            }
-        }
-    },
-
     // SPA Navigation Logic (Turbo Mode)
     initSpaNavigation() {
         // Handle clicks on internal links
@@ -529,84 +529,6 @@ const Utilsly = {
             const response = await fetch(url);
             if (!response.ok) throw new Error('Network response was not ok');
             const html = await response.text();
-
-            // Parse HTML
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(html, 'text/html');
-
-            // 1. Update Head (Title, Meta, Styles)
-            document.title = doc.title;
-
-            // Meta description
-            const newDesc = doc.querySelector('meta[name="description"]');
-            const currentDesc = document.querySelector('meta[name="description"]');
-            if (newDesc && currentDesc) {
-                currentDesc.content = newDesc.content;
-            } else if (newDesc) {
-                document.head.appendChild(newDesc.cloneNode(true));
-            }
-
-            // CSS/Styles - Add new ones from HEAD
-            const newLinks = Array.from(doc.head.querySelectorAll('link[rel="stylesheet"], style'));
-            const currentLinks = Array.from(document.head.querySelectorAll('link[rel="stylesheet"], style'));
-
-            // Pre-load CSS to prevent FOUC (Flash of Unstyled Content)
-            const cssPromises = newLinks.map(newLink => {
-                const exists = currentLinks.some(curr => {
-                    if (newLink.tagName === 'LINK' && curr.tagName === 'LINK') return newLink.href === curr.href;
-                    if (newLink.tagName === 'STYLE' && curr.tagName === 'STYLE') return newLink.innerHTML === curr.innerHTML;
-                    return false;
-                });
-
-                if (!exists) {
-                    const clone = newLink.cloneNode(true);
-                    document.head.appendChild(clone);
-                    if (clone.tagName === 'LINK') {
-                        return new Promise(resolve => {
-                            clone.onload = resolve;
-                            clone.onerror = resolve; // Continue even on error
-                        });
-                    }
-                }
-                return Promise.resolve();
-            });
-
-            await Promise.all(cssPromises);
-
-            // 2. Replace Content
-            const newMain = doc.querySelector('.main-content');
-            const currentMain = document.querySelector('.main-content');
-
-            if (newMain && currentMain) {
-                currentMain.innerHTML = newMain.innerHTML;
-            } else {
-                window.location.reload();
-                return;
-            }
-
-            // 3. Re-init Sidebar & UI
-            this.highlightActivePage();
-            this.initMobileMenu();
-
-            // 4. Handle Scripts (Body scripts) - Execute cleanly
-            const newScripts = Array.from(doc.body.querySelectorAll('script'));
-
-            for (const script of newScripts) {
-                // Skip common.js to avoid re-binding events/state reset loop
-                if (script.src && script.src.includes('common.js')) continue;
-
-                const newScript = document.createElement('script');
-                Array.from(script.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
-                if (script.innerHTML) newScript.appendChild(document.createTextNode(script.innerHTML));
-
-                document.body.appendChild(newScript);
-            }
-
-            requestAnimationFrame(() => {
-                window.scrollTo(0, 0);
-            });
-
-        } catch (error) {
             console.error('Navigation failed:', error);
             window.location.href = url;
         } finally {
