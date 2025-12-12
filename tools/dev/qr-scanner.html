@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR 코드 스캐너 - Utilsly</title>
+    <meta name="description" content="웹캠이나 휴대폰 카메라를 사용하여 QR 코드를 스캔하세요. 별도의 앱 설치가 필요 없습니다.">
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    <script>
+        // Prevent FOUC
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.setAttribute('data-theme', 'dark');
+        }
+    </script>
+    <style>
+        .scanner-container {
+            max-width: 600px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        #reader {
+            width: 100%;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #000;
+            margin-bottom: 24px;
+        }
+
+        .result-box {
+            background: var(--bg-hover);
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            margin-top: 20px;
+            text-align: left;
+            display: none;
+        }
+
+        .result-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .result-content {
+            font-size: 16px;
+            word-break: break-all;
+            font-family: var(--font-mono);
+            color: var(--text-primary);
+        }
+
+        .action-row {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        /* Customize html5-qrcode specific elements */
+        #reader__dashboard_section_csr button {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: var(--font-sans);
+            font-size: 14px;
+            margin: 0 4px;
+        }
+
+        #reader__dashboard_section_csr button:hover {
+            background: var(--bg-hover);
+        }
+
+        #reader__scan_region {
+            background: rgba(0, 0, 0, 0.5);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar">
+            <!-- Sidebar content will be injected by common.js -->
+        </aside>
+
+        <main class="main-content">
+            <div class="top-bar">
+                <!-- Breadcrumbs injected by JS -->
+            </div>
+
+            <div class="content-area">
+                <div class="page-header">
+                    <div class="header-icon-wrapper">
+                        <span class="material-symbols-rounded">qr_code_scanner</span>
+                    </div>
+                    <h1>QR 코드 스캐너</h1>
+                    <p class="description">카메라를 사용하여 QR 코드를 빠르고 쉽게 스캔하세요.</p>
+                </div>
+
+                <div class="scanner-container">
+                    <div id="reader"></div>
+
+                    <div class="result-box" id="resultBox">
+                        <span class="result-label">스캔 결과</span>
+                        <div class="result-content" id="resultText"></div>
+                        <div class="action-row">
+                            <button class="btn btn-primary" id="copyBtn">
+                                <span class="material-symbols-rounded"
+                                    style="font-size: 18px; margin-right: 6px;">content_copy</span>
+                                복사
+                            </button>
+                            <a href="#" target="_blank" class="btn" id="openBtn" style="display: none;">
+                                <span class="material-symbols-rounded"
+                                    style="font-size: 18px; margin-right: 6px;">open_in_new</span>
+                                열기
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/js/common.js"></script>
+    <script>
+        const resultBox = document.getElementById('resultBox');
+        const resultText = document.getElementById('resultText');
+        const copyBtn = document.getElementById('copyBtn');
+        const openBtn = document.getElementById('openBtn');
+
+        function onScanSuccess(decodedText, decodedResult) {
+            // Handle on success condition with the decoded text or result.
+            console.log(`Scan result: ${decodedText}`, decodedResult);
+
+            resultBox.style.display = 'block';
+            resultText.textContent = decodedText;
+
+            // Check if URL
+            if (decodedText.startsWith('http')) {
+                openBtn.setAttribute('href', decodedText);
+                openBtn.style.display = 'inline-flex';
+            } else {
+                openBtn.style.display = 'none';
+            }
+
+            // Ideally stop scanning once found? User might want continues scanning.
+            // html5QrcodeScanner.clear(); // Optional: Stop after scan
+        }
+
+        function onScanError(errorMessage) {
+            // handle on error condition, with error message
+            // console.warn(errorMessage);
+        }
+
+        // Check if script loaded
+        if (typeof Html5QrcodeScanner !== 'undefined') {
+            const html5QrcodeScanner = new Html5QrcodeScanner(
+                "reader", { fps: 10, qrbox: 250 });
+            html5QrcodeScanner.render(onScanSuccess, onScanError);
+        } else {
+            document.getElementById('reader').innerHTML = `
+            <div style="padding: 40px; color: var(--text-secondary);">
+                라이브러리 로드 실패. 페이지를 새로고침 해주세요.
+            </div>
+        `;
+        }
+
+        copyBtn.addEventListener('click', () => {
+            navigator.clipboard.writeText(resultText.textContent).then(() => {
+                const originalText = copyBtn.innerHTML;
+                copyBtn.innerHTML = '<span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px;">check</span> 복사됨';
+                setTimeout(() => {
+                    copyBtn.innerHTML = originalText;
+                }, 2000);
+            });
+        });
+
+    </script>
+</body>
+
+</html>
