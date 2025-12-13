@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>로그인 - Utilsly</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .auth-container {
+            max-width: 400px;
+            margin: 80px auto;
+            padding: 40px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: var(--shadow-md);
+            text-align: center;
+        }
+
+        .auth-logo {
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            letter-spacing: -1px;
+        }
+
+        .auth-desc {
+            color: var(--text-secondary);
+            margin-bottom: 32px;
+            font-size: 14px;
+        }
+
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .form-group {
+            text-align: left;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .auth-btn {
+            background: var(--text-primary);
+            color: var(--bg-primary);
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 8px;
+            padding: 12px;
+            font-size: 16px;
+        }
+
+        .auth-btn:hover {
+            opacity: 0.9;
+        }
+
+        .auth-links {
+            margin-top: 24px;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .auth-links a {
+            color: var(--text-primary);
+            font-weight: 600;
+            text-decoration: underline;
+        }
+
+        .error-msg {
+            color: #d32f2f;
+            font-size: 14px;
+            margin-top: 8px;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar will be injected by common.js -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="user-profile">
+                    <div style="font-size: 24px; font-weight: 800; color: var(--text-primary); letter-spacing: -0.5px;">
+                        Utilsly.</div>
+                </div>
+            </div>
+            <nav class="sidebar-nav"></nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="top-bar">
+                <div class="breadcrumbs">
+                    <span class="breadcrumb-item">Utilsly</span>
+                    <span class="separator">/</span>
+                    <span class="breadcrumb-item current-page">로그인</span>
+                </div>
+            </header>
+
+            <div class="content-area">
+                <div class="auth-container">
+                    <div class="auth-logo">Utilsly</div>
+                    <p class="auth-desc">다양한 웹 도구를 더 편리하게 사용하세요.</p>
+
+                    <form class="auth-form" id="loginForm">
+                        <div class="form-group">
+                            <label class="form-label" for="email">이메일</label>
+                            <input type="email" id="email" required placeholder="name@example.com">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="password">비밀번호</label>
+                            <input type="password" id="password" required placeholder="비밀번호 입력">
+                        </div>
+
+                        <div class="error-msg" id="errorMsg"></div>
+
+                        <button type="submit" class="btn auth-btn">로그인</button>
+                    </form>
+
+                    <div class="auth-links">
+                        계정이 없으신가요? <a href="/signup.html">회원가입</a>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/common.js"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+        // Config should match existing one
+        const firebaseConfig = {
+            apiKey: "AIzaSyCbSmDuJNCSrIB7Fx9IzbePERD_2ka3rQE",
+            authDomain: "utilsly.firebaseapp.com",
+            projectId: "utilsly",
+            storageBucket: "utilsly.firebasestorage.app",
+            messagingSenderId: "713000931988",
+            appId: "1:713000931988:web:8891efe6d0ab2d61b61a81",
+            measurementId: "G-WSRTSNGT8G"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        const form = document.getElementById('loginForm');
+        const errorMsg = document.getElementById('errorMsg');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const btn = form.querySelector('button');
+
+            try {
+                btn.disabled = true;
+                btn.textContent = '로그인 중...';
+                errorMsg.style.display = 'none';
+
+                await signInWithEmailAndPassword(auth, email, password);
+
+                // Redirect to home or previous page
+                window.location.href = '/';
+            } catch (error) {
+                console.error(error);
+                let msg = '로그인에 실패했습니다.';
+                if (error.code === 'auth/invalid-credential') msg = '이메일 또는 비밀번호가 올바르지 않습니다.';
+                else if (error.code === 'auth/too-many-requests') msg = '너무 많은 시도 실패로 잠시 후 다시 시도해주세요.';
+
+                errorMsg.textContent = msg;
+                errorMsg.style.display = 'block';
+                btn.disabled = false;
+                btn.textContent = '로그인';
+            }
+        });
+    </script>
+</body>
+
+</html>

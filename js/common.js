@@ -6,6 +6,7 @@
 const Utilsly = {
     init() {
         this.loadIcons();
+        this.loadAuth(); // NEW: Load Auth Manager
         this.initTheme();
         this.injectEarlyThemeScript(); // Prevent flash
         this.loadHiddenTools(); // Load user preferences
@@ -19,6 +20,17 @@ const Utilsly = {
         requestAnimationFrame(() => {
             document.documentElement.classList.add('loaded');
         });
+    },
+
+    loadAuth() {
+        const script = document.createElement('script');
+        script.type = 'module';
+        // Use absolute path since common.js might be loaded from anywhere
+        // But if it's file://, absolute /js/... might fail if not root.
+        // Try relative based on common.js location? No, we can't know that easily.
+        // Assume root absolute for now as per project structure.
+        script.src = '/js/auth-manager.js';
+        document.body.appendChild(script);
     },
 
     hiddenTools: new Set(),
