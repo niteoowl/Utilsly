@@ -34,7 +34,7 @@
                     <h1>WebP → JPG 변환기</h1>
                     <p class="description">WebP 이미지를 JPG로 무료 변환하세요.</p>
                 </div>
-                <div class="tool-container">
+                <div class="tool-container" data-tool-id="webp-jpg-converter">
                     <div class="drop-zone" id="dropZone"
                         style="border: 2px dashed var(--border-color); padding: 40px; text-align: center; cursor: pointer; margin-bottom: 24px;">
                         <span class="material-symbols-rounded"
@@ -51,7 +51,7 @@
                                     id="qualityValue">90</span>%)</label>
                             <input type="range" id="quality" min="1" max="100" value="90" style="width: 100%;">
                         </div>
-                        <button class="btn btn-primary" onclick="convert()" style="width: 100%;">JPG로 변환 및 다운로드</button>
+                        <button class="btn btn-primary" id="convertBtn" style="width: 100%;">JPG로 변환 및 다운로드</button>
                     </div>
                 </div>
             </div>
@@ -59,60 +59,88 @@
     </div>
     <script src="../../js/common.js"></script>
     <script>
-        const dropZone = document.getElementById('dropZone');
-        const fileInput = document.getElementById('fileInput');
-        const previewArea = document.getElementById('previewArea');
-        const preview = document.getElementById('preview');
-        const controls = document.getElementById('controls');
-        const quality = document.getElementById('quality');
-        const qualityValue = document.getElementById('qualityValue');
+        Utilsly.registerTool('webp-jpg-converter', {
+            currentImage: null,
+            elements: {},
 
-        let currentImage = null;
-
-        dropZone.addEventListener('click', () => fileInput.click());
-        fileInput.addEventListener('change', handleFile);
-        quality.addEventListener('input', () => qualityValue.textContent = quality.value);
-
-        function handleFile(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                currentImage = new Image();
-                currentImage.onload = () => {
-                    preview.src = e.target.result;
-                    dropZone.style.display = 'none';
-                    previewArea.style.display = 'block';
-                    controls.style.display = 'block';
+            init() {
+                this.elements = {
+                    dropZone: document.getElementById('dropZone'),
+                    fileInput: document.getElementById('fileInput'),
+                    previewArea: document.getElementById('previewArea'),
+                    preview: document.getElementById('preview'),
+                    controls: document.getElementById('controls'),
+                    quality: document.getElementById('quality'),
+                    qualityValue: document.getElementById('qualityValue'),
+                    convertBtn: document.getElementById('convertBtn')
                 };
-                currentImage.src = e.target.result;
-            };
-            reader.readAsDataURL(file);
-        }
 
-        function convert() {
-            if (!currentImage) return;
+                this.handleFile = this.handleFile.bind(this);
+                this.handleDropZoneClick = () => this.elements.fileInput.click();
+                this.handleQualityInput = () => this.elements.qualityValue.textContent = this.elements.quality.value;
+                this.handleConvert = this.convert.bind(this);
 
-            const canvas = document.createElement('canvas');
-            canvas.width = currentImage.width;
-            canvas.height = currentImage.height;
-            const ctx = canvas.getContext('2d');
+                this.elements.dropZone.addEventListener('click', this.handleDropZoneClick);
+                this.elements.fileInput.addEventListener('change', this.handleFile);
+                this.elements.quality.addEventListener('input', this.handleQualityInput);
+                this.elements.convertBtn.addEventListener('click', this.handleConvert);
 
-            // White background for JPG
-            ctx.fillStyle = '#FFFFFF';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.drawImage(currentImage, 0, 0);
+                console.log('WebP Converter initialized');
+            },
 
-            canvas.toBlob((blob) => {
-                const url = URL.createObjectURL(blob);
-                const link = document.createElement('a');
-                link.href = url;
-                link.download = 'converted.jpg';
-                link.click();
-                URL.revokeObjectURL(url);
-            }, 'image/jpeg', quality.value / 100);
-        }
+            cleanup() {
+                if (this.elements.dropZone) {
+                    this.elements.dropZone.removeEventListener('click', this.handleDropZoneClick);
+                    this.elements.fileInput.removeEventListener('change', this.handleFile);
+                    this.elements.quality.removeEventListener('input', this.handleQualityInput);
+                    this.elements.convertBtn.removeEventListener('click', this.handleConvert);
+                }
+                this.currentImage = null;
+                this.elements = {};
+                console.log('WebP Converter cleanup done');
+            },
+
+            handleFile(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    this.currentImage = new Image();
+                    this.currentImage.onload = () => {
+                        this.elements.preview.src = e.target.result;
+                        this.elements.dropZone.style.display = 'none';
+                        this.elements.previewArea.style.display = 'block';
+                        this.elements.controls.style.display = 'block';
+                    };
+                    this.currentImage.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            },
+
+            convert() {
+                if (!this.currentImage) return;
+
+                const canvas = document.createElement('canvas');
+                canvas.width = this.currentImage.width;
+                canvas.height = this.currentImage.height;
+                const ctx = canvas.getContext('2d');
+
+                // White background for JPG
+                ctx.fillStyle = '#FFFFFF';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(this.currentImage, 0, 0);
+
+                canvas.toBlob((blob) => {
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = 'converted.jpg';
+                    link.click();
+                    URL.revokeObjectURL(url);
+                }, 'image/jpeg', this.elements.quality.value / 100);
+            }
+        });
     </script>
 </body>
 
