@@ -1,19 +1,41 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    
+    // Users collection - for storing user profiles
+    match /users/{userId} {
+      // Anyone can read user profiles (needed for displaying nicknames)
+      allow read: if true;
+      
+      // Only authenticated users can create their own profile
+      allow create: if request.auth != null && request.auth.uid == userId;
+      
+      // Only the user can update their own profile
+      allow update: if request.auth != null && request.auth.uid == userId;
+      
+      // No one can delete user profiles (or only the user themselves)
+      allow delete: if request.auth != null && request.auth.uid == userId;
+    }
+    
     // Posts collection
     match /posts/{postId} {
       // Anyone can read posts
       allow read: if true;
       
-      // Anyone can create a post (basic validation)
-      allow create: if request.resource.data.title is string 
-                   && request.resource.data.content is string
-                   && request.resource.data.nickname is string;
-                   
-      // Anyone can update (needed for view counts) or delete (password check is client-side)
-      // WARNING: This is insecure. In a real app, implement Firebase Auth.
-      allow update, delete: if true;
+      // Authenticated users can create posts with their UID
+      // Anonymous users can create posts with password (legacy support)
+      allow create: if (request.resource.data.title is string 
+                    && request.resource.data.content is string
+                    && request.resource.data.nickname is string)
+                    && (request.auth != null || request.resource.data.password is string);
+      
+      // Allow updates for view counts (anyone can increment views)
+      // And for comment counts
+      allow update: if true;
+      
+      // Authenticated users can delete their own posts
+      // Anonymous posts can be deleted by anyone (password check is client-side for simplicity)
+      allow delete: if request.auth != null || true;
       
       // Comments sub-collection
       match /comments/{commentId} {

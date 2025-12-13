@@ -18,52 +18,84 @@ const auth = getAuth(app);
 window.UtilslyAuth = {
     auth: auth,
     currentUser: null,
-    signOut: () => signOut(auth)
+    signOut: async () => {
+        try {
+            await signOut(auth);
+            window.location.href = '/';
+        } catch (error) {
+            console.error('Logout error:', error);
+        }
+    }
 };
 
 // Listen for auth state changes
 onAuthStateChanged(auth, (user) => {
     window.UtilslyAuth.currentUser = user;
-    updateSidebar(user);
+    updateCommunitySection(user);
 });
 
-function updateSidebar(user) {
-    // Find the profile section in the sidebar
-    // It's usually .user-profile inside .sidebar-header
-    const sidebarHeader = document.querySelector('.sidebar-header');
-    if (!sidebarHeader) return;
+function updateCommunitySection(user) {
+    // Update community section in sidebar ONLY
+    // Find the community nav-section
+    const communitySection = document.querySelector('.nav-section[data-category="커뮤니티 (Community)"]');
+    if (!communitySection) {
+        // If sidebar hasn't loaded yet, retry in a bit
+        setTimeout(() => updateCommunitySection(user), 100);
+        return;
+    }
 
-    // We want to replace or update the profile section
-    // Current common.js renders: 
-    // <div class="user-profile">
-    //    <div class="avatar">U</div>
-    //    <span class="username">Utilsly</span>
-    // </div>
-    // OR just text "Utilsly." in simple mode
-
-    // Let's make it a clickable auth button
+    // Check if auth header already exists
+    let authHeader = communitySection.querySelector('.community-auth-header');
 
     if (user) {
         // Logged In
         const nickname = user.displayName || user.email.split('@')[0];
-        sidebarHeader.innerHTML = `
-            <div class="user-profile" id="userMenuBtn" style="justify-content: space-between;">
+        const authHtml = `
+            <div class="community-auth-header" style="padding: 12px 8px; margin-bottom: 8px; background: var(--bg-hover); border-radius: 8px; display: flex; align-items: center; justify-content: space-between;">
                 <div style="display:flex; align-items:center; gap:8px;">
-                    <div class="avatar" style="background:var(--accent-blue); color:white;">${nickname[0].toUpperCase()}</div>
-                    <span class="username">${nickname}</span>
+                    <div style="width:32px; height:32px; border-radius:50%; background:linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:white; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px;">${nickname[0].toUpperCase()}</div>
+                    <div>
+                        <div style="font-size:13px; font-weight:600; color:var(--text-primary);">${nickname}</div>
+                        <div style="font-size:11px; color:var(--text-tertiary);">로그인됨</div>
+                    </div>
                 </div>
-                <button onclick="UtilslyAuth.signOut()" title="로그아웃" style="background:none; border:none; cursor:pointer; color:var(--text-secondary);">
+                <button onclick="UtilslyAuth.signOut()" title="로그아웃" style="background:none; border:none; cursor:pointer; color:var(--text-secondary); padding:4px;">
                     <span class="material-symbols-rounded" style="font-size:18px;">logout</span>
                 </button>
             </div>
         `;
+
+        if (authHeader) {
+            authHeader.outerHTML = authHtml;
+        } else {
+            // Insert after section title
+            const sectionTitle = communitySection.querySelector('.section-title');
+            if (sectionTitle) {
+                sectionTitle.insertAdjacentHTML('afterend', authHtml);
+            }
+        }
     } else {
         // Logged Out
-        sidebarHeader.innerHTML = `
-            <a href="/login.html" class="user-profile" style="text-decoration:none;">
-                <div class="avatar" style="background:var(--bg-active);">?</div>
-                <span class="username">로그인</span>
+        const authHtml = `
+            <a href="/login.html" class="community-auth-header" style="padding: 12px 8px; margin-bottom: 8px; background: var(--bg-hover); border-radius: 8px; display: flex; align-items: center; gap:8px; text-decoration:none; cursor:pointer;">
+                <div style="width:32px; height:32px; border-radius:50%; background:var(--bg-active); color:var(--text-tertiary); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:16px;">
+                    <span class="material-symbols-rounded" style="font-size:20px;">person</span>
+                </div>
+                <div style="flex:1;">
+                    <div style="font-size:13px; font-weight:600; color:var(--text-primary);">로그인이 필요합니다</div>
+                    <div style="font-size:11px; color:var(--text-tertiary);">커뮤니티 글쓰기</div>
+                </div>
+                <span class="material-symbols-rounded" style="font-size:16px; color:var(--text-tertiary);">chevron_right</span>
             </a>
         `;
+
+        if (authHeader) {
+            authHeader.outerHTML = authHtml;
+        } else {
+            const sectionTitle = communitySection.querySelector('.section-title');
+            if (sectionTitle) {
+                sectionTitle.insertAdjacentHTML('afterend', authHtml);
+            }
+        }
     }
 }
