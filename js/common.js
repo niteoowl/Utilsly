@@ -710,6 +710,7 @@ const Utilsly = {
                         // Load external script
                         const newScript = document.createElement('script');
                         newScript.src = script.src;
+                        if (script.type) newScript.type = script.type; // Preserve type (module)
                         newScript.onload = () => {
                             console.log(`[SPA] Loaded script: ${script.src}`);
                             loadScript(index + 1);
@@ -725,8 +726,17 @@ const Utilsly = {
                         // Inline script
                         const newScript = document.createElement('script');
                         newScript.textContent = script.textContent;
+                        if (script.type) newScript.type = script.type; // Preserve type (module)
                         document.body.appendChild(newScript);
-                        newScript.remove(); // Remove inline scripts after execution
+                        // Module scripts might be asynchronous, but for inline ones we usually just let them run.
+                        // We can't easily wait for inline module execution without dynamic import(), but appending works for side effects.
+                        // However, strictly, inline modules are deferred. 
+                        // For this simple case, we just append.
+                        // newScript.remove(); // Removing module scripts might interrupt? No, but let's leave them or remove them?
+                        // Standard inline scripts are synchronous. Modules are not.
+                        // Let's NOT remove them immediately to be safe, or remove them after a small delay if needed.
+                        // Actually, previous code removed them `newScript.remove()`. 
+                        // If it's a module, removing it from DOM doesn't stop execution, but let's keep it consistent.
                         loadScript(index + 1);
                     }
                 };
