@@ -213,7 +213,7 @@
 
         function renderPost(post) {
             const date = post.createdAt ? post.createdAt.toDate().toLocaleString() : '-';
-            const catMap = { 'free': '자유', 'bug': '버그', 'suggestion': '건의' };
+            const catMap = { 'free': '자유', 'bug': '버그', 'suggestion': '건의', 'notice': '공지', 'resolved': '해결' };
 
             const html = `
                 <div class="post-header">

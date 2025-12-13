@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>인터넷 속도 측정 - Utilsly</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <script src="../../js/common.js"></script>
+    <style>
+        .speed-container {
+            max-width: 600px;
+            margin: 0 auto;
+            text-align: center;
+            padding: 40px 20px;
+            background: var(--bg-primary);
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .gauge-wrapper {
+            position: relative;
+            width: 250px;
+            height: 250px;
+            margin: 0 auto 30px;
+        }
+
+        .gauge-bg {
+            fill: none;
+            stroke: var(--bg-hover);
+            stroke-width: 20;
+        }
+
+        .gauge-fill {
+            fill: none;
+            stroke: var(--accent-blue);
+            stroke-width: 20;
+            stroke-dasharray: 628;
+            stroke-dashoffset: 628;
+            transition: stroke-dashoffset 0.5s ease-out;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+
+        .speed-value {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .value-text {
+            font-size: 48px;
+            font-weight: 800;
+            color: var(--text-primary);
+        }
+
+        .unit-text {
+            font-size: 16px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        .control-area {
+            margin-top: 40px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .info-label {
+            font-size: 12px;
+            color: var(--text-tertiary);
+        }
+
+        .info-val {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar placeholder -->
+        <aside class="sidebar">
+            <nav class="sidebar-nav"></nav>
+        </aside>
+
+        <div class="main-content">
+            <div class="top-bar">
+                <div class="breadcrumbs">
+                    <span class="breadcrumb-item">개발 도구</span>
+                    <span class="separator">/</span>
+                    <span class="breadcrumb-item current-page">인터넷 속도 측정</span>
+                </div>
+            </div>
+
+            <div class="content-area">
+                <div class="speed-container" data-tool-id="speed-test">
+                    <div class="gauge-wrapper">
+                        <svg width="250" height="250">
+                            <circle class="gauge-bg" cx="125" cy="125" r="100"></circle>
+                            <circle class="gauge-fill" cx="125" cy="125" r="100"></circle>
+                        </svg>
+                        <div class="speed-value">
+                            <span class="value-text" id="speed-display">0</span>
+                            <span class="unit-text">Mbps</span>
+                        </div>
+                    </div>
+
+                    <div id="status-text" style="height: 24px; color: var(--text-secondary); margin-bottom: 20px;">준비 완료
+                    </div>
+
+                    <button class="btn btn-primary" id="start-btn" style="padding: 12px 32px; font-size: 18px;">
+                        <span class="material-symbols-rounded" style="margin-right: 8px;">speed</span>
+                        측정 시작
+                    </button>
+
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-label">Ping</span>
+                            <span class="info-val" id="ping-val">- ms</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Download</span>
+                            <span class="info-val" id="down-val">-</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Jitter</span>
+                            <span class="info-val" id="jitter-val">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="text-align: center; margin-top: 20px; font-size: 12px; color: var(--text-tertiary);">
+                    * 브라우저 기반 측정으로, 실제 회선 속도와 차이가 있을 수 있습니다.<br>
+                    * 약 5MB~10MB 크기의 더미 이미지를 다운로드하여 측정합니다.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        Utilsly.registerTool('speed-test', {
+            init() {
+                this.btn = document.getElementById('start-btn');
+                this.display = document.getElementById('speed-display');
+                this.gauge = document.querySelector('.gauge-fill');
+                this.status = document.getElementById('status-text');
+
+                // Reset
+                this.updateGauge(0);
+
+                this.btn.onclick = () => this.startTest();
+            },
+
+            updateGauge(mbps) {
+                // Max speed for gauge: 1000 Mbps
+                const max = 1000;
+                const percent = Math.min(mbps / max, 1);
+                const circleLength = 2 * Math.PI * 100; // r=100
+                const offset = circleLength * (1 - percent);
+                this.gauge.style.strokeDasharray = circleLength;
+                this.gauge.style.strokeDashoffset = offset;
+
+                // Color scaling
+                if (mbps > 500) this.gauge.style.stroke = '#4CAF50';
+                else if (mbps > 100) this.gauge.style.stroke = '#2196F3';
+                else if (mbps > 50) this.gauge.style.stroke = '#FFC107';
+                else this.gauge.style.stroke = '#F44336';
+
+                this.display.textContent = mbps.toFixed(1);
+            },
+
+            async startTest() {
+                if (this.isRunning) return;
+                this.isRunning = true;
+                this.btn.disabled = true;
+                this.status.textContent = "테스트 서버 연결 중...";
+                this.updateGauge(0);
+
+                try {
+                    // 1. Ping Test
+                    this.status.textContent = "지연 시간(Ping) 측정 중...";
+                    const pingStart = performance.now();
+                    await fetch('https://www.google.com/favicon.ico', { mode: 'no-cors', cache: 'no-store' });
+                    const pingEnd = performance.now();
+                    const ping = (pingEnd - pingStart).toFixed(0);
+                    document.getElementById('ping-val').textContent = ping + ' ms';
+
+                    // 2. Download Test
+                    this.status.textContent = "다운로드 속도 측정 중...";
+
+                    // Use a slightly larger image for better accuracy if possible, but standard images are small.
+                    // We'll use a random high-res image from unsplash source which is usually reliable.
+                    // Or Cloudflare speed test file -> requires CORS.
+                    // Safest is to load a large image from a public CDN that allows CORS or is generic.
+                    // Using a known large image from Wikimedia or similar.
+                    const testUrl = 'https://upload.wikimedia.org/wikipedia/commons/2/2d/Snake_River_%285mb%29.jpg?t=' + new Date().getTime();
+
+                    const startTime = performance.now();
+                    const response = await fetch(testUrl);
+                    const reader = response.body.getReader();
+
+                    let receivedLength = 0;
+                    let lastUpdate = startTime;
+
+                    while (true) {
+                        const { done, value } = await reader.read();
+
+                        if (done) break;
+                        receivedLength += value.length;
+
+                        const now = performance.now();
+                        // Update UI every 100ms
+                        if (now - lastUpdate > 100) {
+                            const duration = (now - startTime) / 1000; // seconds
+                            const bits = receivedLength * 8;
+                            const mbps = (bits / duration) / 1000000;
+                            this.updateGauge(mbps);
+                            lastUpdate = now;
+                        }
+                    }
+
+                    const endTime = performance.now();
+                    const durationStr = (endTime - startTime) / 1000;
+                    const bitsStr = receivedLength * 8;
+                    const finalMbps = (bitsStr / durationStr) / 1000000;
+
+                    this.updateGauge(finalMbps);
+                    document.getElementById('down-val').textContent = finalMbps.toFixed(1) + ' Mbps';
+                    this.status.textContent = "측정 완료";
+
+                } catch (e) {
+                    console.error(e);
+                    this.status.textContent = "측정 실패 (네트워크 오류)";
+                } finally {
+                    this.isRunning = false;
+                    this.btn.disabled = false;
+                }
+            },
+
+            cleanup() {
+                // cleanup
+            }
+        });
+    </script>
+</body>
+
+</html>

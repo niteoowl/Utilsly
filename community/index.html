@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Utilsly Community</title>
-    <meta name="description" content="Utilsly 커뮤니티 - 자유, 버그 제보, 기능 건의">
+    <meta name="description" content="Utilsly 커뮤니티 - 버그 제보, 기능 건의, 해결된 문제">
     <link rel="stylesheet" href="../../css/style.css">
     <script src="../../js/common.js"></script>
     <style>
@@ -60,6 +60,18 @@
 
         [data-theme="dark"] .category-tab.active {
             color: black;
+        }
+
+        /* Special style for noticeable sections if needed */
+        .category-tab[data-cat="notice"] {
+            border: 1px solid #d32f2f;
+            color: #d32f2f;
+            background: transparent;
+        }
+
+        .category-tab[data-cat="notice"].active {
+            background: #d32f2f;
+            color: white;
         }
 
         .post-list {
@@ -182,10 +194,13 @@
 
                     <div class="category-tabs">
                         <a href="/community/index.html?category=all" class="category-tab active" data-cat="all">전체</a>
-                        <a href="/community/index.html?category=free" class="category-tab" data-cat="free">자유</a>
+                        <a href="/community/index.html?category=notice" class="category-tab" data-cat="notice">공지사항</a>
+                        <!-- Removed 'Free' as requested -->
                         <a href="/community/index.html?category=bug" class="category-tab" data-cat="bug">버그 제보</a>
                         <a href="/community/index.html?category=suggestion" class="category-tab"
                             data-cat="suggestion">기능 건의</a>
+                        <a href="/community/index.html?category=resolved" class="category-tab"
+                            data-cat="resolved">해결됨</a>
                     </div>
 
                     <div class="table-container">
@@ -255,15 +270,19 @@
             // Update Breadcrumb/Title
             const catMap = {
                 'all': '전체',
-                'free': '자유',
+                'notice': '공지사항',
                 'bug': '버그 제보',
-                'suggestion': '기능 건의'
+                'suggestion': '기능 건의',
+                'resolved': '해결됨'
             };
             document.getElementById('category-name').textContent = catMap[currentCategory] || '전체';
 
             // Update Write Button Link
             const writeBtn = document.querySelector('.btn-primary');
-            writeBtn.href = `/community/write.html?category=${currentCategory}`;
+            // If viewing resolved or notice(as user), default to bug or suggestion for new posts?
+            // Or allow them to write as is, but maybe write.html restricts?
+            // For now, prevent 'all' or 'resolved' being passed if not appropriate, but keep it simple
+            writeBtn.href = `/community/write.html?category=${currentCategory === 'all' || currentCategory === 'notice' || currentCategory === 'resolved' ? 'bug' : currentCategory}`;
         }
 
         // Format Date (Simple)
@@ -285,40 +304,55 @@
             const postsRef = collection(db, "posts");
 
             try {
-                // 1. Fetch Notices (Always show at top)
-                // Notices are just posts with isNotice: true
-                const noticeQuery = query(postsRef, where("isNotice", "==", true), orderBy("createdAt", "desc"));
-                const noticeSnapshot = await getDocs(noticeQuery);
-
+                // 1. Fetch Notices (Always show at top UNLESS we are in 'Notice' tab where they are main content)
                 let notices = [];
-                noticeSnapshot.forEach(doc => notices.push({ id: doc.id, ...doc.data() }));
+                let posts = [];
+
+                // If explicitly viewing Notice category, we treat them as main posts, not pinned headers
+                const isNoticeTab = currentCategory === 'notice';
+
+                if (!isNoticeTab) {
+                    // Fetch pinned notices for other tabs
+                    // Use simple query without orderBy to avoid Index error
+                    const noticeQuery = query(postsRef, where("isNotice", "==", true));
+                    const noticeSnapshot = await getDocs(noticeQuery);
+
+                    noticeSnapshot.forEach(doc => notices.push({ id: doc.id, ...doc.data() }));
+
+                    // Sort in memory
+                    notices.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+                }
 
                 // 2. Fetch Regular Posts
                 let q;
                 let needsClientSort = false;
 
                 if (currentCategory === 'all') {
+                    // 'All' shows everything sorted by date (mixed)
+                    // If we can't use composite index, just get latest 50 and sort client side
+                    // But 'all' usually works with just orderBy createdAt if no other filter
                     q = query(postsRef, orderBy("createdAt", "desc"), limit(20));
+                } else if (currentCategory === 'notice') {
+                    // Notice Tab: Show ONLY notices
+                    q = query(postsRef, where("isNotice", "==", true));
+                    needsClientSort = true;
                 } else {
+                    // Specific Category
                     q = query(postsRef, where("category", "==", currentCategory), limit(50));
                     needsClientSort = true;
                 }
 
                 const querySnapshot = await getDocs(q);
-                let posts = [];
                 querySnapshot.forEach((doc) => {
-                    // Exclude posts that are already in notices to avoid duplication
+                    // Exclude posts that are already in notices array (if we are pinning them)
+                    // If isNoticeTab, notices array is empty so we just add everything
                     if (!notices.find(n => n.id === doc.id)) {
                         posts.push({ id: doc.id, ...doc.data() });
                     }
                 });
 
                 if (needsClientSort) {
-                    posts.sort((a, b) => {
-                        const tA = a.createdAt ? a.createdAt.seconds : 0;
-                        const tB = b.createdAt ? b.createdAt.seconds : 0;
-                        return tB - tA;
-                    });
+                    posts.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
                 }
 
                 if (notices.length === 0 && posts.length === 0) {
@@ -328,38 +362,42 @@
 
                 let html = '';
 
-                // Render Notices
-                notices.forEach(post => {
-                    html += `
-                        <tr class="notice">
-                            <td><span class="material-symbols-rounded" style="font-size: 16px; color: #d32f2f;">campaign</span></td>
-                            <td><span style="color: #d32f2f; font-size: 12px; font-weight: bold; border: 1px solid #d32f2f; padding: 2px 6px; border-radius: 4px;">공지</span></td>
-                            <td class="title">
-                                <a href="/community/view.html?id=${post.id}" style="font-weight: bold; color: #d32f2f;">${post.title}</a>
-                                ${post.commentCount ? `<span style="color: #ff3b30; font-size: 12px; font-weight: bold; margin-left: 4px;">[${post.commentCount}]</span>` : ''}
-                            </td>
-                            <td><span style="display:flex; align-items:center; gap:4px; font-weight:bold;">${post.nickname} <span class="material-symbols-rounded" style="font-size:14px; color:#2196F3;" title="관리자">verified</span></span></td>
-                            <td>${formatDate(post.createdAt)}</td>
-                            <td>${post.views || 0}</td>
-                        </tr>
-                    `;
-                });
+                // Render Pinned Notices (Only if not in Notice tab)
+                if (!isNoticeTab) {
+                    notices.forEach(post => {
+                        html += `
+                            <tr class="notice">
+                                <td><span class="material-symbols-rounded" style="font-size: 16px; color: #d32f2f;">campaign</span></td>
+                                <td><span style="color: #d32f2f; font-size: 12px; font-weight: bold; border: 1px solid #d32f2f; padding: 2px 6px; border-radius: 4px;">공지</span></td>
+                                <td class="title">
+                                    <a href="/community/view.html?id=${post.id}" style="font-weight: bold; color: #d32f2f;">${post.title}</a>
+                                    ${post.commentCount ? `<span style="color: #ff3b30; font-size: 12px; font-weight: bold; margin-left: 4px;">[${post.commentCount}]</span>` : ''}
+                                </td>
+                                <td><span style="display:flex; align-items:center; gap:4px; font-weight:bold;">${post.nickname} <span class="material-symbols-rounded" style="font-size:14px; color:#2196F3;" title="관리자">verified</span></span></td>
+                                <td>${formatDate(post.createdAt)}</td>
+                                <td>${post.views || 0}</td>
+                            </tr>
+                        `;
+                    });
+                }
 
-                // Render Regular Posts
+                // Render Regular Posts (or all notices if in Notice tab)
                 posts.forEach(post => {
-                    const catMap = { 'free': '자유', 'bug': '버그', 'suggestion': '건의' };
+                    const catMap = { 'free': '자유', 'bug': '버그', 'suggestion': '건의', 'notice': '공지', 'resolved': '해결' };
 
-                    // Check for admin badge on regular posts too (though rare)
                     const isAdmin = post.isAdmin || false;
                     const adminBadge = isAdmin ? `<span class="material-symbols-rounded" style="font-size:14px; color:#2196F3; margin-left:2px;" title="관리자">verified</span>` : '';
                     const writerClass = isAdmin ? 'font-weight: bold;' : '';
 
+                    const isNoticePost = post.isNotice;
+                    const noticeStyle = isNoticePost ? 'color: #d32f2f;' : '';
+
                     html += `
-                        <tr>
+                        <tr class="${isNoticePost ? 'notice' : ''}">
                             <td>${post.id.substring(0, 4)}..</td>
-                            <td><span style="color: var(--text-secondary); font-size: 12px; border: 1px solid var(--border-color); padding: 2px 6px; border-radius: 4px;">${catMap[post.category] || '자유'}</span></td>
+                            <td><span style="color: var(--text-secondary); font-size: 12px; border: 1px solid var(--border-color); padding: 2px 6px; border-radius: 4px; ${noticeStyle}">${catMap[post.category] || '일반'}</span></td>
                             <td class="title">
-                                <a href="/community/view.html?id=${post.id}">${post.title}</a>
+                                <a href="/community/view.html?id=${post.id}" style="${noticeStyle}">${post.title}</a>
                                 ${post.commentCount ? `<span style="color: #ff3b30; font-size: 12px; font-weight: bold; margin-left: 4px;">[${post.commentCount}]</span>` : ''}
                             </td>
                             <td><span style="${writerClass} display:flex; align-items:center; justify-content:center; gap:2px;">${post.nickname}${adminBadge}</span></td>

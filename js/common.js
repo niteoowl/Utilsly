@@ -158,9 +158,10 @@ const Utilsly = {
             category: "커뮤니티 (Community)",
             items: [
                 { name: "전체글 보기", icon: "forum", path: "/community/index.html?category=all" },
-                { name: "자유게시판", icon: "chat_bubble", path: "/community/index.html?category=free" },
+                { name: "공지사항", icon: "campaign", path: "/community/index.html?category=notice" },
                 { name: "버그 제보", icon: "bug_report", path: "/community/index.html?category=bug" },
                 { name: "기능 건의", icon: "lightbulb", path: "/community/index.html?category=suggestion" },
+                { name: "해결된 문제", icon: "check_circle", path: "/community/index.html?category=resolved" },
             ]
         },
         {
@@ -241,6 +242,7 @@ const Utilsly = {
                 { name: "URL 인코더", icon: "link", path: "/tools/dev/url-encoder" },
                 { name: "Base64 인코더", icon: "package_2", path: "/tools/dev/base64-encoder" },
                 { name: "UUID 생성기", icon: "fingerprint", path: "/tools/dev/uuid-generator" },
+                { name: "인터넷 속도 측정", icon: "speed", path: "/tools/dev/speed-test" },
             ]
         },
         {
