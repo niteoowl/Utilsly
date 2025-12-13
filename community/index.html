@@ -285,14 +285,15 @@
             const postsRef = collection(db, "posts");
 
             let q;
+            let needsClientSort = false;
+
             if (currentCategory === 'all') {
-                // 'All' category: just order by date desc
+                // 'All' category: pure ordering
                 q = query(postsRef, orderBy("createdAt", "desc"), limit(20));
             } else {
-                // Specific category: filter by category AND order by date
-                // NOTE: This usually requires a Composite Index in Firebase Console.
-                // If it fails, check console link.
-                q = query(postsRef, where("category", "==", currentCategory), orderBy("createdAt", "desc"), limit(20));
+                // Specific category: filter only, then sort client-side to avoid Index error
+                q = query(postsRef, where("category", "==", currentCategory), limit(50));
+                needsClientSort = true;
             }
 
             try {
@@ -303,17 +304,31 @@
                     return;
                 }
 
-                let html = '';
+                // Convert to array for sorting
+                let posts = [];
                 querySnapshot.forEach((doc) => {
-                    const post = doc.data();
+                    posts.push({ id: doc.id, ...doc.data() });
+                });
+
+                // Client-side Sort if needed
+                if (needsClientSort) {
+                    posts.sort((a, b) => {
+                        const tA = a.createdAt ? a.createdAt.seconds : 0;
+                        const tB = b.createdAt ? b.createdAt.seconds : 0;
+                        return tB - tA;
+                    });
+                }
+
+                let html = '';
+                posts.forEach((post) => {
                     const catMap = { 'free': '자유', 'bug': '버그', 'suggestion': '건의' };
 
                     html += `
                         <tr>
-                            <td>${doc.id.substring(0, 4)}..</td>
+                            <td>${post.id.substring(0, 4)}..</td>
                             <td><span style="color: var(--text-secondary); font-size: 12px; border: 1px solid var(--border-color); padding: 2px 6px; border-radius: 4px;">${catMap[post.category] || '자유'}</span></td>
                             <td class="title">
-                                <a href="/community/view.html?id=${doc.id}">${post.title}</a>
+                                <a href="/community/view.html?id=${post.id}">${post.title}</a>
                                 ${post.commentCount ? `<span style="color: #ff3b30; font-size: 12px; font-weight: bold; margin-left: 4px;">[${post.commentCount}]</span>` : ''}
                             </td>
                             <td>${post.nickname}</td>
