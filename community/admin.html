@@ -130,17 +130,55 @@
                                     style="padding: 8px; border-radius: 4px; border: 1px solid var(--border-color);">
                                     <option value="notice">공지사항</option>
                                     <option value="resolved">해결됨</option>
-                                    <option value="free">일반 (자유)</option>
                                 </select>
                                 <input type="password" id="post-pw" placeholder="게시글 비밀번호 (미입력시 기본값)" style="flex:1;"
                                     autocomplete="new-password">
                             </div>
                             <input type="text" id="notice-title" placeholder="제목">
-                            <textarea id="notice-content" placeholder="내용" style="height: 100px;"></textarea>
+
+                            <!-- Admin Rich Text Editor -->
+                            <div class="toolbar"
+                                style="border: 1px solid var(--border-color); border-bottom: none; padding: 8px; background: var(--bg-hover); border-radius: 4px 4px 0 0; display:flex; gap: 4px;">
+                                <button type="button" class="tool-btn" data-cmd="bold"
+                                    style="font-weight:bold;">B</button>
+                                <button type="button" class="tool-btn" data-cmd="italic"
+                                    style="font-style:italic;">I</button>
+                                <button type="button" class="tool-btn" data-cmd="underline"
+                                    style="text-decoration:underline;">U</button>
+                                <div style="width:1px; background:var(--border-color); margin:0 4px;"></div>
+                                <button type="button" class="tool-btn" data-cmd="justifyLeft"><span
+                                        class="material-symbols-rounded"
+                                        style="font-size:16px;">format_align_left</span></button>
+                                <button type="button" class="tool-btn" data-cmd="justifyCenter"><span
+                                        class="material-symbols-rounded"
+                                        style="font-size:16px;">format_align_center</span></button>
+                            </div>
+                            <div id="admin-editor" contenteditable="true"
+                                style="min-height: 200px; padding: 16px; border: 1px solid var(--border-color); border-radius: 0 0 4px 4px; background: var(--bg-primary); line-height: 1.6; outline: none; overflow-y: auto;">
+                            </div>
+
                             <div style="text-align: right;">
                                 <button class="btn btn-primary" onclick="postNotice()">등록</button>
                             </div>
                         </div>
+                        <style>
+                            .tool-btn {
+                                width: 32px;
+                                height: 32px;
+                                border: 1px solid transparent;
+                                background: transparent;
+                                border-radius: 4px;
+                                cursor: pointer;
+                                color: var(--text-primary);
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                            }
+
+                            .tool-btn:hover {
+                                background: rgba(0, 0, 0, 0.05);
+                            }
+                        </style>
                     </div>
 
                     <!-- Recent Posts Section -->
@@ -220,14 +258,26 @@
             window.location.reload();
         };
 
+        // Initialize Editor
+        document.querySelectorAll('.tool-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const cmd = btn.dataset.cmd;
+                document.execCommand(cmd, false, null);
+                document.getElementById('admin-editor').focus();
+            });
+        });
+
         // Post Notice or Admin Post
         window.postNotice = async () => {
             const title = document.getElementById('notice-title').value;
-            const content = document.getElementById('notice-content').value;
+            const content = document.getElementById('admin-editor').innerHTML; // Use HTML
             const category = document.getElementById('post-category').value;
             const customPw = document.getElementById('post-pw').value || ADMIN_PW;
 
-            if (!title || !content) return alert('제목과 내용을 입력하세요.');
+            if (!title || !document.getElementById('admin-editor').textContent.trim() && !content.includes('<img')) {
+                return alert('제목과 내용을 입력하세요.');
+            }
 
             if (!confirm('게시글을 등록하시겠습니까?')) return;
 
@@ -249,7 +299,7 @@
                 });
                 alert('등록되었습니다.');
                 document.getElementById('notice-title').value = '';
-                document.getElementById('notice-content').value = '';
+                document.getElementById('admin-editor').innerHTML = ''; // Clear Editor
                 document.getElementById('post-pw').value = '';
                 loadAdminPosts();
             } catch (e) {

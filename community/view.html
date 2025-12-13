@@ -104,6 +104,9 @@
             font-size: 14px;
             color: var(--text-primary);
             line-height: 1.5;
+            white-space: pre-wrap;
+            /* Allow line breaks */
+            word-break: break-all;
         }
 
         .comment-form {
@@ -242,9 +245,9 @@
                             <input type="text" id="c-nickname" placeholder="닉네임" required style="flex:1;">
                             <input type="password" id="c-password" placeholder="비밀번호" required style="flex:1;">
                         </div>
-                        <div style="display:flex; gap:8px;">
-                            <input type="text" id="c-content" placeholder="댓글을 입력하세요" required style="flex:4;">
-                            <button type="submit" class="btn btn-primary" style="flex:1;">등록</button>
+                        <div style="display:flex; gap:8px; align-items:flex-start;">
+                            <textarea id="c-content" placeholder="댓글을 입력하세요" required style="flex:4; height: 60px; padding: 8px; resize: none;"></textarea>
+                            <button type="submit" class="btn btn-primary" style="flex:1; height: 60px;">등록</button>
                         </div>
                     </form>
                 </div>

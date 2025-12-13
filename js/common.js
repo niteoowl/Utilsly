@@ -242,7 +242,6 @@ const Utilsly = {
                 { name: "URL 인코더", icon: "link", path: "/tools/dev/url-encoder" },
                 { name: "Base64 인코더", icon: "package_2", path: "/tools/dev/base64-encoder" },
                 { name: "UUID 생성기", icon: "fingerprint", path: "/tools/dev/uuid-generator" },
-                { name: "인터넷 속도 측정", icon: "speed", path: "/tools/dev/speed-test" },
             ]
         },
         {
