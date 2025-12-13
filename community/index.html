@@ -284,33 +284,35 @@
             const listBody = document.getElementById('post-list-body');
             const postsRef = collection(db, "posts");
 
-            let q;
-            let needsClientSort = false;
-
-            if (currentCategory === 'all') {
-                // 'All' category: pure ordering
-                q = query(postsRef, orderBy("createdAt", "desc"), limit(20));
-            } else {
-                // Specific category: filter only, then sort client-side to avoid Index error
-                q = query(postsRef, where("category", "==", currentCategory), limit(50));
-                needsClientSort = true;
-            }
-
             try {
-                const querySnapshot = await getDocs(q);
+                // 1. Fetch Notices (Always show at top)
+                // Notices are just posts with isNotice: true
+                const noticeQuery = query(postsRef, where("isNotice", "==", true), orderBy("createdAt", "desc"));
+                const noticeSnapshot = await getDocs(noticeQuery);
 
-                if (querySnapshot.empty) {
-                    listBody.innerHTML = `<tr><td colspan="6" style="padding: 40px; color: var(--text-tertiary);">아직 게시글이 없습니다.</td></tr>`;
-                    return;
+                let notices = [];
+                noticeSnapshot.forEach(doc => notices.push({ id: doc.id, ...doc.data() }));
+
+                // 2. Fetch Regular Posts
+                let q;
+                let needsClientSort = false;
+
+                if (currentCategory === 'all') {
+                    q = query(postsRef, orderBy("createdAt", "desc"), limit(20));
+                } else {
+                    q = query(postsRef, where("category", "==", currentCategory), limit(50));
+                    needsClientSort = true;
                 }
 
-                // Convert to array for sorting
+                const querySnapshot = await getDocs(q);
                 let posts = [];
                 querySnapshot.forEach((doc) => {
-                    posts.push({ id: doc.id, ...doc.data() });
+                    // Exclude posts that are already in notices to avoid duplication
+                    if (!notices.find(n => n.id === doc.id)) {
+                        posts.push({ id: doc.id, ...doc.data() });
+                    }
                 });
 
-                // Client-side Sort if needed
                 if (needsClientSort) {
                     posts.sort((a, b) => {
                         const tA = a.createdAt ? a.createdAt.seconds : 0;
@@ -319,9 +321,38 @@
                     });
                 }
 
+                if (notices.length === 0 && posts.length === 0) {
+                    listBody.innerHTML = `<tr><td colspan="6" style="padding: 40px; color: var(--text-tertiary);">아직 게시글이 없습니다.</td></tr>`;
+                    return;
+                }
+
                 let html = '';
-                posts.forEach((post) => {
+
+                // Render Notices
+                notices.forEach(post => {
+                    html += `
+                        <tr class="notice">
+                            <td><span class="material-symbols-rounded" style="font-size: 16px; color: #d32f2f;">campaign</span></td>
+                            <td><span style="color: #d32f2f; font-size: 12px; font-weight: bold; border: 1px solid #d32f2f; padding: 2px 6px; border-radius: 4px;">공지</span></td>
+                            <td class="title">
+                                <a href="/community/view.html?id=${post.id}" style="font-weight: bold; color: #d32f2f;">${post.title}</a>
+                                ${post.commentCount ? `<span style="color: #ff3b30; font-size: 12px; font-weight: bold; margin-left: 4px;">[${post.commentCount}]</span>` : ''}
+                            </td>
+                            <td><span style="display:flex; align-items:center; gap:4px; font-weight:bold;">${post.nickname} <span class="material-symbols-rounded" style="font-size:14px; color:#2196F3;" title="관리자">verified</span></span></td>
+                            <td>${formatDate(post.createdAt)}</td>
+                            <td>${post.views || 0}</td>
+                        </tr>
+                    `;
+                });
+
+                // Render Regular Posts
+                posts.forEach(post => {
                     const catMap = { 'free': '자유', 'bug': '버그', 'suggestion': '건의' };
+
+                    // Check for admin badge on regular posts too (though rare)
+                    const isAdmin = post.isAdmin || false;
+                    const adminBadge = isAdmin ? `<span class="material-symbols-rounded" style="font-size:14px; color:#2196F3; margin-left:2px;" title="관리자">verified</span>` : '';
+                    const writerClass = isAdmin ? 'font-weight: bold;' : '';
 
                     html += `
                         <tr>
@@ -331,7 +362,7 @@
                                 <a href="/community/view.html?id=${post.id}">${post.title}</a>
                                 ${post.commentCount ? `<span style="color: #ff3b30; font-size: 12px; font-weight: bold; margin-left: 4px;">[${post.commentCount}]</span>` : ''}
                             </td>
-                            <td>${post.nickname}</td>
+                            <td><span style="${writerClass} display:flex; align-items:center; justify-content:center; gap:2px;">${post.nickname}${adminBadge}</span></td>
                             <td>${formatDate(post.createdAt)}</td>
                             <td>${post.views || 0}</td>
                         </tr>

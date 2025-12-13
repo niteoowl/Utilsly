@@ -281,10 +281,14 @@
             snapshot.forEach(doc => {
                 const c = doc.data();
                 const d = c.createdAt ? c.createdAt.toDate().toLocaleString() : '';
+
+                const adminBadge = c.isAdmin ? `<span class="material-symbols-rounded" style="font-size:14px; color:#2196F3; margin-left:4px;" title="관리자">verified</span>` : '';
+                const writerClass = c.isAdmin ? 'font-weight: bold;' : '';
+
                 html += `
-                    <div class="comment-item">
+                    <div class="comment-item" ${c.isAdmin ? 'style="background:rgba(33,150,243,0.05);"' : ''}>
                         <div class="comment-meta">
-                            <span class="comment-writer">${c.nickname}</span>
+                            <span class="comment-writer" style="${writerClass} display:flex; align-items:center;">${c.nickname}${adminBadge}</span>
                             <span class="comment-date">${d}</span>
                         </div>
                         <div class="comment-content">${c.content}</div>
