@@ -130,12 +130,12 @@
                     <p class="description">마이크를 사용하여 음성을 녹음하고 다운로드하세요.</p>
                 </div>
 
-                <div class="tool-container">
+                <div class="tool-container" data-tool-id="voice-recorder">
                     <div class="recorder-container">
                         <canvas id="visualizer" width="600" height="100"
                             style="width: 100%; height: 100px; margin-bottom: 24px; border-radius: 8px;"></canvas>
                         <div class="timer" id="timer">00:00</div>
-                        <button class="record-btn" id="recordBtn" onclick="toggleRecording()">
+                        <button class="record-btn" id="recordBtn">
                             <span class="material-symbols-rounded">mic</span>
                         </button>
                         <p style="margin-top: 16px; color: var(--text-secondary);" id="statusText">버튼을 눌러 녹음 시작</p>
@@ -150,148 +150,196 @@
     </div>
     <script src="../../js/common.js"></script>
     <script>
-        let mediaRecorder;
-        let audioChunks = [];
-        let isRecording = false;
-        let startTime;
-        let timerInterval;
-        let audioContext;
-        let analyser;
-        let source;
-        let animationId;
+        Utilsly.registerTool('voice-recorder', {
+            elements: {},
+            mediaRecorder: null,
+            audioChunks: [],
+            isRecording: false,
+            startTime: null,
+            timerInterval: null,
+            audioContext: null,
+            analyser: null,
+            source: null,
+            animationId: null,
 
-        const recordBtn = document.getElementById('recordBtn');
-        const timerDisplay = document.getElementById('timer');
-        const statusText = document.getElementById('statusText');
-        const audioList = document.getElementById('audioList');
-        const canvas = document.getElementById('visualizer');
-        const canvasCtx = canvas.getContext('2d');
+            init() {
+                this.elements = {
+                    recordBtn: document.getElementById('recordBtn'),
+                    timerDisplay: document.getElementById('timer'),
+                    statusText: document.getElementById('statusText'),
+                    audioList: document.getElementById('audioList'),
+                    canvas: document.getElementById('visualizer')
+                };
 
-        async function toggleRecording() {
-            if (!isRecording) {
-                try {
-                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                    startRecording(stream);
-                } catch (err) {
-                    alert('마이크 권한이 필요합니다.');
-                    console.error(err);
+                if (this.elements.canvas) {
+                    this.elements.canvasCtx = this.elements.canvas.getContext('2d');
                 }
-            } else {
-                stopRecording();
+
+                this.handleToggle = () => this.toggleRecording();
+                this.elements.recordBtn.addEventListener('click', this.handleToggle);
+
+                console.log('Voice Recorder initialized');
+            },
+
+            cleanup() {
+                if (this.elements.recordBtn) {
+                    this.elements.recordBtn.removeEventListener('click', this.handleToggle);
+                }
+                this.stopRecording();
+                this.elements = {};
+                console.log('Voice Recorder cleanup done');
+            },
+
+            async toggleRecording() {
+                if (!this.isRecording) {
+                    try {
+                        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                        this.startRecording(stream);
+                    } catch (err) {
+                        alert('마이크 권한이 필요합니다.');
+                        console.error(err);
+                    }
+                } else {
+                    this.stopRecording();
+                }
+            },
+
+            startRecording(stream) {
+                // Audio Context Setup for Visualizer
+                this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                this.analyser = this.audioContext.createAnalyser();
+                this.source = this.audioContext.createMediaStreamSource(stream);
+                this.source.connect(this.analyser);
+                this.analyser.fftSize = 256;
+
+                this.visualize();
+
+                // MediaRecorder Setup
+                this.mediaRecorder = new MediaRecorder(stream);
+                this.audioChunks = [];
+
+                this.mediaRecorder.ondataavailable = (event) => {
+                    this.audioChunks.push(event.data);
+                };
+
+                this.mediaRecorder.onstop = () => {
+                    const audioBlob = new Blob(this.audioChunks, { type: 'audio/webm' });
+                    const audioUrl = URL.createObjectURL(audioBlob);
+                    this.addAudioItem(audioUrl);
+                };
+
+                this.mediaRecorder.start();
+                this.isRecording = true;
+                this.elements.recordBtn.classList.add('recording');
+                this.elements.recordBtn.innerHTML = '<span class="material-symbols-rounded">stop</span>';
+                this.elements.statusText.textContent = '녹음 중...';
+
+                this.startTime = Date.now();
+                this.timerInterval = setInterval(() => this.updateTimer(), 1000);
+            },
+
+            stopRecording() {
+                if (!this.isRecording) return;
+
+                if (this.mediaRecorder && this.mediaRecorder.state !== 'inactive') {
+                    this.mediaRecorder.stop();
+                    // Stop all tracks to release microphone
+                    this.mediaRecorder.stream.getTracks().forEach(track => track.stop());
+                }
+
+                this.isRecording = false;
+                if (this.elements.recordBtn) {
+                    this.elements.recordBtn.classList.remove('recording');
+                    this.elements.recordBtn.innerHTML = '<span class="material-symbols-rounded">mic</span>';
+                    this.elements.statusText.textContent = '버튼을 눌러 녹음 시작';
+                }
+
+                if (this.timerInterval) {
+                    clearInterval(this.timerInterval);
+                    this.timerInterval = null;
+                }
+                if (this.elements.timerDisplay) {
+                    this.elements.timerDisplay.textContent = '00:00';
+                }
+
+                // Stop Visualizer
+                if (this.animationId) {
+                    cancelAnimationFrame(this.animationId);
+                    this.animationId = null;
+                }
+                if (this.audioContext) {
+                    this.audioContext.close();
+                    this.audioContext = null;
+                }
+
+                // Clear Canvas
+                if (this.elements.canvasCtx) {
+                    this.elements.canvasCtx.clearRect(0, 0, this.elements.canvas.width, this.elements.canvas.height);
+                }
+            },
+
+            visualize() {
+                const bufferLength = this.analyser.frequencyBinCount;
+                const dataArray = new Uint8Array(bufferLength);
+                const canvas = this.elements.canvas;
+                const canvasCtx = this.elements.canvasCtx;
+
+                const draw = () => {
+                    this.animationId = requestAnimationFrame(draw);
+                    this.analyser.getByteFrequencyData(dataArray);
+
+                    // Clear with background color (transparent for now or white/dark)
+                    canvasCtx.clearRect(0, 0, canvas.width, canvas.height); // Safer for transparency
+
+                    // Or fill with bg color
+                    // const bgColor = getComputedStyle(document.querySelector('.recorder-container')).backgroundColor;
+                    // canvasCtx.fillStyle = bgColor;
+                    // canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
+
+                    const barWidth = (canvas.width / bufferLength) * 2.5;
+                    let barHeight;
+                    let x = 0;
+
+                    for (let i = 0; i < bufferLength; i++) {
+                        barHeight = dataArray[i] / 2;
+
+                        // Dynamic Color based on theme
+                        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+                        canvasCtx.fillStyle = isDark ? `rgb(${barHeight + 100}, 255, 100)` : `rgb(${barHeight + 100}, 50, 50)`;
+
+                        canvasCtx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
+
+                        x += barWidth + 1;
+                    }
+                };
+
+                draw();
+            },
+
+            updateTimer() {
+                if (!this.elements.timerDisplay) return;
+                const elapsed = Math.floor((Date.now() - this.startTime) / 1000);
+                const minutes = Math.floor(elapsed / 60).toString().padStart(2, '0');
+                const seconds = (elapsed % 60).toString().padStart(2, '0');
+                this.elements.timerDisplay.textContent = `${minutes}:${seconds}`;
+            },
+
+            addAudioItem(url) {
+                const item = document.createElement('div');
+                item.className = 'audio-item';
+                const date = new Date().toLocaleString();
+
+                item.innerHTML = `
+                    <div style="font-weight: 500; min-width: 120px;">${date}</div>
+                    <audio controls src="${url}"></audio>
+                    <a href="${url}" download="recording-${Date.now()}.webm" class="btn btn-primary" style="padding: 8px 16px;">
+                        <span class="material-symbols-rounded">download</span>
+                    </a>
+                `;
+
+                this.elements.audioList.prepend(item);
             }
-        }
-
-        function startRecording(stream) {
-            // Audio Context Setup for Visualizer
-            audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            analyser = audioContext.createAnalyser();
-            source = audioContext.createMediaStreamSource(stream);
-            source.connect(analyser);
-            analyser.fftSize = 256;
-
-            visualize();
-
-            // MediaRecorder Setup
-            mediaRecorder = new MediaRecorder(stream);
-            audioChunks = [];
-
-            mediaRecorder.ondataavailable = (event) => {
-                audioChunks.push(event.data);
-            };
-
-            mediaRecorder.onstop = () => {
-                const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-                const audioUrl = URL.createObjectURL(audioBlob);
-                addAudioItem(audioUrl);
-            };
-
-            mediaRecorder.start();
-            isRecording = true;
-            recordBtn.classList.add('recording');
-            recordBtn.innerHTML = '<span class="material-symbols-rounded">stop</span>';
-            statusText.textContent = '녹음 중...';
-
-            startTime = Date.now();
-            timerInterval = setInterval(updateTimer, 1000);
-        }
-
-        function stopRecording() {
-            mediaRecorder.stop();
-            isRecording = false;
-            recordBtn.classList.remove('recording');
-            recordBtn.innerHTML = '<span class="material-symbols-rounded">mic</span>';
-            statusText.textContent = '버튼을 눌러 녹음 시작';
-
-            clearInterval(timerInterval);
-            timerDisplay.textContent = '00:00';
-
-            // Stop Visualizer
-            if (animationId) cancelAnimationFrame(animationId);
-            if (audioContext) audioContext.close();
-
-            // Clear Canvas
-            canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
-
-            // Stop all tracks to release microphone
-            mediaRecorder.stream.getTracks().forEach(track => track.stop());
-        }
-
-        function visualize() {
-            const bufferLength = analyser.frequencyBinCount;
-            const dataArray = new Uint8Array(bufferLength);
-
-            const draw = () => {
-                animationId = requestAnimationFrame(draw);
-                analyser.getByteFrequencyData(dataArray);
-
-                // Clear with background color
-                const bgColor = getComputedStyle(document.querySelector('.recorder-container')).backgroundColor;
-                canvasCtx.fillStyle = bgColor;
-                canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
-
-                const barWidth = (canvas.width / bufferLength) * 2.5;
-                let barHeight;
-                let x = 0;
-
-                for (let i = 0; i < bufferLength; i++) {
-                    barHeight = dataArray[i] / 2;
-
-                    // Dynamic Color based on theme
-                    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-                    canvasCtx.fillStyle = isDark ? `rgb(${barHeight + 100}, 255, 100)` : `rgb(${barHeight + 100}, 50, 50)`;
-
-                    canvasCtx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
-
-                    x += barWidth + 1;
-                }
-            };
-
-            draw();
-        }
-
-        function updateTimer() {
-            const elapsed = Math.floor((Date.now() - startTime) / 1000);
-            const minutes = Math.floor(elapsed / 60).toString().padStart(2, '0');
-            const seconds = (elapsed % 60).toString().padStart(2, '0');
-            timerDisplay.textContent = `${minutes}:${seconds}`;
-        }
-
-        function addAudioItem(url) {
-            const item = document.createElement('div');
-            item.className = 'audio-item';
-
-            const date = new Date().toLocaleString();
-
-            item.innerHTML = `
-                <div style="font-weight: 500; min-width: 120px;">${date}</div>
-                <audio controls src="${url}"></audio>
-                <a href="${url}" download="recording-${Date.now()}.webm" class="btn btn-primary" style="padding: 8px 16px;">
-                    <span class="material-symbols-rounded">download</span>
-                </a>
-            `;
-
-            audioList.prepend(item);
-        }
+        });
     </script>
 </body>
 

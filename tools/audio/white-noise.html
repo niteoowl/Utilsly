@@ -94,19 +94,19 @@
                     <p class="description">집중하거나 휴식을 취할 때 도움이 되는 다양한 노이즈를 들어보세요.</p>
                 </div>
 
-                <div class="tool-container">
-                    <div class="noise-grid">
-                        <div class="noise-card" onclick="playNoise('white', this)">
+                <div class="tool-container" data-tool-id="white-noise">
+                    <div class="noise-grid" id="noiseGrid">
+                        <div class="noise-card" data-type="white">
                             <div class="material-symbols-rounded noise-icon">graphic_eq</div>
                             <div class="noise-name">White Noise</div>
                             <div class="noise-desc">모든 주파수가 균일한 소리. 집중력 향상에 좋습니다.</div>
                         </div>
-                        <div class="noise-card" onclick="playNoise('pink', this)">
+                        <div class="noise-card" data-type="pink">
                             <div class="material-symbols-rounded noise-icon">water_drop</div>
                             <div class="noise-name">Pink Noise</div>
                             <div class="noise-desc">빗소리와 비슷한 부드러운 소리. 수면에 도움이 됩니다.</div>
                         </div>
-                        <div class="noise-card" onclick="playNoise('brown', this)">
+                        <div class="noise-card" data-type="brown">
                             <div class="material-symbols-rounded noise-icon">thunderstorm</div>
                             <div class="noise-name">Brown Noise</div>
                             <div class="noise-desc">폭포 소리처럼 깊고 낮은 소리. 마음을 진정시킵니다.</div>
@@ -124,115 +124,148 @@
     </div>
     <script src="../../js/common.js"></script>
     <script>
-        let audioCtx;
-        let noiseSource;
-        let gainNode;
-        let currentType = null;
+        Utilsly.registerTool('white-noise', {
+            elements: {},
+            audioCtx: null,
+            noiseSource: null,
+            gainNode: null,
+            currentType: null,
 
-        const volumeSlider = document.getElementById('volumeSlider');
+            init() {
+                this.elements = {
+                    noiseGrid: document.getElementById('noiseGrid'),
+                    volumeSlider: document.getElementById('volumeSlider'),
+                    cards: document.querySelectorAll('.noise-card')
+                };
 
-        volumeSlider.addEventListener('input', (e) => {
-            if (gainNode) {
-                gainNode.gain.value = e.target.value;
+                this.handleCardClick = (e) => {
+                    const card = e.target.closest('.noise-card');
+                    if (card) {
+                        this.playNoise(card.getAttribute('data-type'), card);
+                    }
+                };
+
+                this.handleVolume = (e) => {
+                    if (this.gainNode) {
+                        this.gainNode.gain.value = e.target.value;
+                    }
+                };
+
+                this.elements.noiseGrid.addEventListener('click', this.handleCardClick);
+                this.elements.volumeSlider.addEventListener('input', this.handleVolume);
+
+                console.log('White Noise Tool initialized');
+            },
+
+            cleanup() {
+                if (this.elements.noiseGrid) {
+                    this.elements.noiseGrid.removeEventListener('click', this.handleCardClick);
+                    this.elements.volumeSlider.removeEventListener('input', this.handleVolume);
+                }
+                this.stopNoise();
+                if (this.audioCtx) {
+                    this.audioCtx.close();
+                    this.audioCtx = null;
+                }
+                this.elements = {};
+                console.log('White Noise Tool cleanup done');
+            },
+
+            playNoise(type, card) {
+                // Stop current if playing
+                if (this.currentType === type) {
+                    this.stopNoise();
+                    card.classList.remove('active');
+                    this.currentType = null;
+                    return;
+                }
+
+                // Stop previous
+                this.stopNoise();
+                this.elements.cards.forEach(c => c.classList.remove('active'));
+
+                // Start new
+                if (!this.audioCtx) {
+                    this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                // Resume context if suspended (browser auto-play policy)
+                if (this.audioCtx.state === 'suspended') {
+                    this.audioCtx.resume();
+                }
+
+                const bufferSize = 2 * this.audioCtx.sampleRate;
+                const buffer = this.audioCtx.createBuffer(1, bufferSize, this.audioCtx.sampleRate);
+                const output = buffer.getChannelData(0);
+
+                for (let i = 0; i < bufferSize; i++) {
+                    const white = Math.random() * 2 - 1;
+                    if (type === 'white') {
+                        output[i] = white;
+                    } else {
+                        output[i] = white; // Filter needed? Using script processor approach below for pink/brown
+                    }
+                }
+
+                // IMPORTANT: The original code had specific generation logic for Pink/Brown inside the loop or comments about it.
+                // To keep it simple and robust as per the original code intention (it had placeholders effectively for real algo or simplified):
+                // I will implement the noise generation inline here properly to match the original style or better.
+
+                // Re-generating buffer for specific colors
+                if (type === 'pink') {
+                    let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
+                    for (let i = 0; i < bufferSize; i++) {
+                        const white = Math.random() * 2 - 1;
+                        b0 = 0.99886 * b0 + white * 0.0555179;
+                        b1 = 0.99332 * b1 + white * 0.0750759;
+                        b2 = 0.96900 * b2 + white * 0.1538520;
+                        b3 = 0.86650 * b3 + white * 0.3104856;
+                        b4 = 0.55000 * b4 + white * 0.5329522;
+                        b5 = -0.7616 * b5 - white * 0.0168980;
+                        output[i] = b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362;
+                        output[i] *= 0.11; // Compensate for gain
+                        b6 = white * 0.115926;
+                    }
+                } else if (type === 'brown') {
+                    let lastOut = 0.0;
+                    for (let i = 0; i < bufferSize; i++) {
+                        const white = Math.random() * 2 - 1;
+                        output[i] = (lastOut + (0.02 * white)) / 1.02;
+                        lastOut = output[i];
+                        output[i] *= 3.5; // Compensate for gain
+                    }
+                }
+
+                this.noiseSource = this.audioCtx.createBufferSource();
+                this.noiseSource.buffer = buffer;
+                this.noiseSource.loop = true;
+
+                this.gainNode = this.audioCtx.createGain();
+                this.gainNode.gain.value = this.elements.volumeSlider.value;
+
+                this.noiseSource.connect(this.gainNode);
+                this.gainNode.connect(this.audioCtx.destination);
+                this.noiseSource.start();
+
+                card.classList.add('active');
+                this.currentType = type;
+            },
+
+            stopNoise() {
+                if (this.noiseSource) {
+                    try {
+                        this.noiseSource.stop();
+                        this.noiseSource.disconnect();
+                    } catch (e) { }
+                    this.noiseSource = null;
+                }
+                if (this.gainNode) {
+                    try {
+                        this.gainNode.disconnect();
+                    } catch (e) { }
+                    this.gainNode = null;
+                }
             }
         });
-
-        function playNoise(type, card) {
-            // Stop current if playing
-            if (currentType === type) {
-                stopNoise();
-                card.classList.remove('active');
-                currentType = null;
-                return;
-            }
-
-            // Stop previous
-            stopNoise();
-            document.querySelectorAll('.noise-card').forEach(c => c.classList.remove('active'));
-
-            // Start new
-            if (!audioCtx) {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            }
-
-            const bufferSize = 2 * audioCtx.sampleRate;
-            const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-            const output = buffer.getChannelData(0);
-
-            for (let i = 0; i < bufferSize; i++) {
-                const white = Math.random() * 2 - 1;
-
-                if (type === 'white') {
-                    output[i] = white;
-                } else if (type === 'pink') {
-                    // Pink noise approximation
-                    let b0, b1, b2, b3, b4, b5, b6;
-                    b0 = b1 = b2 = b3 = b4 = b5 = b6 = 0.0;
-                    // (Complex pink noise algorithm simplified for brevity, using white for now as placeholder if complex algo is too long)
-                    // Actually let's use a simple filter approach for pink/brown
-                    output[i] = white; // We will filter it below
-                } else {
-                    output[i] = white; // Filter below
-                }
-            }
-
-            noiseSource = audioCtx.createBufferSource();
-            noiseSource.buffer = buffer;
-            noiseSource.loop = true;
-
-            gainNode = audioCtx.createGain();
-            gainNode.gain.value = volumeSlider.value;
-
-            // Create filter for Pink/Brown
-            if (type === 'pink') {
-                // Pink noise filter (-3dB/octave) - approximated with lowpass
-                // Better approximation:
-                // Actually, let's just generate white noise and use a BiquadFilterNode
-                // Pink: Lowpass around 500Hz is a rough approx, but real pink noise is 1/f. 
-                // Let's stick to generating White Noise buffer and using a filter for simplicity.
-                // Brown: Lowpass heavily.
-            }
-
-            // Re-generating buffer for specific colors is better
-            if (type === 'pink') {
-                let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
-                for (let i = 0; i < bufferSize; i++) {
-                    const white = Math.random() * 2 - 1;
-                    b0 = 0.99886 * b0 + white * 0.0555179;
-                    b1 = 0.99332 * b1 + white * 0.0750759;
-                    b2 = 0.96900 * b2 + white * 0.1538520;
-                    b3 = 0.86650 * b3 + white * 0.3104856;
-                    b4 = 0.55000 * b4 + white * 0.5329522;
-                    b5 = -0.7616 * b5 - white * 0.0168980;
-                    output[i] = b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362;
-                    output[i] *= 0.11; // Compensate for gain
-                    b6 = white * 0.115926;
-                }
-            } else if (type === 'brown') {
-                let lastOut = 0.0;
-                for (let i = 0; i < bufferSize; i++) {
-                    const white = Math.random() * 2 - 1;
-                    output[i] = (lastOut + (0.02 * white)) / 1.02;
-                    lastOut = output[i];
-                    output[i] *= 3.5; // Compensate for gain
-                }
-            }
-
-            noiseSource.connect(gainNode);
-            gainNode.connect(audioCtx.destination);
-            noiseSource.start();
-
-            card.classList.add('active');
-            currentType = type;
-        }
-
-        function stopNoise() {
-            if (noiseSource) {
-                noiseSource.stop();
-                noiseSource.disconnect();
-                noiseSource = null;
-            }
-        }
     </script>
 </body>
 

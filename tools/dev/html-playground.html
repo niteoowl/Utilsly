@@ -6,8 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>HTML 플레이그라운드 - Utilsly</title>
-    <meta name="description" content="HTML, CSS, JS 코드를 실시간으로 작성하고 미리보세요."><script>
-        !function(){const e=localStorage.getItem("theme"),t=window.matchMedia("(prefers-color-scheme: dark)").matches;"dark"!==e&&(e||!t)||document.documentElement.setAttribute("data-theme","dark")}();
+    <meta name="description" content="HTML, CSS, JS 코드를 실시간으로 작성하고 미리보세요.">
+    <script>
+        !function () { const e = localStorage.getItem("theme"), t = window.matchMedia("(prefers-color-scheme: dark)").matches; "dark" !== e && (e || !t) || document.documentElement.setAttribute("data-theme", "dark") }();
     </script>
 
     <link rel="preload" href="../../css/style.css" as="style">
@@ -49,7 +50,7 @@
             border-bottom: 1px solid var(--border-color);
             display: flex;
             justify-content: space-between;
-                    }
+        }
 
         textarea {
             flex: 1;
@@ -124,7 +125,7 @@
                     </div>
                 </div>
 
-                <div class="playground-container">
+                <div class="playground-container" data-tool-id="html-playground">
                     <div class="editors">
                         <div class="editor-section">
                             <div class="editor-header">HTML</div>
@@ -149,53 +150,80 @@
     </div>
     <script src="../../js/common.js"></script>
     <script>
-        const htmlCode = document.getElementById('htmlCode');
-        const cssCode = document.getElementById('cssCode');
-        const jsCode = document.getElementById('jsCode');
-        const previewFrame = document.getElementById('previewFrame');
+        Utilsly.registerTool('html-playground', {
+            elements: {},
+            timeout: null,
 
-        // Load saved code
-        htmlCode.value = localStorage.getItem('playground_html') || '<h1>Hello Utilsly!</h1>\n<p>Edit code on the left.</p>';
-        cssCode.value = localStorage.getItem('playground_css') || 'body {\n  font-family: sans-serif;\n  padding: 20px;\n}\nh1 {\n  color: #2383E2;\n}';
-        jsCode.value = localStorage.getItem('playground_js') || '// JavaScript here';
+            init() {
+                this.elements = {
+                    htmlCode: document.getElementById('htmlCode'),
+                    cssCode: document.getElementById('cssCode'),
+                    jsCode: document.getElementById('jsCode'),
+                    previewFrame: document.getElementById('previewFrame'),
+                    runBtn: document.querySelector('.btn-primary') // Assuming it's the only one
+                };
 
-        function runCode() {
-            const html = htmlCode.value;
-            const css = `<style>${cssCode.value}</style>`;
-            const js = `<script>${jsCode.value}<\/script>`;
+                // Load saved code
+                this.elements.htmlCode.value = localStorage.getItem('playground_html') || '<h1>Hello Utilsly!</h1>\n<p>Edit code on the left.</p>';
+                this.elements.cssCode.value = localStorage.getItem('playground_css') || 'body {\n  font-family: sans-serif;\n  padding: 20px;\n}\nh1 {\n  color: #2383E2;\n}';
+                this.elements.jsCode.value = localStorage.getItem('playground_js') || '// JavaScript here';
 
-            const source = `
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <meta charset="UTF-8">
-                    ${css}
-                </head>
-                <body>
-                    ${html}
-                    ${js}
-                </body>
-                </html>
-            `;
+                this.handleRun = this.runCode.bind(this);
+                this.handleInput = () => {
+                    clearTimeout(this.timeout);
+                    this.timeout = setTimeout(this.handleRun, 1000);
+                };
 
-            previewFrame.srcdoc = source;
+                this.elements.runBtn.addEventListener('click', this.handleRun);
+                [this.elements.htmlCode, this.elements.cssCode, this.elements.jsCode].forEach(el => {
+                    el.addEventListener('input', this.handleInput);
+                });
 
-            // Save code
-            localStorage.setItem('playground_html', html);
-            localStorage.setItem('playground_css', cssCode.value);
-            localStorage.setItem('playground_js', jsCode.value);
-        }
+                // Initial run
+                this.runCode();
+                console.log('HTML Playground initialized');
+            },
 
-        // Auto-run on load
-        runCode();
+            cleanup() {
+                if (this.elements.runBtn) {
+                    this.elements.runBtn.removeEventListener('click', this.handleRun);
+                    [this.elements.htmlCode, this.elements.cssCode, this.elements.jsCode].forEach(el => {
+                        if (el) el.removeEventListener('input', this.handleInput);
+                    });
+                }
+                clearTimeout(this.timeout);
+                this.elements = {};
+                console.log('HTML Playground cleanup done');
+            },
 
-        // Optional: Auto-run on change (debounce)
-        let timeout;
-        [htmlCode, cssCode, jsCode].forEach(el => {
-            el.addEventListener('input', () => {
-                clearTimeout(timeout);
-                timeout = setTimeout(runCode, 1000);
-            });
+            runCode() {
+                if (!this.elements.htmlCode) return;
+
+                const html = this.elements.htmlCode.value;
+                const css = `<style>${this.elements.cssCode.value}</style>`;
+                const js = `<script>${this.elements.jsCode.value}<\/script>`;
+
+                const source = `
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <meta charset="UTF-8">
+                        ${css}
+                    </head>
+                    <body>
+                        ${html}
+                        ${js}
+                    </body>
+                    </html>
+                `;
+
+                if (this.elements.previewFrame) this.elements.previewFrame.srcdoc = source;
+
+                // Save code
+                localStorage.setItem('playground_html', html);
+                localStorage.setItem('playground_css', this.elements.cssCode.value);
+                localStorage.setItem('playground_js', this.elements.jsCode.value);
+            }
         });
     </script>
 </body>

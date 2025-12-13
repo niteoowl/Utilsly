@@ -9,7 +9,7 @@
     <meta name="description" content="HTML, CSS, JS 코드를 압축하여 용량을 줄이세요.">
     <script>
         // Prevent dark mode flash
-        (function() {
+        (function () {
             const savedTheme = localStorage.getItem('theme');
             const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
             if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
@@ -49,7 +49,7 @@
             display: flex;
             gap: 16px;
             margin-bottom: 24px;
-                        background: var(--bg-sidebar);
+            background: var(--bg-sidebar);
             padding: 16px;
             border-radius: 8px;
             border: 1px solid var(--border-color);
@@ -62,7 +62,7 @@
 
         .radio-label {
             display: flex;
-                        gap: 6px;
+            gap: 6px;
             cursor: pointer;
             font-weight: 500;
         }
@@ -92,13 +92,14 @@
             <div class="content-area">
                 <div class="page-header">
                     <div class="header-icon-wrapper">
+
                         <span class="material-symbols-rounded">compress</span>
                     </div>
                     <h1>코드 미니파이어</h1>
                     <p class="description">HTML, CSS, JavaScript 코드를 압축하여 파일 크기를 최적화하세요.</p>
                 </div>
 
-                <div class="controls">
+                <div class="controls" data-tool-id="code-minifier">
                     <div class="radio-group">
                         <label class="radio-label">
                             <input type="radio" name="lang" value="html" checked> HTML
@@ -111,8 +112,8 @@
                         </label>
                     </div>
                     <div style="flex: 1;"></div>
-                    <button class="btn btn-primary" onclick="minifyCode()">압축하기 (Minify)</button>
-                    <button class="btn" onclick="copyResult()">복사</button>
+                    <button class="btn btn-primary" id="minifyBtn">압축하기 (Minify)</button>
+                    <button class="btn" id="copyBtn">복사</button>
                 </div>
 
                 <div class="minifier-container">
@@ -130,53 +131,82 @@
     </div>
     <script src="../../js/common.js"></script>
     <script>
-        function minifyCode() {
-            const input = document.getElementById('inputCode').value;
-            const lang = document.querySelector('input[name="lang"]:checked').value;
-            let output = '';
+        Utilsly.registerTool('code-minifier', {
+            elements: {},
 
-            if (!input.trim()) {
-                alert('코드를 입력해주세요.');
-                return;
-            }
+            init() {
+                this.elements = {
+                    inputCode: document.getElementById('inputCode'),
+                    outputCode: document.getElementById('outputCode'),
+                    minifyBtn: document.getElementById('minifyBtn'),
+                    copyBtn: document.getElementById('copyBtn')
+                };
 
-            try {
-                switch (lang) {
-                    case 'html':
-                        output = input
-                            .replace(/\s+/g, ' ') // Collapse whitespace
-                            .replace(/>\s+</g, '><') // Remove whitespace between tags
-                            .replace(/<!--[\s\S]*?-->/g, ''); // Remove comments
-                        break;
-                    case 'css':
-                        output = input
-                            .replace(/\/\*[\s\S]*?\*\//g, '') // Remove comments
-                            .replace(/\s+/g, ' ') // Collapse whitespace
-                            .replace(/\s*([{}:;,])\s*/g, '$1') // Remove space around separators
-                            .replace(/;\}/g, '}'); // Remove last semicolon
-                        break;
-                    case 'js':
-                        // Basic JS Minification (Regex based - NOT perfect but safe for simple scripts)
-                        output = input
-                            .replace(/\/\/.*$/gm, '') // Remove single line comments
-                            .replace(/\/\*[\s\S]*?\*\//g, '') // Remove multi line comments
-                            .replace(/\s+/g, ' ') // Collapse whitespace
-                            .replace(/\s*([=+\-*/{}();,])\s*/g, '$1'); // Remove space around operators
-                        break;
+                this.handleMinify = this.minifyCode.bind(this);
+                this.handleCopy = this.copyResult.bind(this);
+
+                this.elements.minifyBtn.addEventListener('click', this.handleMinify);
+                this.elements.copyBtn.addEventListener('click', this.handleCopy);
+                console.log('Code Minifier initialized');
+            },
+
+            cleanup() {
+                if (this.elements.minifyBtn) {
+                    this.elements.minifyBtn.removeEventListener('click', this.handleMinify);
+                    this.elements.copyBtn.removeEventListener('click', this.handleCopy);
                 }
-                document.getElementById('outputCode').value = output.trim();
-            } catch (e) {
-                alert('압축 중 오류가 발생했습니다.');
-                console.error(e);
-            }
-        }
+                this.elements = {};
+                console.log('Code Minifier cleanup done');
+            },
 
-        function copyResult() {
-            const output = document.getElementById('outputCode');
-            output.select();
-            document.execCommand('copy');
-            alert('복사되었습니다!');
-        }
+            minifyCode() {
+                const input = this.elements.inputCode.value;
+                const lang = document.querySelector('input[name="lang"]:checked').value;
+                let output = '';
+
+                if (!input.trim()) {
+                    alert('코드를 입력해주세요.');
+                    return;
+                }
+
+                try {
+                    switch (lang) {
+                        case 'html':
+                            output = input
+                                .replace(/\s+/g, ' ') // Collapse whitespace
+                                .replace(/>\s+</g, '><') // Remove whitespace between tags
+                                .replace(/<!--[\s\S]*?-->/g, ''); // Remove comments
+                            break;
+                        case 'css':
+                            output = input
+                                .replace(/\/\*[\s\S]*?\*\//g, '') // Remove comments
+                                .replace(/\s+/g, ' ') // Collapse whitespace
+                                .replace(/\s*([{}:;,])\s*/g, '$1') // Remove space around separators
+                                .replace(/;\}/g, '}'); // Remove last semicolon
+                            break;
+                        case 'js':
+                            // Basic JS Minification (Regex based - NOT perfect but safe for simple scripts)
+                            output = input
+                                .replace(/\/\/.*$/gm, '') // Remove single line comments
+                                .replace(/\/\*[\s\S]*?\*\//g, '') // Remove multi line comments
+                                .replace(/\s+/g, ' ') // Collapse whitespace
+                                .replace(/\s*([=+\-*/{}();,])\s*/g, '$1'); // Remove space around operators
+                            break;
+                    }
+                    this.elements.outputCode.value = output.trim();
+                } catch (e) {
+                    alert('압축 중 오류가 발생했습니다.');
+                    console.error(e);
+                }
+            },
+
+            copyResult() {
+                const output = this.elements.outputCode;
+                output.select();
+                document.execCommand('copy');
+                alert('복사되었습니다!');
+            }
+        });
     </script>
 </body>
 

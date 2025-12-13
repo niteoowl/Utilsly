@@ -69,7 +69,7 @@
                     <p class="description">비율, 증감, 변화율 등 다양한 퍼센트 계산을 쉽게 해결하세요.</p>
                 </div>
 
-                <div class="tool-container">
+                <div class="tool-container" data-tool-id="percentage-calculator">
                     <!-- Case 1: What is X% of Y? -->
                     <div class="calc-row">
                         <span>전체값</span>
@@ -78,7 +78,7 @@
                         <input type="number" class="calc-input" id="c1-percent" placeholder="20">
                         <span>% 는?</span>
                         <span class="calc-result" id="c1-result">0</span>
-                        <button class="btn" onclick="calc1()">계산</button>
+                        <button class="btn" id="btn-calc1">계산</button>
                     </div>
 
                     <!-- Case 2: X is what % of Y? -->
@@ -89,7 +89,7 @@
                         <input type="number" class="calc-input" id="c2-total" placeholder="100">
                         <span>의 몇 % 인가?</span>
                         <span class="calc-result" id="c2-result">0%</span>
-                        <button class="btn" onclick="calc2()">계산</button>
+                        <button class="btn" id="btn-calc2">계산</button>
                     </div>
 
                     <!-- Case 3: Increase/Decrease -->
@@ -100,7 +100,7 @@
                         <input type="number" class="calc-input" id="c3-to" placeholder="1500">
                         <span>으로 변하면?</span>
                         <span class="calc-result" id="c3-result">0% 증가</span>
-                        <button class="btn" onclick="calc3()">계산</button>
+                        <button class="btn" id="btn-calc3">계산</button>
                     </div>
                 </div>
             </div>
@@ -108,28 +108,71 @@
     </div>
     <script src="../../js/common.js"></script>
     <script>
-        function calc1() {
-            const total = parseFloat(document.getElementById('c1-total').value) || 0;
-            const percent = parseFloat(document.getElementById('c1-percent').value) || 0;
-            document.getElementById('c1-result').textContent = (total * (percent / 100)).toLocaleString();
-        }
+        Utilsly.registerTool('percentage-calculator', {
+            elements: {},
 
-        function calc2() {
-            const part = parseFloat(document.getElementById('c2-part').value) || 0;
-            const total = parseFloat(document.getElementById('c2-total').value) || 0;
-            if (total === 0) return;
-            document.getElementById('c2-result').textContent = ((part / total) * 100).toFixed(2) + '%';
-        }
+            init() {
+                this.elements = {
+                    c1Total: document.getElementById('c1-total'),
+                    c1Percent: document.getElementById('c1-percent'),
+                    c1Result: document.getElementById('c1-result'),
+                    btnCalc1: document.getElementById('btn-calc1'),
 
-        function calc3() {
-            const from = parseFloat(document.getElementById('c3-from').value) || 0;
-            const to = parseFloat(document.getElementById('c3-to').value) || 0;
-            if (from === 0) return;
-            const diff = to - from;
-            const percent = (diff / from) * 100;
-            const type = percent > 0 ? "증가" : "감소";
-            document.getElementById('c3-result').textContent = Math.abs(percent).toFixed(2) + '% ' + type;
-        }
+                    c2Part: document.getElementById('c2-part'),
+                    c2Total: document.getElementById('c2-total'),
+                    c2Result: document.getElementById('c2-result'),
+                    btnCalc2: document.getElementById('btn-calc2'),
+
+                    c3From: document.getElementById('c3-from'),
+                    c3To: document.getElementById('c3-to'),
+                    c3Result: document.getElementById('c3-result'),
+                    btnCalc3: document.getElementById('btn-calc3')
+                };
+
+                this.handleCalc1 = () => this.calc1();
+                this.handleCalc2 = () => this.calc2();
+                this.handleCalc3 = () => this.calc3();
+
+                this.elements.btnCalc1.addEventListener('click', this.handleCalc1);
+                this.elements.btnCalc2.addEventListener('click', this.handleCalc2);
+                this.elements.btnCalc3.addEventListener('click', this.handleCalc3);
+
+                console.log('Percentage Calculator initialized');
+            },
+
+            cleanup() {
+                if (this.elements.btnCalc1) {
+                    this.elements.btnCalc1.removeEventListener('click', this.handleCalc1);
+                    this.elements.btnCalc2.removeEventListener('click', this.handleCalc2);
+                    this.elements.btnCalc3.removeEventListener('click', this.handleCalc3);
+                }
+                this.elements = {};
+                console.log('Percentage Calculator cleanup done');
+            },
+
+            calc1() {
+                const total = parseFloat(this.elements.c1Total.value) || 0;
+                const percent = parseFloat(this.elements.c1Percent.value) || 0;
+                this.elements.c1Result.textContent = (total * (percent / 100)).toLocaleString();
+            },
+
+            calc2() {
+                const part = parseFloat(this.elements.c2Part.value) || 0;
+                const total = parseFloat(this.elements.c2Total.value) || 0;
+                if (total === 0) return;
+                this.elements.c2Result.textContent = ((part / total) * 100).toFixed(2) + '%';
+            },
+
+            calc3() {
+                const from = parseFloat(this.elements.c3From.value) || 0;
+                const to = parseFloat(this.elements.c3To.value) || 0;
+                if (from === 0) return;
+                const diff = to - from;
+                const percent = (diff / from) * 100;
+                const type = percent > 0 ? "증가" : "감소";
+                this.elements.c3Result.textContent = Math.abs(percent).toFixed(2) + '% ' + type;
+            }
+        });
     </script>
 </body>
 

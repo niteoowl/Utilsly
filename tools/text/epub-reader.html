@@ -6,8 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>EPUB 리더 - Utilsly</title>
-    <meta name="description" content="웹 브라우저에서 EPUB 전자책을 바로 읽으세요."><script>
-        !function(){const e=localStorage.getItem("theme"),t=window.matchMedia("(prefers-color-scheme: dark)").matches;"dark"!==e&&(e||!t)||document.documentElement.setAttribute("data-theme","dark")}();
+    <meta name="description" content="웹 브라우저에서 EPUB 전자책을 바로 읽으세요.">
+    <script>
+        !function () { const e = localStorage.getItem("theme"), t = window.matchMedia("(prefers-color-scheme: dark)").matches; "dark" !== e && (e || !t) || document.documentElement.setAttribute("data-theme", "dark") }();
     </script>
 
     <link rel="preload" href="../../css/style.css" as="style">
@@ -33,7 +34,7 @@
         .reader-controls {
             display: flex;
             justify-content: space-between;
-                        padding: 12px 24px;
+            padding: 12px 24px;
             background: var(--bg-sidebar);
             border-top: 1px solid var(--border-color);
         }
@@ -45,7 +46,7 @@
             padding: 8px;
             border-radius: 50%;
             display: flex;
-                        justify-content: center;
+            justify-content: center;
             transition: background 0.2s;
         }
 
@@ -146,7 +147,7 @@
                     <p class="description">EPUB 파일을 업로드하여 브라우저에서 편하게 읽으세요.</p>
                 </div>
 
-                <div class="tool-container">
+                <div class="tool-container" data-tool-id="epub-reader">
                     <div class="drop-zone" id="dropZone"
                         style="border: 2px dashed var(--border-color); padding: 40px; text-align: center; cursor: pointer; margin-bottom: 24px;">
                         <span class="material-symbols-rounded"
@@ -165,13 +166,13 @@
 
                         <div class="reader-controls">
                             <div style="display: flex; gap: 8px;">
-                                <button class="nav-btn" onclick="toggleToc()" title="목차">
+                                <button class="nav-btn" id="tocBtn" title="목차">
                                     <span class="material-symbols-rounded">format_list_bulleted</span>
                                 </button>
-                                <button class="nav-btn" onclick="changeFontSize(1)" title="글자 확대">
+                                <button class="nav-btn" id="fontUpBtn" title="글자 확대">
                                     <span class="material-symbols-rounded">add</span>
                                 </button>
-                                <button class="nav-btn" onclick="changeFontSize(-1)" title="글자 축소">
+                                <button class="nav-btn" id="fontDownBtn" title="글자 축소">
                                     <span class="material-symbols-rounded">remove</span>
                                 </button>
                             </div>
@@ -179,10 +180,10 @@
                             <div class="chapter-title" id="chapterTitle"></div>
 
                             <div style="display: flex; gap: 8px;">
-                                <button class="nav-btn" onclick="prevPage()" id="prevBtn">
+                                <button class="nav-btn" id="prevBtn">
                                     <span class="material-symbols-rounded">chevron_left</span>
                                 </button>
-                                <button class="nav-btn" onclick="nextPage()" id="nextBtn">
+                                <button class="nav-btn" id="nextBtn">
                                     <span class="material-symbols-rounded">chevron_right</span>
                                 </button>
                             </div>
@@ -196,102 +197,153 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.5/jszip.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/epubjs/dist/epub.min.js"></script>
     <script>
-        const dropZone = document.getElementById('dropZone');
-        const fileInput = document.getElementById('fileInput');
-        const readerContainer = document.getElementById('readerContainer');
-        const tocSidebar = document.getElementById('tocSidebar');
-        const tocList = document.getElementById('tocList');
-        const chapterTitle = document.getElementById('chapterTitle');
+        Utilsly.registerTool('epub-reader', {
+            elements: {},
+            book: null,
+            rendition: null,
+            fontSize: 100,
 
-        let book = null;
-        let rendition = null;
-        let fontSize = 100;
+            init() {
+                this.elements = {
+                    dropZone: document.getElementById('dropZone'),
+                    fileInput: document.getElementById('fileInput'),
+                    readerContainer: document.getElementById('readerContainer'),
+                    tocSidebar: document.getElementById('tocSidebar'),
+                    tocList: document.getElementById('tocList'),
+                    chapterTitle: document.getElementById('chapterTitle'),
 
-        dropZone.addEventListener('click', () => fileInput.click());
-        fileInput.addEventListener('change', (e) => {
-            if (e.target.files.length > 0) loadBook(e.target.files[0]);
-        });
+                    tocBtn: document.getElementById('tocBtn'),
+                    fontUpBtn: document.getElementById('fontUpBtn'),
+                    fontDownBtn: document.getElementById('fontDownBtn'),
+                    prevBtn: document.getElementById('prevBtn'),
+                    nextBtn: document.getElementById('nextBtn')
+                };
 
-        function loadBook(file) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const bookData = e.target.result;
-                book = ePub(bookData);
+                // Bind handlers
+                this.handleDropZoneClick = () => this.elements.fileInput.click();
+                this.handleFileChange = (e) => {
+                    if (e.target.files.length > 0) this.loadBook(e.target.files[0]);
+                };
+                this.handleTocToggle = this.toggleToc.bind(this);
+                this.handleFontUp = () => this.changeFontSize(1);
+                this.handleFontDown = () => this.changeFontSize(-1);
+                this.handlePrev = this.prevPage.bind(this);
+                this.handleNext = this.nextPage.bind(this);
 
-                dropZone.style.display = 'none';
-                readerContainer.style.display = 'flex';
+                // Add listeners
+                this.elements.dropZone.addEventListener('click', this.handleDropZoneClick);
+                this.elements.fileInput.addEventListener('change', this.handleFileChange);
+                this.elements.tocBtn.addEventListener('click', this.handleTocToggle);
+                this.elements.fontUpBtn.addEventListener('click', this.handleFontUp);
+                this.elements.fontDownBtn.addEventListener('click', this.handleFontDown);
+                this.elements.prevBtn.addEventListener('click', this.handlePrev);
+                this.elements.nextBtn.addEventListener('click', this.handleNext);
 
-                rendition = book.renderTo("viewer", {
-                    width: "100%",
-                    height: "100%",
-                    flow: "paginated"
-                });
+                console.log('EPUB Reader initialized');
+            },
 
-                rendition.display();
+            cleanup() {
+                if (this.elements.dropZone) {
+                    this.elements.dropZone.removeEventListener('click', this.handleDropZoneClick);
+                    this.elements.fileInput.removeEventListener('change', this.handleFileChange);
+                    this.elements.tocBtn.removeEventListener('click', this.handleTocToggle);
+                    this.elements.fontUpBtn.removeEventListener('click', this.handleFontUp);
+                    this.elements.fontDownBtn.removeEventListener('click', this.handleFontDown);
+                    this.elements.prevBtn.removeEventListener('click', this.handlePrev);
+                    this.elements.nextBtn.removeEventListener('click', this.handleNext);
+                }
 
-                // Theme handling
-                const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-                updateTheme(isDark);
+                if (this.book) {
+                    this.book.destroy();
+                }
+                this.elements = {};
+                this.book = null;
+                this.rendition = null;
+                console.log('EPUB Reader cleanup done');
+            },
 
-                // Navigation events
-                rendition.on("relocated", (location) => {
-                    // Update chapter title if available
-                    // Note: Getting chapter title accurately in epub.js can be tricky
-                });
+            loadBook(file) {
+                if (!window.ePub) {
+                    alert("ePub library not loaded yet.");
+                    return;
+                }
 
-                // TOC
-                book.loaded.navigation.then((nav) => {
-                    tocList.innerHTML = '';
-                    nav.toc.forEach((chapter) => {
-                        const item = document.createElement('div');
-                        item.className = 'toc-item';
-                        item.textContent = chapter.label;
-                        item.onclick = () => {
-                            rendition.display(chapter.href);
-                            toggleToc();
-                        };
-                        tocList.appendChild(item);
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const bookData = e.target.result;
+                    this.book = ePub(bookData);
+
+                    this.elements.dropZone.style.display = 'none';
+                    this.elements.readerContainer.style.display = 'flex';
+
+                    this.rendition = this.book.renderTo("viewer", {
+                        width: "100%",
+                        height: "100%",
+                        flow: "paginated"
                     });
-                });
-            };
-            reader.readAsArrayBuffer(file);
-        }
 
-        function prevPage() {
-            if (rendition) rendition.prev();
-        }
+                    this.rendition.display();
 
-        function nextPage() {
-            if (rendition) rendition.next();
-        }
+                    // Theme handling
+                    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+                    this.updateTheme(isDark);
 
-        function toggleToc() {
-            tocSidebar.classList.toggle('active');
-        }
+                    // Navigation events
+                    this.rendition.on("relocated", (location) => {
+                        // Update chapter title if needed
+                    });
 
-        function changeFontSize(delta) {
-            if (!rendition) return;
-            fontSize += delta * 10;
-            rendition.themes.fontSize(fontSize + "%");
-        }
+                    // TOC
+                    this.book.loaded.navigation.then((nav) => {
+                        this.elements.tocList.innerHTML = '';
+                        nav.toc.forEach((chapter) => {
+                            const item = document.createElement('div');
+                            item.className = 'toc-item';
+                            item.textContent = chapter.label;
+                            item.onclick = () => {
+                                this.rendition.display(chapter.href);
+                                this.toggleToc();
+                            };
+                            this.elements.tocList.appendChild(item);
+                        });
+                    });
+                };
+                reader.readAsArrayBuffer(file);
+            },
 
-        function updateTheme(isDark) {
-            if (!rendition) return;
-            if (isDark) {
-                rendition.themes.register("dark", {
-                    body: { color: "#e0e0e0", background: "#1e1e1e" }
-                });
-                rendition.themes.select("dark");
-            } else {
-                rendition.themes.register("light", {
-                    body: { color: "#000", background: "#fff" }
-                });
-                rendition.themes.select("light");
+            prevPage() {
+                if (this.rendition) this.rendition.prev();
+            },
+
+            nextPage() {
+                if (this.rendition) this.rendition.next();
+            },
+
+            toggleToc() {
+                this.elements.tocSidebar.classList.toggle('active');
+            },
+
+            changeFontSize(delta) {
+                if (!this.rendition) return;
+                this.fontSize += delta * 10;
+                this.rendition.themes.fontSize(this.fontSize + "%");
+            },
+
+            updateTheme(isDark) {
+                if (!this.rendition) return;
+                if (isDark) {
+                    this.rendition.themes.register("dark", {
+                        body: { color: "#e0e0e0", background: "#1e1e1e" }
+                    });
+                    this.rendition.themes.select("dark");
+                } else {
+                    this.rendition.themes.register("light", {
+                        body: { color: "#000", background: "#fff" }
+                    });
+                    this.rendition.themes.select("light");
+                }
             }
-        }
-
-        // Listen for theme changes from common.js (if we had an event)
-        // For now, it sets on load.
+        });
     </script>
 </body>
 

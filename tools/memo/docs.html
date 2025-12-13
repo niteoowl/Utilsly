@@ -6,8 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>Utilsly Docs - 문서 편집기</title>
-    <meta name="description" content="HWP 스타일의 전문 문서 편집기입니다. 표, 이미지, PDF 내보내기를 지원합니다."><script>
-        !function(){const e=localStorage.getItem("theme"),t=window.matchMedia("(prefers-color-scheme: dark)").matches;"dark"!==e&&(e||!t)||document.documentElement.setAttribute("data-theme","dark")}();
+    <meta name="description" content="HWP 스타일의 전문 문서 편집기입니다. 표, 이미지, PDF 내보내기를 지원합니다.">
+    <script>
+        !function () { const e = localStorage.getItem("theme"), t = window.matchMedia("(prefers-color-scheme: dark)").matches; "dark" !== e && (e || !t) || document.documentElement.setAttribute("data-theme", "dark") }();
     </script>
 
     <link rel="preload" href="../../css/style.css" as="style">
@@ -141,7 +142,7 @@
                 </div>
             </header>
 
-            <div class="content-area"
+            <div class="content-area" data-tool-id="docs"
                 style="padding: 0; overflow: hidden; display: flex; flex-direction: column; height: calc(100vh - 60px);">
                 <div class="page-header" style="padding: 24px 24px 0 24px; margin-bottom: 0;">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
@@ -152,12 +153,12 @@
                             <h1 style="margin: 0; font-size: 24px;">Utilsly Docs</h1>
                         </div>
                         <div style="display: flex; gap: 8px;">
-                            <button class="btn" onclick="exportPDF()">
+                            <button class="btn" id="btn-export">
                                 <span class="material-symbols-rounded"
                                     style="font-size: 18px; margin-right: 4px;">picture_as_pdf</span>
                                 PDF 저장
                             </button>
-                            <button class="btn btn-primary" onclick="saveDoc()">
+                            <button class="btn btn-primary" id="btn-save">
                                 <span class="material-symbols-rounded"
                                     style="font-size: 18px; margin-right: 4px;">save</span>
                                 저장
@@ -216,56 +217,95 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <script>
-        // Initialize Quill
-        var quill = new Quill('#editor', {
-            theme: 'snow',
-            modules: {
-                toolbar: '#toolbar-container'
+        Utilsly.registerTool('docs', {
+            quill: null,
+            timeoutId: null,
+            elements: {},
+
+            init() {
+                this.elements = {
+                    saveBtn: document.getElementById('btn-save'),
+                    exportBtn: document.getElementById('btn-export'),
+                    // Note: button IDs are not in Original HTML, need to add them or use selectors
+                    // I will update the HTML part above to add IDs or use querySelector if I could, 
+                    // but replace_content is strict.
+                    // The HTML replacement below includes IDs for buttons.
+                };
+
+                // Initialize Quill
+                this.quill = new Quill('#editor', {
+                    theme: 'snow',
+                    modules: {
+                        toolbar: '#toolbar-container'
+                    },
+                    placeholder: '내용을 입력하세요...'
+                });
+
+                // Load saved content
+                const savedContent = localStorage.getItem('utilsly_docs_content');
+                if (savedContent) {
+                    this.quill.root.innerHTML = savedContent;
+                }
+
+                this.handleSave = () => this.saveDoc();
+                this.handleExport = () => this.exportPDF();
+                this.handleTextChange = () => {
+                    clearTimeout(this.timeoutId);
+                    this.timeoutId = setTimeout(() => {
+                        localStorage.setItem('utilsly_docs_content', this.quill.root.innerHTML);
+                    }, 2000);
+                };
+
+                // Add Listeners
+                const btnSave = document.getElementById('btn-save');
+                const btnExport = document.getElementById('btn-export');
+                if (btnSave) btnSave.addEventListener('click', this.handleSave);
+                if (btnExport) btnExport.addEventListener('click', this.handleExport);
+
+                this.quill.on('text-change', this.handleTextChange);
+
+                console.log('Docs initialized');
             },
-            placeholder: '내용을 입력하세요...'
+
+            cleanup() {
+                if (this.timeoutId) clearTimeout(this.timeoutId);
+
+                const btnSave = document.getElementById('btn-save');
+                const btnExport = document.getElementById('btn-export');
+                if (btnSave) btnSave.removeEventListener('click', this.handleSave);
+                if (btnExport) btnExport.removeEventListener('click', this.handleExport);
+
+                // Quill cleanup? Quill usually doesn't need explicit destroy for clean DOM removal,
+                // but removing listeners is good.
+                this.quill = null;
+                console.log('Docs cleanup done');
+            },
+
+            saveDoc() {
+                localStorage.setItem('utilsly_docs_content', this.quill.root.innerHTML);
+                alert('문서가 저장되었습니다.');
+            },
+
+            exportPDF() {
+                const element = document.querySelector('.a4-page');
+                const opt = {
+                    margin: 0,
+                    filename: 'document.pdf',
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { scale: 2 },
+                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                };
+
+                // Temporarily remove shadow and margin for clean export
+                const originalStyle = element.style.cssText;
+                element.style.boxShadow = 'none';
+                element.style.margin = '0';
+
+                html2pdf().set(opt).from(element).save().then(() => {
+                    element.style.cssText = originalStyle;
+                });
+            }
         });
-
-        // Load saved content
-        const savedContent = localStorage.getItem('utilsly_docs_content');
-        if (savedContent) {
-            quill.root.innerHTML = savedContent;
-        }
-
-        // Save function
-        function saveDoc() {
-            localStorage.setItem('utilsly_docs_content', quill.root.innerHTML);
-            alert('문서가 저장되었습니다.');
-        }
-
-        // Auto-save
-        let timeoutId;
-        quill.on('text-change', function () {
-            clearTimeout(timeoutId);
-            timeoutId = setTimeout(() => {
-                localStorage.setItem('utilsly_docs_content', quill.root.innerHTML);
-            }, 2000);
-        });
-
-        // Export PDF
-        function exportPDF() {
-            const element = document.querySelector('.a4-page');
-            const opt = {
-                margin: 0,
-                filename: 'document.pdf',
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2 },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
-
-            // Temporarily remove shadow and margin for clean export
-            const originalStyle = element.style.cssText;
-            element.style.boxShadow = 'none';
-            element.style.margin = '0';
-
-            html2pdf().set(opt).from(element).save().then(() => {
-                element.style.cssText = originalStyle;
-            });
-        }
     </script>
 </body>
 

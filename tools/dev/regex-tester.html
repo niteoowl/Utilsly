@@ -110,7 +110,7 @@
                     <p class="description">정규표현식(Regex)을 작성하고 실시간으로 매칭 결과를 확인하세요.</p>
                 </div>
 
-                <div class="tool-container">
+                <div class="tool-container" data-tool-id="regex-tester">
                     <div class="regex-input-group">
                         <span style="font-size: 20px; color: var(--text-secondary);">/</span>
                         <input type="text" class="regex-pattern" id="regexPattern" placeholder="패턴 입력 (예: \d+)"
@@ -137,44 +137,65 @@
     </div>
     <script src="../../js/common.js"></script>
     <script>
-        const patternInput = document.getElementById('regexPattern');
-        const flagsInput = document.getElementById('regexFlags');
-        const testStringInput = document.getElementById('testString');
-        const resultBox = document.getElementById('resultBox');
+        Utilsly.registerTool('regex-tester', {
+            elements: {},
 
-        function updateResult() {
-            const pattern = patternInput.value;
-            const flags = flagsInput.value;
-            const text = testStringInput.value;
+            init() {
+                this.elements = {
+                    patternInput: document.getElementById('regexPattern'),
+                    flagsInput: document.getElementById('regexFlags'),
+                    testStringInput: document.getElementById('testString'),
+                    resultBox: document.getElementById('resultBox')
+                };
 
-            if (!pattern) {
-                resultBox.textContent = text;
-                return;
+                this.handleUpdate = this.updateResult.bind(this);
+
+                this.elements.patternInput.addEventListener('input', this.handleUpdate);
+                this.elements.flagsInput.addEventListener('input', this.handleUpdate);
+                this.elements.testStringInput.addEventListener('input', this.handleUpdate);
+
+                // Initial run
+                this.updateResult();
+                console.log('Regex Tester initialized');
+            },
+
+            cleanup() {
+                if (this.elements.patternInput) {
+                    this.elements.patternInput.removeEventListener('input', this.handleUpdate);
+                    this.elements.flagsInput.removeEventListener('input', this.handleUpdate);
+                    this.elements.testStringInput.removeEventListener('input', this.handleUpdate);
+                }
+                this.elements = {};
+                console.log('Regex Tester cleanup done');
+            },
+
+            updateResult() {
+                const pattern = this.elements.patternInput.value;
+                const flags = this.elements.flagsInput.value;
+                const text = this.elements.testStringInput.value;
+
+                if (!pattern) {
+                    this.elements.resultBox.textContent = text;
+                    return;
+                }
+
+                try {
+                    const regex = new RegExp(pattern, flags);
+
+                    // Escape HTML to prevent XSS in display
+                    const safeText = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+                    // Highlight matches
+                    let highlighted = safeText.replace(regex, (match) => {
+                        return `<span class="match">${match}</span>`;
+                    });
+
+                    this.elements.resultBox.innerHTML = highlighted;
+                } catch (e) {
+                    this.elements.resultBox.innerHTML = `<span style="color: #FF4B4B;">Invalid Regex: ${e.message}</span>`;
+                }
             }
-
-            try {
-                const regex = new RegExp(pattern, flags);
-
-                // Escape HTML to prevent XSS in display
-                const safeText = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-
-                // Highlight matches
-                let highlighted = safeText.replace(regex, (match) => {
-                    return `<span class="match">${match}</span>`;
-                });
-
-                resultBox.innerHTML = highlighted;
-            } catch (e) {
-                resultBox.innerHTML = `<span style="color: #FF4B4B;">Invalid Regex: ${e.message}</span>`;
-            }
-        }
-
-        patternInput.addEventListener('input', updateResult);
-        flagsInput.addEventListener('input', updateResult);
-        testStringInput.addEventListener('input', updateResult);
-
-        // Initial run
-        updateResult();
+        });
     </script>
 </body>
 

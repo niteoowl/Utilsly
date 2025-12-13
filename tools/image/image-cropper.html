@@ -6,13 +6,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>이미지 자르기 - Utilsly</title>
-    <meta name="description" content="이미지를 원하는 비율로 자유롭게 자르세요."><script>
-        !function(){const e=localStorage.getItem("theme"),t=window.matchMedia("(prefers-color-scheme: dark)").matches;"dark"!==e&&(e||!t)||document.documentElement.setAttribute("data-theme","dark")}();
+    <meta name="description" content="이미지를 원하는 비율로 자유롭게 자르세요.">
+    <script>
+        !function () { const e = localStorage.getItem("theme"), t = window.matchMedia("(prefers-color-scheme: dark)").matches; "dark" !== e && (e || !t) || document.documentElement.setAttribute("data-theme", "dark") }();
     </script>
 
     <link rel="preload" href="../../css/style.css" as="style">
-    <link rel="stylesheet" href="../../css/style.css"><script>
-        !function(){const e=localStorage.getItem("theme"),t=window.matchMedia("(prefers-color-scheme: dark)").matches;"dark"!==e&&(e||!t)||document.documentElement.setAttribute("data-theme","dark")}();
+    <link rel="stylesheet" href="../../css/style.css">
+    <script>
+        !function () { const e = localStorage.getItem("theme"), t = window.matchMedia("(prefers-color-scheme: dark)").matches; "dark" !== e && (e || !t) || document.documentElement.setAttribute("data-theme", "dark") }();
     </script>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
@@ -70,7 +72,7 @@
                     <p class="description">이미지를 원하는 영역만큼 잘라내고 저장하세요.</p>
                 </div>
 
-                <div class="tool-container">
+                <div class="tool-container" data-tool-id="image-cropper">
                     <div class="drop-zone" id="dropZone"
                         style="border: 2px dashed var(--border-color); padding: 40px; text-align: center; cursor: pointer; margin-bottom: 24px;">
                         <span class="material-symbols-rounded"
@@ -81,21 +83,21 @@
 
                     <div class="editor-container" id="editorContainer">
                         <div class="toolbar">
-                            <button class="btn" onclick="cropper.setAspectRatio(16/9)">16:9</button>
-                            <button class="btn" onclick="cropper.setAspectRatio(4/3)">4:3</button>
-                            <button class="btn" onclick="cropper.setAspectRatio(1)">1:1</button>
-                            <button class="btn" onclick="cropper.setAspectRatio(NaN)">자유</button>
-                            <button class="btn" onclick="cropper.rotate(90)">
+                            <button class="btn" id="btn169">16:9</button>
+                            <button class="btn" id="btn43">4:3</button>
+                            <button class="btn" id="btn11">1:1</button>
+                            <button class="btn" id="btnFree">자유</button>
+                            <button class="btn" id="btnRotate">
                                 <span class="material-symbols-rounded">rotate_right</span>
                             </button>
-                            <button class="btn" onclick="cropper.scaleX(-1)">
+                            <button class="btn" id="btnFlip">
                                 <span class="material-symbols-rounded">flip</span>
                             </button>
                         </div>
                         <div class="img-container">
                             <img id="image" src="" alt="Picture">
                         </div>
-                        <button class="btn btn-primary" onclick="cropImage()" style="width: 100%; margin-top: 16px;">자르기
+                        <button class="btn btn-primary" id="cropBtn" style="width: 100%; margin-top: 16px;">자르기
                             및 다운로드</button>
                     </div>
                 </div>
@@ -105,40 +107,120 @@
     <script src="../../js/common.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
     <script>
-        const dropZone = document.getElementById('dropZone');
-        const fileInput = document.getElementById('fileInput');
-        const editorContainer = document.getElementById('editorContainer');
-        const image = document.getElementById('image');
-        let cropper;
+        Utilsly.registerTool('image-cropper', {
+            elements: {},
+            cropper: null,
 
-        dropZone.addEventListener('click', () => fileInput.click());
-        fileInput.addEventListener('change', (e) => {
-            if (e.target.files.length > 0) {
-                const file = e.target.files[0];
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    image.src = e.target.result;
-                    dropZone.style.display = 'none';
-                    editorContainer.style.display = 'block';
-
-                    if (cropper) cropper.destroy();
-                    cropper = new Cropper(image, {
-                        viewMode: 1,
-                        autoCropArea: 0.8,
-                    });
+            init() {
+                this.elements = {
+                    dropZone: document.getElementById('dropZone'),
+                    fileInput: document.getElementById('fileInput'),
+                    editorContainer: document.getElementById('editorContainer'),
+                    image: document.getElementById('image'),
+                    btn169: document.getElementById('btn169'),
+                    btn43: document.getElementById('btn43'),
+                    btn11: document.getElementById('btn11'),
+                    btnFree: document.getElementById('btnFree'),
+                    btnRotate: document.getElementById('btnRotate'),
+                    btnFlip: document.getElementById('btnFlip'),
+                    cropBtn: document.getElementById('cropBtn')
                 };
-                reader.readAsDataURL(file);
+
+                this.handleClick = () => this.elements.fileInput.click();
+                this.handleChange = (e) => this.handleFile(e);
+
+                this.elements.dropZone.addEventListener('click', this.handleClick);
+                this.elements.fileInput.addEventListener('change', this.handleChange);
+
+                // Toolkit listeners
+                this.handle169 = () => this.cropper?.setAspectRatio(16 / 9);
+                this.handle43 = () => this.cropper?.setAspectRatio(4 / 3);
+                this.handle11 = () => this.cropper?.setAspectRatio(1);
+                this.handleFree = () => this.cropper?.setAspectRatio(NaN);
+                this.handleRotate = () => this.cropper?.rotate(90);
+                this.handleFlip = () => this.cropper?.scaleX(-1); // Toggle logic needed? Or just flip once? Original was scaleX(-1) which sets, not toggles.
+                // Actually cropperjs scaleX(-1) sets the scale. To toggle we need state. 
+                // But original code was `cropper.scaleX(-1)`. 
+                // Wait, if scaleX is 1, -1 flips it. If it is -1, -1 does nothing change? 
+                // Cropper.js scaleX param IS the scale factor.
+                // Let's check if the user intended Toggle. The original code: `cropper.scaleX(-1)`.
+                // If I click it twice, it stays flipped?
+                // I will implement a simpler toggle if needed, but let's stick to original behavior which is setting -1.
+                // Actually, let's make it toggle for better UX if I can, but standard is fine.
+
+                this.handleCrop = () => this.cropImage();
+
+                this.elements.btn169.addEventListener('click', this.handle169);
+                this.elements.btn43.addEventListener('click', this.handle43);
+                this.elements.btn11.addEventListener('click', this.handle11);
+                this.elements.btnFree.addEventListener('click', this.handleFree);
+                this.elements.btnRotate.addEventListener('click', this.handleRotate);
+
+                this.isFlipped = false;
+                this.handleFlipClick = () => {
+                    this.isFlipped = !this.isFlipped;
+                    this.cropper?.scaleX(this.isFlipped ? -1 : 1);
+                };
+                this.elements.btnFlip.addEventListener('click', this.handleFlipClick);
+
+                this.elements.cropBtn.addEventListener('click', this.handleCrop);
+
+                console.log('Image Cropper initialized');
+            },
+
+            cleanup() {
+                if (this.elements.dropZone) {
+                    this.elements.dropZone.removeEventListener('click', this.handleClick);
+                    this.elements.fileInput.removeEventListener('change', this.handleChange);
+                    this.elements.btn169.removeEventListener('click', this.handle169);
+                    this.elements.btn43.removeEventListener('click', this.handle43);
+                    this.elements.btn11.removeEventListener('click', this.handle11);
+                    this.elements.btnFree.removeEventListener('click', this.handleFree);
+                    this.elements.btnRotate.removeEventListener('click', this.handleRotate);
+                    this.elements.btnFlip.removeEventListener('click', this.handleFlipClick);
+                    this.elements.cropBtn.removeEventListener('click', this.handleCrop);
+                }
+                if (this.cropper) {
+                    this.cropper.destroy();
+                    this.cropper = null;
+                }
+                this.elements = {};
+                console.log('Image Cropper cleanup done');
+            },
+
+            handleFile(e) {
+                if (e.target.files.length > 0) {
+                    const file = e.target.files[0];
+                    const reader = new FileReader();
+                    reader.onload = (evt) => {
+                        this.elements.image.src = evt.target.result;
+                        this.elements.dropZone.style.display = 'none';
+                        this.elements.editorContainer.style.display = 'block';
+
+                        if (this.cropper) this.cropper.destroy();
+
+                        if (typeof Cropper !== 'undefined') {
+                            this.cropper = new Cropper(this.elements.image, {
+                                viewMode: 1,
+                                autoCropArea: 0.8,
+                            });
+                        } else {
+                            console.error("CropperJS not loaded");
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                }
+            },
+
+            cropImage() {
+                if (!this.cropper) return;
+                const canvas = this.cropper.getCroppedCanvas();
+                const link = document.createElement('a');
+                link.download = 'cropped-image.png';
+                link.href = canvas.toDataURL();
+                link.click();
             }
         });
-
-        function cropImage() {
-            if (!cropper) return;
-            const canvas = cropper.getCroppedCanvas();
-            const link = document.createElement('a');
-            link.download = 'cropped-image.png';
-            link.href = canvas.toDataURL();
-            link.click();
-        }
     </script>
 </body>
 

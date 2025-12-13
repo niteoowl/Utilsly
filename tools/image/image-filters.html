@@ -6,8 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>이미지 필터 - Utilsly</title>
-    <meta name="description" content="이미지에 다양한 필터를 적용하고 보정하세요."><script>
-        !function(){const e=localStorage.getItem("theme"),t=window.matchMedia("(prefers-color-scheme: dark)").matches;"dark"!==e&&(e||!t)||document.documentElement.setAttribute("data-theme","dark")}();
+    <meta name="description" content="이미지에 다양한 필터를 적용하고 보정하세요.">
+    <script>
+        !function () { const e = localStorage.getItem("theme"), t = window.matchMedia("(prefers-color-scheme: dark)").matches; "dark" !== e && (e || !t) || document.documentElement.setAttribute("data-theme", "dark") }();
     </script>
 
     <link rel="preload" href="../../css/style.css" as="style">
@@ -79,7 +80,7 @@
                     <p class="description">밝기, 대비, 채도 등을 조절하여 이미지를 보정하세요.</p>
                 </div>
 
-                <div class="tool-container">
+                <div class="tool-container" data-tool-id="image-filters">
                     <div class="drop-zone" id="dropZone"
                         style="border: 2px dashed var(--border-color); padding: 40px; text-align: center; cursor: pointer; margin-bottom: 24px;">
                         <span class="material-symbols-rounded"
@@ -120,9 +121,8 @@
                     </div>
 
                     <div style="display: flex; gap: 12px;">
-                        <button class="btn" onclick="resetFilters()" id="resetBtn" style="display: none;">초기화</button>
-                        <button class="btn btn-primary" onclick="downloadImage()" id="downloadBtn"
-                            style="display: none; flex: 1;">이미지 저장</button>
+                        <button class="btn" id="resetBtn" style="display: none;">초기화</button>
+                        <button class="btn btn-primary" id="downloadBtn" style="display: none; flex: 1;">이미지 저장</button>
                     </div>
                 </div>
             </div>
@@ -130,96 +130,143 @@
     </div>
     <script src="../../js/common.js"></script>
     <script>
-        const dropZone = document.getElementById('dropZone');
-        const fileInput = document.getElementById('fileInput');
-        const canvas = document.getElementById('canvas');
-        const ctx = canvas.getContext('2d');
-        const filterControls = document.getElementById('filterControls');
-        const canvasContainer = document.getElementById('canvasContainer');
-        const downloadBtn = document.getElementById('downloadBtn');
-        const resetBtn = document.getElementById('resetBtn');
+        Utilsly.registerTool('image-filters', {
+            elements: {},
+            originalImage: null,
+            ctx: null,
+            filters: {
+                brightness: 100,
+                contrast: 100,
+                saturate: 100,
+                grayscale: 0,
+                blur: 0,
+                'hue-rotate': 0
+            },
 
-        let originalImage = new Image();
-
-        const filters = {
-            brightness: 100,
-            contrast: 100,
-            saturate: 100,
-            grayscale: 0,
-            blur: 0,
-            'hue-rotate': 0
-        };
-
-        dropZone.addEventListener('click', () => fileInput.click());
-        fileInput.addEventListener('change', (e) => {
-            if (e.target.files.length > 0) {
-                const file = e.target.files[0];
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    originalImage.src = e.target.result;
-                    originalImage.onload = () => {
-                        canvas.width = originalImage.width;
-                        canvas.height = originalImage.height;
-                        dropZone.style.display = 'none';
-                        canvasContainer.style.display = 'block';
-                        filterControls.style.display = 'grid';
-                        downloadBtn.style.display = 'inline-flex';
-                        resetBtn.style.display = 'inline-flex';
-                        applyFilters();
-                    };
+            init() {
+                this.elements = {
+                    dropZone: document.getElementById('dropZone'),
+                    fileInput: document.getElementById('fileInput'),
+                    canvas: document.getElementById('canvas'),
+                    filterControls: document.getElementById('filterControls'),
+                    canvasContainer: document.getElementById('canvasContainer'),
+                    downloadBtn: document.getElementById('downloadBtn'),
+                    resetBtn: document.getElementById('resetBtn'),
+                    inputs: {
+                        brightness: document.getElementById('brightness'),
+                        contrast: document.getElementById('contrast'),
+                        saturate: document.getElementById('saturate'),
+                        grayscale: document.getElementById('grayscale'),
+                        blur: document.getElementById('blur'),
+                        'hue-rotate': document.getElementById('hue-rotate')
+                    }
                 };
-                reader.readAsDataURL(file);
+
+                this.ctx = this.elements.canvas.getContext('2d');
+                this.originalImage = new Image();
+
+                this.handleClick = () => this.elements.fileInput.click();
+                this.handleChange = (e) => this.handleFile(e);
+                this.handleReset = () => this.resetFilters();
+                this.handleDownload = () => this.downloadImage();
+
+                this.elements.dropZone.addEventListener('click', this.handleClick);
+                this.elements.fileInput.addEventListener('change', this.handleChange);
+                this.elements.resetBtn.addEventListener('click', this.handleReset);
+                this.elements.downloadBtn.addEventListener('click', this.handleDownload);
+
+                // Bind inputs
+                this.inputHandlers = {};
+                Object.entries(this.elements.inputs).forEach(([key, input]) => {
+                    const suffix = key === 'blur' ? 'px' : (key === 'hue-rotate' ? 'deg' : '%');
+                    const handler = (e) => this.updateFilter(key, e.target.value, suffix);
+                    this.inputHandlers[key] = handler;
+                    input.addEventListener('input', handler);
+                });
+
+                console.log('Image Filters initialized');
+            },
+
+            cleanup() {
+                if (this.elements.dropZone) {
+                    this.elements.dropZone.removeEventListener('click', this.handleClick);
+                    this.elements.fileInput.removeEventListener('change', this.handleChange);
+                    this.elements.resetBtn.removeEventListener('click', this.handleReset);
+                    this.elements.downloadBtn.removeEventListener('click', this.handleDownload);
+
+                    Object.entries(this.elements.inputs).forEach(([key, input]) => {
+                        if (this.inputHandlers[key]) {
+                            input.removeEventListener('input', this.inputHandlers[key]);
+                        }
+                    });
+                }
+                this.elements = {};
+                this.originalImage = null;
+                console.log('Image Filters cleanup done');
+            },
+
+            handleFile(e) {
+                if (e.target.files.length > 0) {
+                    const file = e.target.files[0];
+                    const reader = new FileReader();
+                    reader.onload = (evt) => {
+                        this.originalImage.src = evt.target.result;
+                        this.originalImage.onload = () => {
+                            this.elements.canvas.width = this.originalImage.width;
+                            this.elements.canvas.height = this.originalImage.height;
+                            this.elements.dropZone.style.display = 'none';
+                            this.elements.canvasContainer.style.display = 'block';
+                            this.elements.filterControls.style.display = 'grid';
+                            this.elements.downloadBtn.style.display = 'inline-flex';
+                            this.elements.resetBtn.style.display = 'inline-flex';
+                            this.applyFilters();
+                        };
+                    };
+                    reader.readAsDataURL(file);
+                }
+            },
+
+            updateFilter(name, value, unit) {
+                this.filters[name] = value;
+                document.getElementById(name + 'Val').textContent = value + unit;
+                this.applyFilters();
+            },
+
+            applyFilters() {
+                this.ctx.filter = `
+                    brightness(${this.filters.brightness}%)
+                    contrast(${this.filters.contrast}%)
+                    saturate(${this.filters.saturate}%)
+                    grayscale(${this.filters.grayscale}%)
+                    blur(${this.filters.blur}px)
+                    hue-rotate(${this.filters['hue-rotate']}deg)
+                `;
+                this.ctx.drawImage(this.originalImage, 0, 0, this.elements.canvas.width, this.elements.canvas.height);
+            },
+
+            resetFilters() {
+                this.elements.inputs.brightness.value = 100;
+                this.elements.inputs.contrast.value = 100;
+                this.elements.inputs.saturate.value = 100;
+                this.elements.inputs.grayscale.value = 0;
+                this.elements.inputs.blur.value = 0;
+                this.elements.inputs['hue-rotate'].value = 0;
+
+                this.updateFilter('brightness', 100, '%');
+                this.updateFilter('contrast', 100, '%');
+                this.updateFilter('saturate', 100, '%');
+                this.updateFilter('grayscale', 0, '%');
+                this.updateFilter('blur', 0, 'px');
+                this.updateFilter('hue-rotate', 0, 'deg');
+            },
+
+            downloadImage() {
+                const link = document.createElement('a');
+                link.download = 'filtered-image.png';
+                link.href = this.elements.canvas.toDataURL();
+                link.click();
             }
         });
-
-        function updateFilter(name, value, unit) {
-            filters[name] = value;
-            document.getElementById(name + 'Val').textContent = value + unit;
-            applyFilters();
-        }
-
-        document.getElementById('brightness').addEventListener('input', (e) => updateFilter('brightness', e.target.value, '%'));
-        document.getElementById('contrast').addEventListener('input', (e) => updateFilter('contrast', e.target.value, '%'));
-        document.getElementById('saturate').addEventListener('input', (e) => updateFilter('saturate', e.target.value, '%'));
-        document.getElementById('grayscale').addEventListener('input', (e) => updateFilter('grayscale', e.target.value, '%'));
-        document.getElementById('blur').addEventListener('input', (e) => updateFilter('blur', e.target.value, 'px'));
-        document.getElementById('hue-rotate').addEventListener('input', (e) => updateFilter('hue-rotate', e.target.value, 'deg'));
-
-        function applyFilters() {
-            ctx.filter = `
-                brightness(${filters.brightness}%)
-                contrast(${filters.contrast}%)
-                saturate(${filters.saturate}%)
-                grayscale(${filters.grayscale}%)
-                blur(${filters.blur}px)
-                hue-rotate(${filters['hue-rotate']}deg)
-            `;
-            ctx.drawImage(originalImage, 0, 0, canvas.width, canvas.height);
-        }
-
-        function resetFilters() {
-            document.getElementById('brightness').value = 100;
-            document.getElementById('contrast').value = 100;
-            document.getElementById('saturate').value = 100;
-            document.getElementById('grayscale').value = 0;
-            document.getElementById('blur').value = 0;
-            document.getElementById('hue-rotate').value = 0;
-
-            // Update values display
-            updateFilter('brightness', 100, '%');
-            updateFilter('contrast', 100, '%');
-            updateFilter('saturate', 100, '%');
-            updateFilter('grayscale', 0, '%');
-            updateFilter('blur', 0, 'px');
-            updateFilter('hue-rotate', 0, 'deg');
-        }
-
-        function downloadImage() {
-            const link = document.createElement('a');
-            link.download = 'filtered-image.png';
-            link.href = canvas.toDataURL();
-            link.click();
-        }
     </script>
 </body>
 

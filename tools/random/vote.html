@@ -175,23 +175,22 @@
                     <p class="description">후보를 등록하고 비밀 투표를 진행하세요.</p>
                 </div>
 
-                <div class="tool-container">
+                <div class="tool-container" data-tool-id="vote">
                     <div class="vote-container">
 
                         <!-- 1. Setup Phase -->
                         <div id="setupPhase" class="setup-phase">
                             <div class="candidate-input-row">
-                                <input type="text" id="candidateInput" placeholder="후보 이름 입력 (예: 짜장면)"
-                                    onkeypress="handleEnter(event)">
-                                <button class="btn btn-primary" onclick="addCandidate()">추가</button>
-                                <button class="btn" onclick="quickFill()">1~20 자동입력</button>
+                                <input type="text" id="candidateInput" placeholder="후보 이름 입력 (예: 짜장면)">
+                                <button class="btn btn-primary" id="addCandidateBtn">추가</button>
+                                <button class="btn" id="quickFillBtn">1~20 자동입력</button>
                             </div>
 
                             <div id="setupList" class="candidate-list-setup">
                                 <!-- Items added here -->
                             </div>
 
-                            <button class="btn btn-primary" onclick="startVoting()"
+                            <button class="btn btn-primary" id="startVotingBtn"
                                 style="margin-top: 16px; padding: 16px;">
                                 투표 시작하기
                             </button>
@@ -218,7 +217,7 @@
                                 투표가 기록되었습니다!
                             </div>
 
-                            <button class="btn" onclick="showResults()">투표 종료 및 결과 확인</button>
+                            <button class="btn" id="showResultsBtn">투표 종료 및 결과 확인</button>
                         </div>
 
                         <!-- 3. Result Phase -->
@@ -226,9 +225,9 @@
                             <div id="resultList"></div>
 
                             <div style="display: flex; gap: 12px; margin-top: 24px; flex-wrap: wrap;">
-                                <button class="btn btn-primary" onclick="resetAll()">새로운 투표</button>
-                                <button class="btn" onclick="backToVoting()">투표 계속하기</button>
-                                <button class="btn" onclick="removeWinner()"
+                                <button class="btn btn-primary" id="resetAllBtn">새로운 투표</button>
+                                <button class="btn" id="backToVotingBtn">투표 계속하기</button>
+                                <button class="btn" id="removeWinnerBtn"
                                     style="color: #FF4B4B; border-color: #FF4B4B;">1등 제거</button>
                             </div>
                         </div>
@@ -240,141 +239,222 @@
     </div>
     <script src="../../js/common.js"></script>
     <script>
-        let candidates = [];
-        // Example data
-        candidates = [
-            { id: 1, name: '짜장면', votes: 0 },
-            { id: 2, name: '짬뽕', votes: 0 }
-        ];
+        Utilsly.registerTool('vote', {
+            candidates: [],
+            elements: {},
 
-        function renderSetupList() {
-            const list = document.getElementById('setupList');
-            list.innerHTML = candidates.map((c, i) => `
-                <div class="candidate-item-setup">
-                    <span style="font-weight: 600;">${i + 1}. ${c.name}</span>
-                    <button class="btn" onclick="removeCandidate(${c.id})" style="padding: 4px 8px;">
-                        <span class="material-symbols-rounded" style="font-size: 18px;">close</span>
-                    </button>
-                </div>
-            `).join('');
-        }
+            init() {
+                this.candidates = [
+                    { id: 1, name: '짜장면', votes: 0 },
+                    { id: 2, name: '짬뽕', votes: 0 }
+                ];
 
-        function addCandidate() {
-            const input = document.getElementById('candidateInput');
-            const name = input.value.trim();
-            if (name) {
-                candidates.push({ id: Date.now(), name, votes: 0 });
-                input.value = '';
-                renderSetupList();
-            }
-        }
+                this.elements = {
+                    setupPhase: document.getElementById('setupPhase'),
+                    votingPhase: document.getElementById('votingPhase'),
+                    resultPhase: document.getElementById('resultPhase'),
+                    candidateInput: document.getElementById('candidateInput'),
+                    setupList: document.getElementById('setupList'),
+                    votingListPreview: document.getElementById('votingListPreview'),
+                    resultList: document.getElementById('resultList'),
+                    secretFeedback: document.getElementById('secretFeedback'),
 
-        function removeCandidate(id) {
-            candidates = candidates.filter(c => c.id !== id);
-            renderSetupList();
-        }
+                    addCandidateBtn: document.getElementById('addCandidateBtn'),
+                    quickFillBtn: document.getElementById('quickFillBtn'),
+                    startVotingBtn: document.getElementById('startVotingBtn'),
+                    showResultsBtn: document.getElementById('showResultsBtn'),
+                    resetAllBtn: document.getElementById('resetAllBtn'),
+                    backToVotingBtn: document.getElementById('backToVotingBtn'),
+                    removeWinnerBtn: document.getElementById('removeWinnerBtn')
+                };
 
-        function handleEnter(e) {
-            if (e.key === 'Enter') addCandidate();
-        }
+                this.handleAddCandidate = () => this.addCandidate();
+                this.handleQuickFill = () => this.quickFill();
+                this.handleStartVoting = () => this.startVoting();
+                this.handleShowResults = () => this.showResults();
+                this.handleResetAll = () => this.resetAll();
+                this.handleBackToVoting = () => this.backToVoting();
+                this.handleRemoveWinner = () => this.removeWinner();
+                this.handleInputEnter = (e) => {
+                    if (e.key === 'Enter') this.addCandidate();
+                };
 
-        // Phase Management
-        function startVoting() {
-            if (candidates.length < 2) {
-                Utilsly.showAlert('최소 2명 이상의 후보가 필요합니다.');
-                return;
-            }
-            document.getElementById('setupPhase').style.display = 'none';
-            document.getElementById('votingPhase').style.display = 'block';
-            document.getElementById('resultPhase').style.display = 'none';
+                // Remove existing click handler on setupList if any (using delegation)
+                this.handleSetupListClick = (e) => {
+                    const btn = e.target.closest('button');
+                    if (btn && btn.dataset.id) {
+                        this.removeCandidate(parseInt(btn.dataset.id));
+                    }
+                };
 
-            // Render preview for voters to know which key is which
-            const preview = document.getElementById('votingListPreview');
-            preview.innerHTML = candidates.map((c, i) => `
-                <div style="margin-bottom: 8px; font-size: 18px;">
-                    <span class="key-hint">${i + 1}</span> ${c.name}
-                </div>
-            `).join('');
+                // Add event listeners
+                if (this.elements.addCandidateBtn) this.elements.addCandidateBtn.addEventListener('click', this.handleAddCandidate);
+                if (this.elements.quickFillBtn) this.elements.quickFillBtn.addEventListener('click', this.handleQuickFill);
+                if (this.elements.startVotingBtn) this.elements.startVotingBtn.addEventListener('click', this.handleStartVoting);
+                if (this.elements.showResultsBtn) this.elements.showResultsBtn.addEventListener('click', this.handleShowResults);
+                if (this.elements.resetAllBtn) this.elements.resetAllBtn.addEventListener('click', this.handleResetAll);
+                if (this.elements.backToVotingBtn) this.elements.backToVotingBtn.addEventListener('click', this.handleBackToVoting);
+                if (this.elements.removeWinnerBtn) this.elements.removeWinnerBtn.addEventListener('click', this.handleRemoveWinner);
+                if (this.elements.candidateInput) this.elements.candidateInput.addEventListener('keypress', this.handleInputEnter);
+                if (this.elements.setupList) this.elements.setupList.addEventListener('click', this.handleSetupListClick);
 
-            // Enable keyboard listener
-            document.addEventListener('keydown', handleVoteKey);
-        }
+                // Initialize view
+                this.renderSetupList();
+                console.log('Vote tool initialized');
+            },
 
-        function handleVoteKey(e) {
-            const key = parseInt(e.key);
-            if (!isNaN(key) && key >= 1 && key <= candidates.length) {
-                const candidate = candidates[key - 1];
-                if (candidate) {
-                    candidate.votes++;
-                    showFeedback();
+            cleanup() {
+                // IMPORTANT: Remove keyboard listener
+                document.removeEventListener('keydown', this.handleVoteKey);
+
+                if (this.elements.addCandidateBtn) this.elements.addCandidateBtn.removeEventListener('click', this.handleAddCandidate);
+                if (this.elements.quickFillBtn) this.elements.quickFillBtn.removeEventListener('click', this.handleQuickFill);
+                if (this.elements.startVotingBtn) this.elements.startVotingBtn.removeEventListener('click', this.handleStartVoting);
+                if (this.elements.showResultsBtn) this.elements.showResultsBtn.removeEventListener('click', this.handleShowResults);
+                if (this.elements.resetAllBtn) this.elements.resetAllBtn.removeEventListener('click', this.handleResetAll);
+                if (this.elements.backToVotingBtn) this.elements.backToVotingBtn.removeEventListener('click', this.handleBackToVoting);
+                if (this.elements.removeWinnerBtn) this.elements.removeWinnerBtn.removeEventListener('click', this.handleRemoveWinner);
+                if (this.elements.candidateInput) this.elements.candidateInput.removeEventListener('keypress', this.handleInputEnter);
+                if (this.elements.setupList) this.elements.setupList.removeEventListener('click', this.handleSetupListClick);
+
+                this.candidates = [];
+                this.elements = {};
+                console.log('Vote tool cleanup done');
+            },
+
+            // Bound method for keydown to be removable
+            handleVoteKey(e) {
+                // We need to access 'this' properly. 
+                // Since this is added via document.addEventListener in startVoting, we need to bind it or use arrow function wrapper
+                // However, we need the exact reference to remove it.
+                // Let's rely on the tool instance method being bound in startVoting or use 'this' via a closure if we can't easily bind.
+                // But registerTool 'this' context in methods is the object itself? Yes.
+            },
+
+            // Actually, we can just define the function on the object and bind it in init?
+            // Or better:
+            // this.boundHandleVoteKey = this.onVoteKey.bind(this);
+            // Then use this.boundHandleVoteKey
+
+            onVoteKey(e) {
+                // Check if voting phase is active just in case
+                if (this.elements.votingPhase.style.display === 'none') return;
+
+                const key = parseInt(e.key);
+                if (!isNaN(key) && key >= 1 && key <= this.candidates.length) {
+                    const candidate = this.candidates[key - 1];
+                    if (candidate) {
+                        candidate.votes++;
+                        this.showFeedback();
+                    }
                 }
-            }
-        }
+            },
 
-        function showFeedback() {
-            const feedback = document.getElementById('secretFeedback');
-            feedback.classList.add('show');
-            setTimeout(() => {
-                feedback.classList.remove('show');
-            }, 1000);
-        }
-
-        function showResults() {
-            document.removeEventListener('keydown', handleVoteKey);
-            document.getElementById('votingPhase').style.display = 'none';
-            document.getElementById('resultPhase').style.display = 'flex';
-
-            const totalVotes = candidates.reduce((sum, c) => sum + c.votes, 0);
-            const list = document.getElementById('resultList');
-
-            // Sort by votes desc
-            const sorted = [...candidates].sort((a, b) => b.votes - a.votes);
-
-            list.innerHTML = sorted.map(c => {
-                const percent = totalVotes === 0 ? 0 : Math.round((c.votes / totalVotes) * 100);
-                return `
-                    <div class="result-card">
-                        <div class="result-bar" style="width: ${percent}%"></div>
-                        <div class="result-content">
-                            <span style="font-weight: 700; font-size: 18px;">${c.name}</span>
-                            <span style="font-weight: 600;">${c.votes}표 (${percent}%)</span>
-                        </div>
+            renderSetupList() {
+                if (!this.elements.setupList) return;
+                this.elements.setupList.innerHTML = this.candidates.map((c, i) => `
+                    <div class="candidate-item-setup">
+                        <span style="font-weight: 600;">${i + 1}. ${c.name}</span>
+                        <button class="btn" data-id="${c.id}" style="padding: 4px 8px;">
+                            <span class="material-symbols-rounded" style="font-size: 18px; pointer-events: none;">close</span>
+                        </button>
                     </div>
-                `;
-            }).join('');
-        }
+                `).join('');
+            },
 
-        function backToVoting() {
-            document.getElementById('resultPhase').style.display = 'none';
-            document.getElementById('votingPhase').style.display = 'block';
-            document.addEventListener('keydown', handleVoteKey);
-        }
+            addCandidate() {
+                const name = this.elements.candidateInput.value.trim();
+                if (name) {
+                    this.candidates.push({ id: Date.now(), name, votes: 0 });
+                    this.elements.candidateInput.value = '';
+                    this.renderSetupList();
+                }
+            },
 
-        function resetAll() {
-            candidates = [];
-            document.getElementById('resultPhase').style.display = 'none';
-            document.getElementById('setupPhase').style.display = 'flex';
-            renderSetupList();
-        }
+            removeCandidate(id) {
+                this.candidates = this.candidates.filter(c => c.id !== id);
+                this.renderSetupList();
+            },
 
-        function quickFill() {
-            candidates = [];
-            for (let i = 1; i <= 20; i++) {
-                candidates.push({ id: Date.now() + i, name: `${i}번`, votes: 0 });
+            startVoting() {
+                if (this.candidates.length < 2) {
+                    Utilsly.showAlert('최소 2명 이상의 후보가 필요합니다.');
+                    return;
+                }
+                this.elements.setupPhase.style.display = 'none';
+                this.elements.votingPhase.style.display = 'block';
+                this.elements.resultPhase.style.display = 'none';
+
+                this.elements.votingListPreview.innerHTML = this.candidates.map((c, i) => `
+                    <div style="margin-bottom: 8px; font-size: 18px;">
+                        <span class="key-hint">${i + 1}</span> ${c.name}
+                    </div>
+                `).join('');
+
+                // Bind and add listener
+                this.boundHandleVoteKey = this.onVoteKey.bind(this);
+                document.addEventListener('keydown', this.boundHandleVoteKey);
+            },
+
+            showFeedback() {
+                this.elements.secretFeedback.classList.add('show');
+                setTimeout(() => {
+                    if (this.elements.secretFeedback) this.elements.secretFeedback.classList.remove('show');
+                }, 1000);
+            },
+
+            showResults() {
+                document.removeEventListener('keydown', this.boundHandleVoteKey);
+                this.elements.votingPhase.style.display = 'none';
+                this.elements.resultPhase.style.display = 'flex';
+
+                const totalVotes = this.candidates.reduce((sum, c) => sum + c.votes, 0);
+
+                const sorted = [...this.candidates].sort((a, b) => b.votes - a.votes);
+
+                this.elements.resultList.innerHTML = sorted.map(c => {
+                    const percent = totalVotes === 0 ? 0 : Math.round((c.votes / totalVotes) * 100);
+                    return `
+                        <div class="result-card">
+                            <div class="result-bar" style="width: ${percent}%"></div>
+                            <div class="result-content">
+                                <span style="font-weight: 700; font-size: 18px;">${c.name}</span>
+                                <span style="font-weight: 600;">${c.votes}표 (${percent}%)</span>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            },
+
+            backToVoting() {
+                this.elements.resultPhase.style.display = 'none';
+                this.elements.votingPhase.style.display = 'block';
+                document.addEventListener('keydown', this.boundHandleVoteKey);
+            },
+
+            resetAll() {
+                this.candidates = [];
+                this.elements.resultPhase.style.display = 'none';
+                this.elements.setupPhase.style.display = 'flex';
+                this.renderSetupList();
+            },
+
+            quickFill() {
+                this.candidates = [];
+                for (let i = 1; i <= 20; i++) {
+                    this.candidates.push({ id: Date.now() + i, name: `${i}번`, votes: 0 });
+                }
+                this.renderSetupList();
+            },
+
+            removeWinner() {
+                if (this.candidates.length === 0) return;
+                const sorted = [...this.candidates].sort((a, b) => b.votes - a.votes);
+                const winner = sorted[0];
+                this.candidates = this.candidates.filter(c => c.id !== winner.id);
+                this.showResults();
             }
-            renderSetupList();
-        }
-
-        function removeWinner() {
-            if (candidates.length === 0) return;
-            const sorted = [...candidates].sort((a, b) => b.votes - a.votes);
-            const winner = sorted[0];
-            candidates = candidates.filter(c => c.id !== winner.id);
-            showResults();
-        }
-
-        // Init
-        renderSetupList();
+        });
     </script>
 </body>
 

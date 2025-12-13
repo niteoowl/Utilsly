@@ -6,8 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>URL 인코더/디코더 - Utilsly</title>
-    <meta name="description" content="URL을 인코딩하거나 디코딩하는 도구입니다."><script>
-        !function(){const e=localStorage.getItem("theme"),t=window.matchMedia("(prefers-color-scheme: dark)").matches;"dark"!==e&&(e||!t)||document.documentElement.setAttribute("data-theme","dark")}();
+    <meta name="description" content="URL을 인코딩하거나 디코딩하는 도구입니다.">
+    <script>
+        !function () { const e = localStorage.getItem("theme"), t = window.matchMedia("(prefers-color-scheme: dark)").matches; "dark" !== e && (e || !t) || document.documentElement.setAttribute("data-theme", "dark") }();
     </script>
 
     <link rel="preload" href="../../css/style.css" as="style">
@@ -43,13 +44,13 @@
                     <p class="description">URL 특수문자를 안전하게 인코딩하거나 원래대로 디코딩합니다.</p>
                 </div>
 
-                <div class="tool-container">
+                <div class="tool-container" data-tool-id="url-encoder">
                     <textarea id="input-text" placeholder="URL을 입력하세요..."
                         style="min-height: 150px; margin-bottom: 16px;"></textarea>
 
                     <div style="display: flex; gap: 16px; margin-bottom: 16px;">
-                        <button class="btn btn-primary" onclick="encode()">인코딩 (Encode)</button>
-                        <button class="btn" onclick="decode()">디코딩 (Decode)</button>
+                        <button class="btn btn-primary" id="encodeBtn">인코딩 (Encode)</button>
+                        <button class="btn" id="decodeBtn">디코딩 (Decode)</button>
                     </div>
 
                     <textarea id="output-text" placeholder="결과가 여기에 표시됩니다..." style="min-height: 150px;"
@@ -60,24 +61,50 @@
     </div>
     <script src="../../js/common.js"></script>
     <script>
-        const input = document.getElementById('input-text');
-        const output = document.getElementById('output-text');
+        Utilsly.registerTool('url-encoder', {
+            elements: {},
 
-        function encode() {
-            try {
-                output.value = encodeURIComponent(input.value);
-            } catch (e) {
-                output.value = "Error: " + e.message;
-            }
-        }
+            init() {
+                this.elements = {
+                    input: document.getElementById('input-text'),
+                    output: document.getElementById('output-text'),
+                    encodeBtn: document.getElementById('encodeBtn'),
+                    decodeBtn: document.getElementById('decodeBtn')
+                };
 
-        function decode() {
-            try {
-                output.value = decodeURIComponent(input.value);
-            } catch (e) {
-                output.value = "Error: " + e.message;
+                this.handleEncode = this.encode.bind(this);
+                this.handleDecode = this.decode.bind(this);
+
+                this.elements.encodeBtn.addEventListener('click', this.handleEncode);
+                this.elements.decodeBtn.addEventListener('click', this.handleDecode);
+                console.log('URL Encoder initialized');
+            },
+
+            cleanup() {
+                if (this.elements.encodeBtn) {
+                    this.elements.encodeBtn.removeEventListener('click', this.handleEncode);
+                    this.elements.decodeBtn.removeEventListener('click', this.handleDecode);
+                }
+                this.elements = {};
+                console.log('URL Encoder cleanup done');
+            },
+
+            encode() {
+                try {
+                    this.elements.output.value = encodeURIComponent(this.elements.input.value);
+                } catch (e) {
+                    this.elements.output.value = "Error: " + e.message;
+                }
+            },
+
+            decode() {
+                try {
+                    this.elements.output.value = decodeURIComponent(this.elements.input.value);
+                } catch (e) {
+                    this.elements.output.value = "Error: " + e.message;
+                }
             }
-        }
+        });
     </script>
 </body>
 

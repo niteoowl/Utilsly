@@ -122,7 +122,7 @@
                     <p class="description">키와 체중을 입력하여 비만도를 확인하세요.</p>
                 </div>
 
-                <div class="tool-container">
+                <div class="tool-container" data-tool-id="bmi-calculator">
                     <div class="input-group">
                         <label>신장 (키)</label>
                         <div class="input-wrapper">
@@ -137,7 +137,7 @@
                             <span>kg</span>
                         </div>
                     </div>
-                    <button class="btn btn-primary" onclick="calculateBMI()"
+                    <button class="btn btn-primary" id="calculateBtn"
                         style="width: 100%; padding: 16px; font-size: 18px;">계산하기</button>
 
                     <div class="result-area" id="resultArea">
@@ -154,45 +154,69 @@
     </div>
     <script src="../../js/common.js"></script>
     <script>
-        function calculateBMI() {
-            const height = parseFloat(document.getElementById('height').value);
-            const weight = parseFloat(document.getElementById('weight').value);
+        Utilsly.registerTool('bmi-calculator', {
+            elements: {},
 
-            if (!height || !weight) {
-                alert('키와 몸무게를 모두 입력해주세요.');
-                return;
+            init() {
+                this.elements = {
+                    height: document.getElementById('height'),
+                    weight: document.getElementById('weight'),
+                    calculateBtn: document.getElementById('calculateBtn'),
+                    resultArea: document.getElementById('resultArea'),
+                    bmiValue: document.getElementById('bmiValue'),
+                    bmiCategory: document.getElementById('bmiCategory')
+                };
+
+                this.handleCalculate = () => this.calculateBMI();
+                this.elements.calculateBtn.addEventListener('click', this.handleCalculate);
+
+                console.log('BMI Calculator initialized');
+            },
+
+            cleanup() {
+                if (this.elements.calculateBtn) {
+                    this.elements.calculateBtn.removeEventListener('click', this.handleCalculate);
+                }
+                this.elements = {};
+                console.log('BMI Calculator cleanup done');
+            },
+
+            calculateBMI() {
+                const height = parseFloat(this.elements.height.value);
+                const weight = parseFloat(this.elements.weight.value);
+
+                if (!height || !weight) {
+                    alert('키와 몸무게를 모두 입력해주세요.');
+                    return;
+                }
+
+                const heightM = height / 100;
+                const bmi = (weight / (heightM * heightM)).toFixed(1);
+
+                this.elements.resultArea.style.display = 'block';
+                this.elements.bmiValue.textContent = bmi;
+
+                let category = '';
+                let className = '';
+
+                if (bmi < 18.5) {
+                    category = '저체중';
+                    className = 'category-underweight';
+                } else if (bmi < 23) {
+                    category = '정상';
+                    className = 'category-normal';
+                } else if (bmi < 25) {
+                    category = '과체중';
+                    className = 'category-overweight';
+                } else {
+                    category = '비만';
+                    className = 'category-obese';
+                }
+
+                this.elements.bmiCategory.textContent = category;
+                this.elements.bmiCategory.className = `bmi-category ${className}`;
             }
-
-            const heightM = height / 100;
-            const bmi = (weight / (heightM * heightM)).toFixed(1);
-
-            const resultArea = document.getElementById('resultArea');
-            const bmiValue = document.getElementById('bmiValue');
-            const bmiCategory = document.getElementById('bmiCategory');
-
-            resultArea.style.display = 'block';
-            bmiValue.textContent = bmi;
-
-            let category = '';
-            let className = '';
-
-            if (bmi < 18.5) {
-                category = '저체중';
-                className = 'category-underweight';
-            } else if (bmi < 23) {
-                category = '정상';
-                className = 'category-normal';
-            } else if (bmi < 25) {
-                category = '과체중';
-                className = 'category-overweight';
-            } else {
-                category = '비만';
-                className = 'category-obese';
-            }
-
-            bmiCategory.textContent = category;
-            bmiCategory.className = `bmi-category ${className}`;
-        }
+        });
     </script>
 </body>
 

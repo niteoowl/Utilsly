@@ -7,8 +7,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>뽀모도로 타이머 - Utilsly</title>
     <meta name="description" content="집중력을 높여주는 뽀모도로 타이머입니다.">
-<script>
-        !function(){const e=localStorage.getItem("theme"),t=window.matchMedia("(prefers-color-scheme: dark)").matches;"dark"!==e&&(e||!t)||document.documentElement.setAttribute("data-theme","dark")}();
+    <script>
+        !function () { const e = localStorage.getItem("theme"), t = window.matchMedia("(prefers-color-scheme: dark)").matches; "dark" !== e && (e || !t) || document.documentElement.setAttribute("data-theme", "dark") }();
     </script>
 
     <link rel="preload" href="../../css/style.css" as="style">
@@ -56,7 +56,7 @@
         .controls {
             display: flex;
             gap: 24px;
-                    }
+        }
 
         .btn-control {
             width: 64px;
@@ -68,7 +68,7 @@
             font-size: 28px;
             cursor: pointer;
             display: flex;
-                        justify-content: center;
+            justify-content: center;
             transition: all 0.2s;
         }
 
@@ -139,24 +139,24 @@
                     <p class="description">25분 집중, 5분 휴식으로 생산성을 높여보세요.</p>
                 </div>
 
-                <div class="tool-container"
+                <div class="tool-container" data-tool-id="pomodoro"
                     style="display: flex; flex-direction: column; align-items: center; gap: 32px;">
                     <div class="mode-tabs">
-                        <div class="mode-tab active" onclick="setMode('pomodoro')">집중 (25분)</div>
-                        <div class="mode-tab" onclick="setMode('short')">짧은 휴식 (5분)</div>
-                        <div class="mode-tab" onclick="setMode('long')">긴 휴식 (15분)</div>
+                        <div class="mode-tab active" data-mode="pomodoro">집중 (25분)</div>
+                        <div class="mode-tab" data-mode="short">짧은 휴식 (5분)</div>
+                        <div class="mode-tab" data-mode="long">긴 휴식 (15분)</div>
                     </div>
 
                     <div class="timer-display" id="timer">25:00</div>
 
                     <div class="controls">
-                        <button class="btn-control" onclick="resetTimer()">
+                        <button class="btn-control" id="resetBtn">
                             <span class="material-symbols-rounded">refresh</span>
                         </button>
-                        <button class="btn-control btn-main" id="toggleBtn" onclick="toggleTimer()">
+                        <button class="btn-control btn-main" id="toggleBtn">
                             <span class="material-symbols-rounded" id="toggleIcon">play_arrow</span>
                         </button>
-                        <button class="btn-control" onclick="skipTimer()">
+                        <button class="btn-control" id="skipBtn">
                             <span class="material-symbols-rounded">skip_next</span>
                         </button>
                     </div>
@@ -165,84 +165,118 @@
     </div>
     <script src="../../js/common.js"></script>
     <script>
-        let timeLeft = 25 * 60;
-        let timerId = null;
-        let isRunning = false;
-        let currentMode = 'pomodoro';
+        Utilsly.registerTool('pomodoro', {
+            timeLeft: 25 * 60,
+            timerId: null,
+            isRunning: false,
+            currentMode: 'pomodoro',
+            modes: {
+                pomodoro: 25 * 60,
+                short: 5 * 60,
+                long: 15 * 60
+            },
+            elements: {},
 
-        const modes = {
-            pomodoro: 25 * 60,
-            short: 5 * 60,
-            long: 15 * 60
-        };
+            init() {
+                this.elements = {
+                    display: document.getElementById('timer'),
+                    toggleIcon: document.getElementById('toggleIcon'),
+                    tabs: document.querySelectorAll('.mode-tab'),
+                    toggleBtn: document.getElementById('toggleBtn'),
+                    resetBtn: document.getElementById('resetBtn'),
+                    skipBtn: document.getElementById('skipBtn')
+                };
 
-        const display = document.getElementById('timer');
-        const toggleIcon = document.getElementById('toggleIcon');
-        const tabs = document.querySelectorAll('.mode-tab');
+                this.handleToggle = this.toggleTimer.bind(this);
+                this.handleReset = () => this.resetTimer(true);
+                this.handleSkip = this.skipTimer.bind(this);
+                this.handleModeClick = (e) => {
+                    const mode = e.target.dataset.mode;
+                    if (mode) this.setMode(mode);
+                };
 
-        function updateDisplay() {
-            const m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
-            const s = (timeLeft % 60).toString().padStart(2, '0');
-            display.textContent = `${m}:${s}`;
-            document.title = isRunning ? `${m}:${s} - 집중` : '뽀모도로 타이머';
-        }
+                this.elements.toggleBtn.addEventListener('click', this.handleToggle);
+                this.elements.resetBtn.addEventListener('click', this.handleReset);
+                this.elements.skipBtn.addEventListener('click', this.handleSkip);
+                this.elements.tabs.forEach(tab => tab.addEventListener('click', this.handleModeClick));
 
-        function setMode(mode) {
-            currentMode = mode;
-            timeLeft = modes[mode];
-            resetTimer(false);
+                console.log('Pomodoro initialized');
+            },
 
-            tabs.forEach((tab, index) => {
-                if ((mode === 'pomodoro' && index === 0) ||
-                    (mode === 'short' && index === 1) ||
-                    (mode === 'long' && index === 2)) {
-                    tab.classList.add('active');
-                } else {
-                    tab.classList.remove('active');
+            cleanup() {
+                if (this.timerId) clearInterval(this.timerId);
+
+                if (this.elements.toggleBtn) {
+                    this.elements.toggleBtn.removeEventListener('click', this.handleToggle);
+                    this.elements.resetBtn.removeEventListener('click', this.handleReset);
+                    this.elements.skipBtn.removeEventListener('click', this.handleSkip);
+                    this.elements.tabs.forEach(tab => tab.removeEventListener('click', this.handleModeClick));
                 }
-            });
-        }
 
-        function toggleTimer() {
-            if (isRunning) {
-                clearInterval(timerId);
-                toggleIcon.textContent = 'play_arrow';
-            } else {
-                timerId = setInterval(() => {
-                    timeLeft--;
-                    updateDisplay();
-                    if (timeLeft <= 0) {
-                        clearInterval(timerId);
-                        isRunning = false;
-                        toggleIcon.textContent = 'play_arrow';
-                        new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg').play();
-                        alert('시간이 종료되었습니다!');
-                        setMode(currentMode);
+                this.elements = {};
+                console.log('Pomodoro cleanup done');
+            },
+
+            updateDisplay() {
+                const m = Math.floor(this.timeLeft / 60).toString().padStart(2, '0');
+                const s = (this.timeLeft % 60).toString().padStart(2, '0');
+                if (this.elements.display) this.elements.display.textContent = `${m}:${s}`;
+                document.title = this.isRunning ? `${m}:${s} - 집중` : '뽀모도로 타이머';
+            },
+
+            setMode(mode) {
+                this.currentMode = mode;
+                this.timeLeft = this.modes[mode];
+                this.resetTimer(false);
+
+                this.elements.tabs.forEach(tab => {
+                    if (tab.dataset.mode === mode) {
+                        tab.classList.add('active');
+                    } else {
+                        tab.classList.remove('active');
                     }
-                }, 1000);
-                toggleIcon.textContent = 'pause';
+                });
+            },
+
+            toggleTimer() {
+                if (this.isRunning) {
+                    clearInterval(this.timerId);
+                    this.elements.toggleIcon.textContent = 'play_arrow';
+                } else {
+                    this.timerId = setInterval(() => {
+                        this.timeLeft--;
+                        this.updateDisplay();
+                        if (this.timeLeft <= 0) {
+                            clearInterval(this.timerId);
+                            this.isRunning = false;
+                            this.elements.toggleIcon.textContent = 'play_arrow';
+                            new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg').play();
+                            alert('시간이 종료되었습니다!');
+                            this.setMode(this.currentMode);
+                        }
+                    }, 1000);
+                    this.elements.toggleIcon.textContent = 'pause';
+                }
+                this.isRunning = !this.isRunning;
+                this.updateDisplay();
+            },
+
+            resetTimer(autoUpdate = true) {
+                clearInterval(this.timerId);
+                this.isRunning = false;
+                if (this.elements.toggleIcon) this.elements.toggleIcon.textContent = 'play_arrow';
+                if (autoUpdate) this.timeLeft = this.modes[this.currentMode];
+                this.updateDisplay();
+            },
+
+            skipTimer() {
+                clearInterval(this.timerId);
+                this.isRunning = false;
+                if (this.elements.toggleIcon) this.elements.toggleIcon.textContent = 'play_arrow';
+                this.timeLeft = 0;
+                this.updateDisplay();
             }
-            isRunning = !isRunning;
-            updateDisplay();
-        }
-
-        function resetTimer(autoUpdate = true) {
-            clearInterval(timerId);
-            isRunning = false;
-            toggleIcon.textContent = 'play_arrow';
-            if (autoUpdate) timeLeft = modes[currentMode];
-            updateDisplay();
-        }
-
-        function skipTimer() {
-            clearInterval(timerId);
-            isRunning = false;
-            toggleIcon.textContent = 'play_arrow';
-            timeLeft = 0;
-            updateDisplay();
-        }
-
-        updateDisplay();
+        });
     </script>
 </body>
 

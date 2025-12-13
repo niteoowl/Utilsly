@@ -6,8 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>이미지 리사이저 - Utilsly</title>
-    <meta name="description" content="서버 전송 없이 브라우저에서 바로 이미지를 리사이징하세요. 빠르고 안전합니다."><script>
-        !function(){const e=localStorage.getItem("theme"),t=window.matchMedia("(prefers-color-scheme: dark)").matches;"dark"!==e&&(e||!t)||document.documentElement.setAttribute("data-theme","dark")}();
+    <meta name="description" content="서버 전송 없이 브라우저에서 바로 이미지를 리사이징하세요. 빠르고 안전합니다.">
+    <script>
+        !function () { const e = localStorage.getItem("theme"), t = window.matchMedia("(prefers-color-scheme: dark)").matches; "dark" !== e && (e || !t) || document.documentElement.setAttribute("data-theme", "dark") }();
     </script>
 
     <link rel="preload" href="../../css/style.css" as="style">
@@ -79,8 +80,8 @@
                     <p class="description">이미지 크기를 조절하고 포맷을 변경하여 저장하세요.</p>
                 </div>
 
-                <div class="tool-container">
-                    <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+                <div class="tool-container" data-tool-id="image-resizer">
+                    <div class="drop-zone" id="dropZone">
                         <div style="font-size: 48px; margin-bottom: 16px;">📁</div>
                         <h3 style="margin-bottom: 8px;">이미지를 드래그하거나 클릭하여 업로드</h3>
                         <p style="color: var(--text-secondary);">JPG, PNG, WEBP 지원 (서버로 전송되지 않습니다)</p>
@@ -93,11 +94,11 @@
                         <div class="controls">
                             <div>
                                 <label style="display: block; margin-bottom: 8px; font-weight: 600;">너비 (px)</label>
-                                <input type="number" id="widthInput" onchange="updateDimensions('width')">
+                                <input type="number" id="widthInput">
                             </div>
                             <div>
                                 <label style="display: block; margin-bottom: 8px; font-weight: 600;">높이 (px)</label>
-                                <input type="number" id="heightInput" onchange="updateDimensions('height')">
+                                <input type="number" id="heightInput">
                             </div>
                             <div>
                                 <label style="display: block; margin-bottom: 8px; font-weight: 600;">품질 (0.1 ~
@@ -115,7 +116,7 @@
                         </div>
 
                         <div style="margin-top: 24px;">
-                            <button class="btn btn-primary btn-large" onclick="downloadImage()">이미지 다운로드</button>
+                            <button class="btn btn-primary btn-large" id="downloadBtn">이미지 다운로드</button>
                         </div>
                     </div>
                 </div>
@@ -124,66 +125,102 @@
     </div>
     <script src="../../js/common.js"></script>
     <script>
-        const fileInput = document.getElementById('fileInput');
-        const preview = document.getElementById('preview');
-        const previewContainer = document.getElementById('previewContainer');
-        const widthInput = document.getElementById('widthInput');
-        const heightInput = document.getElementById('heightInput');
+        Utilsly.registerTool('image-resizer', {
+            elements: {},
+            originalImage: null,
+            aspectRatio: 0,
 
-        let originalImage = null;
-        let aspectRatio = 0;
-
-        fileInput.addEventListener('change', handleFileSelect);
-
-        function handleFileSelect(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                originalImage = new Image();
-                originalImage.onload = () => {
-                    aspectRatio = originalImage.width / originalImage.height;
-                    widthInput.value = originalImage.width;
-                    heightInput.value = originalImage.height;
-                    preview.src = originalImage.src;
-                    previewContainer.style.display = 'block';
+            init() {
+                this.elements = {
+                    dropZone: document.getElementById('dropZone'),
+                    fileInput: document.getElementById('fileInput'),
+                    preview: document.getElementById('preview'),
+                    previewContainer: document.getElementById('previewContainer'),
+                    widthInput: document.getElementById('widthInput'),
+                    heightInput: document.getElementById('heightInput'),
+                    qualityInput: document.getElementById('qualityInput'),
+                    formatInput: document.getElementById('formatInput'),
+                    downloadBtn: document.getElementById('downloadBtn')
                 };
-                originalImage.src = event.target.result;
-            };
-            reader.readAsDataURL(file);
-        }
 
-        function updateDimensions(source) {
-            if (!originalImage) return;
+                this.handleClick = () => this.elements.fileInput.click();
+                this.handleChange = (e) => this.handleFileSelect(e);
+                this.handleWidth = () => this.updateDimensions('width');
+                this.handleHeight = () => this.updateDimensions('height');
+                this.handleDownload = () => this.downloadImage();
 
-            if (source === 'width') {
-                heightInput.value = Math.round(widthInput.value / aspectRatio);
-            } else {
-                widthInput.value = Math.round(heightInput.value * aspectRatio);
+                this.elements.dropZone.addEventListener('click', this.handleClick);
+                this.elements.fileInput.addEventListener('change', this.handleChange);
+                this.elements.widthInput.addEventListener('change', this.handleWidth);
+                this.elements.heightInput.addEventListener('change', this.handleHeight);
+                this.elements.downloadBtn.addEventListener('click', this.handleDownload);
+
+                console.log('Image Resizer initialized');
+            },
+
+            cleanup() {
+                if (this.elements.dropZone) {
+                    this.elements.dropZone.removeEventListener('click', this.handleClick);
+                    this.elements.fileInput.removeEventListener('change', this.handleChange);
+                    this.elements.widthInput.removeEventListener('change', this.handleWidth);
+                    this.elements.heightInput.removeEventListener('change', this.handleHeight);
+                    this.elements.downloadBtn.removeEventListener('click', this.handleDownload);
+                }
+                this.elements = {};
+                this.originalImage = null;
+                console.log('Image Resizer cleanup done');
+            },
+
+            handleFileSelect(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    this.originalImage = new Image();
+                    this.originalImage.onload = () => {
+                        this.aspectRatio = this.originalImage.width / this.originalImage.height;
+                        this.elements.widthInput.value = this.originalImage.width;
+                        this.elements.heightInput.value = this.originalImage.height;
+                        this.elements.preview.src = this.originalImage.src;
+                        this.elements.previewContainer.style.display = 'block';
+                    };
+                    this.originalImage.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            },
+
+            updateDimensions(source) {
+                if (!this.originalImage) return;
+
+                if (source === 'width') {
+                    this.elements.heightInput.value = Math.round(this.elements.widthInput.value / this.aspectRatio);
+                } else {
+                    this.elements.widthInput.value = Math.round(this.elements.heightInput.value * this.aspectRatio);
+                }
+            },
+
+            downloadImage() {
+                if (!this.originalImage) return;
+
+                const canvas = document.createElement('canvas');
+                canvas.width = parseInt(this.elements.widthInput.value);
+                canvas.height = parseInt(this.elements.heightInput.value);
+
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(this.originalImage, 0, 0, canvas.width, canvas.height);
+
+                const format = this.elements.formatInput.value;
+                const quality = parseFloat(this.elements.qualityInput.value);
+
+                const dataUrl = canvas.toDataURL(format, quality);
+
+                const link = document.createElement('a');
+                link.download = `resized-image.${format.split('/')[1]}`;
+                link.href = dataUrl;
+                link.click();
             }
-        }
-
-        function downloadImage() {
-            if (!originalImage) return;
-
-            const canvas = document.createElement('canvas');
-            canvas.width = parseInt(widthInput.value);
-            canvas.height = parseInt(heightInput.value);
-
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(originalImage, 0, 0, canvas.width, canvas.height);
-
-            const format = document.getElementById('formatInput').value;
-            const quality = parseFloat(document.getElementById('qualityInput').value);
-
-            const dataUrl = canvas.toDataURL(format, quality);
-
-            const link = document.createElement('a');
-            link.download = `resized-image.${format.split('/')[1]}`;
-            link.href = dataUrl;
-            link.click();
-        }
+        });
     </script>
 </body>
 

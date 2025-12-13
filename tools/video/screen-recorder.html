@@ -6,15 +6,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>화면 녹화 - Utilsly</title>
-    <meta name="description" content="설치 없이 브라우저에서 화면을 녹화하세요."><script>
-        !function(){const e=localStorage.getItem("theme"),t=window.matchMedia("(prefers-color-scheme: dark)").matches;"dark"!==e&&(e||!t)||document.documentElement.setAttribute("data-theme","dark")}();
+    <meta name="description" content="설치 없이 브라우저에서 화면을 녹화하세요.">
+    <script>
+        !function () { const e = localStorage.getItem("theme"), t = window.matchMedia("(prefers-color-scheme: dark)").matches; "dark" !== e && (e || !t) || document.documentElement.setAttribute("data-theme", "dark") }();
     </script>
 
     <link rel="preload" href="../../css/style.css" as="style">
     <link rel="stylesheet" href="../../css/style.css">
     <style>
         .recorder-container {
-            
+
             text-align: center;
         }
 
@@ -34,7 +35,7 @@
 
         .status-indicator {
             display: inline-flex;
-                        gap: 8px;
+            gap: 8px;
             padding: 8px 16px;
             background: #ffebee;
             color: #c62828;
@@ -90,7 +91,7 @@
                     <p class="description">전체 화면, 창, 또는 브라우저 탭을 녹화하세요.</p>
                 </div>
 
-                <div class="recorder-container">
+                <div class="tool-container" data-tool-id="screen-recorder">
                     <div class="status-indicator" id="statusIndicator">
                         <div class="recording-dot"></div>
                         녹화 중...
@@ -99,12 +100,11 @@
                     <video id="preview" class="video-preview" autoplay muted></video>
 
                     <div class="controls">
-                        <button class="btn btn-primary" id="startBtn" onclick="startRecording()"
-                            style="padding: 12px 32px; font-size: 18px;">
+                        <button class="btn btn-primary" id="startBtn" style="padding: 12px 32px; font-size: 18px;">
                             <span class="material-symbols-rounded" style="margin-right: 8px;">fiber_manual_record</span>
                             녹화 시작
                         </button>
-                        <button class="btn" id="stopBtn" onclick="stopRecording()"
+                        <button class="btn" id="stopBtn"
                             style="padding: 12px 32px; font-size: 18px; display: none; background: #FF4B4B; color: white; border-color: #FF4B4B;">
                             <span class="material-symbols-rounded" style="margin-right: 8px;">stop</span>
                             녹화 중지
@@ -116,80 +116,130 @@
     </div>
     <script src="../../js/common.js"></script>
     <script>
-        const preview = document.getElementById('preview');
-        const startBtn = document.getElementById('startBtn');
-        const stopBtn = document.getElementById('stopBtn');
-        const statusIndicator = document.getElementById('statusIndicator');
+        Utilsly.registerTool('screen-recorder', {
+            mediaRecorder: null,
+            recordedChunks: [],
+            stream: null,
+            elements: {},
 
-        let mediaRecorder;
-        let recordedChunks = [];
+            init() {
+                this.elements = {
+                    preview: document.getElementById('preview'),
+                    startBtn: document.getElementById('startBtn'),
+                    stopBtn: document.getElementById('stopBtn'),
+                    statusIndicator: document.getElementById('statusIndicator')
+                };
 
-        async function startRecording() {
-            try {
-                const stream = await navigator.mediaDevices.getDisplayMedia({
-                    video: { mediaSource: "screen" },
-                    audio: true
-                });
+                this.handleStart = () => this.startRecording();
+                this.handleStop = () => this.stopRecording();
 
-                preview.srcObject = stream;
+                if (this.elements.startBtn) this.elements.startBtn.addEventListener('click', this.handleStart);
+                if (this.elements.stopBtn) this.elements.stopBtn.addEventListener('click', this.handleStop);
 
-                mediaRecorder = new MediaRecorder(stream);
+                console.log('Screen Recorder initialized');
+            },
 
-                mediaRecorder.ondataavailable = (e) => {
-                    if (e.data.size > 0) {
-                        recordedChunks.push(e.data);
+            cleanup() {
+                this.stopRecording(true); // Stop if still running
+                if (this.elements.startBtn) this.elements.startBtn.removeEventListener('click', this.handleStart);
+                if (this.elements.stopBtn) this.elements.stopBtn.removeEventListener('click', this.handleStop);
+
+                this.elements = {};
+                this.recordedChunks = [];
+                console.log('Screen Recorder cleanup done');
+            },
+
+            async startRecording() {
+                try {
+                    this.stream = await navigator.mediaDevices.getDisplayMedia({
+                        video: { mediaSource: "screen" },
+                        audio: true
+                    });
+
+                    if (this.elements.preview) this.elements.preview.srcObject = this.stream;
+
+                    this.mediaRecorder = new MediaRecorder(this.stream);
+                    this.recordedChunks = [];
+
+                    this.mediaRecorder.ondataavailable = (e) => {
+                        if (e.data.size > 0) {
+                            this.recordedChunks.push(e.data);
+                        }
+                    };
+
+                    this.mediaRecorder.onstop = () => {
+                        this.finishRecording();
+                    };
+
+                    this.mediaRecorder.start();
+
+                    // UI Updates
+                    this.elements.startBtn.style.display = 'none';
+                    this.elements.stopBtn.style.display = 'inline-flex';
+                    this.elements.statusIndicator.style.display = 'inline-flex';
+
+                    // Handle user stopping via browser UI
+                    this.stream.getVideoTracks()[0].onended = () => {
+                        this.stopRecording();
+                    };
+
+                } catch (err) {
+                    console.error("Error: " + err);
+                    // Could be permission denied
+                    Utilsly.showAlert('녹화 권한이 필요하거나 취소되었습니다.');
+                }
+            },
+
+            stopRecording(skipDownload = false) {
+                if (this.mediaRecorder && this.mediaRecorder.state !== 'inactive') {
+                    this.mediaRecorder.stop();
+                    // Just stop the recorder. onstop will trigger finishRecording.
+                    // However, if we come from cleanup (skipDownload=true), we need to override onstop?
+                    // Actually, modifying onstop or handling skipDownload in onstop is tricky if this is async.
+                    // If cleaning up, we probably don't want to download.
+
+                    if (skipDownload) {
+                        this.mediaRecorder.onstop = null; // Disable callback
                     }
-                };
+                }
 
-                mediaRecorder.onstop = () => {
-                    const blob = new Blob(recordedChunks, { type: 'video/webm' });
-                    const url = URL.createObjectURL(blob);
+                if (this.stream) {
+                    this.stream.getTracks().forEach(track => track.stop());
+                }
 
-                    // Create download link
-                    const a = document.createElement('a');
-                    a.style.display = 'none';
-                    a.href = url;
-                    a.download = 'screen-recording.webm';
-                    document.body.appendChild(a);
-                    a.click();
+                if (skipDownload) {
+                    if (this.elements.preview) this.elements.preview.srcObject = null;
+                }
+            },
 
-                    // Cleanup
-                    window.URL.revokeObjectURL(url);
-                    preview.srcObject = null;
-                    recordedChunks = [];
+            finishRecording() {
+                const blob = new Blob(this.recordedChunks, { type: 'video/webm' });
+                const url = URL.createObjectURL(blob);
 
-                    resetUI();
-                };
+                // Create download link
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = 'screen-recording.webm';
+                document.body.appendChild(a);
+                a.click();
 
-                mediaRecorder.start();
+                // Cleanup
+                window.URL.revokeObjectURL(url);
+                if (this.elements.preview) this.elements.preview.srcObject = null;
+                this.recordedChunks = [];
+                this.stream = null;
 
-                // UI Updates
-                startBtn.style.display = 'none';
-                stopBtn.style.display = 'inline-flex';
-                statusIndicator.style.display = 'inline-flex';
+                this.resetUI();
+            },
 
-                // Handle user stopping via browser UI
-                stream.getVideoTracks()[0].onended = () => {
-                    stopRecording();
-                };
-
-            } catch (err) {
-                console.error("Error: " + err);
+            resetUI() {
+                if (!this.elements.startBtn) return;
+                this.elements.startBtn.style.display = 'inline-flex';
+                this.elements.stopBtn.style.display = 'none';
+                this.elements.statusIndicator.style.display = 'none';
             }
-        }
-
-        function stopRecording() {
-            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
-                mediaRecorder.stop();
-                preview.srcObject.getTracks().forEach(track => track.stop());
-            }
-        }
-
-        function resetUI() {
-            startBtn.style.display = 'inline-flex';
-            stopBtn.style.display = 'none';
-            statusIndicator.style.display = 'none';
-        }
+        });
     </script>
 </body>
 

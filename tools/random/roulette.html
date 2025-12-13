@@ -161,14 +161,14 @@
                     <p class="description">무엇을 선택할지 고민되시나요? 룰렛을 돌려 운명에 맡겨보세요.</p>
                 </div>
 
-                <div class="tool-container">
+                <div class="tool-container" data-tool-id="roulette">
                     <div class="roulette-container">
                         <div class="wheel-wrapper">
                             <div class="pointer"></div>
                             <canvas id="wheel" width="480" height="480"></canvas>
                         </div>
 
-                        <button class="btn btn-primary" onclick="spin()" id="spinBtn"
+                        <button class="btn btn-primary" id="spinBtn"
                             style="font-size: 20px; padding: 18px 60px; border-radius: 50px; box-shadow: 0 10px 30px rgba(49, 130, 246, 0.4);">
                             돌리기
                         </button>
@@ -189,8 +189,8 @@
 김치찌개
 햄버거</textarea>
                             <div class="btn-group">
-                                <button class="btn" onclick="parseAndDraw()">룰렛 업데이트</button>
-                                <button class="btn" onclick="resetItems()">초기화</button>
+                                <button class="btn" id="updateBtn">룰렛 업데이트</button>
+                                <button class="btn" id="resetBtn">초기화</button>
                             </div>
                         </div>
                     </div>
@@ -200,160 +200,171 @@
     </div>
     <script src="../../js/common.js"></script>
     <script>
-        const canvas = document.getElementById('wheel');
-        const ctx = canvas.getContext('2d');
-        const textarea = document.getElementById('items');
-        const removeWinnerCheckbox = document.getElementById('removeWinner');
-        const spinBtn = document.getElementById('spinBtn');
+        Utilsly.registerTool('roulette', {
+            items: [],
+            colors: [
+                '#FF8787', '#FFA94D', '#FFD43B', '#69DB7C',
+                '#4DABF7', '#748FFC', '#DA77F2', '#20C997'
+            ],
+            currentRotation: 0,
+            isSpinning: false,
+            elements: {},
+            ctx: null,
 
-        let items = [];
-        // Premium Palette
-        const colors = [
-            '#FF8787', '#FFA94D', '#FFD43B', '#69DB7C',
-            '#4DABF7', '#748FFC', '#DA77F2', '#20C997'
-        ];
-        let currentRotation = 0;
-        let isSpinning = false;
+            init() {
+                this.elements = {
+                    canvas: document.getElementById('wheel'),
+                    textarea: document.getElementById('items'),
+                    removeWinnerCheckbox: document.getElementById('removeWinner'),
+                    spinBtn: document.getElementById('spinBtn'),
+                    updateBtn: document.getElementById('updateBtn'),
+                    resetBtn: document.getElementById('resetBtn')
+                };
 
-        function parseInput() {
-            const raw = textarea.value.trim();
-            // Check for range syntax "1~20" or "1-20"
-            const rangeMatch = raw.match(/^(\d+)\s*[~-]\s*(\d+)$/);
-
-            if (rangeMatch) {
-                const start = parseInt(rangeMatch[1]);
-                const end = parseInt(rangeMatch[2]);
-                const list = [];
-                if (start <= end) {
-                    for (let i = start; i <= end; i++) list.push(String(i));
-                } else {
-                    for (let i = start; i >= end; i--) list.push(String(i));
+                if (this.elements.canvas) {
+                    this.ctx = this.elements.canvas.getContext('2d');
                 }
-                return list;
+
+                this.handleSpin = () => this.spin();
+                this.handleUpdate = () => this.parseAndDraw();
+                this.handleReset = () => this.resetItems();
+
+                if (this.elements.spinBtn) this.elements.spinBtn.addEventListener('click', this.handleSpin);
+                if (this.elements.updateBtn) this.elements.updateBtn.addEventListener('click', this.handleUpdate);
+                if (this.elements.resetBtn) this.elements.resetBtn.addEventListener('click', this.handleReset);
+
+                this.parseAndDraw();
+                console.log('Roulette initialized');
+            },
+
+            cleanup() {
+                if (this.elements.spinBtn) this.elements.spinBtn.removeEventListener('click', this.handleSpin);
+                if (this.elements.updateBtn) this.elements.updateBtn.removeEventListener('click', this.handleUpdate);
+                if (this.elements.resetBtn) this.elements.resetBtn.removeEventListener('click', this.handleReset);
+
+                this.items = [];
+                this.currentRotation = 0;
+                this.isSpinning = false;
+                this.elements = {};
+                this.ctx = null;
+                console.log('Roulette cleanup done');
+            },
+
+            parseInput() {
+                if (!this.elements.textarea) return [];
+                const raw = this.elements.textarea.value.trim();
+                const rangeMatch = raw.match(/^(\d+)\s*[~-]\s*(\d+)$/);
+
+                if (rangeMatch) {
+                    const start = parseInt(rangeMatch[1]);
+                    const end = parseInt(rangeMatch[2]);
+                    const list = [];
+                    if (start <= end) {
+                        for (let i = start; i <= end; i++) list.push(String(i));
+                    } else {
+                        for (let i = start; i >= end; i--) list.push(String(i));
+                    }
+                    return list;
+                }
+
+                return raw.split('\n').filter(item => item.trim() !== '');
+            },
+
+            parseAndDraw() {
+                this.items = this.parseInput();
+                this.drawWheel();
+            },
+
+            drawWheel() {
+                if (this.items.length === 0 || !this.ctx || !this.elements.canvas) return;
+
+                const arc = (2 * Math.PI) / this.items.length;
+                const radius = this.elements.canvas.width / 2;
+                const centerX = this.elements.canvas.width / 2;
+                const centerY = this.elements.canvas.width / 2;
+
+                this.ctx.clearRect(0, 0, this.elements.canvas.width, this.elements.canvas.height);
+
+                this.items.forEach((item, i) => {
+                    this.ctx.beginPath();
+                    this.ctx.fillStyle = this.colors[i % this.colors.length];
+                    this.ctx.moveTo(centerX, centerY);
+                    this.ctx.arc(centerX, centerY, radius, i * arc, (i + 1) * arc);
+                    this.ctx.lineTo(centerX, centerY);
+                    this.ctx.fill();
+
+                    this.ctx.strokeStyle = "#FFFFFF";
+                    this.ctx.lineWidth = 4;
+                    this.ctx.stroke();
+
+                    this.ctx.save();
+                    this.ctx.translate(centerX, centerY);
+                    this.ctx.rotate(i * arc + arc / 2);
+                    this.ctx.textAlign = "right";
+                    this.ctx.fillStyle = "#FFFFFF";
+                    this.ctx.font = "bold 20px Pretendard, sans-serif";
+                    this.ctx.shadowColor = "rgba(0,0,0,0.1)";
+                    this.ctx.shadowBlur = 4;
+                    this.ctx.fillText(item, radius - 40, 8);
+                    this.ctx.restore();
+                });
+
+                this.ctx.beginPath();
+                this.ctx.arc(centerX, centerY, 40, 0, 2 * Math.PI);
+                this.ctx.fillStyle = "#FFFFFF";
+                this.ctx.fill();
+                this.ctx.strokeStyle = "#E5E8EB";
+                this.ctx.lineWidth = 2;
+                this.ctx.stroke();
+
+                this.ctx.beginPath();
+                this.ctx.arc(centerX, centerY, 10, 0, 2 * Math.PI);
+                this.ctx.fillStyle = "#000000";
+                this.ctx.fill();
+            },
+
+            spin() {
+                if (this.isSpinning || this.items.length === 0) return;
+                this.isSpinning = true;
+                this.elements.spinBtn.disabled = true;
+
+                const spinAngle = (360 * 5) + Math.random() * 360;
+                this.currentRotation += spinAngle;
+
+                this.elements.canvas.style.transform = `rotate(${this.currentRotation}deg)`;
+
+                setTimeout(() => {
+                    if (!this.elements.canvas) return; // check if still mounted
+                    this.isSpinning = false;
+                    this.elements.spinBtn.disabled = false;
+
+                    const degreesPerItem = 360 / this.items.length;
+                    let winningIndex = Math.floor(((360 - (this.currentRotation % 360) + 270) % 360) / degreesPerItem);
+                    winningIndex = winningIndex % this.items.length;
+
+                    const winner = this.items[winningIndex];
+                    Utilsly.showAlert(`당첨: ${winner}`, '🎰 결과');
+
+                    if (this.elements.removeWinnerCheckbox.checked) {
+                        this.items.splice(winningIndex, 1);
+                        this.elements.textarea.value = this.items.join('\n');
+                        this.drawWheel();
+                        this.elements.canvas.style.transition = 'none';
+                        this.currentRotation = 0;
+                        this.elements.canvas.style.transform = `rotate(0deg)`;
+                        setTimeout(() => {
+                            if (this.elements.canvas) this.elements.canvas.style.transition = 'transform 5s cubic-bezier(0.2, 0, 0, 1)';
+                        }, 50);
+                    }
+                }, 5000);
+            },
+
+            resetItems() {
+                if (this.elements.textarea) this.elements.textarea.value = '';
+                this.items = [];
+                if (this.ctx && this.elements.canvas) this.ctx.clearRect(0, 0, this.elements.canvas.width, this.elements.canvas.height);
             }
-
-            return raw.split('\n').filter(item => item.trim() !== '');
-        }
-
-        function parseAndDraw() {
-            items = parseInput();
-            drawWheel();
-        }
-
-        function drawWheel() {
-            if (items.length === 0) return;
-
-            const arc = (2 * Math.PI) / items.length;
-            const radius = canvas.width / 2;
-            const centerX = canvas.width / 2;
-            const centerY = canvas.width / 2;
-
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            items.forEach((item, i) => {
-                ctx.beginPath();
-                ctx.fillStyle = colors[i % colors.length];
-                ctx.moveTo(centerX, centerY);
-                ctx.arc(centerX, centerY, radius, i * arc, (i + 1) * arc);
-                ctx.lineTo(centerX, centerY);
-                ctx.fill();
-
-                ctx.strokeStyle = "#FFFFFF";
-                ctx.lineWidth = 4;
-                ctx.stroke();
-
-                ctx.save();
-                ctx.translate(centerX, centerY);
-                ctx.rotate(i * arc + arc / 2);
-                ctx.textAlign = "right";
-                ctx.fillStyle = "#FFFFFF";
-                ctx.font = "bold 20px Pretendard, sans-serif";
-                ctx.shadowColor = "rgba(0,0,0,0.1)";
-                ctx.shadowBlur = 4;
-                ctx.fillText(item, radius - 40, 8);
-                ctx.restore();
-            });
-
-            ctx.beginPath();
-            ctx.arc(centerX, centerY, 40, 0, 2 * Math.PI);
-            ctx.fillStyle = "#FFFFFF";
-            ctx.fill();
-            ctx.strokeStyle = "#E5E8EB";
-            ctx.lineWidth = 2;
-            ctx.stroke();
-
-            ctx.beginPath();
-            ctx.arc(centerX, centerY, 10, 0, 2 * Math.PI);
-            ctx.fillStyle = "#000000";
-            ctx.fill();
-        }
-
-        function spin() {
-            if (isSpinning || items.length === 0) return;
-            isSpinning = true;
-            spinBtn.disabled = true;
-
-            // Random spin
-            const spinAngle = (360 * 5) + Math.random() * 360;
-            currentRotation += spinAngle;
-
-            canvas.style.transform = `rotate(${currentRotation}deg)`;
-
-            setTimeout(() => {
-                isSpinning = false;
-                spinBtn.disabled = false;
-
-                // Calculate winner
-                const actualRotation = currentRotation % 360;
-                const degreesPerItem = 360 / items.length;
-                // The pointer is at top (270 deg or -90 deg relative to 0 which is right)
-                // But CSS rotate rotates the canvas clockwise.
-                // So the item at the top is the one that ends up at 270 degrees (3/2 PI)
-                // Let's simplify: 
-                // Index = floor((360 - (rotation % 360)) / degreesPerItem)
-                // Adjust for pointer position (top)
-                // Canvas 0 is Right. Top is 270 (-90).
-                // If we rotate 90 deg, 0 moves to bottom.
-                // Let's just use the visual result or calculate properly.
-                // Correct calc:
-                // The item at angle A spans [A, A+arc].
-                // After rotation R, the item at Top (270 deg) is the one where:
-                // (StartAngle + R) % 360 <= 270 <= (EndAngle + R) % 360
-                // Actually easier:
-                // index = Math.floor(((360 - (currentRotation % 360) + 270) % 360) / degreesPerItem);
-
-                let winningIndex = Math.floor(((360 - (currentRotation % 360) + 270) % 360) / degreesPerItem);
-                winningIndex = winningIndex % items.length; // Safety
-
-                const winner = items[winningIndex];
-                Utilsly.showAlert(`당첨: ${winner}`, '🎰 결과');
-
-                if (removeWinnerCheckbox.checked) {
-                    items.splice(winningIndex, 1);
-                    // Update textarea to reflect removal (optional but good for UX)
-                    // If it was a range, we convert to list
-                    textarea.value = items.join('\n');
-                    drawWheel();
-                    // Reset rotation visually but keep logic consistent? 
-                    // Resetting rotation might jump. Better to reset to 0 with no transition then draw.
-                    canvas.style.transition = 'none';
-                    currentRotation = 0;
-                    canvas.style.transform = `rotate(0deg)`;
-                    setTimeout(() => {
-                        canvas.style.transition = 'transform 5s cubic-bezier(0.2, 0, 0, 1)';
-                    }, 50);
-                }
-            }, 5000);
-        }
-
-        function resetItems() {
-            textarea.value = '';
-            items = [];
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-        }
-
-        // Init
-        parseAndDraw();
+        });
     </script>
 </body>
 

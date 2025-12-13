@@ -6,8 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>주사위 굴리기 - Utilsly</title>
-    <meta name="description" content="온라인 3D 주사위 굴리기. 보드게임이나 내기가 필요할 때 사용하세요."><script>
-        !function(){const e=localStorage.getItem("theme"),t=window.matchMedia("(prefers-color-scheme: dark)").matches;"dark"!==e&&(e||!t)||document.documentElement.setAttribute("data-theme","dark")}();
+    <meta name="description" content="온라인 3D 주사위 굴리기. 보드게임이나 내기가 필요할 때 사용하세요.">
+    <script>
+        !function () { const e = localStorage.getItem("theme"), t = window.matchMedia("(prefers-color-scheme: dark)").matches; "dark" !== e && (e || !t) || document.documentElement.setAttribute("data-theme", "dark") }();
     </script>
 
     <link rel="preload" href="../../css/style.css" as="style">
@@ -44,7 +45,7 @@
             border-radius: 20px;
             display: flex;
             justify-content: center;
-                    }
+        }
 
         .dot {
             width: 30px;
@@ -80,7 +81,7 @@
         }
 
         /* Dot positioning logic (simplified for visual) */
-        .cube__face--1 .dot:nth-child(1) {}
+        /* .cube__face--1 .dot:nth-child(1) {} */
 
         .cube__face--2 .dot:nth-child(1) {
             top: 40px;
@@ -217,7 +218,7 @@
                     <p class="description">3D 주사위를 굴려 랜덤한 숫자를 얻으세요.</p>
                 </div>
 
-                <div class="tool-container">
+                <div class="tool-container" data-tool-id="dice-roller">
                     <div class="scene">
                         <div class="cube">
                             <div class="cube__face cube__face--1">
@@ -256,7 +257,7 @@
                         </div>
                     </div>
 
-                    <button class="btn btn-primary btn-large" onclick="rollDice()"
+                    <button class="btn btn-primary btn-large" id="rollBtn"
                         style="width: 100%; margin-top: 40px;">굴리기!</button>
                 </div>
             </div>
@@ -264,33 +265,57 @@
     </div>
     <script src="../../js/common.js"></script>
     <script>
-        const cube = document.querySelector('.cube');
-        let currentClass = '';
+        Utilsly.registerTool('dice-roller', {
+            cube: null,
+            currentClass: '',
+            elements: {},
 
-        function rollDice() {
-            const rand = Math.floor(Math.random() * 6) + 1;
+            init() {
+                this.cube = document.querySelector('.cube');
+                this.elements = {
+                    rollBtn: document.getElementById('rollBtn')
+                };
 
-            // Random rotation logic
-            const xRand = Math.floor(Math.random() * 4) * 360;
-            const yRand = Math.floor(Math.random() * 4) * 360;
+                this.handleRoll = () => this.rollDice();
 
-            let xRot = 0, yRot = 0;
+                if (this.elements.rollBtn) this.elements.rollBtn.addEventListener('click', this.handleRoll);
 
-            switch (rand) {
-                case 1: xRot = 0; yRot = 0; break;
-                case 2: xRot = 0; yRot = -90; break;
-                case 3: xRot = 0; yRot = -180; break;
-                case 4: xRot = 0; yRot = 90; break;
-                case 5: xRot = -90; yRot = 0; break;
-                case 6: xRot = 90; yRot = 0; break;
+                console.log('Dice Roller initialized');
+            },
+
+            cleanup() {
+                if (this.elements.rollBtn) this.elements.rollBtn.removeEventListener('click', this.handleRoll);
+                this.cube = null;
+                this.elements = {};
+                console.log('Dice Roller cleanup done');
+            },
+
+            rollDice() {
+                if (!this.cube) return;
+                const rand = Math.floor(Math.random() * 6) + 1;
+
+                // Random rotation logic
+                const xRand = Math.floor(Math.random() * 4) * 360;
+                const yRand = Math.floor(Math.random() * 4) * 360;
+
+                let xRot = 0, yRot = 0;
+
+                switch (rand) {
+                    case 1: xRot = 0; yRot = 0; break;
+                    case 2: xRot = 0; yRot = -90; break;
+                    case 3: xRot = 0; yRot = -180; break;
+                    case 4: xRot = 0; yRot = 90; break;
+                    case 5: xRot = -90; yRot = 0; break;
+                    case 6: xRot = 90; yRot = 0; break;
+                }
+
+                // Add extra spins
+                const finalX = xRot + (360 * 3);
+                const finalY = yRot + (360 * 3);
+
+                this.cube.style.transform = `translateZ(-100px) rotateX(${finalX}deg) rotateY(${finalY}deg)`;
             }
-
-            // Add extra spins
-            const finalX = xRot + (360 * 3);
-            const finalY = yRot + (360 * 3);
-
-            cube.style.transform = `translateZ(-100px) rotateX(${finalX}deg) rotateY(${finalY}deg)`;
-        }
+        });
     </script>
 </body>
 

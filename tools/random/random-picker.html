@@ -73,7 +73,7 @@
                     <p class="description">공정한 추첨을 위해 참여자 목록에서 무작위로 당첨자를 선정합니다.</p>
                 </div>
 
-                <div class="tool-container">
+                <div class="tool-container" data-tool-id="random-picker">
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 32px;">
                         <div>
                             <label style="display: block; margin-bottom: 8px; font-weight: 600;">참여자 목록 (줄바꿈으로
@@ -88,7 +88,7 @@
                             style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
                             <div style="font-size: 14px; color: var(--text-secondary); margin-bottom: 8px;">당첨자</div>
                             <div id="winner" class="winner-display">?</div>
-                            <button class="btn btn-primary btn-large" onclick="pickWinner()"
+                            <button class="btn btn-primary btn-large" id="pickBtn"
                                 style="width: 100%; max-width: 200px;">뽑기!</button>
                         </div>
                     </div>
@@ -98,43 +98,78 @@
     </div>
     <script src="../../js/common.js"></script>
     <script>
-        function pickWinner() {
-            const text = document.getElementById('candidates').value;
-            const candidates = text.split('\n').filter(item => item.trim() !== '');
+        Utilsly.registerTool('random-picker', {
+            interval: null,
+            elements: {},
 
-            if (candidates.length === 0) {
-                Utilsly.showAlert('참여자를 입력해주세요!');
-                return;
-            }
+            init() {
+                this.elements = {
+                    candidates: document.getElementById('candidates'),
+                    winnerDisplay: document.getElementById('winner'),
+                    pickBtn: document.getElementById('pickBtn')
+                };
 
-            const winnerDisplay = document.getElementById('winner');
-            let count = 0;
-            const maxCount = 20;
+                this.handlePick = () => this.pickWinner();
+                if (this.elements.pickBtn) this.elements.pickBtn.addEventListener('click', this.handlePick);
 
-            // Animation effect
-            const interval = setInterval(() => {
-                const random = candidates[Math.floor(Math.random() * candidates.length)];
-                winnerDisplay.textContent = random;
-                winnerDisplay.style.opacity = 0.5;
-                winnerDisplay.style.transform = 'scale(0.9)';
+                console.log('Random Picker initialized');
+            },
 
-                count++;
-                if (count >= maxCount) {
-                    clearInterval(interval);
-                    const finalWinner = candidates[Math.floor(Math.random() * candidates.length)];
-                    winnerDisplay.textContent = finalWinner;
-                    winnerDisplay.style.opacity = 1;
-                    winnerDisplay.style.transform = 'scale(1.2)';
-                    winnerDisplay.style.color = '#E03E3E'; // Red for winner
+            cleanup() {
+                if (this.interval) clearInterval(this.interval);
+                if (this.elements.pickBtn) this.elements.pickBtn.removeEventListener('click', this.handlePick);
+                this.elements = {};
+                console.log('Random Picker cleanup done');
+            },
 
-                    // Reset style after a bit
-                    setTimeout(() => {
-                        winnerDisplay.style.transform = 'scale(1)';
-                        winnerDisplay.style.color = 'var(--accent-blue)';
-                    }, 500);
+            pickWinner() {
+                if (!this.elements.candidates) return;
+                const text = this.elements.candidates.value;
+                const candidates = text.split('\n').filter(item => item.trim() !== '');
+
+                if (candidates.length === 0) {
+                    Utilsly.showAlert('참여자를 입력해주세요!');
+                    return;
                 }
-            }, 50);
-        }
+
+                let count = 0;
+                const maxCount = 20;
+
+                // Animation effect
+                if (this.interval) clearInterval(this.interval);
+                this.interval = setInterval(() => {
+                    if (!this.elements.winnerDisplay) {
+                        clearInterval(this.interval);
+                        return;
+                    }
+
+                    const random = candidates[Math.floor(Math.random() * candidates.length)];
+                    this.elements.winnerDisplay.textContent = random;
+                    this.elements.winnerDisplay.style.opacity = 0.5;
+                    this.elements.winnerDisplay.style.transform = 'scale(0.9)';
+
+                    count++;
+                    if (count >= maxCount) {
+                        clearInterval(this.interval);
+                        this.interval = null;
+
+                        const finalWinner = candidates[Math.floor(Math.random() * candidates.length)];
+                        this.elements.winnerDisplay.textContent = finalWinner;
+                        this.elements.winnerDisplay.style.opacity = 1;
+                        this.elements.winnerDisplay.style.transform = 'scale(1.2)';
+                        this.elements.winnerDisplay.style.color = '#E03E3E'; // Red for winner
+
+                        // Reset style after a bit
+                        setTimeout(() => {
+                            if (this.elements.winnerDisplay) {
+                                this.elements.winnerDisplay.style.transform = 'scale(1)';
+                                this.elements.winnerDisplay.style.color = 'var(--accent-blue)';
+                            }
+                        }, 500);
+                    }
+                }, 50);
+            }
+        });
     </script>
 </body>
 

@@ -6,8 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>D-Day 계산기 - Utilsly</title>
-    <meta name="description" content="기념일, 시험, 여행 등 중요한 날까지 남은 날짜를 계산하세요."><script>
-        !function(){const e=localStorage.getItem("theme"),t=window.matchMedia("(prefers-color-scheme: dark)").matches;"dark"!==e&&(e||!t)||document.documentElement.setAttribute("data-theme","dark")}();
+    <meta name="description" content="기념일, 시험, 여행 등 중요한 날까지 남은 날짜를 계산하세요.">
+    <script>
+        !function () { const e = localStorage.getItem("theme"), t = window.matchMedia("(prefers-color-scheme: dark)").matches; "dark" !== e && (e || !t) || document.documentElement.setAttribute("data-theme", "dark") }();
     </script>
 
     <link rel="preload" href="../../css/style.css" as="style">
@@ -43,7 +44,7 @@
                     <p class="description">중요한 날까지 남은 날짜를 계산하거나 지난 날짜를 확인하세요.</p>
                 </div>
 
-                <div class="tool-container">
+                <div class="tool-container" data-tool-id="d-day-counter">
                     <div style="margin-bottom: 24px;">
                         <label style="display: block; margin-bottom: 8px; font-weight: 600;">날짜 선택</label>
                         <input type="date" id="target-date"
@@ -62,32 +63,52 @@
     </div>
     <script src="../../js/common.js"></script>
     <script>
-        const dateInput = document.getElementById('target-date');
-        const resultDiv = document.getElementById('result');
-        const dDayText = document.getElementById('d-day-text');
+        Utilsly.registerTool('d-day-counter', {
+            elements: {},
 
-        dateInput.addEventListener('change', () => {
-            const target = new Date(dateInput.value);
-            const today = new Date();
+            init() {
+                this.elements = {
+                    dateInput: document.getElementById('target-date'),
+                    resultDiv: document.getElementById('result'),
+                    dDayText: document.getElementById('d-day-text')
+                };
 
-            // Reset hours to compare dates only
-            target.setHours(0, 0, 0, 0);
-            today.setHours(0, 0, 0, 0);
+                this.handleChange = this.calculate.bind(this);
+                this.elements.dateInput.addEventListener('change', this.handleChange);
+                console.log('D-Day Counter initialized');
+            },
 
-            const diffTime = target - today;
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            cleanup() {
+                if (this.elements.dateInput) {
+                    this.elements.dateInput.removeEventListener('change', this.handleChange);
+                }
+                this.elements = {};
+                console.log('D-Day Counter cleaned up');
+            },
 
-            let text = '';
-            if (diffDays === 0) {
-                text = "D-Day";
-            } else if (diffDays > 0) {
-                text = `D-${diffDays}`;
-            } else {
-                text = `D+${Math.abs(diffDays)}`;
+            calculate() {
+                const target = new Date(this.elements.dateInput.value);
+                const today = new Date();
+
+                // Reset hours to compare dates only
+                target.setHours(0, 0, 0, 0);
+                today.setHours(0, 0, 0, 0);
+
+                const diffTime = target - today;
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                let text = '';
+                if (diffDays === 0) {
+                    text = "D-Day";
+                } else if (diffDays > 0) {
+                    text = `D-${diffDays}`;
+                } else {
+                    text = `D+${Math.abs(diffDays)}`;
+                }
+
+                this.elements.dDayText.textContent = text;
+                this.elements.resultDiv.style.display = 'block';
             }
-
-            dDayText.textContent = text;
-            resultDiv.style.display = 'block';
         });
     </script>
 </body>

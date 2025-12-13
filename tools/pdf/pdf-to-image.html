@@ -6,8 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>PDF 이미지 변환 - Utilsly</title>
-    <meta name="description" content="PDF 페이지를 고화질 이미지(JPG, PNG)로 변환하세요."><script>
-        !function(){const e=localStorage.getItem("theme"),t=window.matchMedia("(prefers-color-scheme: dark)").matches;"dark"!==e&&(e||!t)||document.documentElement.setAttribute("data-theme","dark")}();
+    <meta name="description" content="PDF 페이지를 고화질 이미지(JPG, PNG)로 변환하세요.">
+    <script>
+        !function () { const e = localStorage.getItem("theme"), t = window.matchMedia("(prefers-color-scheme: dark)").matches; "dark" !== e && (e || !t) || document.documentElement.setAttribute("data-theme", "dark") }();
     </script>
 
     <link rel="preload" href="../../css/style.css" as="style">
@@ -27,7 +28,7 @@
             padding: 16px;
             display: flex;
             flex-direction: column;
-                    }
+        }
 
         canvas {
             max-width: 100%;
@@ -66,7 +67,7 @@
                     <p class="description">PDF의 각 페이지를 이미지 파일로 변환하여 다운로드하세요.</p>
                 </div>
 
-                <div class="tool-container">
+                <div class="tool-container" data-tool-id="pdf-to-image">
                     <div class="drop-zone" id="dropZone"
                         style="border: 2px dashed var(--border-color); padding: 40px; text-align: center; cursor: pointer; margin-bottom: 24px;">
                         <span class="material-symbols-rounded"
@@ -85,58 +86,81 @@
     <script src="../../js/common.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script>
-        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        Utilsly.registerTool('pdf-to-image', {
+            elements: {},
 
-        const dropZone = document.getElementById('dropZone');
-        const fileInput = document.getElementById('fileInput');
-        const resultArea = document.getElementById('resultArea');
-        const pageList = document.getElementById('pageList');
+            init() {
+                pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-        dropZone.addEventListener('click', () => fileInput.click());
-        fileInput.addEventListener('change', (e) => {
-            if (e.target.files.length > 0) convertPDF(e.target.files[0]);
-        });
-
-        async function convertPDF(file) {
-            const arrayBuffer = await file.arrayBuffer();
-            const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
-
-            dropZone.style.display = 'none';
-            resultArea.style.display = 'block';
-            pageList.innerHTML = '';
-
-            for (let i = 1; i <= pdf.numPages; i++) {
-                const page = await pdf.getPage(i);
-                const viewport = page.getViewport({ scale: 1.5 });
-
-                const card = document.createElement('div');
-                card.className = 'page-card';
-
-                const canvas = document.createElement('canvas');
-                const context = canvas.getContext('2d');
-                canvas.height = viewport.height;
-                canvas.width = viewport.width;
-
-                await page.render({
-                    canvasContext: context,
-                    viewport: viewport
-                }).promise;
-
-                const btn = document.createElement('button');
-                btn.className = 'btn btn-primary';
-                btn.textContent = `Page ${i} 다운로드 (PNG)`;
-                btn.onclick = () => {
-                    const link = document.createElement('a');
-                    link.download = `page-${i}.png`;
-                    link.href = canvas.toDataURL();
-                    link.click();
+                this.elements = {
+                    dropZone: document.getElementById('dropZone'),
+                    fileInput: document.getElementById('fileInput'),
+                    resultArea: document.getElementById('resultArea'),
+                    pageList: document.getElementById('pageList')
                 };
 
-                card.appendChild(canvas);
-                card.appendChild(btn);
-                pageList.appendChild(card);
+                this.handleClickDropZone = () => this.elements.fileInput.click();
+                this.handleChangeFile = (e) => {
+                    if (e.target.files.length > 0) this.convertPDF(e.target.files[0]);
+                };
+
+                this.elements.dropZone.addEventListener('click', this.handleClickDropZone);
+                this.elements.fileInput.addEventListener('change', this.handleChangeFile);
+
+                console.log('PDF to Image initialized');
+            },
+
+            cleanup() {
+                if (this.elements.dropZone) this.elements.dropZone.removeEventListener('click', this.handleClickDropZone);
+                if (this.elements.fileInput) this.elements.fileInput.removeEventListener('change', this.handleChangeFile);
+                this.elements = {};
+                console.log('PDF to Image cleanup done');
+            },
+
+            async convertPDF(file) {
+                const arrayBuffer = await file.arrayBuffer();
+                const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
+
+                this.elements.dropZone.style.display = 'none';
+                this.elements.resultArea.style.display = 'block';
+                this.elements.pageList.innerHTML = '';
+
+                for (let i = 1; i <= pdf.numPages; i++) {
+                    const page = await pdf.getPage(i);
+                    const viewport = page.getViewport({ scale: 1.5 });
+
+                    const card = document.createElement('div');
+                    card.className = 'page-card';
+
+                    const canvas = document.createElement('canvas');
+                    const context = canvas.getContext('2d');
+                    canvas.height = viewport.height;
+                    canvas.width = viewport.width;
+
+                    await page.render({
+                        canvasContext: context,
+                        viewport: viewport
+                    }).promise;
+
+                    const btn = document.createElement('button');
+                    btn.className = 'btn btn-primary';
+                    btn.textContent = `Page ${i} 다운로드 (PNG)`;
+
+                    // Helper to download image
+                    const downloadImage = () => {
+                        const link = document.createElement('a');
+                        link.download = `page-${i}.png`;
+                        link.href = canvas.toDataURL();
+                        link.click();
+                    };
+                    btn.addEventListener('click', downloadImage);
+
+                    card.appendChild(canvas);
+                    card.appendChild(btn);
+                    this.elements.pageList.appendChild(card);
+                }
             }
-        }
+        });
     </script>
 </body>
 

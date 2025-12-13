@@ -682,26 +682,56 @@ const Utilsly = {
                 console.log("[SPA] Replacing .main-content");
                 currentMain.innerHTML = newMain.innerHTML;
 
-                // Re-run scripts separately and strictly
-                const scripts = newMain.querySelectorAll('script');
-                scripts.forEach(script => {
+                // Re-run scripts (Seqential Loading for dependencies)
+                // Select scripts from the ENTIRE fetched document to catch libraries in head/body
+                // Filter out common.js to prevent recursion
+                const scripts = Array.from(doc.querySelectorAll('script'));
+
+                const loadScript = (index) => {
+                    if (index >= scripts.length) return;
+
+                    const script = scripts[index];
+
+                    // Skip if it is an intentionally ignored script (like common.js self-reference if needed, though isLoaded check handles most)
+                    if (script.src && (script.src.includes('common.js') || script.getAttribute('src').includes('common.js'))) {
+                        loadScript(index + 1);
+                        return;
+                    }
+
                     if (script.src) {
+                        // Check if already loaded
                         const isLoaded = Array.from(document.scripts).some(s => s.src === script.src);
                         if (isLoaded) {
                             console.log(`[SPA] Skipping already loaded script: ${script.src}`);
+                            loadScript(index + 1);
                             return;
                         }
-                    }
 
-                    const newScript = document.createElement('script');
-                    if (script.src) {
+                        // Load external script
+                        const newScript = document.createElement('script');
                         newScript.src = script.src;
+                        newScript.onload = () => {
+                            console.log(`[SPA] Loaded script: ${script.src}`);
+                            loadScript(index + 1);
+                        };
+                        newScript.onerror = () => {
+                            console.error(`[SPA] Failed to load script: ${script.src}`);
+                            loadScript(index + 1);
+                        };
+                        document.body.appendChild(newScript);
+                        // Don't remove external scripts, they need to stick around
+                        // newScript.remove(); 
                     } else {
+                        // Inline script
+                        const newScript = document.createElement('script');
                         newScript.textContent = script.textContent;
+                        document.body.appendChild(newScript);
+                        newScript.remove(); // Remove inline scripts after execution
+                        loadScript(index + 1);
                     }
-                    document.body.appendChild(newScript);
-                    newScript.remove();
-                });
+                };
+
+                loadScript(0);
 
             } else {
                 console.error("[SPA] Current page missing .main-content?");

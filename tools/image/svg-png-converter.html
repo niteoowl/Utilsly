@@ -34,7 +34,7 @@
                     <h1>SVG → PNG 변환기</h1>
                     <p class="description">SVG 벡터 이미지를 PNG로 무료 변환하세요.</p>
                 </div>
-                <div class="tool-container">
+                <div class="tool-container" data-tool-id="svg-png-converter">
                     <div class="drop-zone" id="dropZone"
                         style="border: 2px dashed var(--border-color); padding: 40px; text-align: center; cursor: pointer; margin-bottom: 24px;">
                         <span class="material-symbols-rounded"
@@ -58,7 +58,7 @@
                                     style="width: 100%; padding: 8px; border: 1px solid var(--border-color); border-radius: 4px;">
                             </div>
                         </div>
-                        <button class="btn btn-primary" onclick="convert()" style="width: 100%;">PNG로 변환 및 다운로드</button>
+                        <button class="btn btn-primary" id="convertBtn" style="width: 100%;">PNG로 변환 및 다운로드</button>
                     </div>
                 </div>
             </div>
@@ -66,76 +66,102 @@
     </div>
     <script src="../../js/common.js"></script>
     <script>
-        const dropZone = document.getElementById('dropZone');
-        const fileInput = document.getElementById('fileInput');
-        const previewArea = document.getElementById('previewArea');
-        const svgContainer = document.getElementById('svgContainer');
-        const controls = document.getElementById('controls');
-        const widthInput = document.getElementById('width');
-        const heightInput = document.getElementById('height');
+        Utilsly.registerTool('svg-png-converter', {
+            elements: {},
+            svgData: null,
 
-        let svgData = null;
+            init() {
+                this.elements = {
+                    dropZone: document.getElementById('dropZone'),
+                    fileInput: document.getElementById('fileInput'),
+                    previewArea: document.getElementById('previewArea'),
+                    svgContainer: document.getElementById('svgContainer'),
+                    controls: document.getElementById('controls'),
+                    widthInput: document.getElementById('width'),
+                    heightInput: document.getElementById('height'),
+                    convertBtn: document.getElementById('convertBtn')
+                };
 
-        dropZone.addEventListener('click', () => fileInput.click());
-        fileInput.addEventListener('change', handleFile);
+                this.handleClick = () => this.elements.fileInput.click();
+                this.handleFileChange = (e) => this.handleFile(e);
+                this.handleConvert = () => this.convert();
 
-        function handleFile(e) {
-            const file = e.target.files[0];
-            if (!file) return;
+                this.elements.dropZone.addEventListener('click', this.handleClick);
+                this.elements.fileInput.addEventListener('change', this.handleFileChange);
+                this.elements.convertBtn.addEventListener('click', this.handleConvert);
 
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                svgData = e.target.result;
-                svgContainer.innerHTML = svgData;
+                console.log('SVG-PNG Converter initialized');
+            },
 
-                // Get original SVG dimensions
-                const svg = svgContainer.querySelector('svg');
-                if (svg) {
-                    const viewBox = svg.getAttribute('viewBox');
-                    if (viewBox) {
-                        const [, , w, h] = viewBox.split(' ').map(Number);
-                        widthInput.value = Math.round(w);
-                        heightInput.value = Math.round(h);
-                    }
+            cleanup() {
+                if (this.elements.dropZone) {
+                    this.elements.dropZone.removeEventListener('click', this.handleClick);
+                    this.elements.fileInput.removeEventListener('change', this.handleFileChange);
+                    this.elements.convertBtn.removeEventListener('click', this.handleConvert);
                 }
+                this.elements = {};
+                this.svgData = null;
+                console.log('SVG-PNG Converter cleanup done');
+            },
 
-                dropZone.style.display = 'none';
-                previewArea.style.display = 'block';
-                controls.style.display = 'block';
-            };
-            reader.readAsText(file);
-        }
+            handleFile(e) {
+                const file = e.target.files[0];
+                if (!file) return;
 
-        function convert() {
-            if (!svgData) return;
+                const reader = new FileReader();
+                reader.onload = (evt) => {
+                    this.svgData = evt.target.result;
+                    this.elements.svgContainer.innerHTML = this.svgData;
 
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            const width = parseInt(widthInput.value);
-            const height = parseInt(heightInput.value);
+                    // Get original SVG dimensions
+                    const svg = this.elements.svgContainer.querySelector('svg');
+                    if (svg) {
+                        const viewBox = svg.getAttribute('viewBox');
+                        if (viewBox) {
+                            const [, , w, h] = viewBox.split(' ').map(Number);
+                            this.elements.widthInput.value = Math.round(w);
+                            this.elements.heightInput.value = Math.round(h);
+                        }
+                    }
 
-            canvas.width = width;
-            canvas.height = height;
+                    this.elements.dropZone.style.display = 'none';
+                    this.elements.previewArea.style.display = 'block';
+                    this.elements.controls.style.display = 'block';
+                };
+                reader.readAsText(file);
+            },
 
-            const img = new Image();
-            const blob = new Blob([svgData], { type: 'image/svg+xml' });
-            const url = URL.createObjectURL(blob);
+            convert() {
+                if (!this.svgData) return;
 
-            img.onload = () => {
-                ctx.drawImage(img, 0, 0, width, height);
-                canvas.toBlob((blob) => {
-                    const downloadUrl = URL.createObjectURL(blob);
-                    const link = document.createElement('a');
-                    link.href = downloadUrl;
-                    link.download = 'converted.png';
-                    link.click();
-                    URL.revokeObjectURL(downloadUrl);
-                    URL.revokeObjectURL(url);
-                }, 'image/png');
-            };
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                const width = parseInt(this.elements.widthInput.value);
+                const height = parseInt(this.elements.heightInput.value);
 
-            img.src = url;
-        }
+                canvas.width = width;
+                canvas.height = height;
+
+                const img = new Image();
+                const blob = new Blob([this.svgData], { type: 'image/svg+xml' });
+                const url = URL.createObjectURL(blob);
+
+                img.onload = () => {
+                    ctx.drawImage(img, 0, 0, width, height);
+                    canvas.toBlob((blob) => {
+                        const downloadUrl = URL.createObjectURL(blob);
+                        const link = document.createElement('a');
+                        link.href = downloadUrl;
+                        link.download = 'converted.png';
+                        link.click();
+                        URL.revokeObjectURL(downloadUrl);
+                        URL.revokeObjectURL(url);
+                    }, 'image/png');
+                };
+
+                img.src = url;
+            }
+        });
     </script>
 </body>
 

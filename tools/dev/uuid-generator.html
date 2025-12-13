@@ -6,8 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>UUID 생성기 - Utilsly</title>
-    <meta name="description" content="랜덤 UUID (v4)를 생성하는 도구입니다."><script>
-        !function(){const e=localStorage.getItem("theme"),t=window.matchMedia("(prefers-color-scheme: dark)").matches;"dark"!==e&&(e||!t)||document.documentElement.setAttribute("data-theme","dark")}();
+    <meta name="description" content="랜덤 UUID (v4)를 생성하는 도구입니다.">
+    <script>
+        !function () { const e = localStorage.getItem("theme"), t = window.matchMedia("(prefers-color-scheme: dark)").matches; "dark" !== e && (e || !t) || document.documentElement.setAttribute("data-theme", "dark") }();
     </script>
 
     <link rel="preload" href="../../css/style.css" as="style">
@@ -43,10 +44,10 @@
                     <p class="description">고유 식별자(UUID v4)를 생성하고 복사할 수 있습니다.</p>
                 </div>
 
-                <div class="tool-container">
+                <div class="tool-container" data-tool-id="uuid-generator">
                     <div style="display: flex; gap: 16px; margin-bottom: 24px;">
-                        <button class="btn btn-primary btn-large" onclick="generateUUID()">새로운 UUID 생성</button>
-                        <button class="btn btn-large" onclick="copyUUID()">복사</button>
+                        <button class="btn btn-primary btn-large" id="genBtn">새로운 UUID 생성</button>
+                        <button class="btn btn-large" id="copyBtn">복사</button>
                     </div>
 
                     <div
@@ -60,19 +61,49 @@
     </div>
     <script src="../../js/common.js"></script>
     <script>
-        function generateUUID() {
-            const uuid = crypto.randomUUID();
-            document.getElementById('uuid-display').textContent = uuid;
-        }
+        Utilsly.registerTool('uuid-generator', {
+            elements: {},
 
-        function copyUUID() {
-            const uuid = document.getElementById('uuid-display').textContent;
-            if (uuid === 'Click generate...') return;
-            navigator.clipboard.writeText(uuid);
-            alert('복사되었습니다!');
-        }
+            init() {
+                this.elements = {
+                    display: document.getElementById('uuid-display'),
+                    genBtn: document.getElementById('genBtn'),
+                    copyBtn: document.getElementById('copyBtn')
+                };
 
-        generateUUID();
+                this.handleGenerate = this.generateUUID.bind(this);
+                this.handleCopy = this.copyUUID.bind(this);
+
+                this.elements.genBtn.addEventListener('click', this.handleGenerate);
+                this.elements.copyBtn.addEventListener('click', this.handleCopy);
+
+                // Initial generation
+                this.generateUUID();
+                console.log('UUID Generator initialized');
+            },
+
+            cleanup() {
+                if (this.elements.genBtn) {
+                    this.elements.genBtn.removeEventListener('click', this.handleGenerate);
+                    this.elements.copyBtn.removeEventListener('click', this.handleCopy);
+                }
+                this.elements = {};
+                console.log('UUID Generator cleanup done');
+            },
+
+            generateUUID() {
+                const uuid = crypto.randomUUID();
+                if (this.elements.display) this.elements.display.textContent = uuid;
+            },
+
+            copyUUID() {
+                if (!this.elements.display) return;
+                const uuid = this.elements.display.textContent;
+                if (uuid === 'Click generate...') return;
+                navigator.clipboard.writeText(uuid);
+                alert('복사되었습니다!');
+            }
+        });
     </script>
 </body>
 

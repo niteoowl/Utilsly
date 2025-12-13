@@ -6,8 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>마크다운 미리보기 - Utilsly</title>
-    <meta name="description" content="마크다운 문법을 실시간으로 미리보기 할 수 있는 에디터입니다."><script>
-        !function(){const e=localStorage.getItem("theme"),t=window.matchMedia("(prefers-color-scheme: dark)").matches;"dark"!==e&&(e||!t)||document.documentElement.setAttribute("data-theme","dark")}();
+    <meta name="description" content="마크다운 문법을 실시간으로 미리보기 할 수 있는 에디터입니다.">
+    <script>
+        !function () { const e = localStorage.getItem("theme"), t = window.matchMedia("(prefers-color-scheme: dark)").matches; "dark" !== e && (e || !t) || document.documentElement.setAttribute("data-theme", "dark") }();
     </script>
 
     <link rel="preload" href="../../css/style.css" as="style">
@@ -88,9 +89,9 @@
                     <p class="description">마크다운 문법을 실시간으로 미리보고 HTML로 변환합니다.</p>
                 </div>
 
-                <div class="tool-container">
+                <div class="tool-container" data-tool-id="markdown-preview">
                     <div class="editor-container">
-                        <textarea id="editor" placeholder="# 제목을 입력하세요..." oninput="updatePreview()"># 환영합니다!
+                        <textarea id="editor" placeholder="# 제목을 입력하세요..."># 환영합니다!
 
 이곳은 **마크다운 미리보기** 도구입니다.
 
@@ -110,14 +111,41 @@ console.log('Hello Utilsly!');
     </div>
     <script src="../../js/common.js"></script>
     <script>
-        function updatePreview() {
-            const text = document.getElementById('editor').value;
-            const html = marked.parse(text);
-            document.getElementById('preview').innerHTML = html;
-        }
+        Utilsly.registerTool('markdown-preview', {
+            elements: {},
 
-        // Init
-        updatePreview();
+            init() {
+                this.elements = {
+                    editor: document.getElementById('editor'),
+                    preview: document.getElementById('preview')
+                };
+
+                this.handleInput = this.updatePreview.bind(this);
+                this.elements.editor.addEventListener('input', this.handleInput);
+
+                this.updatePreview();
+                console.log('Markdown Preview initialized');
+            },
+
+            cleanup() {
+                if (this.elements.editor) {
+                    this.elements.editor.removeEventListener('input', this.handleInput);
+                }
+                this.elements = {};
+                console.log('Markdown Preview cleanup done');
+            },
+
+            updatePreview() {
+                const text = this.elements.editor.value;
+                // marked library should be loaded by common.js from the head tag of this file or previously loaded
+                if (typeof marked !== 'undefined') {
+                    const html = marked.parse(text);
+                    this.elements.preview.innerHTML = html;
+                } else {
+                    this.elements.preview.innerHTML = "Marked library not loaded.";
+                }
+            }
+        });
     </script>
 </body>
 

@@ -34,7 +34,7 @@
                     <h1>HEIC → JPG 변환기</h1>
                     <p class="description">iPhone HEIC 사진을 JPG로 무료 변환하세요.</p>
                 </div>
-                <div class="tool-container">
+                <div class="tool-container" data-tool-id="heic-jpg-converter">
                     <div class="drop-zone" id="dropZone"
                         style="border: 2px dashed var(--border-color); padding: 40px; text-align: center; cursor: pointer; margin-bottom: 24px;">
                         <span class="material-symbols-rounded"
@@ -55,8 +55,8 @@
                     <div id="results" style="display: none;">
                         <div style="font-weight: 600; margin-bottom: 12px;">변환 완료!</div>
                         <div id="resultList"></div>
-                        <button class="btn btn-primary" onclick="downloadAll()"
-                            style="width: 100%; margin-top: 16px;">모두 다운로드</button>
+                        <button class="btn btn-primary" id="downloadAllBtn" style="width: 100%; margin-top: 16px;">모두
+                            다운로드</button>
                     </div>
                 </div>
             </div>
@@ -65,84 +65,118 @@
     <script src="../../js/common.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js"></script>
     <script>
-        const dropZone = document.getElementById('dropZone');
-        const fileInput = document.getElementById('fileInput');
-        const progress = document.getElementById('progress');
-        const progressBar = document.getElementById('progressBar');
-        const progressText = document.getElementById('progressText');
-        const results = document.getElementById('results');
-        const resultList = document.getElementById('resultList');
+        Utilsly.registerTool('heic-jpg-converter', {
+            elements: {},
+            convertedFiles: [],
 
-        let convertedFiles = [];
+            init() {
+                this.elements = {
+                    dropZone: document.getElementById('dropZone'),
+                    fileInput: document.getElementById('fileInput'),
+                    progress: document.getElementById('progress'),
+                    progressBar: document.getElementById('progressBar'),
+                    progressText: document.getElementById('progressText'),
+                    results: document.getElementById('results'),
+                    resultList: document.getElementById('resultList'),
+                    downloadAllBtn: document.getElementById('downloadAllBtn')
+                };
 
-        dropZone.addEventListener('click', () => fileInput.click());
-        fileInput.addEventListener('change', handleFiles);
+                this.handleClick = () => this.elements.fileInput.click();
+                this.handleFiles = (e) => this.processFiles(e);
+                this.handleDownloadAll = () => this.downloadAll();
 
-        async function handleFiles(e) {
-            const files = Array.from(e.target.files);
-            if (files.length === 0) return;
+                this.elements.dropZone.addEventListener('click', this.handleClick);
+                this.elements.fileInput.addEventListener('change', this.handleFiles);
+                this.elements.downloadAllBtn.addEventListener('click', this.handleDownloadAll);
 
-            dropZone.style.display = 'none';
-            progress.style.display = 'block';
-            results.style.display = 'none';
-            convertedFiles = [];
+                console.log('HEIC to JPG Converter initialized');
+            },
 
-            for (let i = 0; i < files.length; i++) {
-                const file = files[i];
-                progressText.textContent = `${i + 1}/${files.length}`;
-                progressBar.style.width = ((i + 1) / files.length * 100) + '%';
-
-                try {
-                    const convertedBlob = await heic2any({
-                        blob: file,
-                        toType: 'image/jpeg',
-                        quality: 0.9
-                    });
-
-                    const blob = Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob;
-                    const fileName = file.name.replace(/\.(heic|heif)$/i, '.jpg');
-                    convertedFiles.push({ name: fileName, blob: blob });
-                } catch (error) {
-                    console.error('변환 실패:', file.name, error);
+            cleanup() {
+                if (this.elements.dropZone) {
+                    this.elements.dropZone.removeEventListener('click', this.handleClick);
+                    this.elements.fileInput.removeEventListener('change', this.handleFiles);
+                    this.elements.downloadAllBtn.removeEventListener('click', this.handleDownloadAll);
                 }
+                this.elements = {};
+                this.convertedFiles = [];
+                console.log('HEIC to JPG Converter cleanup done');
+            },
+
+            async processFiles(e) {
+                const files = Array.from(e.target.files);
+                if (files.length === 0) return;
+
+                this.elements.dropZone.style.display = 'none';
+                this.elements.progress.style.display = 'block';
+                this.elements.results.style.display = 'none';
+                this.convertedFiles = [];
+
+                if (typeof heic2any === 'undefined') {
+                    console.error('heic2any library not loaded');
+                    alert('라이브러리 로드 실패. 페이지를 새로고침하세요.');
+                    return;
+                }
+
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    this.elements.progressText.textContent = `${i + 1}/${files.length}`;
+                    this.elements.progressBar.style.width = ((i + 1) / files.length * 100) + '%';
+
+                    try {
+                        const convertedBlob = await heic2any({
+                            blob: file,
+                            toType: 'image/jpeg',
+                            quality: 0.9
+                        });
+
+                        const blob = Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob;
+                        const fileName = file.name.replace(/\.(heic|heif)$/i, '.jpg');
+                        this.convertedFiles.push({ name: fileName, blob: blob });
+                    } catch (error) {
+                        console.error('변환 실패:', file.name, error);
+                    }
+                }
+
+                this.showResults();
+            },
+
+            showResults() {
+                this.elements.progress.style.display = 'none';
+                this.elements.results.style.display = 'block';
+
+                this.elements.resultList.innerHTML = '';
+                this.convertedFiles.forEach((file, index) => {
+                    const item = document.createElement('div');
+                    item.style.cssText = 'display: flex; justify-content: space-between; align-items: center; padding: 12px; background: var(--bg-sidebar); border-radius: 8px; margin-bottom: 8px;';
+                    item.innerHTML = `
+                        <span>${file.name}</span>
+                        <button class="btn btn-primary" data-index="${index}" style="padding: 8px 16px;">
+                            <span class="material-symbols-rounded" style="font-size: 18px;">download</span>
+                        </button>
+                    `;
+                    // Add event listener for download button via closure wrapper or direct binding
+                    item.querySelector('button').onclick = () => this.downloadFile(index);
+                    this.elements.resultList.appendChild(item);
+                });
+            },
+
+            downloadFile(index) {
+                const file = this.convertedFiles[index];
+                const url = URL.createObjectURL(file.blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = file.name;
+                link.click();
+                URL.revokeObjectURL(url);
+            },
+
+            downloadAll() {
+                this.convertedFiles.forEach((file, index) => {
+                    setTimeout(() => this.downloadFile(index), index * 100);
+                });
             }
-
-            showResults();
-        }
-
-        function showResults() {
-            progress.style.display = 'none';
-            results.style.display = 'block';
-
-            resultList.innerHTML = '';
-            convertedFiles.forEach((file, index) => {
-                const item = document.createElement('div');
-                item.style.cssText = 'display: flex; justify-content: space-between; align-items: center; padding: 12px; background: var(--bg-sidebar); border-radius: 8px; margin-bottom: 8px;';
-                item.innerHTML = `
-                    <span>${file.name}</span>
-                    <button class="btn btn-primary" onclick="downloadFile(${index})" style="padding: 8px 16px;">
-                        <span class="material-symbols-rounded" style="font-size: 18px;">download</span>
-                    </button>
-                `;
-                resultList.appendChild(item);
-            });
-        }
-
-        function downloadFile(index) {
-            const file = convertedFiles[index];
-            const url = URL.createObjectURL(file.blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = file.name;
-            link.click();
-            URL.revokeObjectURL(url);
-        }
-
-        function downloadAll() {
-            convertedFiles.forEach((file, index) => {
-                setTimeout(() => downloadFile(index), index * 100);
-            });
-        }
+        });
     </script>
 </body>
 

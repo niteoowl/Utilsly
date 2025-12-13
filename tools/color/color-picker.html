@@ -6,8 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>컬러 피커 - Utilsly</title>
-    <meta name="description" content="색상을 선택하고 HEX, RGB, HSL 코드를 추출하세요. 웹 디자인에 필수적인 도구입니다."><script>
-        !function(){const e=localStorage.getItem("theme"),t=window.matchMedia("(prefers-color-scheme: dark)").matches;"dark"!==e&&(e||!t)||document.documentElement.setAttribute("data-theme","dark")}();
+    <meta name="description" content="색상을 선택하고 HEX, RGB, HSL 코드를 추출하세요. 웹 디자인에 필수적인 도구입니다.">
+    <script>
+        !function () { const e = localStorage.getItem("theme"), t = window.matchMedia("(prefers-color-scheme: dark)").matches; "dark" !== e && (e || !t) || document.documentElement.setAttribute("data-theme", "dark") }();
     </script>
 
     <link rel="preload" href="../../css/style.css" as="style">
@@ -29,7 +30,7 @@
 
         .value-row {
             display: flex;
-                        gap: 12px;
+            gap: 12px;
         }
 
         .value-label {
@@ -85,7 +86,7 @@
                     <p class="description">원하는 색상을 선택하고 HEX, RGB 코드를 복사하세요.</p>
                 </div>
 
-                <div class="tool-container">
+                <div class="tool-container" data-tool-id="color-picker">
                     <div id="color-preview" class="color-display" style="background-color: #2383E2;"></div>
 
                     <div style="margin-bottom: 24px;">
@@ -97,12 +98,12 @@
                         <div class="value-row">
                             <span class="value-label">HEX</span>
                             <input type="text" class="value-input" id="hex-value" value="#2383E2" readonly>
-                            <button class="btn" onclick="copy('hex-value')">복사</button>
+                            <button class="btn" id="btn-copy-hex">복사</button>
                         </div>
                         <div class="value-row">
                             <span class="value-label">RGB</span>
                             <input type="text" class="value-input" id="rgb-value" value="rgb(35, 131, 226)" readonly>
-                            <button class="btn" onclick="copy('rgb-value')">복사</button>
+                            <button class="btn" id="btn-copy-rgb">복사</button>
                         </div>
                     </div>
                 </div>
@@ -111,40 +112,66 @@
     </div>
     <script src="../../js/common.js"></script>
     <script>
-        const colorInput = document.getElementById('color-input');
-        const colorPreview = document.getElementById('color-preview');
-        const hexValue = document.getElementById('hex-value');
-        const rgbValue = document.getElementById('rgb-value');
+        Utilsly.registerTool('color-picker', {
+            elements: {},
 
-        function hexToRgb(hex) {
-            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-            return result ? {
-                r: parseInt(result[1], 16),
-                g: parseInt(result[2], 16),
-                b: parseInt(result[3], 16)
-            } : null;
-        }
+            init() {
+                this.elements = {
+                    colorInput: document.getElementById('color-input'),
+                    colorPreview: document.getElementById('color-preview'),
+                    hexValue: document.getElementById('hex-value'),
+                    rgbValue: document.getElementById('rgb-value'),
+                    btnCopyHex: document.getElementById('btn-copy-hex'),
+                    btnCopyRgb: document.getElementById('btn-copy-rgb')
+                };
 
-        function updateColor(hex) {
-            colorPreview.style.backgroundColor = hex;
-            hexValue.value = hex.toUpperCase();
+                this.handleInput = (e) => this.updateColor(e.target.value);
+                this.handleCopyHex = () => this.copy('hex-value');
+                this.handleCopyRgb = () => this.copy('rgb-value');
 
-            const rgb = hexToRgb(hex);
-            if (rgb) {
-                rgbValue.value = `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`;
+                this.elements.colorInput.addEventListener('input', this.handleInput);
+                this.elements.btnCopyHex.addEventListener('click', this.handleCopyHex);
+                this.elements.btnCopyRgb.addEventListener('click', this.handleCopyRgb);
+
+                console.log('Color Picker initialized');
+            },
+
+            cleanup() {
+                if (this.elements.colorInput) {
+                    this.elements.colorInput.removeEventListener('input', this.handleInput);
+                    this.elements.btnCopyHex.removeEventListener('click', this.handleCopyHex);
+                    this.elements.btnCopyRgb.removeEventListener('click', this.handleCopyRgb);
+                }
+                this.elements = {};
+                console.log('Color Picker cleanup done');
+            },
+
+            hexToRgb(hex) {
+                const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+                return result ? {
+                    r: parseInt(result[1], 16),
+                    g: parseInt(result[2], 16),
+                    b: parseInt(result[3], 16)
+                } : null;
+            },
+
+            updateColor(hex) {
+                this.elements.colorPreview.style.backgroundColor = hex;
+                this.elements.hexValue.value = hex.toUpperCase();
+
+                const rgb = this.hexToRgb(hex);
+                if (rgb) {
+                    this.elements.rgbValue.value = `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`;
+                }
+            },
+
+            copy(elementId) {
+                const el = document.getElementById(elementId);
+                el.select();
+                document.execCommand('copy');
+                // Simple feedback could be added here
             }
-        }
-
-        colorInput.addEventListener('input', (e) => {
-            updateColor(e.target.value);
         });
-
-        function copy(elementId) {
-            const el = document.getElementById(elementId);
-            el.select();
-            document.execCommand('copy');
-            // Simple feedback could be added here
-        }
     </script>
 </body>
 

@@ -7,8 +7,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>QR 코드 생성기 - Utilsly</title>
     <meta name="description" content="URL이나 텍스트를 QR 코드로 변환하세요.">
-<script>
-        !function(){const e=localStorage.getItem("theme"),t=window.matchMedia("(prefers-color-scheme: dark)").matches;"dark"!==e&&(e||!t)||document.documentElement.setAttribute("data-theme","dark")}();
+    <script>
+        !function () { const e = localStorage.getItem("theme"), t = window.matchMedia("(prefers-color-scheme: dark)").matches; "dark" !== e && (e || !t) || document.documentElement.setAttribute("data-theme", "dark") }();
     </script>
 
     <link rel="preload" href="../../css/style.css" as="style">
@@ -69,16 +69,15 @@
                     <p class="description">링크나 텍스트를 입력하면 즉시 QR 코드가 생성됩니다.</p>
                 </div>
 
-                <div class="tool-container">
+                <div class="tool-container" data-tool-id="qr-generator">
                     <div class="qr-container">
                         <div class="input-area">
-                            <input type="text" id="textInput" placeholder="URL 또는 텍스트 입력" value="https://utilsly.com"
-                                oninput="generateQR()">
+                            <input type="text" id="textInput" placeholder="URL 또는 텍스트 입력" value="https://utilsly.com">
                         </div>
 
                         <div id="qrcode"></div>
 
-                        <button class="btn btn-primary" onclick="downloadQR()">
+                        <button class="btn btn-primary" id="downloadBtn">
                             <span class="material-symbols-rounded" style="margin-right: 8px;">download</span>
                             이미지 저장
                         </button>
@@ -89,37 +88,64 @@
     </div>
     <script src="../../js/common.js"></script>
     <script>
-        let qrcode = null;
+        Utilsly.registerTool('qr-generator', {
+            qrcode: null,
+            elements: {},
 
-        function generateQR() {
-            const text = document.getElementById('textInput').value;
-            const container = document.getElementById('qrcode');
-            container.innerHTML = '';
+            init() {
+                this.elements = {
+                    textInput: document.getElementById('textInput'),
+                    container: document.getElementById('qrcode'),
+                    downloadBtn: document.getElementById('downloadBtn')
+                };
 
-            if (text) {
-                qrcode = new QRCode(container, {
-                    text: text,
-                    width: 256,
-                    height: 256,
-                    colorDark: "#000000",
-                    colorLight: "#ffffff",
-                    correctLevel: QRCode.CorrectLevel.H
-                });
+                this.handleGenerate = this.generateQR.bind(this);
+                this.handleDownload = this.downloadQR.bind(this);
+
+                this.elements.textInput.addEventListener('input', this.handleGenerate);
+                this.elements.downloadBtn.addEventListener('click', this.handleDownload);
+
+                // Initial generation with delay to ensure lib is ready
+                setTimeout(this.handleGenerate, 100);
+                console.log('QR Generator initialized');
+            },
+
+            cleanup() {
+                if (this.elements.textInput) {
+                    this.elements.textInput.removeEventListener('input', this.handleGenerate);
+                    this.elements.downloadBtn.removeEventListener('click', this.handleDownload);
+                }
+                this.elements = {};
+                this.qrcode = null;
+                console.log('QR Generator cleanup done');
+            },
+
+            generateQR() {
+                const text = this.elements.textInput.value;
+                this.elements.container.innerHTML = ''; // Clear prev
+
+                if (text && window.QRCode) {
+                    this.qrcode = new QRCode(this.elements.container, {
+                        text: text,
+                        width: 256,
+                        height: 256,
+                        colorDark: "#000000",
+                        colorLight: "#ffffff",
+                        correctLevel: QRCode.CorrectLevel.H
+                    });
+                }
+            },
+
+            downloadQR() {
+                const img = this.elements.container.querySelector('img');
+                if (img) {
+                    const link = document.createElement('a');
+                    link.download = 'qrcode.png';
+                    link.href = img.src;
+                    link.click();
+                }
             }
-        }
-
-        function downloadQR() {
-            const img = document.querySelector('#qrcode img');
-            if (img) {
-                const link = document.createElement('a');
-                link.download = 'qrcode.png';
-                link.href = img.src;
-                link.click();
-            }
-        }
-
-        // Init
-        setTimeout(generateQR, 100); // Wait for lib load
+        });
     </script>
 </body>
 

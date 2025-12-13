@@ -7,8 +7,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>스톱워치 - Utilsly</title>
     <meta name="description" content="정확한 시간 측정, 랩 타임 기록이 가능한 온라인 스톱워치입니다.">
-<script>
-        !function(){const e=localStorage.getItem("theme"),t=window.matchMedia("(prefers-color-scheme: dark)").matches;"dark"!==e&&(e||!t)||document.documentElement.setAttribute("data-theme","dark")}();
+    <script>
+        !function () { const e = localStorage.getItem("theme"), t = window.matchMedia("(prefers-color-scheme: dark)").matches; "dark" !== e && (e || !t) || document.documentElement.setAttribute("data-theme", "dark") }();
     </script>
     <link rel="preload" href="../../css/style.css" as="style">
     <link rel="stylesheet" href="../../css/style.css">
@@ -35,7 +35,7 @@
         }
 
         .laps {
-            
+
             border-top: 1px solid var(--border-color);
         }
 
@@ -82,13 +82,13 @@
                     <p class="description">정밀한 시간 측정과 랩 타임 기록이 가능합니다.</p>
                 </div>
 
-                <div class="tool-container">
+                <div class="tool-container" data-tool-id="stopwatch">
                     <div class="timer-display" id="display">00:00:00.00</div>
 
                     <div class="controls">
-                        <button class="btn btn-large btn-primary" id="start-btn" onclick="startStop()">시작</button>
-                        <button class="btn btn-large" id="lap-btn" onclick="recordLap()" disabled>랩</button>
-                        <button class="btn btn-large" id="reset-btn" onclick="reset()">리셋</button>
+                        <button class="btn btn-large btn-primary" id="start-btn">시작</button>
+                        <button class="btn btn-large" id="lap-btn" disabled>랩</button>
+                        <button class="btn btn-large" id="reset-btn">리셋</button>
                     </div>
 
                     <div class="laps" id="laps">
@@ -100,81 +100,112 @@
     </div>
     <script src="../../js/common.js"></script>
     <script>
-        let startTime;
-        let elapsedTime = 0;
-        let timerInterval;
-        let isRunning = false;
-        let lapCount = 1;
+        Utilsly.registerTool('stopwatch', {
+            startTime: 0,
+            elapsedTime: 0,
+            timerInterval: null,
+            isRunning: false,
+            lapCount: 1,
+            elements: {},
 
-        const display = document.getElementById('display');
-        const startBtn = document.getElementById('start-btn');
-        const lapBtn = document.getElementById('lap-btn');
-        const lapsContainer = document.getElementById('laps');
+            init() {
+                this.elements = {
+                    display: document.getElementById('display'),
+                    startBtn: document.getElementById('start-btn'),
+                    lapBtn: document.getElementById('lap-btn'),
+                    resetBtn: document.getElementById('reset-btn'),
+                    lapsContainer: document.getElementById('laps')
+                };
 
-        function formatTime(ms) {
-            const date = new Date(ms);
-            const m = date.getUTCHours() * 60 + date.getUTCMinutes();
-            const s = date.getUTCSeconds();
-            const cs = Math.floor(date.getUTCMilliseconds() / 10);
+                this.handleStartStop = this.startStop.bind(this);
+                this.handleLap = this.recordLap.bind(this);
+                this.handleReset = this.reset.bind(this);
 
-            return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}.${String(cs).padStart(2, '0')}`;
-        }
+                this.elements.startBtn.addEventListener('click', this.handleStartStop);
+                this.elements.lapBtn.addEventListener('click', this.handleLap);
+                this.elements.resetBtn.addEventListener('click', this.handleReset);
 
-        function updateDisplay() {
-            const now = Date.now();
-            const time = elapsedTime + (now - startTime);
-            display.textContent = formatTime(time);
-        }
+                console.log('Stopwatch initialized');
+            },
 
-        function startStop() {
-            if (isRunning) {
-                // Stop
-                clearInterval(timerInterval);
-                elapsedTime += Date.now() - startTime;
-                isRunning = false;
-                startBtn.textContent = "시작";
-                startBtn.style.backgroundColor = "var(--accent-blue)";
-                lapBtn.disabled = true;
-            } else {
-                // Start
-                startTime = Date.now();
-                timerInterval = setInterval(updateDisplay, 10);
-                isRunning = true;
-                startBtn.textContent = "중지";
-                startBtn.style.backgroundColor = "#E03E3E";
-                startBtn.style.borderColor = "#E03E3E";
-                lapBtn.disabled = false;
+            cleanup() {
+                if (this.timerInterval) clearInterval(this.timerInterval);
+                if (this.elements.startBtn) {
+                    this.elements.startBtn.removeEventListener('click', this.handleStartStop);
+                    this.elements.lapBtn.removeEventListener('click', this.handleLap);
+                    this.elements.resetBtn.removeEventListener('click', this.handleReset);
+                }
+                this.elements = {};
+                console.log('Stopwatch cleanup done');
+            },
+
+            formatTime(ms) {
+                const date = new Date(ms);
+                const m = date.getUTCHours() * 60 + date.getUTCMinutes();
+                const s = date.getUTCSeconds();
+                const cs = Math.floor(date.getUTCMilliseconds() / 10);
+                return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}.${String(cs).padStart(2, '0')}`;
+            },
+
+            updateDisplay() {
+                const now = Date.now();
+                const time = this.elapsedTime + (now - this.startTime);
+                if (this.elements.display) this.elements.display.textContent = this.formatTime(time);
+            },
+
+            startStop() {
+                if (this.isRunning) {
+                    // Stop
+                    clearInterval(this.timerInterval);
+                    this.elapsedTime += Date.now() - this.startTime;
+                    this.isRunning = false;
+                    this.elements.startBtn.textContent = "시작";
+                    this.elements.startBtn.style.backgroundColor = "var(--accent-blue)";
+                    this.elements.lapBtn.disabled = true;
+                } else {
+                    // Start
+                    this.startTime = Date.now();
+                    this.timerInterval = setInterval(this.updateDisplay.bind(this), 10);
+                    this.isRunning = true;
+                    this.elements.startBtn.textContent = "중지";
+                    this.elements.startBtn.style.backgroundColor = "#E03E3E";
+                    this.elements.startBtn.style.borderColor = "#E03E3E";
+                    this.elements.lapBtn.disabled = false;
+                }
+            },
+
+            recordLap() {
+                if (!this.isRunning) return;
+                const now = Date.now();
+                const time = this.elapsedTime + (now - this.startTime);
+
+                const lapItem = document.createElement('div');
+                lapItem.className = 'lap-item';
+                lapItem.innerHTML = `
+                    <span class="lap-number">랩 ${this.lapCount}</span>
+                    <span class="lap-time">${this.formatTime(time)}</span>
+                `;
+
+                this.elements.lapsContainer.insertBefore(lapItem, this.elements.lapsContainer.firstChild);
+                this.lapCount++;
+            },
+
+            reset() {
+                clearInterval(this.timerInterval);
+                this.isRunning = false;
+                this.elapsedTime = 0;
+                this.lapCount = 1;
+
+                if (this.elements.display) this.elements.display.textContent = "00:00:00.00";
+                if (this.elements.startBtn) {
+                    this.elements.startBtn.textContent = "시작";
+                    this.elements.startBtn.style.backgroundColor = "var(--accent-blue)";
+                    this.elements.startBtn.style.borderColor = "var(--accent-blue)";
+                }
+                if (this.elements.lapBtn) this.elements.lapBtn.disabled = true;
+                if (this.elements.lapsContainer) this.elements.lapsContainer.innerHTML = '';
             }
-        }
-
-        function recordLap() {
-            if (!isRunning) return;
-            const now = Date.now();
-            const time = elapsedTime + (now - startTime);
-
-            const lapItem = document.createElement('div');
-            lapItem.className = 'lap-item';
-            lapItem.innerHTML = `
-                <span class="lap-number">랩 ${lapCount}</span>
-                <span class="lap-time">${formatTime(time)}</span>
-            `;
-
-            lapsContainer.insertBefore(lapItem, lapsContainer.firstChild);
-            lapCount++;
-        }
-
-        function reset() {
-            clearInterval(timerInterval);
-            isRunning = false;
-            elapsedTime = 0;
-            display.textContent = "00:00:00.00";
-            startBtn.textContent = "시작";
-            startBtn.style.backgroundColor = "var(--accent-blue)";
-            startBtn.style.borderColor = "var(--accent-blue)";
-            lapBtn.disabled = true;
-            lapsContainer.innerHTML = '';
-            lapCount = 1;
-        }
+        });
     </script>
 </body>
 

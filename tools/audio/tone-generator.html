@@ -7,14 +7,14 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>주파수 생성기 - Utilsly</title>
     <meta name="description" content="특정 주파수(Hz)의 소리를 생성합니다. 스피커 테스트나 청력 테스트에 활용하세요.">
-<script>
-        !function(){const e=localStorage.getItem("theme"),t=window.matchMedia("(prefers-color-scheme: dark)").matches;"dark"!==e&&(e||!t)||document.documentElement.setAttribute("data-theme","dark")}();
+    <script>
+        !function () { const e = localStorage.getItem("theme"), t = window.matchMedia("(prefers-color-scheme: dark)").matches; "dark" !== e && (e || !t) || document.documentElement.setAttribute("data-theme", "dark") }();
     </script>
     <link rel="preload" href="../../css/style.css" as="style">
     <link rel="stylesheet" href="../../css/style.css">
     <style>
         .generator-container {
-            
+
             text-align: center;
         }
 
@@ -40,6 +40,7 @@
         }
 
         input[type="range"]::-webkit-slider-thumb {
+            appearance: none;
             -webkit-appearance: none;
             width: 24px;
             height: 24px;
@@ -68,7 +69,7 @@
             box-shadow: 0 4px 12px rgba(49, 130, 246, 0.3);
             transition: all 0.2s;
             display: flex;
-                        justify-content: center;
+            justify-content: center;
             margin: 0 auto;
         }
 
@@ -116,7 +117,7 @@
                     <p class="description">원하는 주파수의 순수 톤(Sine Wave)을 생성합니다.</p>
                 </div>
 
-                <div class="tool-container">
+                <div class="tool-container" data-tool-id="tone-generator">
                     <div class="generator-container">
                         <div class="frequency-display">
                             <span id="freqValue">440</span> <span
@@ -127,16 +128,16 @@
                             <input type="range" id="freqSlider" min="20" max="20000" value="440" step="1">
                         </div>
 
-                        <div class="preset-btns">
-                            <button class="btn" onclick="setFreq(60)">60Hz</button>
-                            <button class="btn" onclick="setFreq(440)">440Hz</button>
-                            <button class="btn" onclick="setFreq(1000)">1kHz</button>
-                            <button class="btn" onclick="setFreq(10000)">10kHz</button>
+                        <div class="preset-btns" id="presetBtns">
+                            <button class="btn" data-freq="60">60Hz</button>
+                            <button class="btn" data-freq="440">440Hz</button>
+                            <button class="btn" data-freq="1000">1kHz</button>
+                            <button class="btn" data-freq="10000">10kHz</button>
                         </div>
 
                         <div style="margin-bottom: 24px;">
                             <label style="margin-right: 12px;">파형 선택:</label>
-                            <select id="waveType" class="form-select" onchange="setWaveType(this.value)">
+                            <select id="waveType" class="form-select">
                                 <option value="sine">Sine (사인파)</option>
                                 <option value="square">Square (사각파)</option>
                                 <option value="sawtooth">Sawtooth (톱니파)</option>
@@ -144,7 +145,7 @@
                             </select>
                         </div>
 
-                        <button class="play-btn" id="playBtn" onclick="togglePlay()">
+                        <button class="play-btn" id="playBtn">
                             <span class="material-symbols-rounded">play_arrow</span>
                         </button>
                     </div>
@@ -154,76 +155,137 @@
     </div>
     <script src="../../js/common.js"></script>
     <script>
-        let audioCtx;
-        let oscillator;
-        let gainNode;
-        let isPlaying = false;
+        Utilsly.registerTool('tone-generator', {
+            elements: {},
+            audioCtx: null,
+            oscillator: null,
+            gainNode: null,
+            isPlaying: false,
 
-        const freqSlider = document.getElementById('freqSlider');
-        const freqValue = document.getElementById('freqValue');
-        const playBtn = document.getElementById('playBtn');
-        const waveTypeSelect = document.getElementById('waveType');
+            init() {
+                this.elements = {
+                    freqSlider: document.getElementById('freqSlider'),
+                    freqValue: document.getElementById('freqValue'),
+                    playBtn: document.getElementById('playBtn'),
+                    waveTypeSelect: document.getElementById('waveType'),
+                    presetBtns: document.getElementById('presetBtns')
+                };
 
-        freqSlider.addEventListener('input', (e) => {
-            const val = e.target.value;
-            freqValue.textContent = val;
-            if (oscillator) {
-                oscillator.frequency.value = val;
-            }
-        });
+                this.handleSlider = (e) => this.updateFreq(e.target.value);
+                this.handleWave = (e) => this.setWaveType(e.target.value);
+                this.handlePlay = () => this.togglePlay();
+                this.handlePreset = (e) => {
+                    if (e.target.tagName === 'BUTTON') {
+                        this.setFreq(parseInt(e.target.getAttribute('data-freq')));
+                    }
+                };
 
-        function setFreq(val) {
-            freqSlider.value = val;
-            freqValue.textContent = val;
-            if (oscillator) {
-                oscillator.frequency.value = val;
-            }
-        }
+                this.elements.freqSlider.addEventListener('input', this.handleSlider);
+                this.elements.waveTypeSelect.addEventListener('change', this.handleWave);
+                this.elements.playBtn.addEventListener('click', this.handlePlay);
+                this.elements.presetBtns.addEventListener('click', this.handlePreset);
 
-        function setWaveType(type) {
-            if (oscillator) {
-                oscillator.type = type;
-            }
-        }
+                console.log('Tone Generator initialized');
+            },
 
-        function togglePlay() {
-            if (!isPlaying) {
-                if (!audioCtx) {
-                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            cleanup() {
+                if (this.elements.freqSlider) {
+                    this.elements.freqSlider.removeEventListener('input', this.handleSlider);
+                    this.elements.waveTypeSelect.removeEventListener('change', this.handleWave);
+                    this.elements.playBtn.removeEventListener('click', this.handlePlay);
+                    this.elements.presetBtns.removeEventListener('click', this.handlePreset);
                 }
 
-                oscillator = audioCtx.createOscillator();
-                gainNode = audioCtx.createGain();
+                this.stopSound();
+                if (this.audioCtx) {
+                    this.audioCtx.close();
+                    this.audioCtx = null;
+                }
 
-                oscillator.type = waveTypeSelect.value;
-                oscillator.frequency.value = freqSlider.value;
+                this.elements = {};
+                console.log('Tone Generator cleanup done');
+            },
 
-                oscillator.connect(gainNode);
-                gainNode.connect(audioCtx.destination);
+            updateFreq(val) {
+                this.elements.freqValue.textContent = val;
+                if (this.oscillator) {
+                    this.oscillator.frequency.value = val;
+                }
+            },
 
-                oscillator.start();
+            setFreq(val) {
+                this.elements.freqSlider.value = val;
+                this.updateFreq(val);
+            },
+
+            setWaveType(type) {
+                if (this.oscillator) {
+                    this.oscillator.type = type;
+                }
+            },
+
+            togglePlay() {
+                if (!this.isPlaying) {
+                    this.playSound();
+                } else {
+                    this.stopSound();
+                }
+            },
+
+            playSound() {
+                if (!this.audioCtx) {
+                    this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+
+                this.oscillator = this.audioCtx.createOscillator();
+                this.gainNode = this.audioCtx.createGain();
+
+                this.oscillator.type = this.elements.waveTypeSelect.value;
+                this.oscillator.frequency.value = this.elements.freqSlider.value;
+
+                this.oscillator.connect(this.gainNode);
+                this.gainNode.connect(this.audioCtx.destination);
+
+                this.oscillator.start();
 
                 // Fade in
-                gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
-                gainNode.gain.linearRampToValueAtTime(0.5, audioCtx.currentTime + 0.1);
+                this.gainNode.gain.setValueAtTime(0, this.audioCtx.currentTime);
+                this.gainNode.gain.linearRampToValueAtTime(0.5, this.audioCtx.currentTime + 0.1);
 
-                isPlaying = true;
-                playBtn.classList.add('playing');
-                playBtn.innerHTML = '<span class="material-symbols-rounded">stop</span>';
-            } else {
+                this.isPlaying = true;
+                this.elements.playBtn.classList.add('playing');
+                this.elements.playBtn.innerHTML = '<span class="material-symbols-rounded">stop</span>';
+            },
+
+            stopSound() {
+                if (!this.isPlaying || !this.oscillator) return;
+
                 // Fade out
-                gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.1);
-                setTimeout(() => {
-                    oscillator.stop();
-                    oscillator.disconnect();
-                    gainNode.disconnect();
-                }, 100);
+                // Check if context is still running to avoid errors
+                if (this.audioCtx && this.audioCtx.state === 'running') {
+                    this.gainNode.gain.linearRampToValueAtTime(0, this.audioCtx.currentTime + 0.1);
+                    setTimeout(() => {
+                        if (this.oscillator) {
+                            try {
+                                this.oscillator.stop();
+                                this.oscillator.disconnect();
+                            } catch (e) { }
+                        }
+                        if (this.gainNode) {
+                            try {
+                                this.gainNode.disconnect();
+                            } catch (e) { }
+                        }
+                    }, 100);
+                }
 
-                isPlaying = false;
-                playBtn.classList.remove('playing');
-                playBtn.innerHTML = '<span class="material-symbols-rounded">play_arrow</span>';
+                this.isPlaying = false;
+                if (this.elements.playBtn) {
+                    this.elements.playBtn.classList.remove('playing');
+                    this.elements.playBtn.innerHTML = '<span class="material-symbols-rounded">play_arrow</span>';
+                }
             }
-        }
+        });
     </script>
 </body>
 

@@ -34,7 +34,7 @@
                     <h1>이미지 플레이스홀더 생성기</h1>
                     <p class="description">커스텀 크기와 색상의 플레이스홀더 이미지를 만드세요.</p>
                 </div>
-                <div class="tool-container">
+                <div class="tool-container" data-tool-id="placeholder-generator">
                     <div
                         style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px;">
                         <div>
@@ -63,56 +63,96 @@
                         <input type="text" id="text" placeholder="400 x 300"
                             style="width: 100%; padding: 8px; border: 1px solid var(--border-color); border-radius: 4px; margin-bottom: 16px;">
                     </div>
-                    <button class="btn btn-primary" onclick="generate()"
+                    <button class="btn btn-primary" id="generateBtn"
                         style="width: 100%; margin-bottom: 24px;">생성</button>
                     <div
                         style="text-align: center; background: var(--bg-sidebar); padding: 24px; border-radius: 12px; margin-bottom: 16px;">
                         <canvas id="canvas" style="max-width: 100%; border: 1px solid var(--border-color);"></canvas>
                     </div>
-                    <button class="btn btn-primary" onclick="download()" style="width: 100%;">다운로드</button>
+                    <button class="btn btn-primary" id="downloadBtn" style="width: 100%;">다운로드</button>
                 </div>
             </div>
         </main>
     </div>
     <script src="../../js/common.js"></script>
     <script>
-        const canvas = document.getElementById('canvas');
-        const ctx = canvas.getContext('2d');
+        Utilsly.registerTool('placeholder-generator', {
+            elements: {},
+            ctx: null,
 
-        function generate() {
-            const width = parseInt(document.getElementById('width').value);
-            const height = parseInt(document.getElementById('height').value);
-            const bgColor = document.getElementById('bgColor').value;
-            const textColor = document.getElementById('textColor').value;
-            const text = document.getElementById('text').value || `${width} x ${height}`;
+            init() {
+                this.elements = {
+                    width: document.getElementById('width'),
+                    height: document.getElementById('height'),
+                    bgColor: document.getElementById('bgColor'),
+                    textColor: document.getElementById('textColor'),
+                    text: document.getElementById('text'),
+                    canvas: document.getElementById('canvas'),
+                    generateBtn: document.getElementById('generateBtn'),
+                    downloadBtn: document.getElementById('downloadBtn')
+                };
 
-            canvas.width = width;
-            canvas.height = height;
+                this.ctx = this.elements.canvas.getContext('2d');
 
-            ctx.fillStyle = bgColor;
-            ctx.fillRect(0, 0, width, height);
+                this.handleInput = () => this.generate();
+                this.handleDownload = () => this.download();
 
-            ctx.fillStyle = textColor;
-            ctx.font = `${Math.min(width, height) / 10}px sans-serif`;
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText(text, width / 2, height / 2);
-        }
+                this.elements.width.addEventListener('input', this.handleInput);
+                this.elements.height.addEventListener('input', this.handleInput);
+                this.elements.bgColor.addEventListener('input', this.handleInput);
+                this.elements.textColor.addEventListener('input', this.handleInput);
+                this.elements.text.addEventListener('input', this.handleInput);
+                this.elements.generateBtn.addEventListener('click', this.handleInput);
+                this.elements.downloadBtn.addEventListener('click', this.handleDownload);
 
-        function download() {
-            const link = document.createElement('a');
-            link.download = 'placeholder.png';
-            link.href = canvas.toDataURL();
-            link.click();
-        }
+                this.generate();
+                console.log('Placeholder Generator initialized');
+            },
 
-        document.getElementById('width').addEventListener('input', generate);
-        document.getElementById('height').addEventListener('input', generate);
-        document.getElementById('bgColor').addEventListener('input', generate);
-        document.getElementById('textColor').addEventListener('input', generate);
-        document.getElementById('text').addEventListener('input', generate);
+            cleanup() {
+                if (this.elements.width) {
+                    this.elements.width.removeEventListener('input', this.handleInput);
+                    this.elements.height.removeEventListener('input', this.handleInput);
+                    this.elements.bgColor.removeEventListener('input', this.handleInput);
+                    this.elements.textColor.removeEventListener('input', this.handleInput);
+                    this.elements.text.removeEventListener('input', this.handleInput);
+                    this.elements.generateBtn.removeEventListener('click', this.handleInput);
+                    this.elements.downloadBtn.removeEventListener('click', this.handleDownload);
+                }
+                this.elements = {};
+                this.ctx = null;
+                console.log('Placeholder Generator cleanup done');
+            },
 
-        generate();
+            generate() {
+                if (!this.elements.width) return;
+
+                const width = parseInt(this.elements.width.value);
+                const height = parseInt(this.elements.height.value);
+                const bgColor = this.elements.bgColor.value;
+                const textColor = this.elements.textColor.value;
+                const text = this.elements.text.value || `${width} x ${height}`;
+
+                this.elements.canvas.width = width;
+                this.elements.canvas.height = height;
+
+                this.ctx.fillStyle = bgColor;
+                this.ctx.fillRect(0, 0, width, height);
+
+                this.ctx.fillStyle = textColor;
+                this.ctx.font = `${Math.min(width, height) / 10}px sans-serif`;
+                this.ctx.textAlign = 'center';
+                this.ctx.textBaseline = 'middle';
+                this.ctx.fillText(text, width / 2, height / 2);
+            },
+
+            download() {
+                const link = document.createElement('a');
+                link.download = 'placeholder.png';
+                link.href = this.elements.canvas.toDataURL();
+                link.click();
+            }
+        });
     </script>
 </body>
 

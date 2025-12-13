@@ -6,8 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>이미지 변환기 - Utilsly</title>
-    <meta name="description" content="이미지 파일을 JPG, PNG, WEBP 등 원하는 포맷으로 간편하게 변환하세요."><script>
-        !function(){const e=localStorage.getItem("theme"),t=window.matchMedia("(prefers-color-scheme: dark)").matches;"dark"!==e&&(e||!t)||document.documentElement.setAttribute("data-theme","dark")}();
+    <meta name="description" content="이미지 파일을 JPG, PNG, WEBP 등 원하는 포맷으로 간편하게 변환하세요.">
+    <script>
+        !function () { const e = localStorage.getItem("theme"), t = window.matchMedia("(prefers-color-scheme: dark)").matches; "dark" !== e && (e || !t) || document.documentElement.setAttribute("data-theme", "dark") }();
     </script>
 
     <link rel="preload" href="../../css/style.css" as="style">
@@ -45,7 +46,7 @@
         .controls {
             display: flex;
             gap: 16px;
-                        margin-bottom: 24px;
+            margin-bottom: 24px;
         }
     </style>
 </head>
@@ -73,131 +74,246 @@
             <div class="content-area">
                 <div class="page-header">
                     <div class="header-icon-wrapper">
-                        <span class="material-symbols-rounded">transform</span>
-                    </div>
-                    <h1>이미지 변환기</h1>
-                    <p class="description">JPG, PNG, WEBP 등 다양한 이미지 포맷을 손쉽게 변환하세요.</p>
-                </div>
+                        <!DOCTYPE html>
+                        <html lang="ko">
 
-                <div class="tool-container">
-                    <div class="drop-zone" id="dropZone">
-                        <span class="material-symbols-rounded"
-                            style="font-size: 48px; color: var(--text-tertiary); margin-bottom: 16px;">cloud_upload</span>
-                        <p style="font-size: 16px; font-weight: 500; margin-bottom: 8px;">이미지를 드래그하거나 클릭하여 업로드</p>
-                        <p style="font-size: 14px; color: var(--text-secondary);">지원 형식: JPG, PNG, WEBP, GIF</p>
-                        <input type="file" id="fileInput" accept="image/*" style="display: none;">
-                    </div>
+                        <head>
+                            <meta charset="UTF-8">
+                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                            <meta http-equiv="X-UA-Compatible" content="IE=edge">
+                            <title>이미지 변환기 - Utilsly</title>
+                            <meta name="description" content="이미지 파일을 JPG, PNG, WEBP 등 원하는 포맷으로 간편하게 변환하세요.">
+                            <script>
+                                !function () { const e = localStorage.getItem("theme"), t = window.matchMedia("(prefers-color-scheme: dark)").matches; "dark" !== e && (e || !t) || document.documentElement.setAttribute("data-theme", "dark") }();
+                            </script>
 
-                    <div class="preview-container" id="previewContainer">
-                        <img id="previewImage" class="preview-image" src="" alt="Preview">
-                        <div style="margin-top: 16px; font-size: 14px; color: var(--text-secondary);">
-                            원본 크기: <span id="originalSize">0 KB</span>
-                        </div>
-                    </div>
+                            <link rel="preload" href="../../css/style.css" as="style">
+                            <link rel="stylesheet" href="../../css/style.css">
+                            <style>
+                                .drop-zone {
+                                    border: 2px dashed var(--border-color);
+                                    border-radius: 8px;
+                                    padding: 40px;
+                                    text-align: center;
+                                    cursor: pointer;
+                                    transition: all 0.2s;
+                                    background: var(--bg-sidebar);
+                                    margin-bottom: 24px;
+                                }
 
-                    <div class="controls" id="controls" style="display: none;">
-                        <div style="flex: 1;">
-                            <label style="display: block; margin-bottom: 8px; font-weight: 600;">변환할 포맷</label>
-                            <select id="formatSelect">
-                                <option value="image/png">PNG</option>
-                                <option value="image/jpeg">JPG</option>
-                                <option value="image/webp">WEBP</option>
-                            </select>
-                        </div>
-                        <div style="flex: 1;">
-                            <label style="display: block; margin-bottom: 8px; font-weight: 600;">품질 (JPG/WEBP)</label>
-                            <input type="range" id="qualityRange" min="0.1" max="1.0" step="0.1" value="0.9">
-                            <span id="qualityValue" style="font-size: 14px; color: var(--text-secondary);">90%</span>
-                        </div>
-                    </div>
+                                .drop-zone:hover,
+                                .drop-zone.dragover {
+                                    border-color: var(--accent-blue);
+                                    background: rgba(35, 131, 226, 0.05);
+                                }
 
-                    <button id="convertBtn" class="btn btn-primary" style="width: 100%; display: none;"
-                        onclick="convertImage()">변환 및 다운로드</button>
-                </div>
-            </div>
-        </main>
-    </div>
-    <script src="../../js/common.js"></script>
-    <script>
-        const dropZone = document.getElementById('dropZone');
-        const fileInput = document.getElementById('fileInput');
-        const previewContainer = document.getElementById('previewContainer');
-        const previewImage = document.getElementById('previewImage');
-        const controls = document.getElementById('controls');
-        const convertBtn = document.getElementById('convertBtn');
-        const originalSize = document.getElementById('originalSize');
-        const qualityRange = document.getElementById('qualityRange');
-        const qualityValue = document.getElementById('qualityValue');
+                                .preview-container {
+                                    display: none;
+                                    margin-bottom: 24px;
+                                }
 
-        dropZone.addEventListener('click', () => fileInput.click());
+                                .preview-image {
+                                    max-width: 100%;
+                                    max-height: 400px;
+                                    border-radius: 8px;
+                                    border: 1px solid var(--border-color);
+                                }
 
-        dropZone.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            dropZone.classList.add('dragover');
-        });
+                                .controls {
+                                    display: flex;
+                                    gap: 16px;
+                                    margin-bottom: 24px;
+                                }
+                            </style>
+                        </head>
 
-        dropZone.addEventListener('dragleave', () => {
-            dropZone.classList.remove('dragover');
-        });
+                        <body>
+                            <div class="app-container">
+                                <aside class="sidebar">
+                                    <div class="sidebar-header">
+                                        <div class="user-profile">
+                                            <div class="avatar">U</div>
+                                        </div>
+                                    </div>
+                                    <nav class="sidebar-nav">
+                                        <!-- Sidebar content generated by js/common.js -->
+                                    </nav>
+                                </aside>
 
-        dropZone.addEventListener('drop', (e) => {
-            e.preventDefault();
-            dropZone.classList.remove('dragover');
-            const files = e.dataTransfer.files;
-            if (files.length > 0) {
-                handleFile(files[0]);
-            }
-        });
+                                <main class="main-content">
+                                    <header class="top-bar">
+                                        <div class="breadcrumbs">
+                                            <span class="breadcrumb-item">이미지 변환기</span>
+                                        </div>
+                                    </header>
 
-        fileInput.addEventListener('change', (e) => {
-            if (e.target.files.length > 0) {
-                handleFile(e.target.files[0]);
-            }
-        });
+                                    <div class="content-area">
+                                        <div class="page-header">
+                                            <div class="header-icon-wrapper">
+                                                <span class="material-symbols-rounded">transform</span>
+                                            </div>
+                                            <h1>이미지 변환기</h1>
+                                            <p class="description">JPG, PNG, WEBP 등 다양한 이미지 포맷을 손쉽게 변환하세요.</p>
+                                        </div>
 
-        qualityRange.addEventListener('input', (e) => {
-            qualityValue.textContent = Math.round(e.target.value * 100) + '%';
-        });
+                                        <div class="tool-container" data-tool-id="image-converter">
+                                            <div class="drop-zone" id="dropZone">
+                                                <span class="material-symbols-rounded"
+                                                    style="font-size: 48px; color: var(--text-tertiary); margin-bottom: 16px;">cloud_upload</span>
+                                                <p style="font-size: 16px; font-weight: 500; margin-bottom: 8px;">이미지를
+                                                    드래그하거나 클릭하여 업로드</p>
+                                                <p style="font-size: 14px; color: var(--text-secondary);">지원 형식: JPG,
+                                                    PNG, WEBP, GIF</p>
+                                                <input type="file" id="fileInput" accept="image/*"
+                                                    style="display: none;">
+                                            </div>
 
-        function handleFile(file) {
-            if (!file.type.startsWith('image/')) {
-                alert('이미지 파일만 업로드 가능합니다.');
-                return;
-            }
+                                            <div class="preview-container" id="previewContainer">
+                                                <img id="previewImage" class="preview-image" src="" alt="Preview">
+                                                <div
+                                                    style="margin-top: 16px; font-size: 14px; color: var(--text-secondary);">
+                                                    원본 크기: <span id="originalSize">0 KB</span>
+                                                </div>
+                                            </div>
 
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                previewImage.src = e.target.result;
-                previewContainer.style.display = 'block';
-                controls.style.display = 'flex';
-                convertBtn.style.display = 'inline-flex';
-                originalSize.textContent = (file.size / 1024).toFixed(2) + ' KB';
-            };
-            reader.readAsDataURL(file);
-        }
+                                            <div class="controls" id="controls" style="display: none;">
+                                                <div style="flex: 1;">
+                                                    <label
+                                                        style="display: block; margin-bottom: 8px; font-weight: 600;">변환할
+                                                        포맷</label>
+                                                    <select id="formatSelect">
+                                                        <option value="image/png">PNG</option>
+                                                        <option value="image/jpeg">JPG</option>
+                                                        <option value="image/webp">WEBP</option>
+                                                    </select>
+                                                </div>
+                                                <div style="flex: 1;">
+                                                    <label
+                                                        style="display: block; margin-bottom: 8px; font-weight: 600;">품질
+                                                        (JPG/WEBP)</label>
+                                                    <input type="range" id="qualityRange" min="0.1" max="1.0" step="0.1"
+                                                        value="0.9">
+                                                    <span id="qualityValue"
+                                                        style="font-size: 14px; color: var(--text-secondary);">90%</span>
+                                                </div>
+                                            </div>
 
-        function convertImage() {
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            const format = document.getElementById('formatSelect').value;
-            const quality = parseFloat(qualityRange.value);
+                                            <button id="convertBtn" class="btn btn-primary"
+                                                style="width: 100%; display: none;">변환 및 다운로드</button>
+                                        </div>
+                                    </div>
+                                </main>
+                            </div>
+                            <script src="../../js/common.js"></script>
+                            <script>
+                                Utilsly.registerTool('image-converter', {
+                                    elements: {},
 
-            canvas.width = previewImage.naturalWidth;
-            canvas.height = previewImage.naturalHeight;
-            ctx.drawImage(previewImage, 0, 0);
+                                    init() {
+                                        this.elements = {
+                                            dropZone: document.getElementById('dropZone'),
+                                            fileInput: document.getElementById('fileInput'),
+                                            previewContainer: document.getElementById('previewContainer'),
+                                            previewImage: document.getElementById('previewImage'),
+                                            controls: document.getElementById('controls'),
+                                            convertBtn: document.getElementById('convertBtn'),
+                                            originalSize: document.getElementById('originalSize'),
+                                            qualityRange: document.getElementById('qualityRange'),
+                                            qualityValue: document.getElementById('qualityValue'),
+                                            formatSelect: document.getElementById('formatSelect')
+                                        };
 
-            const dataUrl = canvas.toDataURL(format, quality);
-            const link = document.createElement('a');
+                                        this.handleClick = () => this.elements.fileInput.click();
+                                        this.handleDragOver = (e) => {
+                                            e.preventDefault();
+                                            this.elements.dropZone.classList.add('dragover');
+                                        };
+                                        this.handleDragLeave = () => {
+                                            this.elements.dropZone.classList.remove('dragover');
+                                        };
+                                        this.handleDrop = (e) => {
+                                            e.preventDefault();
+                                            this.elements.dropZone.classList.remove('dragover');
+                                            const files = e.dataTransfer.files;
+                                            if (files.length > 0) {
+                                                this.handleFile(files[0]);
+                                            }
+                                        };
+                                        this.handleFileChange = (e) => {
+                                            if (e.target.files.length > 0) {
+                                                this.handleFile(e.target.files[0]);
+                                            }
+                                        };
+                                        this.handleQualityInput = (e) => {
+                                            this.elements.qualityValue.textContent = Math.round(e.target.value * 100) + '%';
+                                        };
+                                        this.handleConvert = () => this.convertImage();
 
-            let ext = 'png';
-            if (format === 'image/jpeg') ext = 'jpg';
-            if (format === 'image/webp') ext = 'webp';
+                                        this.elements.dropZone.addEventListener('click', this.handleClick);
+                                        this.elements.dropZone.addEventListener('dragover', this.handleDragOver);
+                                        this.elements.dropZone.addEventListener('dragleave', this.handleDragLeave);
+                                        this.elements.dropZone.addEventListener('drop', this.handleDrop);
+                                        this.elements.fileInput.addEventListener('change', this.handleFileChange);
+                                        this.elements.qualityRange.addEventListener('input', this.handleQualityInput);
+                                        this.elements.convertBtn.addEventListener('click', this.handleConvert);
 
-            link.download = `converted-image.${ext}`;
-            link.href = dataUrl;
-            link.click();
-        }
-    </script>
-</body>
+                                        console.log('Image Converter initialized');
+                                    },
 
-</html>
+                                    cleanup() {
+                                        if (this.elements.dropZone) {
+                                            this.elements.dropZone.removeEventListener('click', this.handleClick);
+                                            this.elements.dropZone.removeEventListener('dragover', this.handleDragOver);
+                                            this.elements.dropZone.removeEventListener('dragleave', this.handleDragLeave);
+                                            this.elements.dropZone.removeEventListener('drop', this.handleDrop);
+                                            this.elements.fileInput.removeEventListener('change', this.handleFileChange);
+                                            this.elements.qualityRange.removeEventListener('input', this.handleQualityInput);
+                                            this.elements.convertBtn.removeEventListener('click', this.handleConvert);
+                                        }
+                                        this.elements = {};
+                                        console.log('Image Converter cleanup done');
+                                    },
+
+                                    handleFile(file) {
+                                        if (!file.type.startsWith('image/')) {
+                                            alert('이미지 파일만 업로드 가능합니다.');
+                                            return;
+                                        }
+
+                                        const reader = new FileReader();
+                                        reader.onload = (e) => {
+                                            this.elements.previewImage.src = e.target.result;
+                                            this.elements.previewContainer.style.display = 'block';
+                                            this.elements.controls.style.display = 'flex';
+                                            this.elements.convertBtn.style.display = 'inline-flex';
+                                            this.elements.originalSize.textContent = (file.size / 1024).toFixed(2) + ' KB';
+                                        };
+                                        reader.readAsDataURL(file);
+                                    },
+
+                                    convertImage() {
+                                        const canvas = document.createElement('canvas');
+                                        const ctx = canvas.getContext('2d');
+                                        const format = this.elements.formatSelect.value;
+                                        const quality = parseFloat(this.elements.qualityRange.value);
+
+                                        canvas.width = this.elements.previewImage.naturalWidth;
+                                        canvas.height = this.elements.previewImage.naturalHeight;
+                                        ctx.drawImage(this.elements.previewImage, 0, 0);
+
+                                        const dataUrl = canvas.toDataURL(format, quality);
+                                        const link = document.createElement('a');
+
+                                        let ext = 'png';
+                                        if (format === 'image/jpeg') ext = 'jpg';
+                                        if (format === 'image/webp') ext = 'webp';
+
+                                        link.download = `converted-image.${ext}`;
+                                        link.href = dataUrl;
+                                        link.click();
+                                    }
+                                });
+                            </script>
+                        </body>
+
+                        </html>

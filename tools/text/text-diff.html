@@ -7,8 +7,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>텍스트 비교 - Utilsly</title>
     <meta name="description" content="두 텍스트의 차이점을 비교하여 시각적으로 확인하세요.">
-<script>
-        !function(){const e=localStorage.getItem("theme"),t=window.matchMedia("(prefers-color-scheme: dark)").matches;"dark"!==e&&(e||!t)||document.documentElement.setAttribute("data-theme","dark")}();
+    <script>
+        !function () { const e = localStorage.getItem("theme"), t = window.matchMedia("(prefers-color-scheme: dark)").matches; "dark" !== e && (e || !t) || document.documentElement.setAttribute("data-theme", "dark") }();
     </script>
 
     <link rel="preload" href="../../css/style.css" as="style">
@@ -89,7 +89,7 @@
                     <p class="description">두 텍스트를 입력하여 변경된 부분(추가/삭제)을 확인하세요.</p>
                 </div>
 
-                <div class="tool-container">
+                <div class="tool-container" data-tool-id="text-diff">
                     <div class="diff-container">
                         <div class="text-area-wrapper">
                             <label style="font-weight: 600;">원본 텍스트 (Old)</label>
@@ -101,7 +101,7 @@
                         </div>
                     </div>
 
-                    <button class="btn btn-primary" onclick="compareText()"
+                    <button class="btn btn-primary" id="compareBtn"
                         style="width: 100%; margin-bottom: 24px;">비교하기</button>
 
                     <label style="font-weight: 600; display: block; margin-bottom: 8px;">비교 결과</label>
@@ -115,31 +115,60 @@
     <script src="../../js/common.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jsdiff/5.1.0/diff.min.js"></script>
     <script>
-        function compareText() {
-            const oldText = document.getElementById('oldText').value;
-            const newText = document.getElementById('newText').value;
-            const resultDiv = document.getElementById('result');
+        Utilsly.registerTool('text-diff', {
+            elements: {},
 
-            const diff = Diff.diffWords(oldText, newText);
-            const fragment = document.createDocumentFragment();
+            init() {
+                this.elements = {
+                    oldText: document.getElementById('oldText'),
+                    newText: document.getElementById('newText'),
+                    resultDiv: document.getElementById('result'),
+                    compareBtn: document.getElementById('compareBtn')
+                };
 
-            diff.forEach((part) => {
-                const span = document.createElement('span');
-                span.style.fontWeight = part.added || part.removed ? 'bold' : 'normal';
+                this.handleCompare = this.compareText.bind(this);
+                this.elements.compareBtn.addEventListener('click', this.handleCompare);
+                console.log('Text Diff initialized');
+            },
 
-                if (part.added) {
-                    span.className = 'diff-added';
-                } else if (part.removed) {
-                    span.className = 'diff-removed';
+            cleanup() {
+                if (this.elements.compareBtn) {
+                    this.elements.compareBtn.removeEventListener('click', this.handleCompare);
+                }
+                this.elements = {};
+                console.log('Text Diff cleanup done');
+            },
+
+            compareText() {
+                const oldText = this.elements.oldText.value;
+                const newText = this.elements.newText.value;
+
+                if (typeof Diff === 'undefined') {
+                    this.elements.resultDiv.innerHTML = 'Diff library needed.';
+                    return;
                 }
 
-                span.appendChild(document.createTextNode(part.value));
-                fragment.appendChild(span);
-            });
+                const diff = Diff.diffWords(oldText, newText);
+                const fragment = document.createDocumentFragment();
 
-            resultDiv.innerHTML = '';
-            resultDiv.appendChild(fragment);
-        }
+                diff.forEach((part) => {
+                    const span = document.createElement('span');
+                    span.style.fontWeight = part.added || part.removed ? 'bold' : 'normal';
+
+                    if (part.added) {
+                        span.className = 'diff-added';
+                    } else if (part.removed) {
+                        span.className = 'diff-removed';
+                    }
+
+                    span.appendChild(document.createTextNode(part.value));
+                    fragment.appendChild(span);
+                });
+
+                this.elements.resultDiv.innerHTML = '';
+                this.elements.resultDiv.appendChild(fragment);
+            }
+        });
     </script>
 </body>
 

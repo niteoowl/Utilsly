@@ -6,8 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>GIF 변환기 - Utilsly</title>
-    <meta name="description" content="동영상을 움짤(GIF)로 변환하세요. 구간 설정과 크기 조절이 가능합니다."><script>
-        !function(){const e=localStorage.getItem("theme"),t=window.matchMedia("(prefers-color-scheme: dark)").matches;"dark"!==e&&(e||!t)||document.documentElement.setAttribute("data-theme","dark")}();
+    <meta name="description" content="동영상을 움짤(GIF)로 변환하세요. 구간 설정과 크기 조절이 가능합니다.">
+    <script>
+        !function () { const e = localStorage.getItem("theme"), t = window.matchMedia("(prefers-color-scheme: dark)").matches; "dark" !== e && (e || !t) || document.documentElement.setAttribute("data-theme", "dark") }();
     </script>
 
     <link rel="preload" href="../../css/style.css" as="style">
@@ -72,7 +73,7 @@
                     <p class="description">동영상을 GIF로 변환하세요. (브라우저 성능에 따라 시간이 소요될 수 있습니다)</p>
                 </div>
 
-                <div class="tool-container">
+                <div class="tool-container" data-tool-id="video-to-gif">
                     <div class="drop-zone" id="dropZone"
                         style="border: 2px dashed var(--border-color); padding: 40px; text-align: center; cursor: pointer; margin-bottom: 24px;">
                         <span class="material-symbols-rounded"
@@ -97,7 +98,7 @@
                             </div>
                         </div>
 
-                        <button class="btn btn-primary" onclick="createGif()" id="convertBtn" style="width: 100%;">GIF
+                        <button class="btn btn-primary" id="convertBtn" style="width: 100%;">GIF
                             생성하기</button>
                         <p id="status"
                             style="text-align: center; margin-top: 12px; color: var(--text-secondary); display: none;">
@@ -118,73 +119,121 @@
     <script src="../../js/common.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gifshot/0.3.2/gifshot.min.js"></script>
     <script>
-        const dropZone = document.getElementById('dropZone');
-        const fileInput = document.getElementById('fileInput');
-        const previewArea = document.getElementById('previewArea');
-        const video = document.getElementById('video');
-        const resultArea = document.getElementById('resultArea');
-        const resultImage = document.getElementById('resultImage');
-        const downloadLink = document.getElementById('downloadLink');
-        const status = document.getElementById('status');
-        const convertBtn = document.getElementById('convertBtn');
+        Utilsly.registerTool('video-to-gif', {
+            videoFile: null,
+            videoUrl: null,
+            elements: {},
+            isMounted: false,
 
-        let videoFile = null;
+            init() {
+                this.isMounted = true;
+                this.elements = {
+                    dropZone: document.getElementById('dropZone'),
+                    fileInput: document.getElementById('fileInput'),
+                    previewArea: document.getElementById('previewArea'),
+                    video: document.getElementById('video'),
+                    resultArea: document.getElementById('resultArea'),
+                    resultImage: document.getElementById('resultImage'),
+                    downloadLink: document.getElementById('downloadLink'),
+                    status: document.getElementById('status'),
+                    convertBtn: document.getElementById('convertBtn'),
+                    gifWidth: document.getElementById('gifWidth'),
+                    interval: document.getElementById('interval')
+                };
 
-        dropZone.addEventListener('click', () => fileInput.click());
-        fileInput.addEventListener('change', (e) => {
-            if (e.target.files.length > 0) {
-                videoFile = e.target.files[0];
-                const url = URL.createObjectURL(videoFile);
-                video.src = url;
-                dropZone.style.display = 'none';
-                previewArea.style.display = 'block';
+                this.handleDropZoneClick = () => this.elements.fileInput.click();
+                this.handleFileChange = (e) => this.loadFile(e);
+                this.handleConvert = () => this.createGif();
+
+                if (this.elements.dropZone) this.elements.dropZone.addEventListener('click', this.handleDropZoneClick);
+                if (this.elements.fileInput) this.elements.fileInput.addEventListener('change', this.handleFileChange);
+                if (this.elements.convertBtn) this.elements.convertBtn.addEventListener('click', this.handleConvert);
+
+                console.log('Video to GIF initialized');
+            },
+
+            cleanup() {
+                this.isMounted = false;
+                if (this.videoUrl) {
+                    URL.revokeObjectURL(this.videoUrl);
+                    this.videoUrl = null;
+                }
+                if (this.elements.video) this.elements.video.pause();
+
+                if (this.elements.dropZone) this.elements.dropZone.removeEventListener('click', this.handleDropZoneClick);
+                if (this.elements.fileInput) this.elements.fileInput.removeEventListener('change', this.handleFileChange);
+                if (this.elements.convertBtn) this.elements.convertBtn.removeEventListener('click', this.handleConvert);
+
+                this.elements = {};
+                this.videoFile = null;
+                console.log('Video to GIF cleanup done');
+            },
+
+            loadFile(e) {
+                if (e.target.files.length > 0) {
+                    this.videoFile = e.target.files[0];
+                    if (this.videoUrl) URL.revokeObjectURL(this.videoUrl); // clean prev
+                    this.videoUrl = URL.createObjectURL(this.videoFile);
+
+                    this.elements.video.src = this.videoUrl;
+                    this.elements.dropZone.style.display = 'none';
+                    this.elements.previewArea.style.display = 'block';
+                }
+            },
+
+            createGif() {
+                if (!this.videoFile || !this.isMounted) return;
+
+                const width = parseInt(this.elements.gifWidth.value);
+                const interval = parseFloat(this.elements.interval.value);
+
+                this.elements.status.style.display = 'block';
+                this.elements.status.textContent = 'GIF 변환 중... 잠시만 기다려주세요.';
+                this.elements.convertBtn.disabled = true;
+                this.elements.resultArea.style.display = 'none';
+
+                // Use gifshot
+                if (typeof gifshot === 'undefined') {
+                    Utilsly.showAlert('GIF 라이브러리를 불러오지 못했습니다.');
+                    this.elements.status.textContent = '라이브러리 로드 오류';
+                    return;
+                }
+
+                gifshot.createGIF({
+                    video: [this.elements.video.src],
+                    gifWidth: width,
+                    gifHeight: width * (this.elements.video.videoHeight / this.elements.video.videoWidth),
+                    interval: interval,
+                    numFrames: 20, // Limit frames for performance demo
+                    frameDuration: 1,
+                    text: '',
+                    fontWeight: 'normal',
+                    fontSize: '16px',
+                    fontFamily: 'sans-serif',
+                    fontColor: '#ffffff',
+                    textAlign: 'center',
+                    textBaseline: 'bottom',
+                    sampleInterval: 10,
+                    numWorkers: 2
+                }, (obj) => {
+                    if (!this.isMounted) return; // Ignore if unmounted
+
+                    if (!obj.error) {
+                        const image = obj.image;
+                        this.elements.resultImage.src = image;
+                        this.elements.downloadLink.href = image;
+                        this.elements.downloadLink.download = 'converted.gif';
+
+                        this.elements.status.style.display = 'none';
+                        this.elements.convertBtn.disabled = false;
+                        this.elements.resultArea.style.display = 'block';
+                    } else {
+                        this.elements.status.textContent = '에러가 발생했습니다.';
+                        this.elements.convertBtn.disabled = false;
+                    }
+                });
             }
         });
-
-        function createGif() {
-            if (!videoFile) return;
-
-            const width = parseInt(document.getElementById('gifWidth').value);
-            const interval = parseFloat(document.getElementById('interval').value);
-
-            status.style.display = 'block';
-            status.textContent = 'GIF 변환 중... 잠시만 기다려주세요.';
-            convertBtn.disabled = true;
-            resultArea.style.display = 'none';
-
-            // Use gifshot
-            gifshot.createGIF({
-                video: [video.src],
-                gifWidth: width,
-                gifHeight: width * (video.videoHeight / video.videoWidth),
-                interval: interval,
-                numFrames: 20, // Limit frames for performance demo
-                frameDuration: 1,
-                text: '',
-                fontWeight: 'normal',
-                fontSize: '16px',
-                fontFamily: 'sans-serif',
-                fontColor: '#ffffff',
-                textAlign: 'center',
-                textBaseline: 'bottom',
-                sampleInterval: 10,
-                numWorkers: 2
-            }, function (obj) {
-                if (!obj.error) {
-                    const image = obj.image;
-                    resultImage.src = image;
-                    downloadLink.href = image;
-                    downloadLink.download = 'converted.gif';
-
-                    status.style.display = 'none';
-                    convertBtn.disabled = false;
-                    resultArea.style.display = 'block';
-                } else {
-                    status.textContent = '에러가 발생했습니다.';
-                    convertBtn.disabled = false;
-                }
-            });
-        }
     </script>
 </body>
 

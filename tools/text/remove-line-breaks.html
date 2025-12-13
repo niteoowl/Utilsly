@@ -6,8 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>줄바꿈 제거 - Utilsly</title>
-    <meta name="description" content="텍스트의 줄바꿈을 공백으로 바꾸거나 완전히 제거합니다."><script>
-        !function(){const e=localStorage.getItem("theme"),t=window.matchMedia("(prefers-color-scheme: dark)").matches;"dark"!==e&&(e||!t)||document.documentElement.setAttribute("data-theme","dark")}();
+    <meta name="description" content="텍스트의 줄바꿈을 공백으로 바꾸거나 완전히 제거합니다.">
+    <script>
+        !function () { const e = localStorage.getItem("theme"), t = window.matchMedia("(prefers-color-scheme: dark)").matches; "dark" !== e && (e || !t) || document.documentElement.setAttribute("data-theme", "dark") }();
     </script>
 
     <link rel="preload" href="../../css/style.css" as="style">
@@ -43,10 +44,10 @@
                     <p class="description">불필요한 줄바꿈을 제거하고 텍스트를 한 줄로 정리합니다.</p>
                 </div>
 
-                <div class="tool-container">
+                <div class="tool-container" data-tool-id="remove-line-breaks">
                     <div style="margin-bottom: 16px; display: flex; gap: 8px;">
-                        <button class="btn btn-primary" onclick="removeBreaks('space')">줄바꿈 → 공백</button>
-                        <button class="btn" onclick="removeBreaks('none')">줄바꿈 삭제</button>
+                        <button class="btn btn-primary" id="btnSpace">줄바꿈 → 공백</button>
+                        <button class="btn" id="btnNone">줄바꿈 삭제</button>
                     </div>
                     <textarea id="input-text" placeholder="텍스트를 입력하세요..."></textarea>
                 </div>
@@ -55,18 +56,44 @@
     </div>
     <script src="../../js/common.js"></script>
     <script>
-        const textarea = document.getElementById('input-text');
+        Utilsly.registerTool('remove-line-breaks', {
+            elements: {},
 
-        function removeBreaks(type) {
-            const text = textarea.value;
-            if (!text) return;
+            init() {
+                this.elements = {
+                    textarea: document.getElementById('input-text'),
+                    btnSpace: document.getElementById('btnSpace'),
+                    btnNone: document.getElementById('btnNone')
+                };
 
-            if (type === 'space') {
-                textarea.value = text.replace(/(\r\n|\n|\r)/gm, " ");
-            } else {
-                textarea.value = text.replace(/(\r\n|\n|\r)/gm, "");
+                this.handleSpace = () => this.removeBreaks('space');
+                this.handleNone = () => this.removeBreaks('none');
+
+                this.elements.btnSpace.addEventListener('click', this.handleSpace);
+                this.elements.btnNone.addEventListener('click', this.handleNone);
+                console.log('Remove Line Breaks initialized');
+            },
+
+            cleanup() {
+                if (this.elements.btnSpace) {
+                    this.elements.btnSpace.removeEventListener('click', this.handleSpace);
+                    this.elements.btnNone.removeEventListener('click', this.handleNone);
+                }
+                this.elements = {};
+                console.log('Remove Line Breaks cleanup done');
+            },
+
+            removeBreaks(type) {
+                const text = this.elements.textarea.value;
+                if (!text) return;
+
+                if (type === 'space') {
+                    this.elements.textarea.value = text.replace(/(\r\n|\n|\r)/gm, " ");
+                } else {
+                    this.elements.textarea.value = text.replace(/(\r\n|\n|\r)/gm, "");
+                }
             }
-        }
+        });
     </script>
 </body>
 

@@ -34,7 +34,7 @@
                     <h1>그라디언트 생성기</h1>
                     <p class="description">CSS 그라디언트를 시각적으로 만들고 코드를 복사하세요.</p>
                 </div>
-                <div class="tool-container">
+                <div class="tool-container" data-tool-id="gradient-generator">
                     <div id="preview" style="width: 100%; height: 300px; border-radius: 12px; margin-bottom: 24px;">
                     </div>
                     <div
@@ -60,36 +60,61 @@
                         <textarea id="cssCode" readonly
                             style="width: 100%; height: 100px; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; font-family: var(--font-mono); font-size: 14px;"></textarea>
                     </div>
-                    <button class="btn btn-primary" onclick="copyCSS()" style="width: 100%;">CSS 복사</button>
+                    <button class="btn btn-primary" id="copyBtn" style="width: 100%;">CSS 복사</button>
                 </div>
             </div>
         </main>
     </div>
     <script src="../../js/common.js"></script>
     <script>
-        const preview = document.getElementById('preview');
-        const color1 = document.getElementById('color1');
-        const color2 = document.getElementById('color2');
-        const angle = document.getElementById('angle');
-        const angleValue = document.getElementById('angleValue');
-        const cssCode = document.getElementById('cssCode');
+        Utilsly.registerTool('gradient-generator', {
+            elements: {},
 
-        function updateGradient() {
-            const css = `linear-gradient(${angle.value}deg, ${color1.value}, ${color2.value})`;
-            preview.style.background = css;
-            cssCode.value = `background: ${css};`;
-            angleValue.textContent = angle.value;
-        }
+            init() {
+                this.elements = {
+                    preview: document.getElementById('preview'),
+                    color1: document.getElementById('color1'),
+                    color2: document.getElementById('color2'),
+                    angle: document.getElementById('angle'),
+                    angleValue: document.getElementById('angleValue'),
+                    cssCode: document.getElementById('cssCode'),
+                    copyBtn: document.getElementById('copyBtn')
+                };
 
-        function copyCSS() {
-            navigator.clipboard.writeText(cssCode.value);
-        }
+                this.handleUpdate = () => this.updateGradient();
+                this.handleCopy = () => this.copyCSS();
 
-        color1.addEventListener('input', updateGradient);
-        color2.addEventListener('input', updateGradient);
-        angle.addEventListener('input', updateGradient);
+                this.elements.color1.addEventListener('input', this.handleUpdate);
+                this.elements.color2.addEventListener('input', this.handleUpdate);
+                this.elements.angle.addEventListener('input', this.handleUpdate);
+                this.elements.copyBtn.addEventListener('click', this.handleCopy);
 
-        updateGradient();
+                this.updateGradient();
+                console.log('Gradient Generator initialized');
+            },
+
+            cleanup() {
+                if (this.elements.color1) {
+                    this.elements.color1.removeEventListener('input', this.handleUpdate);
+                    this.elements.color2.removeEventListener('input', this.handleUpdate);
+                    this.elements.angle.removeEventListener('input', this.handleUpdate);
+                    this.elements.copyBtn.removeEventListener('click', this.handleCopy);
+                }
+                this.elements = {};
+                console.log('Gradient Generator cleanup done');
+            },
+
+            updateGradient() {
+                const css = `linear-gradient(${this.elements.angle.value}deg, ${this.elements.color1.value}, ${this.elements.color2.value})`;
+                this.elements.preview.style.background = css;
+                this.elements.cssCode.value = `background: ${css};`;
+                this.elements.angleValue.textContent = this.elements.angle.value;
+            },
+
+            copyCSS() {
+                navigator.clipboard.writeText(this.elements.cssCode.value);
+            }
+        });
     </script>
 </body>
 

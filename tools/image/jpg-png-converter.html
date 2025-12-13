@@ -34,7 +34,7 @@
                     <h1>JPG ↔ PNG 변환기</h1>
                     <p class="description">JPG를 PNG로, PNG를 JPG로 무료 변환하세요.</p>
                 </div>
-                <div class="tool-container">
+                <div class="tool-container" data-tool-id="jpg-png-converter">
                     <div class="drop-zone" id="dropZone"
                         style="border: 2px dashed var(--border-color); padding: 40px; text-align: center; cursor: pointer; margin-bottom: 24px;">
                         <span class="material-symbols-rounded"
@@ -60,7 +60,7 @@
                                     id="qualityValue">90</span>%)</label>
                             <input type="range" id="quality" min="1" max="100" value="90" style="width: 100%;">
                         </div>
-                        <button class="btn btn-primary" onclick="convert()" style="width: 100%;">변환 및 다운로드</button>
+                        <button class="btn btn-primary" id="convertBtn" style="width: 100%;">변환 및 다운로드</button>
                     </div>
                 </div>
             </div>
@@ -68,84 +68,116 @@
     </div>
     <script src="../../js/common.js"></script>
     <script>
-        const dropZone = document.getElementById('dropZone');
-        const fileInput = document.getElementById('fileInput');
-        const previewArea = document.getElementById('previewArea');
-        const preview = document.getElementById('preview');
-        const controls = document.getElementById('controls');
-        const format = document.getElementById('format');
-        const quality = document.getElementById('quality');
-        const qualityValue = document.getElementById('qualityValue');
-        const qualityControl = document.getElementById('qualityControl');
+        Utilsly.registerTool('jpg-png-converter', {
+            elements: {},
+            currentImage: null,
 
-        let currentImage = null;
-
-        dropZone.addEventListener('click', () => fileInput.click());
-        fileInput.addEventListener('change', handleFile);
-
-        format.addEventListener('change', () => {
-            qualityControl.style.display = format.value === 'jpeg' ? 'block' : 'none';
-        });
-
-        quality.addEventListener('input', () => {
-            qualityValue.textContent = quality.value;
-        });
-
-        function handleFile(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                currentImage = new Image();
-                currentImage.onload = () => {
-                    preview.src = e.target.result;
-                    dropZone.style.display = 'none';
-                    previewArea.style.display = 'block';
-                    controls.style.display = 'block';
-
-                    // Auto-select opposite format
-                    if (file.type === 'image/png') {
-                        format.value = 'jpeg';
-                        qualityControl.style.display = 'block';
-                    } else {
-                        format.value = 'png';
-                        qualityControl.style.display = 'none';
-                    }
+            init() {
+                this.elements = {
+                    dropZone: document.getElementById('dropZone'),
+                    fileInput: document.getElementById('fileInput'),
+                    previewArea: document.getElementById('previewArea'),
+                    preview: document.getElementById('preview'),
+                    controls: document.getElementById('controls'),
+                    format: document.getElementById('format'),
+                    quality: document.getElementById('quality'),
+                    qualityValue: document.getElementById('qualityValue'),
+                    qualityControl: document.getElementById('qualityControl'),
+                    convertBtn: document.getElementById('convertBtn')
                 };
-                currentImage.src = e.target.result;
-            };
-            reader.readAsDataURL(file);
-        }
 
-        function convert() {
-            if (!currentImage) return;
+                this.handleClick = () => this.elements.fileInput.click();
+                this.handleFileChange = (e) => this.handleFile(e);
+                this.handleFormatChange = () => this.updateFormat();
+                this.handleQualityInput = () => this.updateQuality();
+                this.handleConvert = () => this.convert();
 
-            const canvas = document.createElement('canvas');
-            canvas.width = currentImage.width;
-            canvas.height = currentImage.height;
-            const ctx = canvas.getContext('2d');
+                this.elements.dropZone.addEventListener('click', this.handleClick);
+                this.elements.fileInput.addEventListener('change', this.handleFileChange);
+                this.elements.format.addEventListener('change', this.handleFormatChange);
+                this.elements.quality.addEventListener('input', this.handleQualityInput);
+                this.elements.convertBtn.addEventListener('click', this.handleConvert);
 
-            // White background for JPG
-            if (format.value === 'jpeg') {
-                ctx.fillStyle = '#FFFFFF';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                console.log('JPG-PNG Converter initialized');
+            },
+
+            cleanup() {
+                if (this.elements.dropZone) {
+                    this.elements.dropZone.removeEventListener('click', this.handleClick);
+                    this.elements.fileInput.removeEventListener('change', this.handleFileChange);
+                    this.elements.format.removeEventListener('change', this.handleFormatChange);
+                    this.elements.quality.removeEventListener('input', this.handleQualityInput);
+                    this.elements.convertBtn.removeEventListener('click', this.handleConvert);
+                }
+                this.elements = {};
+                this.currentImage = null;
+                console.log('JPG-PNG Converter cleanup done');
+            },
+
+            updateFormat() {
+                this.elements.qualityControl.style.display = this.elements.format.value === 'jpeg' ? 'block' : 'none';
+            },
+
+            updateQuality() {
+                this.elements.qualityValue.textContent = this.elements.quality.value;
+            },
+
+            handleFile(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = (evt) => {
+                    this.currentImage = new Image();
+                    this.currentImage.onload = () => {
+                        this.elements.preview.src = evt.target.result;
+                        this.elements.dropZone.style.display = 'none';
+                        this.elements.previewArea.style.display = 'block';
+                        this.elements.controls.style.display = 'block';
+
+                        // Auto-select opposite format
+                        if (file.type === 'image/png') {
+                            this.elements.format.value = 'jpeg';
+                            this.elements.qualityControl.style.display = 'block';
+                        } else {
+                            this.elements.format.value = 'png';
+                            this.elements.qualityControl.style.display = 'none';
+                        }
+                    };
+                    this.currentImage.src = evt.target.result;
+                };
+                reader.readAsDataURL(file);
+            },
+
+            convert() {
+                if (!this.currentImage) return;
+
+                const canvas = document.createElement('canvas');
+                canvas.width = this.currentImage.width;
+                canvas.height = this.currentImage.height;
+                const ctx = canvas.getContext('2d');
+
+                // White background for JPG
+                if (this.elements.format.value === 'jpeg') {
+                    ctx.fillStyle = '#FFFFFF';
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                }
+
+                ctx.drawImage(this.currentImage, 0, 0);
+
+                const mimeType = this.elements.format.value === 'png' ? 'image/png' : 'image/jpeg';
+                const qualityVal = this.elements.format.value === 'jpeg' ? this.elements.quality.value / 100 : 1;
+
+                canvas.toBlob((blob) => {
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = `converted.${this.elements.format.value === 'png' ? 'png' : 'jpg'}`;
+                    link.click();
+                    URL.revokeObjectURL(url);
+                }, mimeType, qualityVal);
             }
-
-            ctx.drawImage(currentImage, 0, 0);
-
-            const mimeType = format.value === 'png' ? 'image/png' : 'image/jpeg';
-            const qualityValue = format.value === 'jpeg' ? quality.value / 100 : 1;
-
-            canvas.toBlob((blob) => {
-                const url = URL.createObjectURL(blob);
-                const link = document.createElement('a');
-                link.href = url;
-                link.download = `converted.${format.value === 'png' ? 'png' : 'jpg'}`;
-                link.click();
-                URL.revokeObjectURL(url);
-            }, mimeType, qualityValue);
-        }
+        });
     </script>
 </body>
 

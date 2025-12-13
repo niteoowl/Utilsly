@@ -276,8 +276,12 @@
 
             let q;
             if (currentCategory === 'all') {
+                // 'All' category: just order by date desc
                 q = query(postsRef, orderBy("createdAt", "desc"), limit(20));
             } else {
+                // Specific category: filter by category AND order by date
+                // NOTE: This usually requires a Composite Index in Firebase Console.
+                // If it fails, check console link.
                 q = query(postsRef, where("category", "==", currentCategory), orderBy("createdAt", "desc"), limit(20));
             }
 

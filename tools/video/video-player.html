@@ -7,8 +7,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>비디오 플레이어 - Utilsly</title>
     <meta name="description" content="배속 재생, 거울 모드, 회전 기능을 제공하는 웹 비디오 플레이어입니다.">
-<script>
-        !function(){const e=localStorage.getItem("theme"),t=window.matchMedia("(prefers-color-scheme: dark)").matches;"dark"!==e&&(e||!t)||document.documentElement.setAttribute("data-theme","dark")}();
+    <script>
+        !function () { const e = localStorage.getItem("theme"), t = window.matchMedia("(prefers-color-scheme: dark)").matches; "dark" !== e && (e || !t) || document.documentElement.setAttribute("data-theme", "dark") }();
     </script>
 
     <link rel="preload" href="../../css/style.css" as="style">
@@ -40,12 +40,12 @@
         .control-row {
             display: flex;
             gap: 16px;
-                        flex-wrap: wrap;
+            flex-wrap: wrap;
         }
 
         .control-group {
             display: flex;
-                        gap: 8px;
+            gap: 8px;
         }
 
         .speed-btn {
@@ -94,7 +94,7 @@
                     <p class="description">영상을 업로드하여 배속 재생, 거울 모드, 회전 기능을 사용해보세요.</p>
                 </div>
 
-                <div class="tool-container">
+                <div class="tool-container" data-tool-id="video-player">
                     <div class="drop-zone" id="dropZone"
                         style="border: 2px dashed var(--border-color); padding: 40px; text-align: center; cursor: pointer; margin-bottom: 24px;">
                         <span class="material-symbols-rounded"
@@ -111,23 +111,23 @@
                         <div class="control-row">
                             <div class="control-group">
                                 <span style="font-weight: 600;">배속</span>
-                                <button class="speed-btn" onclick="setSpeed(0.5)">0.5x</button>
-                                <button class="speed-btn active" onclick="setSpeed(1.0)">1.0x</button>
-                                <button class="speed-btn" onclick="setSpeed(1.5)">1.5x</button>
-                                <button class="speed-btn" onclick="setSpeed(2.0)">2.0x</button>
+                                <button class="speed-btn" data-speed="0.5">0.5x</button>
+                                <button class="speed-btn active" data-speed="1.0">1.0x</button>
+                                <button class="speed-btn" data-speed="1.5">1.5x</button>
+                                <button class="speed-btn" data-speed="2.0">2.0x</button>
                             </div>
                             <div class="control-group">
-                                <button class="btn" onclick="toggleMirror()">
+                                <button class="btn" id="mirrorBtn">
                                     <span class="material-symbols-rounded"
                                         style="font-size: 18px; margin-right: 4px;">flip</span>
                                     거울 모드
                                 </button>
-                                <button class="btn" onclick="rotateVideo()">
+                                <button class="btn" id="rotateBtn">
                                     <span class="material-symbols-rounded"
                                         style="font-size: 18px; margin-right: 4px;">rotate_right</span>
                                     회전
                                 </button>
-                                <button class="btn" onclick="takeSnapshot()">
+                                <button class="btn" id="snapshotBtn">
                                     <span class="material-symbols-rounded"
                                         style="font-size: 18px; margin-right: 4px;">camera_alt</span>
                                     스냅샷
@@ -141,66 +141,127 @@
     </div>
     <script src="../../js/common.js"></script>
     <script>
-        const dropZone = document.getElementById('dropZone');
-        const fileInput = document.getElementById('fileInput');
-        const playerContainer = document.getElementById('playerContainer');
-        const controlsWrapper = document.getElementById('controlsWrapper');
-        const video = document.getElementById('video');
+        Utilsly.registerTool('video-player', {
+            isMirrored: false,
+            rotation: 0,
+            videoUrl: null,
+            elements: {},
 
-        let isMirrored = false;
-        let rotation = 0;
+            init() {
+                this.elements = {
+                    dropZone: document.getElementById('dropZone'),
+                    fileInput: document.getElementById('fileInput'),
+                    playerContainer: document.getElementById('playerContainer'),
+                    controlsWrapper: document.getElementById('controlsWrapper'),
+                    video: document.getElementById('video'),
+                    speedBtns: document.querySelectorAll('.speed-btn'),
+                    mirrorBtn: document.getElementById('mirrorBtn'),
+                    rotateBtn: document.getElementById('rotateBtn'),
+                    snapshotBtn: document.getElementById('snapshotBtn')
+                };
 
-        dropZone.addEventListener('click', () => fileInput.click());
-        fileInput.addEventListener('change', (e) => {
-            if (e.target.files.length > 0) {
-                const file = e.target.files[0];
-                const url = URL.createObjectURL(file);
-                video.src = url;
-                dropZone.style.display = 'none';
-                playerContainer.style.display = 'block';
-                controlsWrapper.style.display = 'flex';
-                video.play();
+                this.handleDropZoneClick = () => this.elements.fileInput.click();
+                this.handleFileChange = (e) => this.loadFile(e);
+                this.handleSpeedClick = (e) => {
+                    const speed = parseFloat(e.target.dataset.speed);
+                    this.setSpeed(speed);
+                };
+                this.handleMirror = () => this.toggleMirror();
+                this.handleRotate = () => this.rotateVideo();
+                this.handleSnapshot = () => this.takeSnapshot();
+
+                if (this.elements.dropZone) this.elements.dropZone.addEventListener('click', this.handleDropZoneClick);
+                if (this.elements.fileInput) this.elements.fileInput.addEventListener('change', this.handleFileChange);
+                if (this.elements.mirrorBtn) this.elements.mirrorBtn.addEventListener('click', this.handleMirror);
+                if (this.elements.rotateBtn) this.elements.rotateBtn.addEventListener('click', this.handleRotate);
+                if (this.elements.snapshotBtn) this.elements.snapshotBtn.addEventListener('click', this.handleSnapshot);
+
+                this.elements.speedBtns.forEach(btn => {
+                    btn.addEventListener('click', this.handleSpeedClick);
+                });
+
+                console.log('Video Player initialized');
+            },
+
+            cleanup() {
+                if (this.videoUrl) {
+                    URL.revokeObjectURL(this.videoUrl);
+                    this.videoUrl = null;
+                }
+                if (this.elements.video) this.elements.video.pause();
+
+                if (this.elements.dropZone) this.elements.dropZone.removeEventListener('click', this.handleDropZoneClick);
+                if (this.elements.fileInput) this.elements.fileInput.removeEventListener('change', this.handleFileChange);
+                if (this.elements.mirrorBtn) this.elements.mirrorBtn.removeEventListener('click', this.handleMirror);
+                if (this.elements.rotateBtn) this.elements.rotateBtn.removeEventListener('click', this.handleRotate);
+                if (this.elements.snapshotBtn) this.elements.snapshotBtn.removeEventListener('click', this.handleSnapshot);
+
+                this.elements.speedBtns.forEach(btn => {
+                    btn.removeEventListener('click', this.handleSpeedClick);
+                });
+
+                this.elements = {};
+                this.isMirrored = false;
+                this.rotation = 0;
+                console.log('Video Player cleanup done');
+            },
+
+            loadFile(e) {
+                if (e.target.files.length > 0) {
+                    const file = e.target.files[0];
+                    if (this.videoUrl) URL.revokeObjectURL(this.videoUrl); // clean prev
+                    this.videoUrl = URL.createObjectURL(file);
+
+                    this.elements.video.src = this.videoUrl;
+                    this.elements.dropZone.style.display = 'none';
+                    this.elements.playerContainer.style.display = 'block';
+                    this.elements.controlsWrapper.style.display = 'flex';
+                    this.elements.video.play();
+                }
+            },
+
+            setSpeed(speed) {
+                if (!this.elements.video) return;
+                this.elements.video.playbackRate = speed;
+                this.elements.speedBtns.forEach(btn => {
+                    btn.classList.remove('active');
+                    if (parseFloat(btn.dataset.speed) === speed) btn.classList.add('active');
+                });
+            },
+
+            updateTransform() {
+                if (!this.elements.video) return;
+                let transform = `rotate(${this.rotation}deg)`;
+                if (this.isMirrored) {
+                    transform += ' scaleX(-1)';
+                }
+                this.elements.video.style.transform = transform;
+            },
+
+            toggleMirror() {
+                this.isMirrored = !this.isMirrored;
+                this.updateTransform();
+            },
+
+            rotateVideo() {
+                this.rotation = (this.rotation + 90) % 360;
+                this.updateTransform();
+            },
+
+            takeSnapshot() {
+                if (!this.elements.video) return;
+                const canvas = document.createElement('canvas');
+                canvas.width = this.elements.video.videoWidth;
+                canvas.height = this.elements.video.videoHeight;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(this.elements.video, 0, 0, canvas.width, canvas.height);
+
+                const link = document.createElement('a');
+                link.download = `snapshot-${Date.now()}.png`;
+                link.href = canvas.toDataURL();
+                link.click();
             }
         });
-
-        function setSpeed(speed) {
-            video.playbackRate = speed;
-            document.querySelectorAll('.speed-btn').forEach(btn => {
-                btn.classList.remove('active');
-                if (btn.textContent === speed + 'x') btn.classList.add('active');
-            });
-        }
-
-        function updateTransform() {
-            let transform = `rotate(${rotation}deg)`;
-            if (isMirrored) {
-                transform += ' scaleX(-1)';
-            }
-            video.style.transform = transform;
-        }
-
-        function toggleMirror() {
-            isMirrored = !isMirrored;
-            updateTransform();
-        }
-
-        function rotateVideo() {
-            rotation = (rotation + 90) % 360;
-            updateTransform();
-        }
-
-        function takeSnapshot() {
-            const canvas = document.createElement('canvas');
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-            const link = document.createElement('a');
-            link.download = `snapshot-${Date.now()}.png`;
-            link.href = canvas.toDataURL();
-            link.click();
-        }
     </script>
 </body>
 

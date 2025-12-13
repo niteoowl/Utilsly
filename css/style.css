@@ -95,6 +95,8 @@ body {
     -webkit-font-smoothing: antialiased;
     transition: background-color var(--transition-speed) ease, color var(--transition-speed) ease;
     opacity: 1;
+    -webkit-tap-highlight-color: transparent;
+    /* Mobile focus effect removal */
 }
 
 /* No Background Animation */

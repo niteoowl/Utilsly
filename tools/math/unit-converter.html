@@ -44,7 +44,7 @@
                     <p class="description">길이, 무게, 넓이 등 다양한 단위를 실시간으로 변환합니다.</p>
                 </div>
 
-                <div class="tool-container">
+                <div class="tool-container" data-tool-id="unit-converter">
                     <div style="margin-bottom: 24px;">
                         <label
                             style="font-size: 12px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase;">카테고리
@@ -80,80 +80,101 @@
     </div>
     <script src="../../js/common.js"></script>
     <script>
-        const units = {
-            length: {
-                meters: 1,
-                kilometers: 0.001,
-                centimeters: 100,
-                millimeters: 1000,
-                inches: 39.3701,
-                feet: 3.28084,
-                yards: 1.09361,
-                miles: 0.000621371
+        Utilsly.registerTool('unit-converter', {
+            elements: {},
+            units: {
+                length: {
+                    meters: 1,
+                    kilometers: 0.001,
+                    centimeters: 100,
+                    millimeters: 1000,
+                    inches: 39.3701,
+                    feet: 3.28084,
+                    yards: 1.09361,
+                    miles: 0.000621371
+                },
+                weight: {
+                    kilograms: 1,
+                    grams: 1000,
+                    milligrams: 1000000,
+                    pounds: 2.20462,
+                    ounces: 35.274
+                },
+                area: {
+                    square_meters: 1,
+                    square_kilometers: 0.000001,
+                    square_feet: 10.7639,
+                    acres: 0.000247105,
+                    hectares: 0.0001,
+                    pyeong: 0.3025 // Korean Pyeong
+                }
             },
-            weight: {
-                kilograms: 1,
-                grams: 1000,
-                milligrams: 1000000,
-                pounds: 2.20462,
-                ounces: 35.274
+
+            init() {
+                this.elements = {
+                    categorySelect: document.getElementById('unit-category'),
+                    fromUnitSelect: document.getElementById('from-unit'),
+                    toUnitSelect: document.getElementById('to-unit'),
+                    fromValue: document.getElementById('from-value'),
+                    toValue: document.getElementById('to-value')
+                };
+
+                this.handleCategoryChange = () => {
+                    this.populateUnits(this.elements.categorySelect.value);
+                    this.calculate();
+                };
+                this.handleCalculate = () => this.calculate();
+
+                this.elements.categorySelect.addEventListener('change', this.handleCategoryChange);
+                this.elements.fromUnitSelect.addEventListener('change', this.handleCalculate);
+                this.elements.toUnitSelect.addEventListener('change', this.handleCalculate);
+                this.elements.fromValue.addEventListener('input', this.handleCalculate);
+
+                this.populateUnits('length');
+                this.calculate();
+                console.log('Unit Converter initialized');
             },
-            area: {
-                square_meters: 1,
-                square_kilometers: 0.000001,
-                square_feet: 10.7639,
-                acres: 0.000247105,
-                hectares: 0.0001,
-                pyeong: 0.3025 // Korean Pyeong
+
+            cleanup() {
+                if (this.elements.categorySelect) {
+                    this.elements.categorySelect.removeEventListener('change', this.handleCategoryChange);
+                    this.elements.fromUnitSelect.removeEventListener('change', this.handleCalculate);
+                    this.elements.toUnitSelect.removeEventListener('change', this.handleCalculate);
+                    this.elements.fromValue.removeEventListener('input', this.handleCalculate);
+                }
+                this.elements = {};
+                console.log('Unit Converter cleanup done');
+            },
+
+            populateUnits(category) {
+                const options = Object.keys(this.units[category]).map(unit =>
+                    `<option value="${unit}">${unit.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}</option>`
+                ).join('');
+                this.elements.fromUnitSelect.innerHTML = options;
+                this.elements.toUnitSelect.innerHTML = options;
+
+                // Set defaults
+                if (category === 'length') {
+                    this.elements.toUnitSelect.value = 'feet';
+                } else if (category === 'weight') {
+                    this.elements.toUnitSelect.value = 'pounds';
+                } else if (category === 'area') {
+                    this.elements.toUnitSelect.value = 'pyeong';
+                }
+            },
+
+            calculate() {
+                const category = this.elements.categorySelect.value;
+                const from = this.elements.fromUnitSelect.value;
+                const to = this.elements.toUnitSelect.value;
+                const value = parseFloat(this.elements.fromValue.value) || 0;
+
+                const baseValue = value / this.units[category][from];
+                const result = baseValue * this.units[category][to];
+
+                this.elements.toValue.value = Number.isInteger(result) ? result : result.toFixed(4).replace(/\.?0+$/, '');
             }
-        };
-
-        const categorySelect = document.getElementById('unit-category');
-        const fromUnitSelect = document.getElementById('from-unit');
-        const toUnitSelect = document.getElementById('to-unit');
-        const fromValue = document.getElementById('from-value');
-        const toValue = document.getElementById('to-value');
-
-        const populateUnits = (category) => {
-            const options = Object.keys(units[category]).map(unit =>
-                `<option value="${unit}">${unit.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}</option>`
-            ).join('');
-            fromUnitSelect.innerHTML = options;
-            toUnitSelect.innerHTML = options;
-
-            // Set defaults
-            if (category === 'length') {
-                toUnitSelect.value = 'feet';
-            } else if (category === 'weight') {
-                toUnitSelect.value = 'pounds';
-            } else if (category === 'area') {
-                toUnitSelect.value = 'pyeong';
-            }
-        };
-
-        const calculate = () => {
-            const category = categorySelect.value;
-            const from = fromUnitSelect.value;
-            const to = toUnitSelect.value;
-            const value = parseFloat(fromValue.value) || 0;
-
-            const baseValue = value / units[category][from];
-            const result = baseValue * units[category][to];
-
-            toValue.value = Number.isInteger(result) ? result : result.toFixed(4).replace(/\.?0+$/, '');
-        };
-
-        categorySelect.addEventListener('change', () => {
-            populateUnits(categorySelect.value);
-            calculate();
         });
-
-        fromUnitSelect.addEventListener('change', calculate);
-        toUnitSelect.addEventListener('change', calculate);
-        fromValue.addEventListener('input', calculate);
-
-        populateUnits('length');
-        calculate();
     </script>
 </body>
 

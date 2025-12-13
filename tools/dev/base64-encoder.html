@@ -6,8 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>Base64 인코더/디코더 - Utilsly</title>
-    <meta name="description" content="텍스트를 Base64로 인코딩하거나 디코딩하는 도구입니다."><script>
-        !function(){const e=localStorage.getItem("theme"),t=window.matchMedia("(prefers-color-scheme: dark)").matches;"dark"!==e&&(e||!t)||document.documentElement.setAttribute("data-theme","dark")}();
+    <meta name="description" content="텍스트를 Base64로 인코딩하거나 디코딩하는 도구입니다.">
+    <script>
+        !function () { const e = localStorage.getItem("theme"), t = window.matchMedia("(prefers-color-scheme: dark)").matches; "dark" !== e && (e || !t) || document.documentElement.setAttribute("data-theme", "dark") }();
     </script>
 
     <link rel="preload" href="../../css/style.css" as="style">
@@ -43,7 +44,7 @@
                     <p class="description">텍스트를 Base64 포맷으로 인코딩하거나 다시 평문으로 디코딩합니다.</p>
                 </div>
 
-                <div class="tool-container">
+                <div class="tool-container" data-tool-id="base64-encoder">
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
                         <div>
                             <h3 style="margin-bottom: 8px; font-size: 16px;">평문 (Text)</h3>
@@ -57,8 +58,8 @@
                     </div>
 
                     <div style="display: flex; justify-content: center; gap: 16px; margin-top: 16px;">
-                        <button class="btn btn-primary" onclick="encode()">인코딩 (Encode) →</button>
-                        <button class="btn btn-primary" onclick="decode()">← 디코딩 (Decode)</button>
+                        <button class="btn btn-primary" id="encodeBtn">인코딩 (Encode) →</button>
+                        <button class="btn btn-primary" id="decodeBtn">← 디코딩 (Decode)</button>
                     </div>
                 </div>
             </div>
@@ -66,24 +67,50 @@
     </div>
     <script src="../../js/common.js"></script>
     <script>
-        const textInput = document.getElementById('text-input');
-        const base64Input = document.getElementById('base64-input');
+        Utilsly.registerTool('base64-encoder', {
+            elements: {},
 
-        function encode() {
-            try {
-                base64Input.value = btoa(unescape(encodeURIComponent(textInput.value)));
-            } catch (e) {
-                alert("인코딩 실패: " + e.message);
-            }
-        }
+            init() {
+                this.elements = {
+                    textInput: document.getElementById('text-input'),
+                    base64Input: document.getElementById('base64-input'),
+                    encodeBtn: document.getElementById('encodeBtn'),
+                    decodeBtn: document.getElementById('decodeBtn')
+                };
 
-        function decode() {
-            try {
-                textInput.value = decodeURIComponent(escape(atob(base64Input.value)));
-            } catch (e) {
-                alert("디코딩 실패: 올바른 Base64 문자열이 아닙니다.");
+                this.handleEncode = this.encode.bind(this);
+                this.handleDecode = this.decode.bind(this);
+
+                this.elements.encodeBtn.addEventListener('click', this.handleEncode);
+                this.elements.decodeBtn.addEventListener('click', this.handleDecode);
+                console.log('Base64 Encoder initialized');
+            },
+
+            cleanup() {
+                if (this.elements.encodeBtn) {
+                    this.elements.encodeBtn.removeEventListener('click', this.handleEncode);
+                    this.elements.decodeBtn.removeEventListener('click', this.handleDecode);
+                }
+                this.elements = {};
+                console.log('Base64 Encoder cleanup done');
+            },
+
+            encode() {
+                try {
+                    this.elements.base64Input.value = btoa(unescape(encodeURIComponent(this.elements.textInput.value)));
+                } catch (e) {
+                    alert("인코딩 실패: " + e.message);
+                }
+            },
+
+            decode() {
+                try {
+                    this.elements.textInput.value = decodeURIComponent(escape(atob(this.elements.base64Input.value)));
+                } catch (e) {
+                    alert("디코딩 실패: 올바른 Base64 문자열이 아닙니다.");
+                }
             }
-        }
+        });
     </script>
 </body>
 

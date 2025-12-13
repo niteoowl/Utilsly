@@ -139,7 +139,7 @@
                     <p class="description">키보드 숫자키(1-9)로 이미지를 빠르게 분류하세요.</p>
                 </div>
 
-                <div class="tool-container">
+                <div class="tool-container" data-tool-id="image-sorter">
                     <div class="sorter-container">
                         <div class="drop-zone" id="dropZone"
                             style="border: 2px dashed var(--border-color); padding: 40px; text-align: center; cursor: pointer;">
@@ -170,11 +170,11 @@
                             </div>
 
                             <div class="controls">
-                                <button class="btn" onclick="previousImage()">
+                                <button class="btn" id="btnPrev">
                                     <span class="material-symbols-rounded">arrow_back</span>
                                     이전 (←)
                                 </button>
-                                <button class="btn" onclick="nextImage()">
+                                <button class="btn" id="btnNext">
                                     다음 (→)
                                     <span class="material-symbols-rounded">arrow_forward</span>
                                 </button>
@@ -186,8 +186,7 @@
                                 <div class="category-grid" id="categoryGrid"></div>
                             </div>
 
-                            <button class="btn btn-primary" onclick="downloadSorted()"
-                                style="width: 100%; margin-top: 24px;">
+                            <button class="btn btn-primary" id="downloadBtn" style="width: 100%; margin-top: 24px;">
                                 분류된 이미지 다운로드
                             </button>
                         </div>
@@ -198,133 +197,195 @@
     </div>
     <script src="../../js/common.js"></script>
     <script>
-        let images = [];
-        let currentIndex = 0;
-        let categories = [
-            { id: 1, name: '보관', images: [] },
-            { id: 2, name: '편집', images: [] },
-            { id: 3, name: '삭제', images: [] }
-        ];
+        Utilsly.registerTool('image-sorter', {
+            elements: {},
+            images: [],
+            currentIndex: 0,
+            categories: [
+                { id: 1, name: '보관', images: [] },
+                { id: 2, name: '편집', images: [] },
+                { id: 3, name: '삭제', images: [] }
+            ],
 
-        const dropZone = document.getElementById('dropZone');
-        const fileInput = document.getElementById('fileInput');
-        const sorterArea = document.getElementById('sorterArea');
-        const previewImage = document.getElementById('previewImage');
+            init() {
+                this.elements = {
+                    dropZone: document.getElementById('dropZone'),
+                    fileInput: document.getElementById('fileInput'),
+                    sorterArea: document.getElementById('sorterArea'),
+                    previewImage: document.getElementById('previewImage'),
+                    categoryGrid: document.getElementById('categoryGrid'),
+                    currentIndex: document.getElementById('currentIndex'),
+                    totalImages: document.getElementById('totalImages'),
+                    sortedCount: document.getElementById('sortedCount'),
+                    btnPrev: document.getElementById('btnPrev'),
+                    btnNext: document.getElementById('btnNext'),
+                    downloadBtn: document.getElementById('downloadBtn')
+                };
 
-        dropZone.addEventListener('click', () => fileInput.click());
-        fileInput.addEventListener('change', handleFiles);
+                this.handleClick = () => this.elements.fileInput.click();
+                this.handleFiles = (e) => this.processFiles(e);
+                this.handlePrev = () => this.previousImage();
+                this.handleNext = () => this.nextImage();
+                this.handleDownload = () => this.downloadSorted();
 
-        function handleFiles(e) {
-            const files = Array.from(e.target.files);
-            images = files.map((file, index) => ({
-                id: index,
-                file: file,
-                url: URL.createObjectURL(file),
-                category: null
-            }));
+                // Bind Key Handler
+                this.handleKeydown = this.onKeydown.bind(this);
 
-            if (images.length > 0) {
-                dropZone.style.display = 'none';
-                sorterArea.style.display = 'block';
-                renderCategories();
-                showImage(0);
-                updateStats();
-            }
-        }
+                this.elements.dropZone.addEventListener('click', this.handleClick);
+                this.elements.fileInput.addEventListener('change', this.handleFiles);
+                this.elements.btnPrev.addEventListener('click', this.handlePrev);
+                this.elements.btnNext.addEventListener('click', this.handleNext);
+                this.elements.downloadBtn.addEventListener('click', this.handleDownload);
 
-        function renderCategories() {
-            const grid = document.getElementById('categoryGrid');
-            grid.innerHTML = categories.map(cat => `
-                <button class="category-btn" onclick="assignCategory(${cat.id})">
-                    <span class="key-hint">${cat.id}</span>
-                    ${cat.name}
-                </button>
-            `).join('');
-        }
+                document.addEventListener('keydown', this.handleKeydown);
 
-        function showImage(index) {
-            if (index < 0 || index >= images.length) return;
-            currentIndex = index;
-            previewImage.src = images[index].url;
-            updateStats();
-        }
+                console.log('Image Sorter initialized');
+            },
 
-        function previousImage() {
-            if (currentIndex > 0) {
-                showImage(currentIndex - 1);
-            }
-        }
+            cleanup() {
+                if (this.elements.dropZone) {
+                    this.elements.dropZone.removeEventListener('click', this.handleClick);
+                    this.elements.fileInput.removeEventListener('change', this.handleFiles);
+                    this.elements.btnPrev.removeEventListener('click', this.handlePrev);
+                    this.elements.btnNext.removeEventListener('click', this.handleNext);
+                    this.elements.downloadBtn.removeEventListener('click', this.handleDownload);
 
-        function nextImage() {
-            if (currentIndex < images.length - 1) {
-                showImage(currentIndex + 1);
-            }
-        }
+                    document.removeEventListener('keydown', this.handleKeydown);
+                }
+                this.elements = {};
+                this.images = [];
+                console.log('Image Sorter cleanup done');
+            },
 
-        function assignCategory(categoryId) {
-            images[currentIndex].category = categoryId;
-            updateStats();
-            nextImage();
-        }
+            processFiles(e) {
+                const files = Array.from(e.target.files);
+                this.images = files.map((file, index) => ({
+                    id: index,
+                    file: file,
+                    url: URL.createObjectURL(file), // Note: Need to revoke these if tool is unloaded? Ideally yes.
+                    category: null
+                }));
 
-        function updateStats() {
-            document.getElementById('currentIndex').textContent = currentIndex + 1;
-            document.getElementById('totalImages').textContent = images.length;
-            document.getElementById('sortedCount').textContent = images.filter(img => img.category !== null).length;
-        }
+                if (this.images.length > 0) {
+                    this.elements.dropZone.style.display = 'none';
+                    this.elements.sorterArea.style.display = 'block';
+                    this.renderCategories();
+                    this.showImage(0);
+                    this.updateStats();
+                }
+            },
 
-        async function downloadSorted() {
-            const JSZip = window.JSZip || await loadJSZip();
-            const zip = new JSZip();
+            onKeydown(e) {
+                if (this.images.length === 0) return;
 
-            categories.forEach(cat => {
-                const folder = zip.folder(cat.name);
-                images.filter(img => img.category === cat.id).forEach((img, index) => {
-                    const blob = dataURLtoBlob(img.url);
-                    folder.file(`${index + 1}_${img.file.name}`, blob);
+                const key = parseInt(e.key);
+                // Note: Check if key is 1-9
+                if (!isNaN(key) && key >= 1 && key <= 9) {
+                    const category = this.categories.find(c => c.id === key);
+                    if (category) this.assignCategory(key);
+                } else if (e.key === 'ArrowLeft') {
+                    this.previousImage();
+                } else if (e.key === 'ArrowRight') {
+                    this.nextImage();
+                }
+            },
+
+            renderCategories() {
+                this.elements.categoryGrid.innerHTML = this.categories.map(cat => `
+                    <button class="category-btn" data-id="${cat.id}">
+                        <span class="key-hint">${cat.id}</span>
+                        ${cat.name}
+                    </button>
+                `).join('');
+
+                // Add click listeners to new buttons
+                this.elements.categoryGrid.querySelectorAll('.category-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        this.assignCategory(parseInt(btn.getAttribute('data-id')));
+                    });
                 });
-            });
+            },
 
-            const content = await zip.generateAsync({ type: 'blob' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(content);
-            link.download = 'sorted-images.zip';
-            link.click();
-        }
+            showImage(index) {
+                if (index < 0 || index >= this.images.length) return;
+                this.currentIndex = index;
+                this.elements.previewImage.src = this.images[index].url;
+                this.updateStats();
+            },
 
-        function dataURLtoBlob(dataURL) {
-            const arr = dataURL.split(',');
-            const mime = arr[0].match(/:(.*?);/)[1];
-            const bstr = atob(arr[1]);
-            let n = bstr.length;
-            const u8arr = new Uint8Array(n);
-            while (n--) {
-                u8arr[n] = bstr.charCodeAt(n);
-            }
-            return new Blob([u8arr], { type: mime });
-        }
+            previousImage() {
+                if (this.currentIndex > 0) {
+                    this.showImage(this.currentIndex - 1);
+                }
+            },
 
-        async function loadJSZip() {
-            const script = document.createElement('script');
-            script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
-            document.head.appendChild(script);
-            return new Promise(resolve => {
-                script.onload = () => resolve(window.JSZip);
-            });
-        }
+            nextImage() {
+                if (this.currentIndex < this.images.length - 1) {
+                    this.showImage(this.currentIndex + 1);
+                }
+            },
 
-        // Keyboard shortcuts
-        document.addEventListener('keydown', (e) => {
-            if (images.length === 0) return;
+            assignCategory(categoryId) {
+                this.images[this.currentIndex].category = categoryId;
+                this.updateStats();
+                this.nextImage();
+            },
 
-            const key = parseInt(e.key);
-            if (!isNaN(key) && key >= 1 && key <= 9) {
-                const category = categories.find(c => c.id === key);
-                if (category) assignCategory(key);
-            } else if (e.key === 'ArrowLeft') {
-                previousImage();
-            } else if (e.key === 'ArrowRight') {
-                nextImage();
+            updateStats() {
+                this.elements.currentIndex.textContent = this.currentIndex + 1;
+                this.elements.totalImages.textContent = this.images.length;
+                this.elements.sortedCount.textContent = this.images.filter(img => img.category !== null).length;
+            },
+
+            async downloadSorted() {
+                const JSZip = window.JSZip || await this.loadJSZip();
+                const zip = new JSZip();
+
+                this.categories.forEach(cat => {
+                    const folder = zip.folder(cat.name);
+                    this.images.filter(img => img.category === cat.id).forEach((img, index) => {
+                        const blob = this.dataURLtoBlob(img.url);
+                        folder.file(`${index + 1}_${img.file.name}`, blob); // Original file name needed? URL.createObjectURL doesn't fully preserve dataUrl for binary copy easily except fetch.
+                        // Actually img.url is Blob URL.
+                    });
+                });
+
+                // Fix: Fetch the blob from blobURL
+                const promises = [];
+                this.categories.forEach(cat => {
+                    const catImages = this.images.filter(img => img.category === cat.id);
+                    catImages.forEach((img, idx) => {
+                        promises.push(
+                            fetch(img.url).then(r => r.blob()).then(blob => {
+                                zip.folder(cat.name).file(`${idx + 1}_${img.file.name}`, blob);
+                            })
+                        );
+                    });
+                });
+
+                await Promise.all(promises);
+
+                const content = await zip.generateAsync({ type: 'blob' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(content);
+                link.download = 'sorted-images.zip';
+                link.click();
+            },
+
+            // Deprecated dataURLtoBlob since we have blob URL
+            dataURLtoBlob(dataURL) {
+                return null;
+            },
+
+            async loadJSZip() {
+                if (window.JSZip) return window.JSZip;
+
+                const script = document.createElement('script');
+                script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
+                document.head.appendChild(script);
+                return new Promise(resolve => {
+                    script.onload = () => resolve(window.JSZip);
+                });
             }
         });
     </script>

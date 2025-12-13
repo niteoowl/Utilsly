@@ -34,7 +34,7 @@
                     <h1>ASCII 아트 생성기</h1>
                     <p class="description">이미지를 ASCII 문자로 변환하세요.</p>
                 </div>
-                <div class="tool-container">
+                <div class="tool-container" data-tool-id="ascii-art">
                     <div class="drop-zone" id="dropZone"
                         style="border: 2px dashed var(--border-color); padding: 40px; text-align: center; cursor: pointer; margin-bottom: 24px;">
                         <span class="material-symbols-rounded"
@@ -65,7 +65,7 @@
                         <div
                             style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                             <label style="font-weight: 600;">ASCII 아트</label>
-                            <button class="btn" onclick="copyAscii()">복사</button>
+                            <button class="btn" id="copyBtn">복사</button>
                         </div>
                         <pre id="ascii"
                             style="background: var(--bg-sidebar); padding: 16px; border-radius: 8px; overflow-x: auto; font-family: monospace; font-size: 8px; line-height: 1;"></pre>
@@ -76,87 +76,116 @@
     </div>
     <script src="../../js/common.js"></script>
     <script>
-        const dropZone = document.getElementById('dropZone');
-        const fileInput = document.getElementById('fileInput');
-        const controls = document.getElementById('controls');
-        const output = document.getElementById('output');
-        const ascii = document.getElementById('ascii');
-        const widthInput = document.getElementById('width');
-        const widthValue = document.getElementById('widthValue');
-        const charset = document.getElementById('charset');
+        Utilsly.registerTool('ascii-art', {
+            elements: {},
+            charsets: {
+                standard: '@#$%+-. ',
+                detailed: '@#W$9876543210?!abc;:+=-,._  ',
+                blocks: '█▓▒░ '
+            },
+            currentImage: null,
 
-        const charsets = {
-            standard: '@#$%+-. ',
-            detailed: '@#W$9876543210?!abc;:+=-,._  ',
-            blocks: '█▓▒░ '
-        };
-
-        let currentImage = null;
-
-        dropZone.addEventListener('click', () => fileInput.click());
-        fileInput.addEventListener('change', handleFile);
-        widthInput.addEventListener('input', () => {
-            widthValue.textContent = widthInput.value;
-            if (currentImage) generateAscii();
-        });
-        charset.addEventListener('change', () => {
-            if (currentImage) generateAscii();
-        });
-
-        function handleFile(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                currentImage = new Image();
-                currentImage.onload = () => {
-                    dropZone.style.display = 'none';
-                    controls.style.display = 'block';
-                    output.style.display = 'block';
-                    generateAscii();
+            init() {
+                this.elements = {
+                    dropZone: document.getElementById('dropZone'),
+                    fileInput: document.getElementById('fileInput'),
+                    controls: document.getElementById('controls'),
+                    output: document.getElementById('output'),
+                    ascii: document.getElementById('ascii'),
+                    widthInput: document.getElementById('width'),
+                    widthValue: document.getElementById('widthValue'),
+                    charset: document.getElementById('charset'),
+                    copyBtn: document.getElementById('copyBtn')
                 };
-                currentImage.src = e.target.result;
-            };
-            reader.readAsDataURL(file);
-        }
 
-        function generateAscii() {
-            const width = parseInt(widthInput.value);
-            const chars = charsets[charset.value];
+                this.handleClick = () => this.elements.fileInput.click();
+                this.handleChange = (e) => this.handleFile(e);
+                this.handleInput = () => {
+                    this.elements.widthValue.textContent = this.elements.widthInput.value;
+                    if (this.currentImage) this.generateAscii();
+                };
+                this.handleCharset = () => {
+                    if (this.currentImage) this.generateAscii();
+                };
+                this.handleCopy = () => this.copyAscii();
 
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
+                this.elements.dropZone.addEventListener('click', this.handleClick);
+                this.elements.fileInput.addEventListener('change', this.handleChange);
+                this.elements.widthInput.addEventListener('input', this.handleInput);
+                this.elements.charset.addEventListener('change', this.handleCharset);
+                this.elements.copyBtn.addEventListener('click', this.handleCopy);
 
-            const aspectRatio = currentImage.height / currentImage.width;
-            const height = Math.floor(width * aspectRatio * 0.5);
+                console.log('ASCII Art initialized');
+            },
 
-            canvas.width = width;
-            canvas.height = height;
-            ctx.drawImage(currentImage, 0, 0, width, height);
-
-            const imageData = ctx.getImageData(0, 0, width, height);
-            let asciiArt = '';
-
-            for (let y = 0; y < height; y++) {
-                for (let x = 0; x < width; x++) {
-                    const i = (y * width + x) * 4;
-                    const r = imageData.data[i];
-                    const g = imageData.data[i + 1];
-                    const b = imageData.data[i + 2];
-                    const brightness = (r + g + b) / 3;
-                    const charIndex = Math.floor((brightness / 255) * (chars.length - 1));
-                    asciiArt += chars[chars.length - 1 - charIndex];
+            cleanup() {
+                if (this.elements.dropZone) {
+                    this.elements.dropZone.removeEventListener('click', this.handleClick);
+                    this.elements.fileInput.removeEventListener('change', this.handleChange);
+                    this.elements.widthInput.removeEventListener('input', this.handleInput);
+                    this.elements.charset.removeEventListener('change', this.handleCharset);
+                    this.elements.copyBtn.removeEventListener('click', this.handleCopy);
                 }
-                asciiArt += '\n';
+                this.elements = {};
+                this.currentImage = null;
+                console.log('ASCII Art cleanup done');
+            },
+
+            handleFile(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = (evt) => {
+                    this.currentImage = new Image();
+                    this.currentImage.onload = () => {
+                        this.elements.dropZone.style.display = 'none';
+                        this.elements.controls.style.display = 'block';
+                        this.elements.output.style.display = 'block';
+                        this.generateAscii();
+                    };
+                    this.currentImage.src = evt.target.result;
+                };
+                reader.readAsDataURL(file);
+            },
+
+            generateAscii() {
+                const width = parseInt(this.elements.widthInput.value);
+                const chars = this.charsets[this.elements.charset.value];
+
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+
+                const aspectRatio = this.currentImage.height / this.currentImage.width;
+                const height = Math.floor(width * aspectRatio * 0.5);
+
+                canvas.width = width;
+                canvas.height = height;
+                ctx.drawImage(this.currentImage, 0, 0, width, height);
+
+                const imageData = ctx.getImageData(0, 0, width, height);
+                let asciiArt = '';
+
+                for (let y = 0; y < height; y++) {
+                    for (let x = 0; x < width; x++) {
+                        const i = (y * width + x) * 4;
+                        const r = imageData.data[i];
+                        const g = imageData.data[i + 1];
+                        const b = imageData.data[i + 2];
+                        const brightness = (r + g + b) / 3;
+                        const charIndex = Math.floor((brightness / 255) * (chars.length - 1));
+                        asciiArt += chars[chars.length - 1 - charIndex];
+                    }
+                    asciiArt += '\n';
+                }
+
+                this.elements.ascii.textContent = asciiArt;
+            },
+
+            copyAscii() {
+                navigator.clipboard.writeText(this.elements.ascii.textContent);
             }
-
-            ascii.textContent = asciiArt;
-        }
-
-        function copyAscii() {
-            navigator.clipboard.writeText(ascii.textContent);
-        }
+        });
     </script>
 </body>
 

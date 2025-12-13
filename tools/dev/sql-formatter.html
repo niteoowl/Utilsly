@@ -6,8 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>SQL 포맷터 - Utilsly</title>
-    <meta name="description" content="복잡한 SQL 쿼리를 읽기 쉽게 정렬해주는 도구입니다."><script>
-        !function(){const e=localStorage.getItem("theme"),t=window.matchMedia("(prefers-color-scheme: dark)").matches;"dark"!==e&&(e||!t)||document.documentElement.setAttribute("data-theme","dark")}();
+    <meta name="description" content="복잡한 SQL 쿼리를 읽기 쉽게 정렬해주는 도구입니다.">
+    <script>
+        !function () { const e = localStorage.getItem("theme"), t = window.matchMedia("(prefers-color-scheme: dark)").matches; "dark" !== e && (e || !t) || document.documentElement.setAttribute("data-theme", "dark") }();
     </script>
 
     <link rel="preload" href="../../css/style.css" as="style">
@@ -43,7 +44,7 @@
                     <p class="description">복잡한 SQL 쿼리문을 읽기 쉽게 정렬하고 포맷팅합니다.</p>
                 </div>
 
-                <div class="tool-container">
+                <div class="tool-container" data-tool-id="sql-formatter">
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; height: 500px;">
                         <div style="display: flex; flex-direction: column;">
                             <label style="margin-bottom: 8px; font-weight: 600;">입력 SQL</label>
@@ -58,9 +59,9 @@
                     </div>
 
                     <div style="margin-top: 24px; display: flex; gap: 12px;">
-                        <button class="btn btn-primary" onclick="formatSQL()">포맷팅</button>
-                        <button class="btn" onclick="copyResult()">복사</button>
-                        <button class="btn" onclick="document.getElementById('input').value = ''">지우기</button>
+                        <button class="btn btn-primary" id="formatBtn">포맷팅</button>
+                        <button class="btn" id="copyBtn">복사</button>
+                        <button class="btn" id="clearBtn">지우기</button>
                     </div>
                 </div>
             </div>
@@ -68,35 +69,67 @@
     </div>
     <script src="../../js/common.js"></script>
     <script>
-        function formatSQL() {
-            let sql = document.getElementById('input').value;
+        Utilsly.registerTool('sql-formatter', {
+            elements: {},
 
-            // Very basic SQL formatting logic (Regex based)
-            // In a real production app, we would use a library like sql-formatter
-            const keywords = ["SELECT", "FROM", "WHERE", "AND", "OR", "ORDER BY", "GROUP BY", "HAVING", "LIMIT", "INSERT INTO", "VALUES", "UPDATE", "SET", "DELETE", "JOIN", "LEFT JOIN", "RIGHT JOIN", "INNER JOIN", "OUTER JOIN", "ON", "AS", "CASE", "WHEN", "THEN", "ELSE", "END"];
+            init() {
+                this.elements = {
+                    input: document.getElementById('input'),
+                    output: document.getElementById('output'),
+                    formatBtn: document.getElementById('formatBtn'),
+                    copyBtn: document.getElementById('copyBtn'),
+                    clearBtn: document.getElementById('clearBtn')
+                };
 
-            // Normalize spaces
-            sql = sql.replace(/\s+/g, ' ');
+                this.handleFormat = this.formatSQL.bind(this);
+                this.handleCopy = this.copyResult.bind(this);
+                this.handleClear = () => { this.elements.input.value = ''; };
 
-            // Add newlines before keywords
-            keywords.forEach(kw => {
-                const regex = new RegExp(`\\b${kw}\\b`, 'gi');
-                sql = sql.replace(regex, (match) => `\n${match.toUpperCase()}`);
-            });
+                this.elements.formatBtn.addEventListener('click', this.handleFormat);
+                this.elements.copyBtn.addEventListener('click', this.handleCopy);
+                this.elements.clearBtn.addEventListener('click', this.handleClear);
+                console.log('SQL Formatter initialized');
+            },
 
-            // Indentation (Simple)
-            sql = sql.replace(/\n/g, '\n  ').trim();
+            cleanup() {
+                if (this.elements.formatBtn) {
+                    this.elements.formatBtn.removeEventListener('click', this.handleFormat);
+                    this.elements.copyBtn.removeEventListener('click', this.handleCopy);
+                    this.elements.clearBtn.removeEventListener('click', this.handleClear);
+                }
+                this.elements = {};
+                console.log('SQL Formatter cleanup done');
+            },
 
-            // Fix first line indentation
-            document.getElementById('output').value = sql;
-        }
+            formatSQL() {
+                let sql = this.elements.input.value;
 
-        function copyResult() {
-            const output = document.getElementById('output');
-            output.select();
-            document.execCommand('copy');
-            alert('복사되었습니다!');
-        }
+                // Very basic SQL formatting logic (Regex based)
+                const keywords = ["SELECT", "FROM", "WHERE", "AND", "OR", "ORDER BY", "GROUP BY", "HAVING", "LIMIT", "INSERT INTO", "VALUES", "UPDATE", "SET", "DELETE", "JOIN", "LEFT JOIN", "RIGHT JOIN", "INNER JOIN", "OUTER JOIN", "ON", "AS", "CASE", "WHEN", "THEN", "ELSE", "END"];
+
+                // Normalize spaces
+                sql = sql.replace(/\s+/g, ' ');
+
+                // Add newlines before keywords
+                keywords.forEach(kw => {
+                    const regex = new RegExp(`\\b${kw}\\b`, 'gi');
+                    sql = sql.replace(regex, (match) => `\n${match.toUpperCase()}`);
+                });
+
+                // Indentation (Simple)
+                sql = sql.replace(/\n/g, '\n  ').trim();
+
+                // Fix first line indentation
+                this.elements.output.value = sql;
+            },
+
+            copyResult() {
+                const output = this.elements.output;
+                output.select();
+                document.execCommand('copy');
+                alert('복사되었습니다!');
+            }
+        });
     </script>
 </body>
 

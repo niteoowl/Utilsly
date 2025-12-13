@@ -106,7 +106,7 @@
                     <p class="description">서식 지원과 자동 저장이 되는 나만의 웹 에디터입니다.</p>
                 </div>
 
-                <div class="tool-container">
+                <div class="tool-container" data-tool-id="notepad">
                     <div class="editor-container">
                         <div id="editor"></div>
                         <div class="status-bar">
@@ -116,9 +116,8 @@
                     </div>
 
                     <div style="margin-top: 16px; display: flex; gap: 8px;">
-                        <button class="btn" onclick="downloadTxt()">TXT 다운로드</button>
-                        <button class="btn" onclick="clearMemo()"
-                            style="color: #FF4B4B; border-color: #FF4B4B;">지우기</button>
+                        <button class="btn" id="btn-download">TXT 다운로드</button>
+                        <button class="btn" id="btn-clear" style="color: #FF4B4B; border-color: #FF4B4B;">지우기</button>
                     </div>
                 </div>
             </div>
@@ -128,63 +127,96 @@
     <!-- Quill.js -->
     <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
     <script>
-        // Initialize Quill
-        var quill = new Quill('#editor', {
-            theme: 'snow',
-            placeholder: '여기에 내용을 입력하세요...',
-            modules: {
-                toolbar: [
-                    [{ 'header': [1, 2, false] }],
-                    ['bold', 'italic', 'underline', 'strike'],
-                    [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-                    ['clean']
-                ]
+        Utilsly.registerTool('notepad', {
+            quill: null,
+            timeoutId: null,
+            elements: {},
+
+            init() {
+                this.elements = {
+                    saveStatus: document.getElementById('saveStatus'),
+                    wordCount: document.getElementById('wordCount'),
+                    btnDownload: document.getElementById('btn-download'),
+                    btnClear: document.getElementById('btn-clear')
+                };
+
+                // Initialize Quill
+                this.quill = new Quill('#editor', {
+                    theme: 'snow',
+                    placeholder: '여기에 내용을 입력하세요...',
+                    modules: {
+                        toolbar: [
+                            [{ 'header': [1, 2, false] }],
+                            ['bold', 'italic', 'underline', 'strike'],
+                            [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                            ['clean']
+                        ]
+                    }
+                });
+
+                // Load saved content
+                const savedContent = localStorage.getItem('utilsly_memo_rich');
+                if (savedContent) {
+                    this.quill.root.innerHTML = savedContent;
+                    this.updateStats();
+                }
+
+                // Handlers
+                this.handleTextChange = () => {
+                    this.elements.saveStatus.textContent = '저장 중...';
+                    clearTimeout(this.timeoutId);
+                    this.timeoutId = setTimeout(() => {
+                        localStorage.setItem('utilsly_memo_rich', this.quill.root.innerHTML);
+                        if (this.elements.saveStatus) this.elements.saveStatus.textContent = '자동 저장됨';
+                        this.updateStats();
+                    }, 1000);
+                };
+                this.handleDownload = () => this.downloadTxt();
+                this.handleClear = () => this.clearMemo();
+
+                // Listeners
+                this.quill.on('text-change', this.handleTextChange);
+                if (this.elements.btnDownload) this.elements.btnDownload.addEventListener('click', this.handleDownload);
+                if (this.elements.btnClear) this.elements.btnClear.addEventListener('click', this.handleClear);
+
+                console.log('Notepad initialized');
+            },
+
+            cleanup() {
+                if (this.timeoutId) clearTimeout(this.timeoutId);
+                if (this.elements.btnDownload) this.elements.btnDownload.removeEventListener('click', this.handleDownload);
+                if (this.elements.btnClear) this.elements.btnClear.removeEventListener('click', this.handleClear);
+                this.quill = null;
+                this.elements = {};
+                console.log('Notepad cleanup done');
+            },
+
+            updateStats() {
+                if (!this.quill) return;
+                const text = this.quill.getText();
+                const words = text.trim().length > 0 ? text.trim().split(/\s+/).length : 0;
+                if (this.elements.wordCount) this.elements.wordCount.textContent = `${words} 단어`;
+            },
+
+            downloadTxt() {
+                const text = this.quill.getText();
+                const blob = new Blob([text], { type: 'text/plain' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'memo.txt';
+                a.click();
+                window.URL.revokeObjectURL(url);
+            },
+
+            async clearMemo() {
+                const confirmed = await Utilsly.showConfirm('정말 메모를 지우시겠습니까?', '메모 삭제');
+                if (confirmed) {
+                    this.quill.setText('');
+                    localStorage.removeItem('utilsly_memo_rich');
+                }
             }
         });
-
-        // Load saved content
-        const savedContent = localStorage.getItem('utilsly_memo_rich');
-        if (savedContent) {
-            quill.root.innerHTML = savedContent;
-            updateStats();
-        }
-
-        // Auto-save logic
-        let timeoutId;
-        quill.on('text-change', function () {
-            document.getElementById('saveStatus').textContent = '저장 중...';
-            clearTimeout(timeoutId);
-            timeoutId = setTimeout(() => {
-                localStorage.setItem('utilsly_memo_rich', quill.root.innerHTML);
-                document.getElementById('saveStatus').textContent = '자동 저장됨';
-                updateStats();
-            }, 1000);
-        });
-
-        function updateStats() {
-            const text = quill.getText();
-            const words = text.trim().length > 0 ? text.trim().split(/\s+/).length : 0;
-            document.getElementById('wordCount').textContent = `${words} 단어`;
-        }
-
-        function downloadTxt() {
-            const text = quill.getText();
-            const blob = new Blob([text], { type: 'text/plain' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'memo.txt';
-            a.click();
-            window.URL.revokeObjectURL(url);
-        }
-
-        async function clearMemo() {
-            const confirmed = await Utilsly.showConfirm('정말 메모를 지우시겠습니까?', '메모 삭제');
-            if (confirmed) {
-                quill.setText('');
-                localStorage.removeItem('utilsly_memo_rich');
-            }
-        }
     </script>
 </body>
 

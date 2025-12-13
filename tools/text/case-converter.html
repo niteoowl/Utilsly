@@ -6,8 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>대소문자 변환 - Utilsly</title>
-    <meta name="description" content="영어 텍스트를 대문자, 소문자, 첫 글자만 대문자 등으로 변환해주는 도구입니다."><script>
-        !function(){const e=localStorage.getItem("theme"),t=window.matchMedia("(prefers-color-scheme: dark)").matches;"dark"!==e&&(e||!t)||document.documentElement.setAttribute("data-theme","dark")}();
+    <meta name="description" content="영어 텍스트를 대문자, 소문자, 첫 글자만 대문자 등으로 변환해주는 도구입니다.">
+    <script>
+        !function () { const e = localStorage.getItem("theme"), t = window.matchMedia("(prefers-color-scheme: dark)").matches; "dark" !== e && (e || !t) || document.documentElement.setAttribute("data-theme", "dark") }();
     </script>
 
     <link rel="preload" href="../../css/style.css" as="style">
@@ -43,11 +44,11 @@
                     <p class="description">영어 텍스트의 대소문자를 간편하게 변환합니다.</p>
                 </div>
 
-                <div class="tool-container">
+                <div class="tool-container" data-tool-id="case-converter">
                     <div style="margin-bottom: 16px; display: flex; gap: 8px;">
-                        <button class="btn" onclick="convert('upper')">대문자로 (UPPER)</button>
-                        <button class="btn" onclick="convert('lower')">소문자로 (lower)</button>
-                        <button class="btn" onclick="convert('capitalize')">첫 글자 대문자 (Capitalize)</button>
+                        <button class="btn" id="upperBtn">대문자로 (UPPER)</button>
+                        <button class="btn" id="lowerBtn">소문자로 (lower)</button>
+                        <button class="btn" id="capitalBtn">첫 글자 대문자 (Capitalize)</button>
                     </div>
                     <textarea id="input-text" placeholder="변환할 영어 텍스트를 입력하세요..."></textarea>
                 </div>
@@ -56,23 +57,53 @@
     </div>
     <script src="../../js/common.js"></script>
     <script>
-        const textarea = document.getElementById('input-text');
+        Utilsly.registerTool('case-converter', {
+            elements: {},
 
-        function convert(type) {
-            const text = textarea.value;
-            if (!text) return;
+            init() {
+                this.elements = {
+                    textarea: document.getElementById('input-text'),
+                    upperBtn: document.getElementById('upperBtn'),
+                    lowerBtn: document.getElementById('lowerBtn'),
+                    capitalBtn: document.getElementById('capitalBtn')
+                };
 
-            let result = '';
-            if (type === 'upper') {
-                result = text.toUpperCase();
-            } else if (type === 'lower') {
-                result = text.toLowerCase();
-            } else if (type === 'capitalize') {
-                result = text.toLowerCase().replace(/(^\w|\s\w)/g, m => m.toUpperCase());
+                this.handleUpper = () => this.convert('upper');
+                this.handleLower = () => this.convert('lower');
+                this.handleCapital = () => this.convert('capitalize');
+
+                this.elements.upperBtn.addEventListener('click', this.handleUpper);
+                this.elements.lowerBtn.addEventListener('click', this.handleLower);
+                this.elements.capitalBtn.addEventListener('click', this.handleCapital);
+                console.log('Case Converter initialized');
+            },
+
+            cleanup() {
+                if (this.elements.upperBtn) {
+                    this.elements.upperBtn.removeEventListener('click', this.handleUpper);
+                    this.elements.lowerBtn.removeEventListener('click', this.handleLower);
+                    this.elements.capitalBtn.removeEventListener('click', this.handleCapital);
+                }
+                this.elements = {};
+                console.log('Case Converter cleanup done');
+            },
+
+            convert(type) {
+                const text = this.elements.textarea.value;
+                if (!text) return;
+
+                let result = '';
+                if (type === 'upper') {
+                    result = text.toUpperCase();
+                } else if (type === 'lower') {
+                    result = text.toLowerCase();
+                } else if (type === 'capitalize') {
+                    result = text.toLowerCase().replace(/(^\w|\s\w)/g, m => m.toUpperCase());
+                }
+
+                this.elements.textarea.value = result;
             }
-
-            textarea.value = result;
-        }
+        });
     </script>
 </body>
 

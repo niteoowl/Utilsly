@@ -6,8 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>로렘 입숨 생성기 - Utilsly</title>
-    <meta name="description" content="디자인 및 퍼블리싱을 위한 더미 텍스트(Lorem Ipsum) 생성기입니다."><script>
-        !function(){const e=localStorage.getItem("theme"),t=window.matchMedia("(prefers-color-scheme: dark)").matches;"dark"!==e&&(e||!t)||document.documentElement.setAttribute("data-theme","dark")}();
+    <meta name="description" content="디자인 및 퍼블리싱을 위한 더미 텍스트(Lorem Ipsum) 생성기입니다.">
+    <script>
+        !function () { const e = localStorage.getItem("theme"), t = window.matchMedia("(prefers-color-scheme: dark)").matches; "dark" !== e && (e || !t) || document.documentElement.setAttribute("data-theme", "dark") }();
     </script>
 
     <link rel="preload" href="../../css/style.css" as="style">
@@ -43,14 +44,14 @@
                     <p class="description">디자인 시안용 더미 텍스트를 생성합니다.</p>
                 </div>
 
-                <div class="tool-container">
+                <div class="tool-container" data-tool-id="lorem-ipsum">
                     <div style="margin-bottom: 16px; display: flex; align-items: center; gap: 16px;">
                         <div style="display: flex; align-items: center; gap: 8px;">
                             <label for="count">문단 수:</label>
                             <input type="number" id="count" value="3" min="1" max="20"
                                 style="width: 60px; padding: 4px; border: 1px solid var(--border-color); border-radius: 4px;">
                         </div>
-                        <button class="btn btn-primary" onclick="generateLorem()">생성하기</button>
+                        <button class="btn btn-primary" id="generateBtn">생성하기</button>
                     </div>
                     <textarea id="result-text" readonly></textarea>
                 </div>
@@ -59,22 +60,41 @@
     </div>
     <script src="../../js/common.js"></script>
     <script>
-        const loremText = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
+        Utilsly.registerTool('lorem-ipsum', {
+            elements: {},
+            loremText: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
 
-        function generateLorem() {
-            const count = document.getElementById('count').value;
-            const textarea = document.getElementById('result-text');
+            init() {
+                this.elements = {
+                    countInput: document.getElementById('count'),
+                    textarea: document.getElementById('result-text'),
+                    generateBtn: document.getElementById('generateBtn')
+                };
 
-            let result = [];
-            for (let i = 0; i < count; i++) {
-                result.push(loremText);
+                this.handleGenerate = this.generateLorem.bind(this);
+                this.elements.generateBtn.addEventListener('click', this.handleGenerate);
+
+                this.generateLorem();
+                console.log('Lorem Ipsum Generator initialized');
+            },
+
+            cleanup() {
+                if (this.elements.generateBtn) {
+                    this.elements.generateBtn.removeEventListener('click', this.handleGenerate);
+                }
+                this.elements = {};
+                console.log('Lorem Ipsum Generator cleanup done');
+            },
+
+            generateLorem() {
+                const count = this.elements.countInput.value;
+                let result = [];
+                for (let i = 0; i < count; i++) {
+                    result.push(this.loremText);
+                }
+                this.elements.textarea.value = result.join('\n\n');
             }
-
-            textarea.value = result.join('\n\n');
-        }
-
-        // Generate on load
-        generateLorem();
+        });
     </script>
 </body>
 
