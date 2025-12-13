@@ -597,13 +597,20 @@ const Utilsly = {
     },
 
     async loadPage(url, isPush) {
-        console.log(`loadPage called: ${url}, isPush: ${isPush}`);
+        console.log(`[SPA] loadPage start: ${url}, isPush: ${isPush}`);
         this.showLoadingBar();
 
         try {
-            const response = await fetch(url);
-            if (!response.ok) throw new Error('Network response was not ok');
+            // Normalize URL to pathname to avoid CORS/Protocol issues on fetch
+            const urlObj = new URL(url, window.location.origin);
+            const path = urlObj.pathname + urlObj.search;
+            console.log(`[SPA] Fetching path: ${path}`);
+
+            const response = await fetch(path);
+            if (!response.ok) throw new Error(`Network response was not ok: ${response.status}`);
+
             const html = await response.text();
+            console.log(`[SPA] Fetched HTML length: ${html.length}`);
 
             // Parse HTML
             const parser = new DOMParser();
@@ -634,8 +641,6 @@ const Utilsly = {
             const cssPromises = [];
 
             newLinks.forEach(newLink => {
-                // Check if already exists broadly (to avoid re-loading common.css)
-                // We add a specific class to new checks to ensure we can remove them later.
                 const isCommon = newLink.getAttribute('href')?.includes('common.css') || newLink.getAttribute('href')?.includes('style.css');
 
                 const exists = currentLinks.some(curr => {
@@ -646,48 +651,88 @@ const Utilsly = {
 
                 if (!exists && !isCommon) {
                     const clonedLink = newLink.cloneNode(true);
-                    clonedLink.classList.add('page-specific-style'); // TAG for removal
+                    clonedLink.classList.add('page-specific-style');
                     document.head.appendChild(clonedLink);
 
                     if (clonedLink.tagName === 'LINK') {
                         cssPromises.push(new Promise(resolve => {
                             clonedLink.onload = resolve;
                             clonedLink.onerror = resolve;
-                            setTimeout(resolve, 500); // Timeout
+                            setTimeout(resolve, 500);
                         }));
                     }
                 }
             });
 
+            if (cssPromises.length > 0) {
+                await Promise.all(cssPromises);
+            }
+
+            // --- 4. Content Replacement ---
+            const newMain = doc.querySelector('.main-content');
+            const currentMain = document.querySelector('.main-content');
+
+            if (!newMain) {
+                console.error("[SPA] .main-content not found in fetched HTML");
+                window.location.href = url;
+                return;
+            }
+
+            if (newMain && currentMain) {
+                console.log("[SPA] Replacing .main-content");
+                currentMain.innerHTML = newMain.innerHTML;
+
+                // Re-run scripts separately and strictly
+                const scripts = newMain.querySelectorAll('script');
+                scripts.forEach(script => {
+                    if (script.src) {
+                        const isLoaded = Array.from(document.scripts).some(s => s.src === script.src);
+                        if (isLoaded) {
+                            console.log(`[SPA] Skipping already loaded script: ${script.src}`);
+                            return;
+                        }
+                    }
+
+                    const newScript = document.createElement('script');
+                    if (script.src) {
+                        newScript.src = script.src;
+                    } else {
+                        newScript.textContent = script.textContent;
+                    }
+                    document.body.appendChild(newScript);
+                    newScript.remove();
+                });
+
+            } else {
+                console.error("[SPA] Current page missing .main-content?");
+                window.location.reload();
+                return;
+            }
+
             // --- 5. Tool Initialization ---
-            // Check for data-tool-id in the new content
             const toolContainer = document.querySelector('[data-tool-id]');
             if (toolContainer) {
                 const toolId = toolContainer.dataset.toolId;
                 if (this.tools[toolId]) {
-                    console.log(`Initializing tool: ${toolId}`);
-                    this.tools[toolId].init();
-                    this.currentTool = { id: toolId, controller: this.tools[toolId] };
+                    console.log(`[SPA] Initializing tool: ${toolId}`);
+                    try {
+                        this.tools[toolId].init();
+                        this.currentTool = { id: toolId, controller: this.tools[toolId] };
+                    } catch (err) {
+                        console.error(`[SPA] Error initializing tool ${toolId}:`, err);
+                    }
                 } else {
-                    console.warn(`Tool ID '${toolId}' found but no matching controller registered.`);
+                    console.warn(`[SPA] Tool ID '${toolId}' found but no matching controller registered.`);
                 }
+            } else {
+                console.log("[SPA] No data-tool-id found in new content.");
             }
 
             // Scroll to top
             window.scrollTo(0, 0);
 
-            // Update URL
-            if (isPush) {
-                // We manually update state. 
-                // Note: The caller (navigateTo) already did pushState usually? 
-                // No, checking logic: navigateTo does pushState BEFORE loadPage.
-                // Wait, if we fail, we might want to replaceState? 
-                // For now, assume success.
-            }
-
         } catch (e) {
-            console.error("SPA Navigation Failed:", e);
-            // Fallback
+            console.error("[SPA] Navigation Failed:", e);
             window.location.href = url;
         } finally {
             this.hideLoadingBar();
@@ -701,11 +746,10 @@ const Utilsly = {
             bar.id = 'turbo-progress-bar';
             document.body.appendChild(bar);
         }
-        // Force reflow
         bar.style.width = '0%';
         bar.style.opacity = '1';
         void bar.offsetWidth;
-        bar.style.width = '70%'; // Simulation
+        bar.style.width = '70%';
     },
 
     hideLoadingBar() {
