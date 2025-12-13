@@ -110,7 +110,8 @@
                             </div>
                             <div class="form-group">
                                 <label>비밀번호</label>
-                                <input type="password" id="password" required placeholder="삭제 시 필요" maxlength="20">
+                                <input type="password" id="password" required placeholder="삭제 시 필요" maxlength="20"
+                                    autocomplete="new-password">
                             </div>
                         </div>
 
@@ -120,7 +121,29 @@
                         </div>
 
                         <div class="form-group">
-                            <textarea id="content" required placeholder="내용을 입력해 주세요"></textarea>
+                            <label>내용</label>
+                            <!-- Rich Text Toolbar -->
+                            <div class="toolbar"
+                                style="border: 1px solid var(--border-color); border-bottom: none; padding: 8px; background: var(--bg-hover); border-radius: 4px 4px 0 0; display:flex; gap: 4px;">
+                                <button type="button" class="tool-btn" data-cmd="bold"
+                                    style="font-weight:bold;">B</button>
+                                <button type="button" class="tool-btn" data-cmd="italic"
+                                    style="font-style:italic;">I</button>
+                                <button type="button" class="tool-btn" data-cmd="underline"
+                                    style="text-decoration:underline;">U</button>
+                                <div style="width:1px; background:var(--border-color); margin:0 4px;"></div>
+                                <button type="button" class="tool-btn" data-cmd="justifyLeft"><span
+                                        class="material-symbols-rounded"
+                                        style="font-size:16px;">format_align_left</span></button>
+                                <button type="button" class="tool-btn" data-cmd="justifyCenter"><span
+                                        class="material-symbols-rounded"
+                                        style="font-size:16px;">format_align_center</span></button>
+                            </div>
+                            <!-- Content Editable Div -->
+                            <div id="editor" contenteditable="true"
+                                style="min-height: 400px; padding: 16px; border: 1px solid var(--border-color); border-radius: 0 0 4px 4px; background: var(--bg-primary); line-height: 1.6; outline: none; overflow-y: auto;">
+                            </div>
+                            <textarea id="content" required style="display:none;"></textarea>
                         </div>
 
                         <div class="btn-group">
@@ -128,6 +151,25 @@
                             <button type="submit" class="btn btn-primary" id="submit-btn">등록</button>
                         </div>
                     </form>
+
+                    <style>
+                        .tool-btn {
+                            width: 32px;
+                            height: 32px;
+                            border: 1px solid transparent;
+                            background: transparent;
+                            border-radius: 4px;
+                            cursor: pointer;
+                            color: var(--text-primary);
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                        }
+
+                        .tool-btn:hover {
+                            background: rgba(0, 0, 0, 0.05);
+                        }
+                    </style>
                 </div>
             </div>
         </div>
@@ -157,8 +199,26 @@
             document.getElementById('category').value = urlCat;
         }
 
+        // Initialize Editor
+        document.querySelectorAll('.tool-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const cmd = btn.dataset.cmd;
+                document.execCommand(cmd, false, null);
+                document.getElementById('editor').focus();
+            });
+        });
+
         document.getElementById('write-form').addEventListener('submit', async (e) => {
             e.preventDefault();
+
+            // Sync Editor Content to Textarea
+            const editorContent = document.getElementById('editor').innerHTML;
+            document.getElementById('content').value = editorContent;
+
+            if (!document.getElementById('editor').textContent.trim() && !editorContent.includes('<img')) {
+                return alert('내용을 입력해주세요.');
+            }
 
             const submitBtn = document.getElementById('submit-btn');
             submitBtn.disabled = true;
@@ -166,9 +226,9 @@
 
             const category = document.getElementById('category').value;
             const nickname = document.getElementById('nickname').value;
-            const password = document.getElementById('password').value; // In a real app, hash this!
+            const password = document.getElementById('password').value;
             const title = document.getElementById('title').value;
-            const content = document.getElementById('content').value;
+            const content = editorContent; // Use HTML content
 
             try {
                 await addDoc(collection(db, "posts"), {

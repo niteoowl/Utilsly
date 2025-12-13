@@ -122,13 +122,23 @@
                     <!-- Notice Write Section -->
                     <div class="dashboard-section">
                         <div class="section-title">
-                            <span class="material-symbols-rounded">campaign</span> 공지사항 작성
+                            <span class="material-symbols-rounded">edit_square</span> 관리자 글쓰기
                         </div>
                         <div class="notice-form">
-                            <input type="text" id="notice-title" placeholder="공지 제목">
-                            <textarea id="notice-content" placeholder="공지 내용" style="height: 100px;"></textarea>
+                            <div style="display:flex; gap:8px;">
+                                <select id="post-category"
+                                    style="padding: 8px; border-radius: 4px; border: 1px solid var(--border-color);">
+                                    <option value="notice">공지사항</option>
+                                    <option value="resolved">해결됨</option>
+                                    <option value="free">일반 (자유)</option>
+                                </select>
+                                <input type="password" id="post-pw" placeholder="게시글 비밀번호 (미입력시 기본값)" style="flex:1;"
+                                    autocomplete="new-password">
+                            </div>
+                            <input type="text" id="notice-title" placeholder="제목">
+                            <textarea id="notice-content" placeholder="내용" style="height: 100px;"></textarea>
                             <div style="text-align: right;">
-                                <button class="btn btn-primary" onclick="postNotice()">공지 등록</button>
+                                <button class="btn btn-primary" onclick="postNotice()">등록</button>
                             </div>
                         </div>
                     </div>
@@ -152,8 +162,9 @@
                 <div id="login-overlay" style="text-align:center; padding: 100px;">
                     <h3>관리자 인증 필요</h3>
                     <input type="password" id="admin-pw" placeholder="비밀번호"
-                        style="max-width: 200px; margin: 16px auto; display:block;">
+                        style="max-width: 200px; margin: 16px auto; display:block;" autocomplete="new-password">
                     <button class="btn btn-primary" onclick="checkAuth()">접속</button>
+                    <p style="margin-top:20px; color:var(--text-tertiary); font-size:12px;">보안을 위해 복잡한 비밀번호를 사용하세요.</p>
                 </div>
             </div>
         </div>
@@ -189,14 +200,15 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Simple Client-side Auth (User Verification)
-        const ADMIN_PW = "admin1234"; // Simple password
+        // More complex password to avoid browser warnings (User should change this in real deploy)
+        const ADMIN_PW = "UtilslyAdminSecretKey2024!";
 
         window.checkAuth = () => {
             const pw = document.getElementById('admin-pw').value;
             if (pw === ADMIN_PW) {
                 document.getElementById('login-overlay').style.display = 'none';
                 document.getElementById('admin-content').style.display = 'block';
+                localStorage.setItem('utilsly_admin_auth', 'true'); // Persist for view.html
                 loadAdminPosts();
             } else {
                 alert('비밀번호가 올바르지 않습니다.');
@@ -204,34 +216,41 @@
         };
 
         window.logout = () => {
+            localStorage.removeItem('utilsly_admin_auth');
             window.location.reload();
         };
 
-        // Post Notice
+        // Post Notice or Admin Post
         window.postNotice = async () => {
             const title = document.getElementById('notice-title').value;
             const content = document.getElementById('notice-content').value;
+            const category = document.getElementById('post-category').value;
+            const customPw = document.getElementById('post-pw').value || ADMIN_PW;
 
             if (!title || !content) return alert('제목과 내용을 입력하세요.');
 
-            if (!confirm('공지사항을 등록하시겠습니까?')) return;
+            if (!confirm('게시글을 등록하시겠습니까?')) return;
 
             try {
+                // Determine flags based on category
+                const isNotice = category === 'notice';
+
                 await addDoc(collection(db, "posts"), {
-                    category: 'notice',
+                    category: category,
                     title: title,
                     content: content,
-                    nickname: '관리자',
-                    password: ADMIN_PW,
+                    nickname: 'Utilsly',
+                    password: customPw,
                     views: 0,
                     commentCount: 0,
                     createdAt: serverTimestamp(),
-                    isNotice: true,
+                    isNotice: isNotice,
                     isAdmin: true
                 });
-                alert('공지사항이 등록되었습니다.');
+                alert('등록되었습니다.');
                 document.getElementById('notice-title').value = '';
                 document.getElementById('notice-content').value = '';
+                document.getElementById('post-pw').value = '';
                 loadAdminPosts();
             } catch (e) {
                 console.error(e);
@@ -287,7 +306,7 @@
             try {
                 // Add Comment
                 await addDoc(collection(db, `posts/${currentReplyId}/comments`), {
-                    nickname: '관리자',
+                    nickname: 'Utilsly',
                     password: ADMIN_PW,
                     content: content,
                     createdAt: serverTimestamp(),

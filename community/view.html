@@ -230,7 +230,7 @@
 
                 <div class="post-actions">
                     <button class="btn" onclick="window.location.href='/community/index.html?category=${post.category}'">목록으로</button>
-                    ${post.password ? `<button class="btn" onclick="deletePost('${post.password}')" style="color: #d32f2f;">삭제</button>` : ''}
+                    <button class="btn" onclick="deletePost('${post.password}')" style="color: #d32f2f;">삭제</button>
                 </div>
 
                 <div class="comments-section">
@@ -289,13 +289,37 @@
                     <div class="comment-item" ${c.isAdmin ? 'style="background:rgba(33,150,243,0.05);"' : ''}>
                         <div class="comment-meta">
                             <span class="comment-writer" style="${writerClass} display:flex; align-items:center;">${c.nickname}${adminBadge}</span>
-                            <span class="comment-date">${d}</span>
+                            <div style="display:flex; gap:8px; align-items:center;">
+                                <span class="comment-date">${d}</span>
+                                <button onclick="deleteComment('${doc.id}', '${c.password}')" style="background:none; border:none; cursor:pointer; color:var(--text-tertiary); font-size:16px;">
+                                    <span class="material-symbols-rounded" style="font-size:14px;">close</span>
+                                </button>
+                            </div>
                         </div>
                         <div class="comment-content">${c.content}</div>
                     </div>
                 `;
             });
             list.innerHTML = html;
+
+            window.deleteComment = async (commentId, correctPassword) => {
+                const isAdmin = localStorage.getItem('utilsly_admin_auth') === 'true';
+
+                if (isAdmin) {
+                    if (!confirm('[관리자] 댓글을 삭제하시겠습니까?')) return;
+                } else {
+                    const input = prompt("댓글 비밀번호:");
+                    if (input !== correctPassword) return alert('비밀번호 불일치');
+                }
+
+                try {
+                    await deleteDoc(doc(db, `posts/${postId}/comments`, commentId));
+                    await updateDoc(doc(db, "posts", postId), {
+                        commentCount: increment(-1)
+                    });
+                    loadComments();
+                } catch (e) { console.error(e); alert('삭제 실패'); }
+            };
         }
 
         async function handleCommentSubmit(e) {
