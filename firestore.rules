@@ -1,0 +1,26 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Posts collection
+    match /posts/{postId} {
+      // Anyone can read posts
+      allow read: if true;
+      
+      // Anyone can create a post (basic validation)
+      allow create: if request.resource.data.title is string 
+                   && request.resource.data.content is string
+                   && request.resource.data.nickname is string;
+                   
+      // Anyone can update (needed for view counts) or delete (password check is client-side)
+      // WARNING: This is insecure. In a real app, implement Firebase Auth.
+      allow update, delete: if true;
+      
+      // Comments sub-collection
+      match /comments/{commentId} {
+        allow read: if true;
+        allow create: if request.resource.data.content is string;
+        allow delete: if true;
+      }
+    }
+  }
+}

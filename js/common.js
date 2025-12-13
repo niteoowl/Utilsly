@@ -765,6 +765,7 @@ const Utilsly = {
             console.error("[SPA] Navigation Failed:", e);
             window.location.href = url;
         } finally {
+            this.highlightActivePage();
             this.hideLoadingBar();
         }
     },
