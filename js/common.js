@@ -549,24 +549,39 @@ const Utilsly = {
         });
     },
     // SPA Navigation Logic (Turbo Mode)
+    // SPA Navigation Logic (Turbo Mode)
     initSpaNavigation() {
-        // Handle clicks on internal links
-        document.addEventListener('click', (e) => {
-            const link = e.target.closest('a');
+        // Canonical Click Interceptor
+        document.addEventListener('click', (event) => {
+            const anchor = event.target.closest('a');
+            if (!anchor) return;
+
+            const href = anchor.getAttribute('href');
+            if (!href) return;
+
+            // Ignore external links, hash links, and new tabs
             if (
-                link &&
-                link.href &&
-                link.origin === location.origin &&
-                !link.hasAttribute('download') &&
-                !link.target && // Ignore _blank etc.
-                !e.ctrlKey && !e.metaKey && !e.shiftKey // Ignore modifier keys
+                href.startsWith('http') ||
+                href.startsWith('#') ||
+                anchor.target === '_blank' ||
+                anchor.hasAttribute('download')
             ) {
-                const url = new URL(link.href);
-                // Only intercept internal pages, not anchors on same page
-                if (url.pathname !== location.pathname) {
-                    e.preventDefault();
-                    this.navigateTo(url.href);
-                }
+                return;
+            }
+
+            // Handle internal navigation via SPA
+            // Note: We check if it is a relative path or absolute path to our domain
+            // Since this runs on file:// sometimes, we look for relative paths too.
+            // The user rule said: if (href.startsWith("/"))
+            // We'll trust the user rule but also accept relative paths which are common.
+
+            const isInternal = href.startsWith('/') || !href.match(/^[a-z]+:/i); // Starts with / or no protocol
+
+            if (isInternal) {
+                event.preventDefault();
+                // Resolve to absolute URL for robust loading
+                const url = new URL(href, window.location.origin + window.location.pathname);
+                this.navigateTo(url.href);
             }
         });
 
@@ -582,6 +597,7 @@ const Utilsly = {
     },
 
     async loadPage(url, isPush) {
+        console.log(`loadPage called: ${url}, isPush: ${isPush}`);
         this.showLoadingBar();
 
         try {
