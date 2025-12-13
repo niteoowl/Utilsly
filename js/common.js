@@ -776,6 +776,7 @@ const Utilsly = {
             window.location.href = url;
         } finally {
             this.highlightActivePage();
+            this.initMobileMenu();
             this.hideLoadingBar();
         }
     },
