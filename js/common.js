@@ -173,7 +173,6 @@ const Utilsly = {
                 { name: "공지사항", icon: "campaign", path: "/community/index.html?category=notice" },
                 { name: "버그 제보", icon: "bug_report", path: "/community/index.html?category=bug" },
                 { name: "기능 건의", icon: "lightbulb", path: "/community/index.html?category=suggestion" },
-                { name: "해결된 문제", icon: "check_circle", path: "/community/index.html?category=resolved" },
             ]
         },
         {
@@ -183,22 +182,18 @@ const Utilsly = {
                 { name: "제비뽑기", icon: "confirmation_number", path: "/tools/random/random-picker" },
                 { name: "주사위 굴리기", icon: "deployed_code", path: "/tools/random/dice-roller" },
                 { name: "투표 하기", icon: "how_to_vote", path: "/tools/random/vote" },
+                { name: "비밀번호 생성", icon: "password", path: "/tools/random/password-generator" },
             ]
         },
         {
             category: "이미지 (Image)",
             items: [
                 { name: "이미지 리사이저", icon: "image", path: "/tools/image/image-resizer" },
-                { name: "JPG ↔ PNG 변환", icon: "transform", path: "/tools/image/jpg-png-converter" },
-                { name: "PNG ↔ WebP 변환", icon: "transform", path: "/tools/image/png-webp-converter" },
-                { name: "WebP → JPG 변환", icon: "transform", path: "/tools/image/webp-jpg-converter" },
-                { name: "SVG → PNG 변환", icon: "transform", path: "/tools/image/svg-png-converter" },
-                { name: "HEIC → JPG 변환", icon: "transform", path: "/tools/image/heic-jpg-converter" },
-                { name: "HEIC → PNG 변환", icon: "transform", path: "/tools/image/heic-png-converter" },
+                { name: "이미지 변환기", icon: "transform", path: "/tools/image/image-converter" },
                 { name: "이미지 자르기", icon: "crop", path: "/tools/image/image-cropper" },
                 { name: "이미지 필터", icon: "photo_filter", path: "/tools/image/image-filters" },
                 { name: "이미지 색상 추출", icon: "colorize", path: "/tools/image/color-extractor" },
-                { name: "플레이스홀더 생성", icon: "image", path: "/tools/image/placeholder-generator" },
+                { name: "OCR 텍스트 추출", icon: "find_in_page", path: "/tools/image/ocr" },
                 { name: "ASCII 아트", icon: "grid_on", path: "/tools/image/ascii-art" },
             ]
         },
@@ -229,14 +224,13 @@ const Utilsly = {
         {
             category: "메모/텍스트 (Memo)",
             items: [
-                { name: "Utilsly Docs (문서)", icon: "description", path: "/tools/memo/docs" },
                 { name: "빠른 메모장", icon: "edit_note", path: "/tools/memo/notepad" },
                 { name: "스마트 화이트보드", icon: "draw", path: "/tools/memo/whiteboard" },
                 { name: "EPUB 리더", icon: "menu_book", path: "/tools/text/epub-reader" },
                 { name: "텍스트 비교", icon: "difference", path: "/tools/text/text-diff" },
                 { name: "글자수 세기", icon: "article", path: "/tools/text/word-counter" },
                 { name: "대소문자 변환", icon: "text_fields", path: "/tools/text/case-converter" },
-                { name: "로눘 입숨 생성", icon: "description", path: "/tools/text/lorem-ipsum" },
+                { name: "로렘 입숨 생성", icon: "description", path: "/tools/text/lorem-ipsum" },
                 { name: "줄바꿈 제거", icon: "format_align_left", path: "/tools/text/remove-line-breaks" },
                 { name: "마크다운 미리보기", icon: "markdown", path: "/tools/text/markdown-preview" },
                 { name: "특수문자 폰트", icon: "text_fields", path: "/tools/text/fancy-text" },
@@ -254,6 +248,7 @@ const Utilsly = {
                 { name: "URL 인코더", icon: "link", path: "/tools/dev/url-encoder" },
                 { name: "Base64 인코더", icon: "package_2", path: "/tools/dev/base64-encoder" },
                 { name: "UUID 생성기", icon: "fingerprint", path: "/tools/dev/uuid-generator" },
+                { name: "인터넷 속도 테스트", icon: "speed", path: "/tools/dev/speed-test" },
             ]
         },
         {
@@ -287,12 +282,6 @@ const Utilsly = {
                 { name: "BMI 계산기", icon: "monitor_weight", path: "/tools/health/bmi-calculator" },
                 { name: "BMR 계산기", icon: "local_fire_department", path: "/tools/health/bmr-calculator" },
                 { name: "호흡 운동", icon: "self_improvement", path: "/tools/health/breathing" },
-            ]
-        },
-        {
-            category: "보안 (Security)",
-            items: [
-                { name: "비밀번호 생성", icon: "password", path: "/tools/security/password-generator" },
             ]
         },
         {
