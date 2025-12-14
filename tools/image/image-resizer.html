@@ -13,26 +13,6 @@
     <link rel="preload" href="../../css/style.css" as="style">
     <link rel="stylesheet" href="../../css/style.css">
     <style>
-        .upload-area {
-            border: 2px dashed var(--border-color);
-            border-radius: 12px;
-            padding: 60px 40px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.2s;
-            background: var(--bg-primary);
-        }
-
-        .upload-area:hover {
-            border-color: var(--accent-blue);
-            background: var(--bg-hover);
-        }
-
-        .upload-area.dragover {
-            border-color: var(--accent-blue);
-            background: var(--bg-hover);
-        }
-
         .upload-icon {
             font-size: 64px;
             color: var(--text-tertiary);
@@ -129,7 +109,7 @@
                 </div>
 
                 <div class="tool-container" data-tool-id="image-resizer">
-                    <div class="upload-area" id="dropZone">
+                    <div class="drop-zone" id="dropZone">
                         <span class="material-symbols-rounded upload-icon">add_photo_alternate</span>
                         <p class="upload-text">이미지를 드래그하거나 클릭하여 업로드</p>
                         <p class="upload-hint">JPG, PNG, WEBP 지원 • 붙여넣기(Ctrl+V)도 가능</p>

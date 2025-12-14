@@ -19,7 +19,7 @@
             gap: 24px;
         }
 
-        .upload-area {
+        .drop-zone {
             border: 2px dashed var(--border-color);
             border-radius: 12px;
             padding: 60px 40px;
@@ -29,12 +29,12 @@
             background: var(--bg-primary);
         }
 
-        .upload-area:hover {
+        .drop-zone:hover {
             border-color: var(--accent-blue);
             background: var(--bg-hover);
         }
 
-        .upload-area.dragover {
+        .drop-zone.dragover {
             border-color: var(--accent-blue);
             background: var(--bg-hover);
         }
@@ -159,7 +159,7 @@
                 </div>
 
                 <div class="tool-container" data-tool-id="color-extractor">
-                    <div class="upload-area" id="dropZone">
+                    <div class="drop-zone" id="dropZone">
                         <span class="material-symbols-rounded upload-icon">add_photo_alternate</span>
                         <p class="upload-text">이미지를 드래그하거나 클릭하여 업로드</p>
                         <p class="upload-hint">JPG, PNG, WEBP 지원 • 붙여넣기(Ctrl+V)도 가능</p>
