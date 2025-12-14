@@ -7,34 +7,84 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>Utilsly - 웹 도구 모음</title>
     <meta name="description" content="모두를 위한 유용한 웹툴! Utilsly입니다.">
+    <script>
+        (function () {
+            const savedTheme = localStorage.getItem('theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            }
+        })();
+    </script>
     <link rel="preload" href="css/style.css" as="style">
     <link rel="stylesheet" href="css/style.css">
     <style>
         .hero-section {
             text-align: center;
-            padding: 60px 20px;
-            background: linear-gradient(180deg, rgba(0, 0, 0, 0.02) 0%, rgba(255, 255, 255, 0) 100%);
-            border-bottom: 1px solid var(--border-color);
-            margin: -40px -60px 40px -60px;
-            /* Negative margin to stretch full width */
+            padding: 80px 40px;
+            background: linear-gradient(180deg, var(--bg-sidebar) 0%, var(--bg-primary) 100%);
+            border-radius: 24px;
+            margin-bottom: 48px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 30% 50%, rgba(0, 0, 0, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 70% 30%, rgba(0, 0, 0, 0.02) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        [data-theme="dark"] .hero-section::before {
+            background: radial-gradient(circle at 30% 50%, rgba(255, 255, 255, 0.02) 0%, transparent 50%),
+                radial-gradient(circle at 70% 30%, rgba(255, 255, 255, 0.01) 0%, transparent 50%);
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 50px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+        }
+
+        .hero-badge .material-symbols-rounded {
+            font-size: 16px;
+            color: var(--accent-blue);
         }
 
         .hero-title {
-            font-size: 48px;
+            font-size: 56px;
             font-weight: 800;
             margin-bottom: 16px;
-            letter-spacing: -0.02em;
-            /* 타이핑 효과 관련 CSS 제거됨 */
-            white-space: nowrap;
-            overflow: hidden;
-            display: inline-block;
+            letter-spacing: -0.03em;
+            line-height: 1.1;
+            color: var(--text-primary);
         }
 
         .hero-subtitle {
             font-size: 18px;
             color: var(--text-secondary);
-            max-width: 600px;
+            max-width: 500px;
             margin: 0 auto 32px auto;
+            line-height: 1.6;
         }
 
         .search-container {
@@ -45,18 +95,21 @@
 
         .search-input {
             width: 100%;
-            padding: 16px 24px 16px 50px;
-            font-size: 18px;
+            padding: 16px 24px 16px 52px;
+            font-size: 16px;
             border-radius: 50px;
             border: 1px solid var(--border-color);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
             transition: all 0.2s;
         }
 
         .search-input:focus {
             border-color: var(--accent-blue);
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
             transform: translateY(-2px);
+            outline: none;
         }
 
         .search-icon {
@@ -65,24 +118,131 @@
             top: 50%;
             transform: translateY(-50%);
             color: var(--text-tertiary);
-            font-size: 24px;
+            font-size: 22px;
+            pointer-events: none;
+        }
+
+        .category-nav {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 32px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .category-nav::-webkit-scrollbar {
+            display: none;
+        }
+
+        .category-btn {
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+
+        .category-btn:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .category-btn.active {
+            background: var(--text-primary);
+            color: var(--bg-primary);
+            border-color: var(--text-primary);
         }
 
         .section-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 24px;
+            margin-bottom: 20px;
         }
 
         .section-title {
-            font-size: 20px;
+            font-size: 18px;
             font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-title .material-symbols-rounded {
+            font-size: 22px;
+        }
+
+        .tools-section {
+            margin-bottom: 48px;
+        }
+
+        .stats-row {
+            display: flex;
+            gap: 24px;
+            margin-top: 32px;
+            justify-content: center;
+        }
+
+        .stat-box {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--text-primary);
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        /* Search Results View */
+        #searchResultsView {
+            display: none;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+
+        .no-results .material-symbols-rounded {
+            font-size: 48px;
+            color: var(--text-tertiary);
+            margin-bottom: 16px;
         }
 
         @media (max-width: 768px) {
             .hero-section {
-                margin: -24px -16px 24px -16px;
+                padding: 48px 24px;
+                margin: -24px -16px 32px -16px;
+                border-radius: 0;
+            }
+
+            .hero-title {
+                font-size: 36px;
+            }
+
+            .hero-subtitle {
+                font-size: 16px;
+            }
+
+            .stats-row {
+                gap: 16px;
+            }
+
+            .stat-number {
+                font-size: 24px;
             }
         }
     </style>
@@ -111,41 +271,78 @@
 
             <div class="content-area">
                 <div class="hero-section">
-                    <!-- 타이핑 효과 제거, 고정 텍스트로 변경 -->
-                    <h1 class="hero-title">모든 도구를 한곳에서.</h1>
-                    <p class="hero-subtitle">이미지 변환부터 룰렛 돌리기까지,<br>설치 없이 브라우저에서 바로 사용하세요.</p>
-                </div>
+                    <div class="hero-content">
+                        <div class="hero-badge">
+                            <span class="material-symbols-rounded">bolt</span>
+                            설치 없이 브라우저에서 바로 사용
+                        </div>
+                        <h1 class="hero-title">모든 도구를<br>한곳에서.</h1>
+                        <p class="hero-subtitle">이미지 편집, 파일 변환, 계산기까지<br>필요한 모든 도구를 무료로 사용하세요.</p>
 
-                <!-- Communication Sections (기능 추가 요청, 업데이트 내역) 제거됨 -->
+                        <div class="search-container">
+                            <span class="material-symbols-rounded search-icon">search</span>
+                            <input type="text" id="mainSearch" class="search-input" placeholder="원하는 도구 검색...">
+                        </div>
+
+                        <div class="stats-row">
+                            <div class="stat-box">
+                                <div class="stat-number" id="toolCount">50+</div>
+                                <div class="stat-label">개의 도구</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-number">100%</div>
+                                <div class="stat-label">무료</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-number">0</div>
+                                <div class="stat-label">설치 필요</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
                 <!-- Default Home View -->
                 <div id="homeDefaultView">
-                    <div class="section-header">
-                        <h2 class="section-title">🔥 오늘의 추천 도구</h2>
-                    </div>
-                    <div class="dashboard-grid" id="popularTools">
-                        <!-- Populated by JS -->
+                    <div class="category-nav" id="categoryNav">
+                        <button class="category-btn active" data-category="all">전체</button>
+                        <button class="category-btn" data-category="random">🎲 랜덤</button>
+                        <button class="category-btn" data-category="image">🖼️ 이미지</button>
+                        <button class="category-btn" data-category="video">🎬 비디오</button>
+                        <button class="category-btn" data-category="pdf">📄 PDF</button>
+                        <button class="category-btn" data-category="text">✏️ 텍스트</button>
+                        <button class="category-btn" data-category="dev">💻 개발</button>
+                        <button class="category-btn" data-category="math">🔢 계산</button>
+                        <button class="category-btn" data-category="date">⏰ 시간</button>
+                        <button class="category-btn" data-category="health">💪 건강</button>
                     </div>
 
-                    <div class="section-header" style="margin-top: 48px;">
-                        <h2 class="section-title">✨ 최신 업데이트</h2>
-                    </div>
-                    <div class="dashboard-grid" id="newTools">
-                        <!-- Populated by JS -->
+                    <div class="tools-section" id="toolsSection">
+                        <div class="section-header">
+                            <h2 class="section-title">
+                                <span class="material-symbols-rounded">apps</span>
+                                <span id="currentCategoryTitle">전체 도구</span>
+                            </h2>
+                        </div>
+                        <div class="dashboard-grid" id="toolsGrid">
+                            <!-- Populated by JS -->
+                        </div>
                     </div>
                 </div>
 
                 <!-- Search Results View -->
-                <div id="searchResultsView" style="display: none;">
+                <div id="searchResultsView">
                     <div class="section-header">
-                        <h2 class="section-title">🔍 검색 결과</h2>
+                        <h2 class="section-title">
+                            <span class="material-symbols-rounded">search</span>
+                            검색 결과
+                        </h2>
                     </div>
                     <div class="dashboard-grid" id="searchResults">
                         <!-- Populated by JS -->
                     </div>
-                    <div id="noResults"
-                        style="text-align: center; padding: 40px; color: var(--text-secondary); display: none;">
-                        검색 결과가 없습니다.
+                    <div id="noResults" class="no-results" style="display: none;">
+                        <span class="material-symbols-rounded">search_off</span>
+                        <div>검색 결과가 없습니다.</div>
                     </div>
                 </div>
 
@@ -154,83 +351,100 @@
     </div>
     <script src="js/common.js"></script>
     <script>
-        // --- Recommendations Logic ---
-        // 모든 path에서 .html 확장자를 제거합니다.
         const allTools = [
-            { name: "룰렛 돌리기", icon: "casino", path: "/tools/random/roulette", desc: "점심 메뉴 결정장애 해결!" },
-            { name: "제비뽑기", icon: "confirmation_number", path: "/tools/random/random-picker", desc: "랜덤으로 하나 뽑기" },
-            { name: "주사위 굴리기", icon: "deployed_code", path: "/tools/random/dice-roller", desc: "1~6 주사위 굴리기" },
-            { name: "투표 하기", icon: "how_to_vote", path: "/tools/random/vote", desc: "간단한 투표 만들기" },
+            // Random
+            { name: "룰렛 돌리기", icon: "casino", path: "/tools/random/roulette", desc: "점심 메뉴 결정장애 해결!", category: "random" },
+            { name: "제비뽑기", icon: "confirmation_number", path: "/tools/random/random-picker", desc: "랜덤으로 하나 뽑기", category: "random" },
+            { name: "주사위 굴리기", icon: "deployed_code", path: "/tools/random/dice-roller", desc: "1~6 주사위 굴리기", category: "random" },
+            { name: "투표 하기", icon: "how_to_vote", path: "/tools/random/vote", desc: "간단한 투표 만들기", category: "random" },
+            { name: "비밀번호 생성", icon: "password", path: "/tools/random/password-generator", desc: "강력한 비밀번호 생성", category: "random" },
 
-            { name: "이미지 리사이저", icon: "image", path: "/tools/image/image-resizer", desc: "이미지 크기 조절" },
-            { name: "이미지 변환기", icon: "transform", path: "/tools/image/image-converter", desc: "JPG, PNG, WEBP 변환" },
-            { name: "이미지 자르기", icon: "crop", path: "/tools/image/image-cropper", desc: "이미지 원하는 부분 자르기" },
-            { name: "이미지 필터", icon: "photo_filter", path: "/tools/image/image-filters", desc: "다양한 필터 적용" },
-            { name: "이미지 색상 추출", icon: "colorize", path: "/tools/image/color-extractor", desc: "이미지에서 색상 뽑기" },
-            { name: "OCR 텍스트 추출", icon: "find_in_page", path: "/tools/image/ocr", desc: "이미지 글자 인식" },
+            // Image
+            { name: "이미지 리사이저", icon: "image", path: "/tools/image/image-resizer", desc: "이미지 크기 조절", category: "image" },
+            { name: "이미지 일괄 변환기", icon: "transform", path: "/tools/image/image-converter", desc: "JPG, PNG, WEBP 변환", category: "image" },
+            { name: "이미지 자르기", icon: "crop", path: "/tools/image/image-cropper", desc: "이미지 원하는 부분 자르기", category: "image" },
+            { name: "이미지 필터", icon: "photo_filter", path: "/tools/image/image-filters", desc: "다양한 필터 적용", category: "image" },
+            { name: "이미지 색상 추출", icon: "colorize", path: "/tools/image/color-extractor", desc: "이미지에서 색상 뽑기", category: "image" },
+            { name: "OCR 텍스트 추출", icon: "find_in_page", path: "/tools/image/ocr", desc: "이미지 글자 인식", category: "image" },
+            { name: "ASCII 아트", icon: "text_format", path: "/tools/image/ascii-art", desc: "이미지를 문자로 변환", category: "image" },
 
-            { name: "비디오 플레이어", icon: "play_circle", path: "/tools/video/video-player", desc: "배속 재생, 거울 모드" },
-            { name: "GIF 변환기", icon: "gif", path: "/tools/video/video-to-gif", desc: "동영상을 GIF로 변환" },
-            { name: "화면 녹화", icon: "screen_record", path: "/tools/video/screen-recorder", desc: "설치 없는 화면 녹화" },
+            // Video
+            { name: "비디오 플레이어", icon: "play_circle", path: "/tools/video/video-player", desc: "배속 재생, 거울 모드", category: "video" },
+            { name: "GIF 변환기", icon: "gif", path: "/tools/video/video-to-gif", desc: "동영상을 GIF로 변환", category: "video" },
+            { name: "화면 녹화", icon: "screen_record", path: "/tools/video/screen-recorder", desc: "설치 없는 화면 녹화", category: "video" },
 
-            { name: "PDF 합치기", icon: "picture_as_pdf", path: "/tools/pdf/pdf-merge", desc: "여러 PDF를 하나로" },
-            { name: "PDF 분할", icon: "cut", path: "/tools/pdf/pdf-split", desc: "PDF 페이지 나누기" },
-            { name: "PDF → 이미지", icon: "image_search", path: "/tools/pdf/pdf-to-image", desc: "PDF를 이미지로 변환" },
+            // PDF
+            { name: "PDF 합치기", icon: "picture_as_pdf", path: "/tools/pdf/pdf-merge", desc: "여러 PDF를 하나로", category: "pdf" },
+            { name: "PDF 분할", icon: "cut", path: "/tools/pdf/pdf-split", desc: "PDF 페이지 나누기", category: "pdf" },
+            { name: "PDF → 이미지", icon: "image_search", path: "/tools/pdf/pdf-to-image", desc: "PDF를 이미지로 변환", category: "pdf" },
 
-            { name: "음성 녹음기", icon: "mic", path: "/tools/audio/voice-recorder", desc: "간편한 웹 녹음기" },
-            { name: "주파수 생성기", icon: "graphic_eq", path: "/tools/audio/tone-generator", desc: "특정 주파수 소리 생성" },
-            { name: "백색 소음", icon: "waves", path: "/tools/audio/white-noise", desc: "집중을 위한 백색 소음" },
+            // Audio
+            { name: "음성 녹음기", icon: "mic", path: "/tools/audio/voice-recorder", desc: "간편한 웹 녹음기", category: "audio" },
+            { name: "주파수 생성기", icon: "graphic_eq", path: "/tools/audio/tone-generator", desc: "특정 주파수 소리 생성", category: "audio" },
+            { name: "백색 소음", icon: "waves", path: "/tools/audio/white-noise", desc: "집중을 위한 백색 소음", category: "audio" },
 
-            { name: "Utilsly Docs", icon: "description", path: "/tools/memo/docs", desc: "HWP 스타일 문서 편집" },
-            { name: "빠른 메모장", icon: "edit_note", path: "/tools/memo/notepad", desc: "서식 지원, 자동 저장" },
-            { name: "EPUB 리더", icon: "menu_book", path: "/tools/text/epub-reader", desc: "전자책 바로 읽기" },
-            { name: "텍스트 비교", icon: "difference", path: "/tools/text/text-diff", desc: "두 텍스트 차이점 비교" },
-            { name: "글자수 세기", icon: "article", path: "/tools/text/word-counter", desc: "공백 포함/제외 글자수" },
-            { name: "대소문자 변환", icon: "text_fields", path: "/tools/text/case-converter", desc: "영어 대소문자 변환" },
-            { name: "로렘 입숨 생성", icon: "description", path: "/tools/text/lorem-ipsum", desc: "더미 텍스트 생성" },
-            { name: "줄바꿈 제거", icon: "format_align_left", path: "/tools/text/remove-line-breaks", desc: "불필요한 줄바꿈 삭제" },
-            { name: "마크다운 미리보기", icon: "markdown", path: "/tools/text/markdown-preview", desc: "마크다운 실시간 렌더링" },
+            // Text
+            { name: "빠른 메모장", icon: "edit_note", path: "/tools/memo/notepad", desc: "서식 지원, 자동 저장", category: "text" },
+            { name: "스마트 화이트보드", icon: "draw", path: "/tools/memo/whiteboard", desc: "무한 캔버스 드로잉", category: "text" },
+            { name: "EPUB 리더", icon: "menu_book", path: "/tools/text/epub-reader", desc: "전자책 바로 읽기", category: "text" },
+            { name: "텍스트 비교", icon: "difference", path: "/tools/text/text-diff", desc: "두 텍스트 차이점 비교", category: "text" },
+            { name: "글자수 세기", icon: "article", path: "/tools/text/word-counter", desc: "공백 포함/제외 글자수", category: "text" },
+            { name: "대소문자 변환", icon: "text_fields", path: "/tools/text/case-converter", desc: "영어 대소문자 변환", category: "text" },
+            { name: "로렘 입숨 생성", icon: "description", path: "/tools/text/lorem-ipsum", desc: "더미 텍스트 생성", category: "text" },
+            { name: "줄바꿈 제거", icon: "format_align_left", path: "/tools/text/remove-line-breaks", desc: "불필요한 줄바꿈 삭제", category: "text" },
+            { name: "마크다운 미리보기", icon: "markdown", path: "/tools/text/markdown-preview", desc: "마크다운 실시간 렌더링", category: "text" },
 
-            { name: "HTML 플레이그라운드", icon: "code", path: "/tools/dev/html-playground", desc: "실시간 코드 미리보기" },
-            { name: "QR 코드 생성", icon: "qr_code_2", path: "/tools/dev/qr-generator", desc: "링크를 QR 코드로 변환" },
-            { name: "코드 미니파이어", icon: "compress", path: "/tools/dev/code-minifier", desc: "코드 용량 줄이기" },
-            { name: "정규식 테스터", icon: "regular_expression", path: "/tools/dev/regex-tester", desc: "정규표현식 검사" },
-            { name: "JSON 포맷터", icon: "data_object", path: "/tools/dev/json-formatter", desc: "JSON 예쁘게 정렬" },
-            { name: "SQL 포맷터", icon: "database", path: "/tools/dev/sql-formatter", desc: "SQL 쿼리 정렬" },
-            { name: "URL 인코더", icon: "link", path: "/tools/dev/url-encoder", desc: "URL 인코딩/디코딩" },
-            { name: "Base64 인코더", icon: "package_2", path: "/tools/dev/base64-encoder", desc: "Base64 변환" },
-            { name: "UUID 생성기", icon: "fingerprint", path: "/tools/dev/uuid-generator", desc: "고유 식별자 생성" },
-            { name: "인터넷 속도", icon: "speed", path: "/tools/dev/speed-test", desc: "다운로드/업로드 속도 측정" },
+            // Dev
+            { name: "HTML 플레이그라운드", icon: "code", path: "/tools/dev/html-playground", desc: "실시간 코드 미리보기", category: "dev" },
+            { name: "QR 코드 생성", icon: "qr_code_2", path: "/tools/dev/qr-generator", desc: "링크를 QR 코드로 변환", category: "dev" },
+            { name: "코드 미니파이어", icon: "compress", path: "/tools/dev/code-minifier", desc: "코드 용량 줄이기", category: "dev" },
+            { name: "정규식 테스터", icon: "regular_expression", path: "/tools/dev/regex-tester", desc: "정규표현식 검사", category: "dev" },
+            { name: "JSON 포맷터", icon: "data_object", path: "/tools/dev/json-formatter", desc: "JSON 예쁘게 정렬", category: "dev" },
+            { name: "SQL 포맷터", icon: "database", path: "/tools/dev/sql-formatter", desc: "SQL 쿼리 정렬", category: "dev" },
+            { name: "URL 인코더", icon: "link", path: "/tools/dev/url-encoder", desc: "URL 인코딩/디코딩", category: "dev" },
+            { name: "Base64 인코더", icon: "package_2", path: "/tools/dev/base64-encoder", desc: "Base64 변환", category: "dev" },
+            { name: "UUID 생성기", icon: "fingerprint", path: "/tools/dev/uuid-generator", desc: "고유 식별자 생성", category: "dev" },
+            { name: "인터넷 속도", icon: "speed", path: "/tools/dev/speed-test", desc: "다운로드/업로드 속도 측정", category: "dev" },
 
-            { name: "공학용 계산기", icon: "calculate", path: "/tools/math/scientific-calculator", desc: "복잡한 수식 계산" },
-            { name: "단위 변환기", icon: "scale", path: "/tools/math/unit-converter", desc: "길이, 무게, 넓이 변환" },
-            { name: "퍼센트 계산기", icon: "percent", path: "/tools/math/percentage-calculator", desc: "백분율 계산" },
+            // Math
+            { name: "공학용 계산기", icon: "calculate", path: "/tools/math/scientific-calculator", desc: "복잡한 수식 계산", category: "math" },
+            { name: "단위 변환기", icon: "scale", path: "/tools/math/unit-converter", desc: "길이, 무게, 넓이 변환", category: "math" },
+            { name: "퍼센트 계산기", icon: "percent", path: "/tools/math/percentage-calculator", desc: "백분율 계산", category: "math" },
 
-            { name: "타이머", icon: "timer", path: "/tools/date/timer", desc: "간편한 카운트다운" },
-            { name: "뽀모도로 타이머", icon: "check_circle", path: "/tools/date/pomodoro", desc: "집중력 향상 타이머" },
-            { name: "스톱워치", icon: "timer_off", path: "/tools/date/stopwatch", desc: "시간 측정" },
-            { name: "D-Day 계산기", icon: "event_upcoming", path: "/tools/date/d-day-counter", desc: "기념일 계산" },
-            { name: "세계 시간", icon: "public", path: "/tools/date/world-time", desc: "전 세계 현재 시간" },
+            // Date
+            { name: "타이머", icon: "timer", path: "/tools/date/timer", desc: "간편한 카운트다운", category: "date" },
+            { name: "뽀모도로 타이머", icon: "check_circle", path: "/tools/date/pomodoro", desc: "집중력 향상 타이머", category: "date" },
+            { name: "스톱워치", icon: "timer_off", path: "/tools/date/stopwatch", desc: "시간 측정", category: "date" },
+            { name: "D-Day 계산기", icon: "event_upcoming", path: "/tools/date/d-day-counter", desc: "기념일 계산", category: "date" },
+            { name: "세계 시간", icon: "public", path: "/tools/date/world-time", desc: "전 세계 현재 시간", category: "date" },
 
-            { name: "컬러 피커", icon: "palette", path: "/tools/color/color-picker", desc: "색상 코드 추출" },
+            // Color
+            { name: "컬러 피커", icon: "palette", path: "/tools/color/color-picker", desc: "색상 코드 추출", category: "color" },
 
-            { name: "BMI 계산기", icon: "monitor_weight", path: "/tools/health/bmi-calculator", desc: "나의 비만도 확인" },
-            { name: "BMR 계산기", icon: "local_fire_department", path: "/tools/health/bmr-calculator", desc: "기초대사량 계산" },
-            { name: "호흡 운동", icon: "self_improvement", path: "/tools/health/breathing", desc: "스트레스 완화 호흡" },
+            // Health
+            { name: "BMI 계산기", icon: "monitor_weight", path: "/tools/health/bmi-calculator", desc: "나의 비만도 확인", category: "health" },
+            { name: "BMR 계산기", icon: "local_fire_department", path: "/tools/health/bmr-calculator", desc: "기초대사량 계산", category: "health" },
+            { name: "호흡 운동", icon: "self_improvement", path: "/tools/health/breathing", desc: "스트레스 완화 호흡", category: "health" },
 
-            { name: "비밀번호 생성", icon: "password", path: "/tools/security/password-generator", desc: "강력한 비밀번호 생성" },
-
-            { name: "AI 글쓰기", icon: "edit_note", path: "/tools/ai/writing-assistant", desc: "글 작성 보조 및 교정" },
-            { name: "AI 번역기", icon: "translate", path: "/tools/ai/translator", desc: "자연스러운 AI 번역" }
+            // AI
+            { name: "AI 글쓰기", icon: "edit_note", path: "/tools/ai/writing-assistant", desc: "글 작성 보조 및 교정", category: "ai" },
+            { name: "AI 번역기", icon: "translate", path: "/tools/ai/translator", desc: "자연스러운 AI 번역", category: "ai" }
         ];
 
-        function getRandomTools(count) {
-            const shuffled = [...allTools].sort(() => 0.5 - Math.random());
-            return shuffled.slice(0, count);
-        }
+        // Update tool count
+        document.getElementById('toolCount').textContent = allTools.length + '+';
+
+        let currentCategory = 'all';
 
         function renderCards(containerId, tools) {
             const container = document.getElementById(containerId);
+            if (!container) return;
+
+            if (tools.length === 0) {
+                container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-tertiary);">해당 카테고리에 도구가 없습니다.</div>';
+                return;
+            }
+
             container.innerHTML = tools.map(tool => `
                 <a href="${tool.path}" class="tool-card">
                     <div class="card-icon">
@@ -242,10 +456,48 @@
             `).join('');
         }
 
-        renderCards('popularTools', getRandomTools(4));
-        renderCards('newTools', allTools.slice(-4));
+        function filterByCategory(category) {
+            currentCategory = category;
 
-        // --- Main Search Logic ---
+            // Update active button
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.category === category);
+            });
+
+            // Update title
+            const titles = {
+                'all': '전체 도구',
+                'random': '🎲 랜덤 도구',
+                'image': '🖼️ 이미지 도구',
+                'video': '🎬 비디오 도구',
+                'pdf': '📄 PDF 도구',
+                'text': '✏️ 텍스트 도구',
+                'dev': '💻 개발 도구',
+                'math': '🔢 계산 도구',
+                'date': '⏰ 시간 도구',
+                'health': '💪 건강 도구'
+            };
+            document.getElementById('currentCategoryTitle').textContent = titles[category] || '전체 도구';
+
+            // Filter and render
+            const filtered = category === 'all'
+                ? allTools
+                : allTools.filter(t => t.category === category);
+            renderCards('toolsGrid', filtered);
+        }
+
+        // Category nav click handler
+        document.getElementById('categoryNav').addEventListener('click', (e) => {
+            const btn = e.target.closest('.category-btn');
+            if (btn) {
+                filterByCategory(btn.dataset.category);
+            }
+        });
+
+        // Initial render
+        renderCards('toolsGrid', allTools);
+
+        // Search
         const mainSearch = document.getElementById('mainSearch');
         const homeDefaultView = document.getElementById('homeDefaultView');
         const searchResultsView = document.getElementById('searchResultsView');
@@ -277,35 +529,6 @@
                 searchResultsView.style.display = 'none';
             }
         });
-
-        // --- Typewriter Effect Logic (삭제됨) ---
-        // 타이핑 효과가 제거되었으므로 관련 코드는 삭제됩니다.
-
-        // Feature Request Submission (기존 로직 유지)
-        function submitFeatureRequest() {
-            const textarea = document.getElementById('featureRequest');
-            const request = textarea.value.trim();
-
-            if (!request) {
-                console.error('요청 내용을 입력해주세요.');
-                return;
-            }
-
-            // Save to localStorage
-            const requests = JSON.parse(localStorage.getItem('utilsly_feature_requests') || '[]');
-            requests.push({
-                text: request,
-                date: new Date().toISOString(),
-                timestamp: Date.now()
-            });
-            localStorage.setItem('utilsly_feature_requests', JSON.stringify(requests));
-
-            // Clear textarea
-            textarea.value = '';
-
-            // Show success message
-            console.log('✅ 소중한 의견 감사합니다! 검토 후 반영하도록 하겠습니다.');
-        }
     </script>
 </body>
 

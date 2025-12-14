@@ -6,24 +6,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>고급 메모장 - Utilsly</title>
-    <meta name="description" content="자동 저장이 지원되는 깔끔한 웹 메모장입니다.">
+    <meta name="description" content="Notion 스타일의 블록 기반 웹 에디터입니다. 자동 저장 지원.">
     <script>
         !function () { const e = localStorage.getItem("theme"), t = window.matchMedia("(prefers-color-scheme: dark)").matches; "dark" !== e && (e || !t) || document.documentElement.setAttribute("data-theme", "dark") }();
     </script>
-
     <link rel="preload" href="../../css/style.css" as="style">
     <link rel="stylesheet" href="../../css/style.css">
     <!-- Quill.js Theme -->
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
     <style>
+        .editor-wrapper {
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 250px);
+            min-height: 500px;
+        }
+
         .editor-container {
             background: var(--bg-primary);
             border: 1px solid var(--border-color);
-            border-radius: 8px;
+            border-radius: 12px;
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            height: 600px;
+            flex: 1;
+        }
+
+        .toolbar-wrapper {
+            border-bottom: 1px solid var(--border-color);
+            background: var(--bg-sidebar);
+            padding: 8px 12px;
         }
 
         #editor {
@@ -31,32 +43,124 @@
             border: none;
             font-family: var(--font-sans);
             font-size: 16px;
+            overflow-y: auto;
         }
 
         .ql-toolbar {
             border: none !important;
-            border-bottom: 1px solid var(--border-color) !important;
-            background: var(--bg-sidebar);
+            padding: 0 !important;
+            background: transparent;
         }
 
         .ql-container {
             border: none !important;
+            font-size: 16px;
+        }
+
+        .ql-editor {
+            padding: 24px 32px;
+            line-height: 1.8;
+            min-height: 400px;
+        }
+
+        .ql-editor h1 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        .ql-editor h2 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .ql-editor p {
+            margin-bottom: 8px;
+        }
+
+        .ql-editor blockquote {
+            border-left: 4px solid var(--accent-blue);
+            padding-left: 16px;
+            margin: 16px 0;
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        .ql-editor pre {
+            background: var(--bg-sidebar);
+            padding: 16px;
+            border-radius: 8px;
+            font-family: var(--font-mono);
+            font-size: 14px;
+            overflow-x: auto;
+        }
+
+        .ql-editor ul,
+        .ql-editor ol {
+            padding-left: 24px;
+        }
+
+        .ql-editor li {
+            margin-bottom: 4px;
         }
 
         .status-bar {
-            padding: 8px 16px;
+            padding: 10px 16px;
             border-top: 1px solid var(--border-color);
-            font-size: 12px;
+            font-size: 13px;
             color: var(--text-secondary);
             display: flex;
             justify-content: space-between;
+            align-items: center;
             background: var(--bg-sidebar);
+        }
+
+        .status-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .save-indicator {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .save-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #4CAF50;
+        }
+
+        .save-dot.saving {
+            background: #FF9800;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
         }
 
         /* Dark Mode Overrides for Quill */
         [data-theme="dark"] .ql-toolbar {
-            background: var(--bg-sidebar);
-            border-color: var(--border-color) !important;
+            background: transparent;
         }
 
         [data-theme="dark"] .ql-stroke {
@@ -71,8 +175,70 @@
             color: var(--text-secondary);
         }
 
+        [data-theme="dark"] .ql-picker-options {
+            background: var(--bg-sidebar);
+            border-color: var(--border-color);
+        }
+
         [data-theme="dark"] .ql-editor {
             color: var(--text-primary);
+        }
+
+        [data-theme="dark"] .ql-editor.ql-blank::before {
+            color: var(--text-tertiary);
+        }
+
+        /* Toolbar button hover in dark mode */
+        [data-theme="dark"] .ql-toolbar button:hover .ql-stroke {
+            stroke: var(--text-primary);
+        }
+
+        [data-theme="dark"] .ql-toolbar button:hover .ql-fill {
+            fill: var(--text-primary);
+        }
+
+        [data-theme="dark"] .ql-toolbar button.ql-active .ql-stroke {
+            stroke: var(--accent-blue);
+        }
+
+        [data-theme="dark"] .ql-toolbar button.ql-active .ql-fill {
+            fill: var(--accent-blue);
+        }
+
+        /* Keyboard shortcuts hint */
+        .shortcuts-hint {
+            padding: 16px 24px;
+            background: var(--bg-sidebar);
+            border-radius: 8px;
+            margin-top: 16px;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .shortcuts-hint h4 {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+        }
+
+        .shortcut-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 8px;
+        }
+
+        .shortcut-item {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .shortcut-key {
+            font-family: var(--font-mono);
+            font-size: 12px;
+            padding: 2px 6px;
+            background: var(--bg-hover);
+            border-radius: 4px;
         }
     </style>
 </head>
@@ -82,7 +248,8 @@
         <aside class="sidebar">
             <div class="sidebar-header">
                 <div class="user-profile">
-                    <div class="avatar">U</div>
+                    <div style="font-size: 24px; font-weight: 800; color: var(--text-primary); letter-spacing: -0.5px;">
+                        Utilsly.</div>
                 </div>
             </div>
             <nav class="sidebar-nav">
@@ -103,21 +270,93 @@
                         <span class="material-symbols-rounded">edit_note</span>
                     </div>
                     <h1>고급 메모장</h1>
-                    <p class="description">서식 지원과 자동 저장이 되는 나만의 웹 에디터입니다.</p>
+                    <p class="description">Notion 스타일의 블록 기반 에디터. 자동 저장되어 내용이 유지됩니다.</p>
                 </div>
 
                 <div class="tool-container" data-tool-id="notepad">
-                    <div class="editor-container">
-                        <div id="editor"></div>
-                        <div class="status-bar">
-                            <span id="saveStatus">자동 저장됨</span>
-                            <span id="wordCount">0 단어</span>
+                    <div class="editor-wrapper">
+                        <div class="editor-container">
+                            <div class="toolbar-wrapper">
+                                <div id="toolbar">
+                                    <span class="ql-formats">
+                                        <select class="ql-header">
+                                            <option value="1">제목 1</option>
+                                            <option value="2">제목 2</option>
+                                            <option value="3">제목 3</option>
+                                            <option selected>본문</option>
+                                        </select>
+                                    </span>
+                                    <span class="ql-formats">
+                                        <button class="ql-bold" title="굵게 (Ctrl+B)"></button>
+                                        <button class="ql-italic" title="기울임 (Ctrl+I)"></button>
+                                        <button class="ql-underline" title="밑줄 (Ctrl+U)"></button>
+                                        <button class="ql-strike" title="취소선"></button>
+                                    </span>
+                                    <span class="ql-formats">
+                                        <button class="ql-blockquote" title="인용"></button>
+                                        <button class="ql-code-block" title="코드 블록"></button>
+                                    </span>
+                                    <span class="ql-formats">
+                                        <button class="ql-list" value="ordered" title="번호 목록"></button>
+                                        <button class="ql-list" value="bullet" title="글머리 기호"></button>
+                                        <button class="ql-list" value="check" title="체크리스트"></button>
+                                    </span>
+                                    <span class="ql-formats">
+                                        <select class="ql-color" title="글자 색상"></select>
+                                        <select class="ql-background" title="배경 색상"></select>
+                                    </span>
+                                    <span class="ql-formats">
+                                        <button class="ql-link" title="링크 삽입"></button>
+                                        <button class="ql-image" title="이미지 삽입"></button>
+                                    </span>
+                                    <span class="ql-formats">
+                                        <button class="ql-clean" title="서식 지우기"></button>
+                                    </span>
+                                </div>
+                            </div>
+                            <div id="editor"></div>
+                            <div class="status-bar">
+                                <div class="status-left">
+                                    <div class="save-indicator">
+                                        <span class="save-dot" id="saveDot"></span>
+                                        <span id="saveStatus">자동 저장됨</span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <span id="wordCount">0</span> 글자 · <span id="lineCount">0</span> 줄
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <div style="margin-top: 16px; display: flex; gap: 8px;">
-                        <button class="btn" id="btn-download">TXT 다운로드</button>
-                        <button class="btn" id="btn-clear" style="color: #FF4B4B; border-color: #FF4B4B;">지우기</button>
+                    <div class="action-buttons">
+                        <button class="btn" id="btn-download-txt">
+                            <span class="material-symbols-rounded"
+                                style="font-size: 18px; margin-right: 8px;">download</span>
+                            TXT 다운로드
+                        </button>
+                        <button class="btn" id="btn-download-html">
+                            <span class="material-symbols-rounded"
+                                style="font-size: 18px; margin-right: 8px;">code</span>
+                            HTML 다운로드
+                        </button>
+                        <button class="btn" id="btn-clear" style="color: #FF4B4B; border-color: #FF4B4B;">
+                            <span class="material-symbols-rounded"
+                                style="font-size: 18px; margin-right: 8px;">delete</span>
+                            모두 지우기
+                        </button>
+                    </div>
+
+                    <div class="shortcuts-hint">
+                        <h4>⌨️ 키보드 단축키</h4>
+                        <div class="shortcut-grid">
+                            <div class="shortcut-item"><span>굵게</span><span class="shortcut-key">Ctrl + B</span></div>
+                            <div class="shortcut-item"><span>기울임</span><span class="shortcut-key">Ctrl + I</span></div>
+                            <div class="shortcut-item"><span>밑줄</span><span class="shortcut-key">Ctrl + U</span></div>
+                            <div class="shortcut-item"><span>링크</span><span class="shortcut-key">Ctrl + K</span></div>
+                            <div class="shortcut-item"><span>실행취소</span><span class="shortcut-key">Ctrl + Z</span></div>
+                            <div class="shortcut-item"><span>다시실행</span><span class="shortcut-key">Ctrl + Y</span></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -135,22 +374,20 @@
             init() {
                 this.elements = {
                     saveStatus: document.getElementById('saveStatus'),
+                    saveDot: document.getElementById('saveDot'),
                     wordCount: document.getElementById('wordCount'),
-                    btnDownload: document.getElementById('btn-download'),
+                    lineCount: document.getElementById('lineCount'),
+                    btnDownloadTxt: document.getElementById('btn-download-txt'),
+                    btnDownloadHtml: document.getElementById('btn-download-html'),
                     btnClear: document.getElementById('btn-clear')
                 };
 
-                // Initialize Quill
+                // Initialize Quill with more options
                 this.quill = new Quill('#editor', {
                     theme: 'snow',
-                    placeholder: '여기에 내용을 입력하세요...',
+                    placeholder: '여기에 내용을 입력하세요...\n\n💡 Tip: 제목, 목록, 인용, 코드 블록 등 다양한 서식을 활용해보세요!',
                     modules: {
-                        toolbar: [
-                            [{ 'header': [1, 2, false] }],
-                            ['bold', 'italic', 'underline', 'strike'],
-                            [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-                            ['clean']
-                        ]
+                        toolbar: '#toolbar'
                     }
                 });
 
@@ -164,28 +401,40 @@
                 // Handlers
                 this.handleTextChange = () => {
                     this.elements.saveStatus.textContent = '저장 중...';
+                    this.elements.saveDot.classList.add('saving');
+
                     clearTimeout(this.timeoutId);
                     this.timeoutId = setTimeout(() => {
                         localStorage.setItem('utilsly_memo_rich', this.quill.root.innerHTML);
-                        if (this.elements.saveStatus) this.elements.saveStatus.textContent = '자동 저장됨';
+                        if (this.elements.saveStatus) {
+                            this.elements.saveStatus.textContent = '자동 저장됨';
+                            this.elements.saveDot.classList.remove('saving');
+                        }
                         this.updateStats();
-                    }, 1000);
+                    }, 800);
                 };
-                this.handleDownload = () => this.downloadTxt();
+
+                this.handleDownloadTxt = () => this.downloadTxt();
+                this.handleDownloadHtml = () => this.downloadHtml();
                 this.handleClear = () => this.clearMemo();
 
                 // Listeners
                 this.quill.on('text-change', this.handleTextChange);
-                if (this.elements.btnDownload) this.elements.btnDownload.addEventListener('click', this.handleDownload);
-                if (this.elements.btnClear) this.elements.btnClear.addEventListener('click', this.handleClear);
+                this.elements.btnDownloadTxt?.addEventListener('click', this.handleDownloadTxt);
+                this.elements.btnDownloadHtml?.addEventListener('click', this.handleDownloadHtml);
+                this.elements.btnClear?.addEventListener('click', this.handleClear);
+
+                // Initial stats
+                this.updateStats();
 
                 console.log('Notepad initialized');
             },
 
             cleanup() {
                 if (this.timeoutId) clearTimeout(this.timeoutId);
-                if (this.elements.btnDownload) this.elements.btnDownload.removeEventListener('click', this.handleDownload);
-                if (this.elements.btnClear) this.elements.btnClear.removeEventListener('click', this.handleClear);
+                this.elements.btnDownloadTxt?.removeEventListener('click', this.handleDownloadTxt);
+                this.elements.btnDownloadHtml?.removeEventListener('click', this.handleDownloadHtml);
+                this.elements.btnClear?.removeEventListener('click', this.handleClear);
                 this.quill = null;
                 this.elements = {};
                 console.log('Notepad cleanup done');
@@ -194,26 +443,59 @@
             updateStats() {
                 if (!this.quill) return;
                 const text = this.quill.getText();
-                const words = text.trim().length > 0 ? text.trim().split(/\s+/).length : 0;
-                if (this.elements.wordCount) this.elements.wordCount.textContent = `${words} 단어`;
+                const charCount = text.trim().length;
+                const lines = text.split('\n').filter(l => l.trim().length > 0).length;
+
+                if (this.elements.wordCount) this.elements.wordCount.textContent = charCount;
+                if (this.elements.lineCount) this.elements.lineCount.textContent = lines;
             },
 
             downloadTxt() {
                 const text = this.quill.getText();
-                const blob = new Blob([text], { type: 'text/plain' });
+                const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = 'memo.txt';
+                a.download = `메모_${new Date().toISOString().slice(0, 10)}.txt`;
+                a.click();
+                window.URL.revokeObjectURL(url);
+            },
+
+            downloadHtml() {
+                const html = this.quill.root.innerHTML;
+                const fullHtml = `<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>메모</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 800px; margin: 40px auto; padding: 20px; line-height: 1.6; }
+        h1 { font-size: 2em; margin-bottom: 0.5em; }
+        h2 { font-size: 1.5em; margin-bottom: 0.5em; }
+        blockquote { border-left: 4px solid #000; padding-left: 16px; margin: 16px 0; color: #666; }
+        pre { background: #f5f5f5; padding: 16px; border-radius: 8px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+${html}
+</body>
+</html>`;
+                const blob = new Blob([fullHtml], { type: 'text/html;charset=utf-8' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `메모_${new Date().toISOString().slice(0, 10)}.html`;
                 a.click();
                 window.URL.revokeObjectURL(url);
             },
 
             async clearMemo() {
-                const confirmed = await Utilsly.showConfirm('정말 메모를 지우시겠습니까?', '메모 삭제');
+                const confirmed = await Utilsly.showConfirm('정말 모든 내용을 지우시겠습니까?', '메모 삭제');
                 if (confirmed) {
                     this.quill.setText('');
                     localStorage.removeItem('utilsly_memo_rich');
+                    this.updateStats();
                 }
             }
         });

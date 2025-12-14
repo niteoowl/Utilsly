@@ -10,15 +10,67 @@
     <script>
         !function () { const e = localStorage.getItem("theme"), t = window.matchMedia("(prefers-color-scheme: dark)").matches; "dark" !== e && (e || !t) || document.documentElement.setAttribute("data-theme", "dark") }();
     </script>
-
     <link rel="preload" href="../../css/style.css" as="style">
     <link rel="stylesheet" href="../../css/style.css">
     <style>
+        .dice-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .dice-count-label {
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .dice-count-selector {
+            display: flex;
+            gap: 8px;
+        }
+
+        .dice-count-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .dice-count-btn:hover {
+            background: var(--bg-hover);
+        }
+
+        .dice-count-btn.active {
+            background: var(--accent-blue);
+            color: white;
+            border-color: var(--accent-blue);
+        }
+
+        [data-theme="dark"] .dice-count-btn.active {
+            color: black;
+        }
+
+        .dice-area {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            flex-wrap: wrap;
+            min-height: 280px;
+            align-items: center;
+        }
+
         .scene {
-            width: 200px;
-            height: 200px;
-            perspective: 600px;
-            margin: 40px auto;
+            width: 120px;
+            height: 120px;
+            perspective: 400px;
         }
 
         .cube {
@@ -26,165 +78,222 @@
             height: 100%;
             position: relative;
             transform-style: preserve-3d;
-            transform: translateZ(-100px);
-            transition: transform 1s;
+            transform: translateZ(-60px);
+            transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .cube__face {
             position: absolute;
-            width: 200px;
-            height: 200px;
+            width: 120px;
+            height: 120px;
             border: 2px solid #ccc;
-            line-height: 200px;
-            font-size: 40px;
-            font-weight: bold;
-            color: white;
-            text-align: center;
-            background: rgba(255, 255, 255, 0.95);
-            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.1);
-            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.98);
+            box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.08);
+            border-radius: 12px;
             display: flex;
+            flex-wrap: wrap;
+            align-content: center;
             justify-content: center;
+            padding: 15px;
+            gap: 10px;
         }
 
         .dot {
-            width: 30px;
-            height: 30px;
+            width: 20px;
+            height: 20px;
             background: #333;
             border-radius: 50%;
-            position: absolute;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
         }
 
-        /* Face positioning */
+        /* Face 1 - Single centered dot */
         .cube__face--1 {
-            transform: rotateY(0deg) translateZ(100px);
+            transform: rotateY(0deg) translateZ(60px);
         }
 
+        .cube__face--1 .dot {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        /* Face 2 - Diagonal */
         .cube__face--2 {
-            transform: rotateY(90deg) translateZ(100px);
+            transform: rotateY(90deg) translateZ(60px);
         }
-
-        .cube__face--3 {
-            transform: rotateY(180deg) translateZ(100px);
-        }
-
-        .cube__face--4 {
-            transform: rotateY(-90deg) translateZ(100px);
-        }
-
-        .cube__face--5 {
-            transform: rotateX(90deg) translateZ(100px);
-        }
-
-        .cube__face--6 {
-            transform: rotateX(-90deg) translateZ(100px);
-        }
-
-        /* Dot positioning logic (simplified for visual) */
-        /* .cube__face--1 .dot:nth-child(1) {} */
 
         .cube__face--2 .dot:nth-child(1) {
-            top: 40px;
-            left: 40px;
+            position: absolute;
+            top: 25px;
+            left: 25px;
         }
 
         .cube__face--2 .dot:nth-child(2) {
-            bottom: 40px;
-            right: 40px;
+            position: absolute;
+            bottom: 25px;
+            right: 25px;
+        }
+
+        /* Face 3 - Diagonal with center */
+        .cube__face--3 {
+            transform: rotateY(180deg) translateZ(60px);
         }
 
         .cube__face--3 .dot:nth-child(1) {
-            top: 40px;
-            left: 40px;
+            position: absolute;
+            top: 25px;
+            left: 25px;
         }
 
         .cube__face--3 .dot:nth-child(2) {
+            position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
         }
 
         .cube__face--3 .dot:nth-child(3) {
-            bottom: 40px;
-            right: 40px;
+            position: absolute;
+            bottom: 25px;
+            right: 25px;
+        }
+
+        /* Face 4 - Corners */
+        .cube__face--4 {
+            transform: rotateY(-90deg) translateZ(60px);
         }
 
         .cube__face--4 .dot:nth-child(1) {
-            top: 40px;
-            left: 40px;
+            position: absolute;
+            top: 25px;
+            left: 25px;
         }
 
         .cube__face--4 .dot:nth-child(2) {
-            top: 40px;
-            right: 40px;
+            position: absolute;
+            top: 25px;
+            right: 25px;
         }
 
         .cube__face--4 .dot:nth-child(3) {
-            bottom: 40px;
-            left: 40px;
+            position: absolute;
+            bottom: 25px;
+            left: 25px;
         }
 
         .cube__face--4 .dot:nth-child(4) {
-            bottom: 40px;
-            right: 40px;
+            position: absolute;
+            bottom: 25px;
+            right: 25px;
+        }
+
+        /* Face 5 - Corners + center */
+        .cube__face--5 {
+            transform: rotateX(90deg) translateZ(60px);
         }
 
         .cube__face--5 .dot:nth-child(1) {
-            top: 40px;
-            left: 40px;
+            position: absolute;
+            top: 25px;
+            left: 25px;
         }
 
         .cube__face--5 .dot:nth-child(2) {
-            top: 40px;
-            right: 40px;
+            position: absolute;
+            top: 25px;
+            right: 25px;
         }
 
         .cube__face--5 .dot:nth-child(3) {
+            position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
         }
 
         .cube__face--5 .dot:nth-child(4) {
-            bottom: 40px;
-            left: 40px;
+            position: absolute;
+            bottom: 25px;
+            left: 25px;
         }
 
         .cube__face--5 .dot:nth-child(5) {
-            bottom: 40px;
-            right: 40px;
+            position: absolute;
+            bottom: 25px;
+            right: 25px;
+        }
+
+        /* Face 6 - Two columns */
+        .cube__face--6 {
+            transform: rotateX(-90deg) translateZ(60px);
         }
 
         .cube__face--6 .dot:nth-child(1) {
-            top: 40px;
-            left: 40px;
+            position: absolute;
+            top: 20px;
+            left: 30px;
         }
 
         .cube__face--6 .dot:nth-child(2) {
-            top: 40px;
-            right: 40px;
+            position: absolute;
+            top: 20px;
+            right: 30px;
         }
 
         .cube__face--6 .dot:nth-child(3) {
+            position: absolute;
             top: 50%;
-            left: 40px;
+            left: 30px;
             transform: translateY(-50%);
         }
 
         .cube__face--6 .dot:nth-child(4) {
+            position: absolute;
             top: 50%;
-            right: 40px;
+            right: 30px;
             transform: translateY(-50%);
         }
 
         .cube__face--6 .dot:nth-child(5) {
-            bottom: 40px;
-            left: 40px;
+            position: absolute;
+            bottom: 20px;
+            left: 30px;
         }
 
         .cube__face--6 .dot:nth-child(6) {
-            bottom: 40px;
-            right: 40px;
+            position: absolute;
+            bottom: 20px;
+            right: 30px;
+        }
+
+        .total-display {
+            text-align: center;
+            margin-top: 32px;
+            padding: 20px;
+            background: var(--bg-sidebar);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        .total-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .total-value {
+            font-size: 48px;
+            font-weight: 800;
+            color: var(--accent-blue);
+        }
+
+        .roll-btn {
+            width: 100%;
+            margin-top: 32px;
+            padding: 16px;
+            font-size: 18px;
+            font-weight: 700;
         }
     </style>
 </head>
@@ -194,7 +303,8 @@
         <aside class="sidebar">
             <div class="sidebar-header">
                 <div class="user-profile">
-                    <div class="avatar">U</div>
+                    <div style="font-size: 24px; font-weight: 800; color: var(--text-primary); letter-spacing: -0.5px;">
+                        Utilsly.</div>
                 </div>
             </div>
             <nav class="sidebar-nav">
@@ -219,46 +329,28 @@
                 </div>
 
                 <div class="tool-container" data-tool-id="dice-roller">
-                    <div class="scene">
-                        <div class="cube">
-                            <div class="cube__face cube__face--1">
-                                <div class="dot"></div>
-                            </div>
-                            <div class="cube__face cube__face--2">
-                                <div class="dot"></div>
-                                <div class="dot"></div>
-                            </div>
-                            <div class="cube__face cube__face--3">
-                                <div class="dot"></div>
-                                <div class="dot"></div>
-                                <div class="dot"></div>
-                            </div>
-                            <div class="cube__face cube__face--4">
-                                <div class="dot"></div>
-                                <div class="dot"></div>
-                                <div class="dot"></div>
-                                <div class="dot"></div>
-                            </div>
-                            <div class="cube__face cube__face--5">
-                                <div class="dot"></div>
-                                <div class="dot"></div>
-                                <div class="dot"></div>
-                                <div class="dot"></div>
-                                <div class="dot"></div>
-                            </div>
-                            <div class="cube__face cube__face--6">
-                                <div class="dot"></div>
-                                <div class="dot"></div>
-                                <div class="dot"></div>
-                                <div class="dot"></div>
-                                <div class="dot"></div>
-                                <div class="dot"></div>
-                            </div>
+                    <div class="dice-controls">
+                        <span class="dice-count-label">주사위 개수:</span>
+                        <div class="dice-count-selector" id="diceCountSelector">
+                            <button class="dice-count-btn active" data-count="1">1</button>
+                            <button class="dice-count-btn" data-count="2">2</button>
+                            <button class="dice-count-btn" data-count="3">3</button>
+                            <button class="dice-count-btn" data-count="4">4</button>
+                            <button class="dice-count-btn" data-count="5">5</button>
+                            <button class="dice-count-btn" data-count="6">6</button>
                         </div>
                     </div>
 
-                    <button class="btn btn-primary btn-large" id="rollBtn"
-                        style="width: 100%; margin-top: 40px;">굴리기!</button>
+                    <div class="dice-area" id="diceArea">
+                        <!-- Dice will be generated by JS -->
+                    </div>
+
+                    <div class="total-display" id="totalDisplay" style="display: none;">
+                        <div class="total-label">합계</div>
+                        <div class="total-value" id="totalValue">0</div>
+                    </div>
+
+                    <button class="btn btn-primary roll-btn" id="rollBtn">🎲 굴리기!</button>
                 </div>
             </div>
         </main>
@@ -266,54 +358,124 @@
     <script src="../../js/common.js"></script>
     <script>
         Utilsly.registerTool('dice-roller', {
-            cube: null,
-            currentClass: '',
+            diceCount: 1,
+            cubes: [],
+            rollCount: 0,
             elements: {},
 
             init() {
-                this.cube = document.querySelector('.cube');
                 this.elements = {
-                    rollBtn: document.getElementById('rollBtn')
+                    diceArea: document.getElementById('diceArea'),
+                    diceCountSelector: document.getElementById('diceCountSelector'),
+                    rollBtn: document.getElementById('rollBtn'),
+                    totalDisplay: document.getElementById('totalDisplay'),
+                    totalValue: document.getElementById('totalValue')
                 };
 
                 this.handleRoll = () => this.rollDice();
+                this.handleCountChange = (e) => {
+                    const btn = e.target.closest('.dice-count-btn');
+                    if (btn) {
+                        const count = parseInt(btn.dataset.count);
+                        this.setDiceCount(count);
+                    }
+                };
 
                 if (this.elements.rollBtn) this.elements.rollBtn.addEventListener('click', this.handleRoll);
+                if (this.elements.diceCountSelector) this.elements.diceCountSelector.addEventListener('click', this.handleCountChange);
 
+                this.createDice(1);
                 console.log('Dice Roller initialized');
             },
 
             cleanup() {
                 if (this.elements.rollBtn) this.elements.rollBtn.removeEventListener('click', this.handleRoll);
-                this.cube = null;
+                if (this.elements.diceCountSelector) this.elements.diceCountSelector.removeEventListener('click', this.handleCountChange);
+                this.cubes = [];
                 this.elements = {};
                 console.log('Dice Roller cleanup done');
             },
 
-            rollDice() {
-                if (!this.cube) return;
-                const rand = Math.floor(Math.random() * 6) + 1;
+            setDiceCount(count) {
+                this.diceCount = count;
+                // Update active button
+                document.querySelectorAll('.dice-count-btn').forEach(btn => {
+                    btn.classList.toggle('active', parseInt(btn.dataset.count) === count);
+                });
+                this.createDice(count);
+            },
 
-                // Random rotation logic
-                const xRand = Math.floor(Math.random() * 4) * 360;
-                const yRand = Math.floor(Math.random() * 4) * 360;
+            createDice(count) {
+                this.elements.diceArea.innerHTML = '';
+                this.cubes = [];
 
-                let xRot = 0, yRot = 0;
-
-                switch (rand) {
-                    case 1: xRot = 0; yRot = 0; break;
-                    case 2: xRot = 0; yRot = -90; break;
-                    case 3: xRot = 0; yRot = -180; break;
-                    case 4: xRot = 0; yRot = 90; break;
-                    case 5: xRot = -90; yRot = 0; break;
-                    case 6: xRot = 90; yRot = 0; break;
+                for (let i = 0; i < count; i++) {
+                    const scene = document.createElement('div');
+                    scene.className = 'scene';
+                    scene.innerHTML = `
+                        <div class="cube">
+                            <div class="cube__face cube__face--1"><div class="dot"></div></div>
+                            <div class="cube__face cube__face--2"><div class="dot"></div><div class="dot"></div></div>
+                            <div class="cube__face cube__face--3"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+                            <div class="cube__face cube__face--4"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+                            <div class="cube__face cube__face--5"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+                            <div class="cube__face cube__face--6"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+                        </div>
+                    `;
+                    this.elements.diceArea.appendChild(scene);
+                    this.cubes.push(scene.querySelector('.cube'));
                 }
 
-                // Add extra spins
-                const finalX = xRot + (360 * 3);
-                const finalY = yRot + (360 * 3);
+                // Show/hide total display
+                if (this.elements.totalDisplay) {
+                    this.elements.totalDisplay.style.display = count > 1 ? 'block' : 'none';
+                }
+            },
 
-                this.cube.style.transform = `translateZ(-100px) rotateX(${finalX}deg) rotateY(${finalY}deg)`;
+            rollDice() {
+                this.rollCount++;
+                const results = [];
+
+                this.cubes.forEach((cube, index) => {
+                    const rand = Math.floor(Math.random() * 6) + 1;
+                    results.push(rand);
+
+                    // Calculate rotation to show the correct face
+                    // Adding consistent multiple spins for dramatic effect
+                    const spins = 3 + this.rollCount; // Always spin strongly
+                    let xRot = 0, yRot = 0;
+
+                    switch (rand) {
+                        case 1: xRot = 0; yRot = 0; break;
+                        case 2: xRot = 0; yRot = -90; break;
+                        case 3: xRot = 0; yRot = -180; break;
+                        case 4: xRot = 0; yRot = 90; break;
+                        case 5: xRot = -90; yRot = 0; break;
+                        case 6: xRot = 90; yRot = 0; break;
+                    }
+
+                    // Add random extra rotation and spins for natural look
+                    const baseSpinsX = spins * 360;
+                    const baseSpinsY = spins * 360;
+                    const extraX = Math.floor(Math.random() * 2) * 360;
+                    const extraY = Math.floor(Math.random() * 2) * 360;
+
+                    const finalX = xRot + baseSpinsX + extraX;
+                    const finalY = yRot + baseSpinsY + extraY;
+
+                    // Slight delay for each dice for visual effect
+                    setTimeout(() => {
+                        cube.style.transform = `translateZ(-60px) rotateX(${finalX}deg) rotateY(${finalY}deg)`;
+                    }, index * 100);
+                });
+
+                // Update total after animation
+                setTimeout(() => {
+                    const total = results.reduce((a, b) => a + b, 0);
+                    if (this.elements.totalValue) {
+                        this.elements.totalValue.textContent = total;
+                    }
+                }, 1000 + (this.cubes.length * 100));
             }
         });
     </script>

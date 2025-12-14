@@ -8,7 +8,6 @@
     <title>제비뽑기 - Utilsly</title>
     <meta name="description" content="공정한 추첨을 위한 제비뽑기 도구입니다. 당첨자를 랜덤으로 선정하세요.">
     <script>
-        // Prevent dark mode flash
         (function () {
             const savedTheme = localStorage.getItem('theme');
             const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -20,19 +19,85 @@
     <link rel="preload" href="../../css/style.css" as="style">
     <link rel="stylesheet" href="../../css/style.css">
     <style>
+        .picker-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+        }
+
+        @media (max-width: 768px) {
+            .picker-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .input-section {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .range-input-row {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .range-input-row input {
+            width: 100px;
+        }
+
+        .range-input-row span {
+            color: var(--text-secondary);
+        }
+
+        .candidates-textarea {
+            min-height: 300px;
+            resize: vertical;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        .result-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            background: var(--bg-sidebar);
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            text-align: center;
+        }
+
+        .winner-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+
         .winner-display {
-            font-size: 48px;
+            font-size: 56px;
             font-weight: 800;
             color: var(--accent-blue);
-            text-align: center;
             min-height: 80px;
-            margin: 24px 0;
-            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            margin-bottom: 32px;
+            line-height: 1.2;
+        }
+
+        .winner-display.animating {
+            opacity: 0.5;
+            transform: scale(0.95);
+        }
+
+        .winner-display.revealed {
+            color: #E03E3E;
+            animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
         @keyframes popIn {
             from {
-                transform: scale(0.5);
+                transform: scale(0.8);
                 opacity: 0;
             }
 
@@ -40,6 +105,56 @@
                 transform: scale(1);
                 opacity: 1;
             }
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: 100%;
+            max-width: 250px;
+        }
+
+        .btn-pick {
+            padding: 16px 32px;
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .btn-remove-winner {
+            color: #FF4B4B;
+            border-color: #FF4B4B;
+        }
+
+        .btn-remove-winner:hover {
+            background: rgba(255, 75, 75, 0.1);
+        }
+
+        .history-section {
+            margin-top: 40px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .history-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+        }
+
+        .history-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .history-item {
+            padding: 6px 12px;
+            background: var(--bg-hover);
+            border-radius: 50px;
+            font-size: 13px;
+            color: var(--text-secondary);
         }
     </style>
 </head>
@@ -49,7 +164,8 @@
         <aside class="sidebar">
             <div class="sidebar-header">
                 <div class="user-profile">
-                    <div class="avatar">U</div>
+                    <div style="font-size: 24px; font-weight: 800; color: var(--text-primary); letter-spacing: -0.5px;">
+                        Utilsly.</div>
                 </div>
             </div>
             <nav class="sidebar-nav">
@@ -74,22 +190,42 @@
                 </div>
 
                 <div class="tool-container" data-tool-id="random-picker">
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 32px;">
-                        <div>
-                            <label style="display: block; margin-bottom: 8px; font-weight: 600;">참여자 목록 (줄바꿈으로
-                                구분)</label>
-                            <textarea id="candidates" style="height: 300px;">철수
+                    <div class="picker-container">
+                        <div class="input-section">
+                            <label style="font-weight: 600; margin-bottom: 4px;">번호 자동 입력</label>
+                            <div class="range-input-row">
+                                <input type="number" id="rangeStart" placeholder="시작" value="1" min="1">
+                                <span>부터</span>
+                                <input type="number" id="rangeEnd" placeholder="끝" value="20" min="1">
+                                <span>까지</span>
+                                <button class="btn btn-primary" id="autoFillBtn">입력</button>
+                            </div>
+
+                            <label style="font-weight: 600; margin-top: 16px;">참여자 목록 (줄바꿈으로 구분)</label>
+                            <textarea id="candidates" class="candidates-textarea"
+                                placeholder="참여자 이름을 한 줄에 하나씩 입력하세요...">철수
 영희
 민수
 지수
 동현</textarea>
                         </div>
-                        <div
-                            style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
-                            <div style="font-size: 14px; color: var(--text-secondary); margin-bottom: 8px;">당첨자</div>
+
+                        <div class="result-section">
+                            <div class="winner-label">🎉 당첨자</div>
                             <div id="winner" class="winner-display">?</div>
-                            <button class="btn btn-primary btn-large" id="pickBtn"
-                                style="width: 100%; max-width: 200px;">뽑기!</button>
+                            <div class="action-buttons">
+                                <button class="btn btn-primary btn-pick" id="pickBtn">뽑기!</button>
+                                <button class="btn btn-remove-winner" id="removeWinnerBtn" style="display: none;">
+                                    <span class="material-symbols-rounded"
+                                        style="font-size: 18px; margin-right: 8px;">person_remove</span>
+                                    당첨자 제거하고 다시 뽑기
+                                </button>
+                            </div>
+
+                            <div class="history-section" id="historySection" style="display: none;">
+                                <div class="history-title">📋 뽑기 기록</div>
+                                <div class="history-list" id="historyList"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -101,16 +237,29 @@
         Utilsly.registerTool('random-picker', {
             interval: null,
             elements: {},
+            lastWinner: null,
+            history: [],
 
             init() {
                 this.elements = {
                     candidates: document.getElementById('candidates'),
                     winnerDisplay: document.getElementById('winner'),
-                    pickBtn: document.getElementById('pickBtn')
+                    pickBtn: document.getElementById('pickBtn'),
+                    removeWinnerBtn: document.getElementById('removeWinnerBtn'),
+                    rangeStart: document.getElementById('rangeStart'),
+                    rangeEnd: document.getElementById('rangeEnd'),
+                    autoFillBtn: document.getElementById('autoFillBtn'),
+                    historySection: document.getElementById('historySection'),
+                    historyList: document.getElementById('historyList')
                 };
 
                 this.handlePick = () => this.pickWinner();
+                this.handleRemoveWinner = () => this.removeWinnerAndPick();
+                this.handleAutoFill = () => this.autoFillRange();
+
                 if (this.elements.pickBtn) this.elements.pickBtn.addEventListener('click', this.handlePick);
+                if (this.elements.removeWinnerBtn) this.elements.removeWinnerBtn.addEventListener('click', this.handleRemoveWinner);
+                if (this.elements.autoFillBtn) this.elements.autoFillBtn.addEventListener('click', this.handleAutoFill);
 
                 console.log('Random Picker initialized');
             },
@@ -118,8 +267,32 @@
             cleanup() {
                 if (this.interval) clearInterval(this.interval);
                 if (this.elements.pickBtn) this.elements.pickBtn.removeEventListener('click', this.handlePick);
+                if (this.elements.removeWinnerBtn) this.elements.removeWinnerBtn.removeEventListener('click', this.handleRemoveWinner);
+                if (this.elements.autoFillBtn) this.elements.autoFillBtn.removeEventListener('click', this.handleAutoFill);
                 this.elements = {};
+                this.history = [];
                 console.log('Random Picker cleanup done');
+            },
+
+            autoFillRange() {
+                const start = parseInt(this.elements.rangeStart.value) || 1;
+                const end = parseInt(this.elements.rangeEnd.value) || 20;
+
+                if (start > end) {
+                    Utilsly.showAlert('시작 번호가 끝 번호보다 클 수 없습니다.');
+                    return;
+                }
+
+                if (end - start > 1000) {
+                    Utilsly.showAlert('최대 1000개까지 입력 가능합니다.');
+                    return;
+                }
+
+                const numbers = [];
+                for (let i = start; i <= end; i++) {
+                    numbers.push(i + '번');
+                }
+                this.elements.candidates.value = numbers.join('\n');
             },
 
             pickWinner() {
@@ -135,7 +308,10 @@
                 let count = 0;
                 const maxCount = 20;
 
-                // Animation effect
+                this.elements.winnerDisplay.classList.remove('revealed');
+                this.elements.winnerDisplay.classList.add('animating');
+                this.elements.removeWinnerBtn.style.display = 'none';
+
                 if (this.interval) clearInterval(this.interval);
                 this.interval = setInterval(() => {
                     if (!this.elements.winnerDisplay) {
@@ -145,8 +321,6 @@
 
                     const random = candidates[Math.floor(Math.random() * candidates.length)];
                     this.elements.winnerDisplay.textContent = random;
-                    this.elements.winnerDisplay.style.opacity = 0.5;
-                    this.elements.winnerDisplay.style.transform = 'scale(0.9)';
 
                     count++;
                     if (count >= maxCount) {
@@ -154,20 +328,50 @@
                         this.interval = null;
 
                         const finalWinner = candidates[Math.floor(Math.random() * candidates.length)];
+                        this.lastWinner = finalWinner;
                         this.elements.winnerDisplay.textContent = finalWinner;
-                        this.elements.winnerDisplay.style.opacity = 1;
-                        this.elements.winnerDisplay.style.transform = 'scale(1.2)';
-                        this.elements.winnerDisplay.style.color = '#E03E3E'; // Red for winner
+                        this.elements.winnerDisplay.classList.remove('animating');
+                        this.elements.winnerDisplay.classList.add('revealed');
+                        this.elements.removeWinnerBtn.style.display = 'flex';
 
-                        // Reset style after a bit
+                        // Add to history
+                        this.history.push(finalWinner);
+                        this.updateHistory();
+
                         setTimeout(() => {
                             if (this.elements.winnerDisplay) {
-                                this.elements.winnerDisplay.style.transform = 'scale(1)';
-                                this.elements.winnerDisplay.style.color = 'var(--accent-blue)';
+                                this.elements.winnerDisplay.classList.remove('revealed');
                             }
                         }, 500);
                     }
                 }, 50);
+            },
+
+            removeWinnerAndPick() {
+                if (!this.lastWinner || !this.elements.candidates) return;
+
+                const lines = this.elements.candidates.value.split('\n');
+                const index = lines.findIndex(line => line.trim() === this.lastWinner.trim());
+
+                if (index !== -1) {
+                    lines.splice(index, 1);
+                    this.elements.candidates.value = lines.join('\n');
+                }
+
+                this.lastWinner = null;
+                this.elements.removeWinnerBtn.style.display = 'none';
+                this.pickWinner();
+            },
+
+            updateHistory() {
+                if (!this.elements.historySection || !this.elements.historyList) return;
+
+                if (this.history.length > 0) {
+                    this.elements.historySection.style.display = 'block';
+                    this.elements.historyList.innerHTML = this.history.map((item, index) =>
+                        `<span class="history-item">${index + 1}. ${item}</span>`
+                    ).join('');
+                }
             }
         });
     </script>
