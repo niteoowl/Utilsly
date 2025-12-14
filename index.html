@@ -224,25 +224,97 @@
 
         @media (max-width: 768px) {
             .hero-section {
-                padding: 48px 24px;
-                margin: -24px -16px 32px -16px;
+                padding: 40px 20px;
+                margin: -24px -16px 24px -16px;
                 border-radius: 0;
             }
 
+            .hero-badge {
+                font-size: 11px;
+                padding: 6px 12px;
+            }
+
             .hero-title {
-                font-size: 36px;
+                font-size: 32px;
             }
 
             .hero-subtitle {
-                font-size: 16px;
+                font-size: 14px;
+                margin-bottom: 24px;
+            }
+
+            .search-input {
+                padding: 14px 20px 14px 48px;
+                font-size: 15px;
+            }
+
+            .search-icon {
+                left: 16px;
+                font-size: 20px;
             }
 
             .stats-row {
-                gap: 16px;
+                gap: 12px;
+                margin-top: 24px;
             }
 
             .stat-number {
-                font-size: 24px;
+                font-size: 22px;
+            }
+
+            .stat-label {
+                font-size: 11px;
+            }
+
+            .category-nav {
+                margin-bottom: 20px;
+                gap: 6px;
+            }
+
+            .category-btn {
+                padding: 8px 14px;
+                font-size: 13px;
+            }
+
+            .section-title {
+                font-size: 16px;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 12px !important;
+            }
+
+            .tool-card {
+                padding: 16px !important;
+            }
+
+            .card-icon {
+                width: 40px !important;
+                height: 40px !important;
+            }
+
+            .card-icon .material-symbols-rounded {
+                font-size: 20px !important;
+            }
+
+            .card-title {
+                font-size: 13px !important;
+            }
+
+            .card-desc {
+                font-size: 11px !important;
+                display: none;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-title {
+                font-size: 28px;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr 1fr !important;
             }
         }
     </style>
@@ -304,8 +376,7 @@
                 <!-- Default Home View -->
                 <div id="homeDefaultView">
                     <div class="category-nav" id="categoryNav">
-                        <button class="category-btn active" data-category="all">전체</button>
-                        <button class="category-btn" data-category="random">🎲 랜덤</button>
+                        <button class="category-btn active" data-category="random">🎲 랜덤</button>
                         <button class="category-btn" data-category="image">🖼️ 이미지</button>
                         <button class="category-btn" data-category="video">🎬 비디오</button>
                         <button class="category-btn" data-category="pdf">📄 PDF</button>
@@ -494,8 +565,8 @@
             }
         });
 
-        // Initial render
-        renderCards('toolsGrid', allTools);
+        // Initial render - show Random category
+        filterByCategory('random');
 
         // Search
         const mainSearch = document.getElementById('mainSearch');

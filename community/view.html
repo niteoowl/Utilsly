@@ -38,6 +38,7 @@
             gap: 16px;
             font-size: 14px;
             color: var(--text-secondary);
+            flex-wrap: wrap;
         }
 
         .post-content {
@@ -45,8 +46,11 @@
             line-height: 1.8;
             font-size: 16px;
             margin-bottom: 40px;
-            white-space: pre-wrap;
             color: var(--text-primary);
+        }
+
+        .post-content p {
+            margin-bottom: 12px;
         }
 
         .post-actions {
@@ -56,6 +60,7 @@
             border-bottom: 1px solid var(--border-color);
             padding-bottom: 24px;
             margin-bottom: 24px;
+            flex-wrap: wrap;
         }
 
         /* Comments */
@@ -105,8 +110,7 @@
             color: var(--text-primary);
             line-height: 1.5;
             white-space: pre-wrap;
-            /* Allow line breaks */
-            word-break: break-all;
+            word-break: break-word;
         }
 
         .comment-form {
@@ -126,6 +130,42 @@
 
         .comment-inputs input {
             flex: 1;
+        }
+
+        .logged-in-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            background: var(--bg-hover);
+            border-radius: 8px;
+        }
+
+        .user-avatar-sm {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 12px;
+        }
+
+        @media (max-width: 768px) {
+            .comment-inputs {
+                flex-direction: column;
+            }
+
+            .post-actions {
+                flex-direction: column;
+            }
+
+            .post-actions .btn {
+                width: 100%;
+            }
         }
     </style>
 </head>
@@ -189,6 +229,23 @@
             window.location.href = '/community/index.html';
         }
 
+        let currentUser = null;
+        function checkAuth() {
+            if (window.UtilslyAuth && window.UtilslyAuth.currentUser) {
+                currentUser = window.UtilslyAuth.currentUser;
+            }
+        }
+
+        window.addEventListener('authStateChanged', (e) => {
+            if (e.detail.user) {
+                currentUser = e.detail.user;
+                // Update comment form if already rendered
+                updateCommentForm();
+            }
+        });
+
+        setTimeout(checkAuth, 500);
+
         async function loadPost() {
             const docRef = doc(db, "posts", postId);
 
@@ -233,7 +290,7 @@
 
                 <div class="post-actions">
                     <button class="btn" onclick="window.location.href='/community/index.html?category=${post.category}'">목록으로</button>
-                    <button class="btn" onclick="deletePost('${post.password}')" style="color: #d32f2f;">삭제</button>
+                    <button class="btn" onclick="deletePost('${post.password}', '${post.userId || ''}')" style="color: #d32f2f;">삭제</button>
                 </div>
 
                 <div class="comments-section">
@@ -241,9 +298,13 @@
                     <div class="comment-list" id="comment-list"></div>
                     
                     <form class="comment-form" id="comment-form">
-                        <div class="comment-inputs">
-                            <input type="text" id="c-nickname" placeholder="닉네임" required style="flex:1;">
-                            <input type="password" id="c-password" placeholder="비밀번호" required style="flex:1;">
+                        <div id="guestCommentInputs" class="comment-inputs">
+                            <input type="text" id="c-nickname" placeholder="닉네임" style="flex:1;">
+                            <input type="password" id="c-password" placeholder="비밀번호" style="flex:1;">
+                        </div>
+                        <div id="loggedInCommentInfo" class="logged-in-info" style="display: none;">
+                            <div class="user-avatar-sm" id="commentUserAvatar">U</div>
+                            <span id="commentUserName" style="font-weight: 600;"></span>
                         </div>
                         <div style="display:flex; gap:8px; align-items:flex-start;">
                             <textarea id="c-content" placeholder="댓글을 입력하세요" required style="flex:4; height: 60px; padding: 8px; resize: none;"></textarea>
@@ -254,22 +315,54 @@
             `;
             document.getElementById('post-container').innerHTML = html;
 
-            // Bind delete event manually since function is not global
-            window.deletePost = async (correctPassword) => {
-                const input = prompt("게시글 비밀번호를 입력하세요:");
-                if (input === correctPassword) {
-                    if (confirm('정말 삭제하시겠습니까?')) {
+            // Update comment form for logged in user
+            updateCommentForm();
+
+            // Bind delete event
+            window.deletePost = async (correctPassword, postUserId) => {
+                const isOwner = currentUser && postUserId && currentUser.uid === postUserId;
+                const isAdmin = localStorage.getItem('utilsly_admin_auth') === 'true';
+
+                if (isOwner || isAdmin) {
+                    if (confirm(isAdmin ? '[관리자] 게시글을 삭제하시겠습니까?' : '게시글을 삭제하시겠습니까?')) {
                         await deleteDoc(doc(db, "posts", postId));
                         alert('삭제되었습니다.');
                         window.location.href = '/community/index.html';
                     }
-                } else if (input !== null) {
-                    alert('비밀번호가 일치하지 않습니다.');
+                } else {
+                    const input = prompt("게시글 비밀번호를 입력하세요:");
+                    if (input === correctPassword) {
+                        if (confirm('정말 삭제하시겠습니까?')) {
+                            await deleteDoc(doc(db, "posts", postId));
+                            alert('삭제되었습니다.');
+                            window.location.href = '/community/index.html';
+                        }
+                    } else if (input !== null) {
+                        alert('비밀번호가 일치하지 않습니다.');
+                    }
                 }
             };
 
             // Re-bind form submit
             document.getElementById('comment-form').addEventListener('submit', handleCommentSubmit);
+        }
+
+        function updateCommentForm() {
+            const guestInputs = document.getElementById('guestCommentInputs');
+            const loggedInInfo = document.getElementById('loggedInCommentInfo');
+
+            if (!guestInputs || !loggedInInfo) return;
+
+            if (currentUser) {
+                const nickname = currentUser.displayName || currentUser.email.split('@')[0];
+                guestInputs.style.display = 'none';
+                loggedInInfo.style.display = 'flex';
+                document.getElementById('commentUserName').textContent = nickname;
+                document.getElementById('commentUserAvatar').textContent = nickname[0].toUpperCase();
+            } else {
+                guestInputs.style.display = 'flex';
+                loggedInInfo.style.display = 'none';
+            }
         }
 
         async function loadComments() {
@@ -294,7 +387,7 @@
                             <span class="comment-writer" style="${writerClass} display:flex; align-items:center;">${c.nickname}${adminBadge}</span>
                             <div style="display:flex; gap:8px; align-items:center;">
                                 <span class="comment-date">${d}</span>
-                                <button onclick="deleteComment('${doc.id}', '${c.password}')" style="background:none; border:none; cursor:pointer; color:var(--text-tertiary); font-size:16px;">
+                                <button onclick="deleteComment('${doc.id}', '${c.password}', '${c.userId || ''}')" style="background:none; border:none; cursor:pointer; color:var(--text-tertiary); font-size:16px;">
                                     <span class="material-symbols-rounded" style="font-size:14px;">close</span>
                                 </button>
                             </div>
@@ -305,11 +398,12 @@
             });
             list.innerHTML = html;
 
-            window.deleteComment = async (commentId, correctPassword) => {
+            window.deleteComment = async (commentId, correctPassword, commentUserId) => {
+                const isOwner = currentUser && commentUserId && currentUser.uid === commentUserId;
                 const isAdmin = localStorage.getItem('utilsly_admin_auth') === 'true';
 
-                if (isAdmin) {
-                    if (!confirm('[관리자] 댓글을 삭제하시겠습니까?')) return;
+                if (isOwner || isAdmin) {
+                    if (!confirm(isAdmin ? '[관리자] 댓글을 삭제하시겠습니까?' : '댓글을 삭제하시겠습니까?')) return;
                 } else {
                     const input = prompt("댓글 비밀번호:");
                     if (input !== correctPassword) return alert('비밀번호 불일치');
@@ -327,8 +421,21 @@
 
         async function handleCommentSubmit(e) {
             e.preventDefault();
-            const nick = document.getElementById('c-nickname').value;
-            const pass = document.getElementById('c-password').value;
+
+            let nick, pass;
+            if (currentUser) {
+                nick = currentUser.displayName || currentUser.email.split('@')[0];
+                pass = 'user_' + currentUser.uid.substring(0, 8);
+            } else {
+                nick = document.getElementById('c-nickname').value;
+                pass = document.getElementById('c-password').value;
+
+                if (!nick || !pass) {
+                    alert('닉네임과 비밀번호를 입력해주세요.');
+                    return;
+                }
+            }
+
             const content = document.getElementById('c-content').value;
 
             try {
@@ -336,6 +443,7 @@
                     nickname: nick,
                     password: pass,
                     content: content,
+                    userId: currentUser ? currentUser.uid : null,
                     createdAt: serverTimestamp()
                 });
 

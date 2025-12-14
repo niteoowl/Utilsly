@@ -5,6 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Utilsly Community</title>
+    <script>
+        !function () { const e = localStorage.getItem("theme"), t = window.matchMedia("(prefers-color-scheme: dark)").matches; "dark" !== e && (e || !t) || document.documentElement.setAttribute("data-theme", "dark") }();
+    </script>
     <link rel="stylesheet" href="../css/style.css">
     <script src="../js/common.js"></script>
     <style>
@@ -21,6 +24,9 @@
             justify-content: space-between;
             align-items: center;
             box-shadow: var(--shadow-sm);
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
 
         .community-brand {
@@ -225,11 +231,9 @@
             font-weight: 600;
         }
 
+        /* Mobile styles */
         @media (max-width: 768px) {
             .community-header {
-                position: sticky;
-                top: 0;
-                z-index: 100;
                 padding: 12px 16px;
             }
 
@@ -237,8 +241,17 @@
                 font-size: 20px;
             }
 
+            .user-profile-mini span {
+                display: none;
+            }
+
             .community-content {
                 padding: 16px 12px;
+            }
+
+            .category-tab {
+                padding: 8px 14px;
+                font-size: 14px;
             }
 
             .list-item {
@@ -250,7 +263,6 @@
 
             .post-badge {
                 margin-right: 0;
-                margin-bottom: 4px;
             }
 
             .post-meta {
@@ -269,6 +281,11 @@
                 line-height: 1.4;
                 width: 100%;
             }
+
+            .write-fab {
+                bottom: 16px;
+                right: 16px;
+            }
         }
     </style>
 </head>
@@ -286,8 +303,7 @@
         </aside>
         <div class="main-content">
             <div class="top-bar">
-                <div class="breadcrumbs"><span class="breadcrumb-item">커뮤니티</span><span class="separator">/</span><span
-                        class="breadcrumb-item current-page" id="category-name">전체</span></div>
+                <div class="breadcrumbs"><span class="breadcrumb-item">커뮤니티</span></div>
             </div>
             <div class="content-area" style="padding: 0;">
                 <div class="community-app">
@@ -348,8 +364,6 @@
                 tab.classList.remove('active');
                 if (tab.dataset.cat === currentCategory) tab.classList.add('active');
             });
-            const catMap = { 'all': '전체', 'notice': '공지사항', 'bug': '버그 제보', 'suggestion': '기능 건의', 'free': '자유게시판', 'resolved': '해결됨' };
-            document.getElementById('category-name').textContent = catMap[currentCategory] || '전체';
         }
 
         function updateAuthSection(user) {
@@ -369,10 +383,6 @@
         if (window.UtilslyAuth && window.UtilslyAuth.currentUser) updateAuthSection(window.UtilslyAuth.currentUser);
 
         window.handleWrite = () => {
-            if (!window.UtilslyAuth || !window.UtilslyAuth.currentUser) {
-                window.location.href = '/login.html?redirect=' + encodeURIComponent(window.location.pathname);
-                return;
-            }
             window.location.href = `/community/write.html?category=${currentCategory === 'all' || currentCategory === 'notice' || currentCategory === 'resolved' ? 'free' : currentCategory}`;
         };
         window.handleLogout = () => { if (window.UtilslyAuth) window.UtilslyAuth.signOut(); };
@@ -395,7 +405,7 @@
                     noticeSnapshot.forEach(doc => notices.push({ id: doc.id, ...doc.data() }));
                     notices.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
                 }
-                let q = currentCategory === 'all' ? query(postsRef, orderBy("createdAt", "desc"), limit(20)) : currentCategory === 'notice' ? query(postsRef, where("isNotice", "==", true)) : query(postsRef, where("category", "==", currentCategory), limit(50));
+                let q = currentCategory === 'all' ? query(postsRef, orderBy("createdAt", "desc"), limit(50)) : currentCategory === 'notice' ? query(postsRef, where("isNotice", "==", true)) : query(postsRef, where("category", "==", currentCategory), limit(50));
                 const querySnapshot = await getDocs(q);
                 querySnapshot.forEach(doc => { if (!notices.find(n => n.id === doc.id)) posts.push({ id: doc.id, ...doc.data() }); });
                 posts.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
