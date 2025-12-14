@@ -7,46 +7,144 @@
     <title>로그인 - Utilsly</title>
     <link rel="stylesheet" href="css/style.css">
     <style>
-        .auth-container {
-            max-width: 400px;
-            margin: 80px auto;
-            padding: 40px;
+        :root {
+            --auth-bg: var(--bg-secondary);
+            --auth-card-bg: var(--bg-primary);
+        }
+
+        body {
+            background-color: var(--auth-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .auth-wrapper {
+            width: 100%;
+            max-width: 420px;
+            position: relative;
+        }
+
+        .back-btn {
+            position: absolute;
+            top: -60px;
+            left: 0;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
             background: var(--bg-primary);
+            color: var(--text-primary);
+            text-decoration: none;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.2s;
             border: 1px solid var(--border-color);
-            border-radius: 12px;
+        }
+
+        .back-btn:hover {
+            transform: translateY(-2px);
             box-shadow: var(--shadow-md);
+        }
+
+        .auth-container {
+            background: var(--auth-card-bg);
+            border-radius: 24px;
+            padding: 48px 32px;
+            box-shadow: var(--shadow-lg);
             text-align: center;
+            border: 1px solid var(--border-color);
+            animation: slideUp 0.4s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .auth-logo {
-            font-size: 32px;
+            font-size: 36px;
             font-weight: 800;
             color: var(--text-primary);
             margin-bottom: 8px;
             letter-spacing: -1px;
+            background: linear-gradient(135deg, var(--text-primary) 0%, var(--text-secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: inline-block;
         }
 
         .auth-desc {
             color: var(--text-secondary);
-            margin-bottom: 32px;
-            font-size: 14px;
+            margin-bottom: 40px;
+            font-size: 15px;
+            font-weight: 500;
         }
 
         .auth-form {
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 20px;
         }
 
         .form-group {
             text-align: left;
+            position: relative;
         }
 
         .form-label {
             display: block;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
             font-size: 14px;
             font-weight: 600;
+            color: var(--text-primary);
+            margin-left: 4px;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-wrapper input {
+            width: 100%;
+            padding: 16px 16px 16px 48px;
+            border-radius: 16px;
+            border: 2px solid var(--border-color);
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-size: 16px;
+            transition: all 0.2s;
+            outline: none;
+        }
+
+        .input-wrapper .icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-tertiary);
+            transition: color 0.2s;
+            pointer-events: none;
+        }
+
+        .input-wrapper input:focus {
+            border-color: var(--text-primary);
+            background: var(--bg-primary);
+            box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .input-wrapper input:focus+.icon {
             color: var(--text-primary);
         }
 
@@ -55,86 +153,144 @@
             color: var(--bg-primary);
             border: none;
             cursor: pointer;
-            font-weight: 600;
-            margin-top: 8px;
-            padding: 12px;
+            font-weight: 700;
+            margin-top: 12px;
+            padding: 16px;
             font-size: 16px;
+            border-radius: 16px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
 
         .auth-btn:hover {
-            opacity: 0.9;
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+            opacity: 0.95;
+        }
+
+        .auth-btn:active {
+            transform: translateY(0);
         }
 
         .auth-links {
-            margin-top: 24px;
+            margin-top: 32px;
             font-size: 14px;
             color: var(--text-secondary);
         }
 
         .auth-links a {
             color: var(--text-primary);
-            font-weight: 600;
-            text-decoration: underline;
+            font-weight: 700;
+            text-decoration: none;
+            margin-left: 4px;
+            position: relative;
+        }
+
+        .auth-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: var(--text-primary);
+            transform: scaleX(0);
+            transition: transform 0.2s;
+            transform-origin: right;
+        }
+
+        .auth-links a:hover::after {
+            transform: scaleX(1);
+            transform-origin: left;
         }
 
         .error-msg {
-            color: #d32f2f;
+            color: #ef4444;
+            background: rgba(239, 68, 68, 0.1);
+            padding: 12px;
+            border-radius: 12px;
             font-size: 14px;
             margin-top: 8px;
             display: none;
+            text-align: left;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            font-weight: 500;
+        }
+
+        @media (max-width: 480px) {
+            .auth-container {
+                box-shadow: none;
+                background: transparent;
+                border: none;
+                padding: 0;
+            }
+
+            body {
+                background: var(--bg-primary);
+                align-items: flex-start;
+                padding-top: 60px;
+            }
+
+            .back-btn {
+                top: -40px;
+                left: 0;
+                background: transparent;
+                border: none;
+                box-shadow: none;
+                font-size: 24px;
+                padding: 0;
+                justify-content: flex-start;
+            }
         }
     </style>
 </head>
 
 <body>
-    <div class="app-container">
-        <!-- Sidebar will be injected by common.js -->
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <div class="user-profile">
-                    <div style="font-size: 24px; font-weight: 800; color: var(--text-primary); letter-spacing: -0.5px;">
-                        Utilsly.</div>
-                </div>
-            </div>
-            <nav class="sidebar-nav"></nav>
-        </aside>
+    <div class="auth-wrapper">
+        <a href="/" class="back-btn" aria-label="홈으로">
+            <span class="material-symbols-rounded">arrow_back</span>
+        </a>
 
-        <main class="main-content">
-            <header class="top-bar">
-                <div class="breadcrumbs">
-                    <span class="breadcrumb-item">Utilsly</span>
-                    <span class="separator">/</span>
-                    <span class="breadcrumb-item current-page">로그인</span>
-                </div>
-            </header>
+        <div class="auth-container">
+            <div class="auth-logo">Utilsly</div>
+            <p class="auth-desc">다시 오신 것을 환영합니다</p>
 
-            <div class="content-area">
-                <div class="auth-container">
-                    <div class="auth-logo">Utilsly</div>
-                    <p class="auth-desc">다양한 웹 도구를 더 편리하게 사용하세요.</p>
-
-                    <form class="auth-form" id="loginForm">
-                        <div class="form-group">
-                            <label class="form-label" for="email">이메일</label>
-                            <input type="email" id="email" required placeholder="name@example.com" autocomplete="email">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label" for="password">비밀번호</label>
-                            <input type="password" id="password" required placeholder="비밀번호 입력"
-                                autocomplete="current-password">
-                        </div>
-
-                        <div class="error-msg" id="errorMsg"></div>
-
-                        <button type="submit" class="btn auth-btn">로그인</button>
-                    </form>
-
-                    <div class="auth-links">
-                        계정이 없으신가요? <a href="/signup.html">회원가입</a>
+            <form class="auth-form" id="loginForm">
+                <div class="form-group">
+                    <label class="form-label" for="email">이메일</label>
+                    <div class="input-wrapper">
+                        <input type="email" id="email" required placeholder="name@example.com" autocomplete="email">
+                        <span class="material-symbols-rounded icon">mail</span>
                     </div>
                 </div>
+                <div class="form-group">
+                    <label class="form-label" for="password">비밀번호</label>
+                    <div class="input-wrapper">
+                        <input type="password" id="password" required placeholder="비밀번호 입력"
+                            autocomplete="current-password">
+                        <span class="material-symbols-rounded icon">lock</span>
+                    </div>
+                </div>
+
+                <div class="error-msg" id="errorMsg">
+                    <span class="material-symbols-rounded"
+                        style="font-size: 16px; vertical-align: middle; margin-right: 4px;">error</span>
+                    <span class="msg-text">로그인에 실패했습니다.</span>
+                </div>
+
+                <button type="submit" class="auth-btn">
+                    <span>로그인</span>
+                    <span class="material-symbols-rounded">arrow_forward</span>
+                </button>
+            </form>
+
+            <div class="auth-links">
+                계정이 없으신가요? <a href="/signup.html">회원가입</a>
             </div>
-        </main>
+        </div>
     </div>
 
     <script src="js/common.js"></script>
@@ -158,16 +314,18 @@
 
         const form = document.getElementById('loginForm');
         const errorMsg = document.getElementById('errorMsg');
+        const msgText = errorMsg.querySelector('.msg-text');
 
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             const btn = form.querySelector('button');
+            const originalBtnContent = btn.innerHTML;
 
             try {
                 btn.disabled = true;
-                btn.textContent = '로그인 중...';
+                btn.innerHTML = '<span class="material-symbols-rounded" style="animation: spin 1s linear infinite;">progress_activity</span> 로그인 중...';
                 errorMsg.style.display = 'none';
 
                 await signInWithEmailAndPassword(auth, email, password);
@@ -180,12 +338,32 @@
                 if (error.code === 'auth/invalid-credential') msg = '이메일 또는 비밀번호가 올바르지 않습니다.';
                 else if (error.code === 'auth/too-many-requests') msg = '너무 많은 시도 실패로 잠시 후 다시 시도해주세요.';
 
-                errorMsg.textContent = msg;
+                msgText.textContent = msg;
                 errorMsg.style.display = 'block';
                 btn.disabled = false;
-                btn.textContent = '로그인';
+                btn.innerHTML = originalBtnContent;
+
+                // Shake animation for error
+                const container = document.querySelector('.auth-container');
+                container.style.animation = 'shake 0.4s cubic-bezier(.36,.07,.19,.97) both';
+                setTimeout(() => {
+                    container.style.animation = '';
+                }, 400);
             }
         });
+
+        // Add shake keyframes dynamically
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes spin { 100% { transform: rotate(360deg); } }
+            @keyframes shake {
+                10%, 90% { transform: translate3d(-1px, 0, 0); }
+                20%, 80% { transform: translate3d(2px, 0, 0); }
+                30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+                40%, 60% { transform: translate3d(4px, 0, 0); }
+            }
+        `;
+        document.head.appendChild(style);
     </script>
 </body>
 
