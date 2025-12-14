@@ -292,6 +292,13 @@ const Utilsly = {
             ]
         },
         {
+            category: "금융/투자 (Finance)",
+            items: [
+                { name: "물타기 계산기", icon: "water_drop", path: "/tools/finance/average-down" },
+                { name: "수익률 계산기", icon: "trending_up", path: "/tools/finance/profit-calculator" },
+            ]
+        },
+        {
             category: "AI 도구 (Beta)",
             items: [
                 { name: "AI 글쓰기 도우미", icon: "edit_note", path: "/tools/ai/writing-assistant" },
