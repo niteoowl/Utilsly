@@ -133,7 +133,8 @@ const Utilsly = {
      */
     registerTool(id, controller) {
         if (this.tools[id]) {
-            console.warn(`Tool '${id}' is already registered. Replacing existing controller.`);
+            // Replacing controller is normal in SPA navigation
+            // console.log(`Tool '${id}' updated.`);
         }
 
         // Ensure init and cleanup exist
@@ -142,12 +143,10 @@ const Utilsly = {
             return;
         }
         if (typeof controller.cleanup !== 'function') {
-            // Provide default cleanup if missing (though strictly recommended)
             controller.cleanup = () => { };
         }
 
         this.tools[id] = controller;
-
         // If this tool corresponds to the current page (during initial load or navigation),
         // we might need to verify if it should be active immediately.
         // However, the loadPage logic handles the actual init call.
@@ -289,7 +288,7 @@ const Utilsly = {
             category: "색상 (Color)",
             items: [
                 { name: "컬러 피커", icon: "palette", path: "/tools/color/color-picker" },
-                { name: "그라디언트 생성", icon: "gradient", path: "/tools/color/gradient-generator" },
+                { name: "그라데이션 생성", icon: "gradient", path: "/tools/color/gradient-generator" },
             ]
         },
         {
@@ -709,65 +708,49 @@ const Utilsly = {
                 currentMain.innerHTML = newMain.innerHTML;
 
                 // Re-run scripts (Seqential Loading for dependencies)
-                // Select scripts from the ENTIRE fetched document to catch libraries in head/body
-                // Filter out common.js to prevent recursion
                 const scripts = Array.from(doc.querySelectorAll('script'));
 
-                const loadScript = (index) => {
-                    if (index >= scripts.length) return;
+                // Use a Promise to wait for all scripts to load
+                await new Promise((resolve) => {
+                    const loadScript = (index) => {
+                        if (index >= scripts.length) {
+                            resolve();
+                            return;
+                        }
 
-                    const script = scripts[index];
+                        const script = scripts[index];
 
-                    // Skip if it is an intentionally ignored script (like common.js self-reference if needed, though isLoaded check handles most)
-                    if (script.src && (script.src.includes('common.js') || script.getAttribute('src').includes('common.js'))) {
-                        loadScript(index + 1);
-                        return;
-                    }
-
-                    if (script.src) {
-                        // Check if already loaded
-                        const isLoaded = Array.from(document.scripts).some(s => s.src === script.src);
-                        if (isLoaded) {
-                            console.log(`[SPA] Skipping already loaded script: ${script.src}`);
+                        if (script.src && (script.src.includes('common.js') || script.getAttribute('src').includes('common.js'))) {
                             loadScript(index + 1);
                             return;
                         }
 
-                        // Load external script
-                        const newScript = document.createElement('script');
-                        newScript.src = script.src;
-                        if (script.type) newScript.type = script.type; // Preserve type (module)
-                        newScript.onload = () => {
-                            console.log(`[SPA] Loaded script: ${script.src}`);
-                            loadScript(index + 1);
-                        };
-                        newScript.onerror = () => {
-                            console.error(`[SPA] Failed to load script: ${script.src}`);
-                            loadScript(index + 1);
-                        };
-                        document.body.appendChild(newScript);
-                        // Don't remove external scripts, they need to stick around
-                        // newScript.remove(); 
-                    } else {
-                        // Inline script
-                        const newScript = document.createElement('script');
-                        newScript.textContent = script.textContent;
-                        if (script.type) newScript.type = script.type; // Preserve type (module)
-                        document.body.appendChild(newScript);
-                        // Module scripts might be asynchronous, but for inline ones we usually just let them run.
-                        // We can't easily wait for inline module execution without dynamic import(), but appending works for side effects.
-                        // However, strictly, inline modules are deferred. 
-                        // For this simple case, we just append.
-                        // newScript.remove(); // Removing module scripts might interrupt? No, but let's leave them or remove them?
-                        // Standard inline scripts are synchronous. Modules are not.
-                        // Let's NOT remove them immediately to be safe, or remove them after a small delay if needed.
-                        // Actually, previous code removed them `newScript.remove()`. 
-                        // If it's a module, removing it from DOM doesn't stop execution, but let's keep it consistent.
-                        loadScript(index + 1);
-                    }
-                };
+                        if (script.src) {
+                            const isLoaded = Array.from(document.scripts).some(s => s.src === script.src);
+                            if (isLoaded) {
+                                loadScript(index + 1);
+                                return;
+                            }
 
-                loadScript(0);
+                            const newScript = document.createElement('script');
+                            newScript.src = script.src;
+                            if (script.type) newScript.type = script.type;
+                            newScript.onload = () => loadScript(index + 1);
+                            newScript.onerror = () => {
+                                console.error(`[SPA] Failed to load script: ${script.src}`);
+                                loadScript(index + 1);
+                            };
+                            document.body.appendChild(newScript);
+                        } else {
+                            const newScript = document.createElement('script');
+                            newScript.textContent = script.textContent;
+                            if (script.type) newScript.type = script.type;
+                            document.body.appendChild(newScript);
+                            loadScript(index + 1);
+                        }
+                    };
+                    loadScript(0);
+                });
 
             } else {
                 console.error("[SPA] Current page missing .main-content?");
@@ -791,7 +774,7 @@ const Utilsly = {
                     console.warn(`[SPA] Tool ID '${toolId}' found but no matching controller registered.`);
                 }
             } else {
-                console.log("[SPA] No data-tool-id found in new content.");
+                // console.log("[SPA] No data-tool-id found in new content.");
             }
 
             // Scroll to top

@@ -4,14 +4,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>그라디언트 생성기 - Utilsly</title>
-    <meta name="description" content="CSS 그라디언트를 시각적으로 만들고 코드를 복사하세요.">
-    <script>
-        !function () { const e = localStorage.getItem("theme"), t = window.matchMedia("(prefers-color-scheme: dark)").matches; "dark" !== e && (e || !t) || document.documentElement.setAttribute("data-theme", "dark") }();
-    </script>
-    <link rel="preload" href="../../css/style.css" as="style">
+    <title>그라데이션 생성 - Utilsly</title>
+    <meta name="description" content="아름다운 CSS 그라데이션을 생성하고 코드를 복사하거나 이미지로 다운로드하세요.">
     <link rel="stylesheet" href="../../css/style.css">
+    <style>
+        .preview-area {
+            height: 200px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            border: 1px solid var(--border-color);
+            position: relative;
+        }
+
+        .controls-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .color-stops {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .color-stop-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .css-output {
+            background: var(--bg-sidebar);
+            padding: 16px;
+            border-radius: 8px;
+            font-family: monospace;
+            word-break: break-all;
+            margin-bottom: 16px;
+            border: 1px solid var(--border-color);
+        }
+
+        .dimension-inputs {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .dimension-inputs input {
+            width: 80px;
+        }
+    </style>
 </head>
 
 <body>
@@ -24,43 +74,75 @@
             </div>
             <nav class="sidebar-nav"></nav>
         </aside>
+
         <main class="main-content">
             <header class="top-bar">
-                <div class="breadcrumbs"><span class="breadcrumb-item">그라디언트 생성</span></div>
+                <div class="breadcrumbs">
+                    <span class="breadcrumb-item">색상 도구</span>
+                    <span class="separator">/</span>
+                    <span class="breadcrumb-item">그라데이션 생성</span>
+                </div>
             </header>
+
             <div class="content-area">
                 <div class="page-header">
-                    <div class="header-icon-wrapper"><span class="material-symbols-rounded">gradient</span></div>
-                    <h1>그라디언트 생성기</h1>
-                    <p class="description">CSS 그라디언트를 시각적으로 만들고 코드를 복사하세요.</p>
+                    <div class="header-icon-wrapper">
+                        <span class="material-symbols-rounded">gradient</span>
+                    </div>
+                    <h1>그라데이션 생성</h1>
+                    <p class="description">CSS 그라데이션을 쉽게 만들고 이미지로 저장하세요.</p>
                 </div>
+
                 <div class="tool-container" data-tool-id="gradient-generator">
-                    <div id="preview" style="width: 100%; height: 300px; border-radius: 12px; margin-bottom: 24px;">
-                    </div>
-                    <div
-                        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px;">
-                        <div>
-                            <label style="display: block; margin-bottom: 8px; font-weight: 600;">시작 색상</label>
-                            <input type="color" id="color1" value="#667eea"
-                                style="width: 100%; height: 50px; border: none; border-radius: 8px; cursor: pointer;">
+                    <div class="preview-area" id="gradientPreview"></div>
+
+                    <div class="controls-grid">
+                        <div class="control-group">
+                            <label>종류</label>
+                            <select id="typeSelect" style="width:100%">
+                                <option value="linear">Linear (선형)</option>
+                                <option value="radial">Radial (원형)</option>
+                            </select>
                         </div>
-                        <div>
-                            <label style="display: block; margin-bottom: 8px; font-weight: 600;">끝 색상</label>
-                            <input type="color" id="color2" value="#764ba2"
-                                style="width: 100%; height: 50px; border: none; border-radius: 8px; cursor: pointer;">
-                        </div>
-                        <div>
-                            <label style="display: block; margin-bottom: 8px; font-weight: 600;">각도 (<span
-                                    id="angleValue">45</span>°)</label>
-                            <input type="range" id="angle" min="0" max="360" value="45" style="width: 100%;">
+                        <div class="control-group" id="angleGroup">
+                            <label>각도 (<span id="angleValue">90</span>°)</label>
+                            <input type="range" id="angleInput" min="0" max="360" value="90" style="width:100%">
                         </div>
                     </div>
-                    <div style="margin-bottom: 16px;">
-                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">CSS 코드</label>
-                        <textarea id="cssCode" readonly
-                            style="width: 100%; height: 100px; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; font-family: var(--font-mono); font-size: 14px;"></textarea>
+
+                    <div class="control-group">
+                        <label>색상 단계</label>
+                        <div class="color-stops" id="colorStops">
+                            <!-- JS Generated -->
+                        </div>
+                        <button class="btn btn-sm" id="addStopBtn" style="margin-top:8px">+ 색상 추가</button>
                     </div>
-                    <button class="btn btn-primary" id="copyBtn" style="width: 100%;">CSS 복사</button>
+
+                    <div class="control-group" style="margin-top: 24px;">
+                        <label>CSS 코드</label>
+                        <div class="css-output" id="cssOutput"></div>
+                        <button class="btn" id="copyBtn">코드 복사</button>
+                    </div>
+
+                    <div class="control-group"
+                        style="margin-top: 24px; border-top: 1px solid var(--border-color); padding-top: 24px;">
+                        <label>이미지로 저장</label>
+                        <div class="dimension-inputs">
+                            <div style="display:flex; flex-direction:column; gap:4px;">
+                                <span style="font-size:12px; color:var(--text-tertiary);">너비 (px)</span>
+                                <input type="number" id="imgWidth" value="1920">
+                            </div>
+                            <span style="align-self: flex-end; padding-bottom: 10px;">x</span>
+                            <div style="display:flex; flex-direction:column; gap:4px;">
+                                <span style="font-size:12px; color:var(--text-tertiary);">높이 (px)</span>
+                                <input type="number" id="imgHeight" value="1080">
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" id="downloadBtn">
+                            <span class="material-symbols-rounded" style="margin-right:8px">download</span>
+                            이미지 다운로드
+                        </button>
+                    </div>
                 </div>
             </div>
         </main>
@@ -69,50 +151,184 @@
     <script>
         Utilsly.registerTool('gradient-generator', {
             elements: {},
+            stops: [
+                { color: '#4facfe', percent: 0 },
+                { color: '#00f2fe', percent: 100 }
+            ],
 
             init() {
                 this.elements = {
-                    preview: document.getElementById('preview'),
-                    color1: document.getElementById('color1'),
-                    color2: document.getElementById('color2'),
-                    angle: document.getElementById('angle'),
+                    preview: document.getElementById('gradientPreview'),
+                    typeSelect: document.getElementById('typeSelect'),
+                    angleInput: document.getElementById('angleInput'),
                     angleValue: document.getElementById('angleValue'),
-                    cssCode: document.getElementById('cssCode'),
-                    copyBtn: document.getElementById('copyBtn')
+                    angleGroup: document.getElementById('angleGroup'),
+                    colorStops: document.getElementById('colorStops'),
+                    addStopBtn: document.getElementById('addStopBtn'),
+                    cssOutput: document.getElementById('cssOutput'),
+                    copyBtn: document.getElementById('copyBtn'),
+                    downloadBtn: document.getElementById('downloadBtn'),
+                    imgWidth: document.getElementById('imgWidth'),
+                    imgHeight: document.getElementById('imgHeight')
                 };
 
-                this.handleUpdate = () => this.updateGradient();
-                this.handleCopy = () => this.copyCSS();
-
-                this.elements.color1.addEventListener('input', this.handleUpdate);
-                this.elements.color2.addEventListener('input', this.handleUpdate);
-                this.elements.angle.addEventListener('input', this.handleUpdate);
-                this.elements.copyBtn.addEventListener('click', this.handleCopy);
-
+                this.bindEvents();
+                this.renderStops();
                 this.updateGradient();
-                console.log('Gradient Generator initialized');
             },
 
-            cleanup() {
-                if (this.elements.color1) {
-                    this.elements.color1.removeEventListener('input', this.handleUpdate);
-                    this.elements.color2.removeEventListener('input', this.handleUpdate);
-                    this.elements.angle.removeEventListener('input', this.handleUpdate);
-                    this.elements.copyBtn.removeEventListener('click', this.handleCopy);
+            bindEvents() {
+                this.elements.typeSelect.addEventListener('change', () => {
+                    this.elements.angleGroup.style.display =
+                        this.elements.typeSelect.value === 'radial' ? 'none' : 'block';
+                    this.updateGradient();
+                });
+
+                this.elements.angleInput.addEventListener('input', (e) => {
+                    this.elements.angleValue.textContent = e.target.value;
+                    this.updateGradient();
+                });
+
+                this.elements.addStopBtn.addEventListener('click', () => {
+                    this.stops.push({ color: '#ffffff', percent: 100 });
+                    this.renderStops();
+                    this.updateGradient();
+                });
+
+                this.elements.copyBtn.addEventListener('click', () => {
+                    navigator.clipboard.writeText(this.elements.cssOutput.textContent);
+                    Utilsly.showAlert('CSS 코드가 복사되었습니다.');
+                });
+
+                this.elements.downloadBtn.addEventListener('click', () => this.downloadImage());
+            },
+
+            renderStops() {
+                this.elements.colorStops.innerHTML = '';
+                this.stops.forEach((stop, index) => {
+                    const row = document.createElement('div');
+                    row.className = 'color-stop-row';
+
+                    const colorInput = document.createElement('input');
+                    colorInput.type = 'color';
+                    colorInput.value = stop.color;
+                    colorInput.addEventListener('input', (e) => {
+                        this.stops[index].color = e.target.value;
+                        this.updateGradient();
+                    });
+
+                    const rangeInput = document.createElement('input');
+                    rangeInput.type = 'range';
+                    rangeInput.min = 0;
+                    rangeInput.max = 100;
+                    rangeInput.value = stop.percent;
+                    rangeInput.style.flex = 1;
+                    rangeInput.addEventListener('input', (e) => {
+                        this.stops[index].percent = parseInt(e.target.value);
+                        this.updateGradient();
+                    });
+
+                    const delBtn = document.createElement('button');
+                    delBtn.className = 'btn btn-sm';
+                    delBtn.innerHTML = '<span class="material-symbols-rounded">close</span>';
+                    delBtn.style.padding = '4px 8px';
+                    if (this.stops.length <= 2) delBtn.disabled = true;
+                    delBtn.addEventListener('click', () => {
+                        this.stops.splice(index, 1);
+                        this.renderStops();
+                        this.updateGradient();
+                    });
+
+                    row.appendChild(colorInput);
+                    row.appendChild(rangeInput);
+                    row.appendChild(delBtn);
+                    this.elements.colorStops.appendChild(row);
+                });
+            },
+
+            getGradientString() {
+                // Sort stops by percent
+                const sortedStops = [...this.stops].sort((a, b) => a.percent - b.percent);
+                const stopsStr = sortedStops.map(s => `${s.color} ${s.percent}%`).join(', ');
+
+                if (this.elements.typeSelect.value === 'radial') {
+                    return `radial-gradient(circle, ${stopsStr})`;
+                } else {
+                    return `linear-gradient(${this.elements.angleInput.value}deg, ${stopsStr})`;
                 }
-                this.elements = {};
-                console.log('Gradient Generator cleanup done');
             },
 
             updateGradient() {
-                const css = `linear-gradient(${this.elements.angle.value}deg, ${this.elements.color1.value}, ${this.elements.color2.value})`;
-                this.elements.preview.style.background = css;
-                this.elements.cssCode.value = `background: ${css};`;
-                this.elements.angleValue.textContent = this.elements.angle.value;
+                const gradient = this.getGradientString();
+                this.elements.preview.style.background = gradient;
+                this.elements.cssOutput.textContent = `background: ${gradient};`;
             },
 
-            copyCSS() {
-                navigator.clipboard.writeText(this.elements.cssCode.value);
+            downloadImage() {
+                const width = parseInt(this.elements.imgWidth.value) || 1920;
+                const height = parseInt(this.elements.imgHeight.value) || 1080;
+
+                const canvas = document.createElement('canvas');
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+
+                let gradient;
+                const sortedStops = [...this.stops].sort((a, b) => a.percent - b.percent);
+
+                if (this.elements.typeSelect.value === 'radial') {
+                    // Radial gradient in canvas is tricky to match CSS exactly 1:1 visually for all cases
+                    // Simple approximation: Center to outer radius
+                    const radius = Math.max(width, height) / 2;
+                    gradient = ctx.createRadialGradient(width / 2, height / 2, 0, width / 2, height / 2, radius);
+                } else {
+                    // Linear Gradient Logic
+                    // Canvas linear gradient requires coordinates (x0, y0, x1, y1)
+                    // We need to convert degrees to coordinates
+                    const angle = parseInt(this.elements.angleInput.value);
+                    const rad = (angle - 90) * (Math.PI / 180); // CSS 0deg is Top, Canvas Y goes down.
+                    // Actually CSS 90deg is Left-to-Right.
+                    // 0deg = Bottom to Top.
+
+                    // Let's use a simpler method used by many libs: 
+                    // Calculate start/end points on a circle circumscribing the rect?
+                    // Complex math for perfect CSS match.
+                    // Simplified:
+                    // 90deg (Right): (0, h/2) -> (w, h/2)
+                    // 180deg (Down): (w/2, 0) -> (w/2, h)
+
+                    // Let's calculate proper vectors
+                    // CSS angle: 0 = Up, 90 = Right, 180 = Down, 270 = Left
+                    const cssAngle = (angle % 360);
+                    const theta = (cssAngle - 90) * (Math.PI / 180); // convert to radians, 0 is right in standard math
+
+                    // Center
+                    const cx = width / 2;
+                    const cy = height / 2;
+
+                    // Half diagonal
+                    const diag = Math.sqrt(width * width + height * height) / 2;
+
+                    // This is approximate but works well for download
+                    const x1 = cx + Math.cos(theta + Math.PI) * diag; // Start
+                    const y1 = cy + Math.sin(theta + Math.PI) * diag;
+                    const x2 = cx + Math.cos(theta) * diag; // End
+                    const y2 = cy + Math.sin(theta) * diag;
+
+                    gradient = ctx.createLinearGradient(x1, y1, x2, y2);
+                }
+
+                sortedStops.forEach(stop => {
+                    gradient.addColorStop(stop.percent / 100, stop.color);
+                });
+
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, width, height);
+
+                const link = document.createElement('a');
+                link.download = 'gradient.png';
+                link.href = canvas.toDataURL();
+                link.click();
             }
         });
     </script>
