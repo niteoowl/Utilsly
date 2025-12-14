@@ -173,15 +173,7 @@ const Utilsly = {
 
     // 수정됨: 모든 path에서 .html 제거
     sidebarTools: [
-        {
-            category: "커뮤니티",
-            items: [
-                { name: "전체글 보기", icon: "forum", path: "/community/index.html?category=all" },
-                { name: "공지사항", icon: "campaign", path: "/community/index.html?category=notice" },
-                { name: "버그 제보", icon: "bug_report", path: "/community/index.html?category=bug" },
-                { name: "기능 건의", icon: "lightbulb", path: "/community/index.html?category=suggestion" },
-            ]
-        },
+        /* Community moved to top nav */
         {
             category: "랜덤",
             items: [
@@ -334,6 +326,10 @@ const Utilsly = {
                 <a href="/" class="nav-item" id="nav-home">
                     <span class="material-symbols-rounded icon">home</span>
                     <span class="label">홈</span>
+                </a>
+                <a href="/community/index.html" class="nav-item" id="nav-community">
+                    <span class="material-symbols-rounded icon">forum</span>
+                    <span class="label">커뮤니티</span>
                 </a>
                 <a href="/settings" class="nav-item" id="nav-settings">
                     <span class="material-symbols-rounded icon">settings</span>

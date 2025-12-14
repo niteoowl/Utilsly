@@ -1,55 +1,35 @@
 /**
- * Utilsly Common Header
- * Handles Favicon and common <head> elements.
+ * Header JS - Favicon Manager
+ * Updates favicon based on System Theme (Browser Theme), not App Theme.
  */
-(() => {
+(function () {
     function updateFavicon() {
-        // Check for dark mode preference
-        const isDark = document.documentElement.getAttribute('data-theme') === 'dark' ||
-            (!document.documentElement.getAttribute('data-theme') && window.matchMedia('(prefers-color-scheme: dark)').matches && !localStorage.getItem('theme'));
+        // Check system preference
+        const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
 
-        // Simpler check relying on what common.js sets (data-theme is authoritative after init)
-        // But common.js might set it slightly later? 
-        // common.js sets data-theme in initTheme().
-        const currentTheme = document.documentElement.getAttribute('data-theme');
-        const useDark = currentTheme === 'dark';
+        // You would typically have different icons. 
+        // Assuming current setup: favicon_light.png (for dark bg?) and favicon_dark.png
+        // Or if user wants "Browser Theme" matching:
+        // Dark Mode Browser -> Needs Light Icon -> favicon_dark.png (naming convention might be reverse or direct)
+        // Let's assume:
+        // favicon_light.png = Icon for Light Mode (Dark Icon)
+        // favicon_dark.png = Icon for Dark Mode (Light Icon)
 
-        const faviconPath = useDark ? '/images/favicon_dark.png' : '/images/favicon_light.png';
+        // But usually:
+        // Dark System -> Show Light Icon (to contrast)
+        // Light System -> Show Dark Icon (to contrast)
 
-        let link = document.querySelector('link[rel="icon"]');
-        if (!link) {
-            link = document.createElement('link');
-            link.rel = 'icon';
-            document.head.appendChild(link);
-        }
-
-        // Only update if changed to avoid flickering if called redundantly
-        if (link.getAttribute('href') !== faviconPath) {
-            link.href = faviconPath;
-        }
+        const iconName = isDark ? 'favicon_dark.png' : 'favicon_light.png';
+        const link = document.querySelector("link[rel~='icon']") || document.createElement('link');
+        link.type = 'image/png';
+        link.rel = 'icon';
+        link.href = `/images/${iconName}`;
+        document.getElementsByTagName('head')[0].appendChild(link);
     }
 
-    // Initial load
+    // Initial check
     updateFavicon();
 
-    // Watch for theme changes on the html element
-    const observer = new MutationObserver((mutations) => {
-        mutations.forEach((mutation) => {
-            if (mutation.attributeName === 'data-theme') {
-                updateFavicon();
-            }
-        });
-    });
-
-    observer.observe(document.documentElement, {
-        attributes: true,
-        attributeFilter: ['data-theme']
-    });
-
-    // Also listen to system preference changes if no theme is set
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
-        if (!localStorage.getItem('theme')) {
-            updateFavicon();
-        }
-    });
+    // Listener for system changes
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', updateFavicon);
 })();

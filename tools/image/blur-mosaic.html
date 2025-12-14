@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>이미지 모자이크/블러 - Utilsly</title>
-    <meta name="description" content="이미지의 특정 영역을 선택하여 모자이크 또는 흐림(블러) 효과를 적용하고 저장하세요. 개인정보 보호에 유용합니다.">
+    <meta name="description" content="펜 브러시로 원하는 영역을 칠해서 모자이크 또는 블러 효과를 적용하세요.">
     <script>
         (function () {
             const savedTheme = localStorage.getItem('theme');
@@ -16,7 +16,6 @@
             }
         })();
     </script>
-    <link rel="preload" href="../../css/style.css" as="style">
     <link rel="stylesheet" href="../../css/style.css">
     <style>
         .editor-container {
@@ -24,7 +23,7 @@
             flex-direction: column;
             gap: 20px;
             height: calc(100vh - 200px);
-            min-height: 500px;
+            min-height: 600px;
         }
 
         .toolbar {
@@ -49,7 +48,7 @@
             flex: 1;
             background: var(--bg-hover);
             border-radius: 12px;
-            overflow: hidden;
+            overflow: auto;
             position: relative;
             display: flex;
             align-items: center;
@@ -59,13 +58,8 @@
 
         canvas {
             box-shadow: var(--shadow-md);
-            max-width: 100%;
-            max-height: 100%;
             cursor: crosshair;
-        }
-
-        #hiddenFileInput {
-            display: none;
+            background: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTAgMGgxMHYxMEgwem0xMCAxMGgxMHYxMEgxMHoiIGZpbGw9IiNlZWVlZWUiIGZpbGwtb3BhY2l0eT0iMC40Ii8+PC9zdmc+');
         }
 
         .tool-btn {
@@ -81,6 +75,7 @@
             color: var(--text-secondary);
             font-size: 12px;
             transition: all 0.2s;
+            min-width: 60px;
         }
 
         .tool-btn:hover {
@@ -95,17 +90,63 @@
         }
 
         .tool-btn span.material-symbols-rounded {
-            font-size: 20px;
+            font-size: 24px;
         }
 
-        .placeholder-text {
-            color: var(--text-tertiary);
+        /* File Upload Style - Common Design */
+        .file-drop-area {
             position: absolute;
-            pointer-events: none;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 10px;
+            justify-content: center;
+            background: var(--bg-primary);
+            border: 2px dashed var(--border-color);
+            border-radius: 12px;
+            transition: all 0.2s;
+            z-index: 10;
+        }
+
+        .file-drop-area.active {
+            border-color: var(--accent-blue);
+            background: var(--bg-active);
+        }
+
+        .file-drop-icon {
+            font-size: 64px;
+            color: var(--text-tertiary);
+            margin-bottom: 16px;
+        }
+
+        .file-drop-text {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .file-drop-sub {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+        }
+
+        .brush-preview {
+            width: 20px;
+            height: 20px;
+            background: #000;
+            border-radius: 50%;
+            display: inline-block;
+            vertical-align: middle;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        input[type="range"] {
+            vertical-align: middle;
         }
     </style>
 </head>
@@ -126,6 +167,9 @@
 
         <main class="main-content">
             <header class="top-bar">
+                <button class="menu-toggle-btn" onclick="Utilsly.toggleSidebar(true)">
+                    <span class="material-symbols-rounded">menu</span>
+                </button>
                 <div class="breadcrumbs">
                     <span class="breadcrumb-item">Utilsly</span>
                     <span class="separator">/</span>
@@ -138,52 +182,77 @@
             <div class="content-area">
                 <div class="page-header">
                     <div class="header-icon-wrapper">
-                        <span class="material-symbols-rounded">blur_on</span>
+                        <span class="material-symbols-rounded">brush</span>
                     </div>
-                    <h1>이미지 모자이크/블러</h1>
-                    <p class="description">이미지의 민감한 정보를 가리거나 배경을 흐리게 만드세요.</p>
+                    <h1>이미지 펜 모자이크</h1>
+                    <p class="description">펜으로 문질러서 원하는 부분을 가리세요.</p>
                 </div>
 
-                <div class="tool-container" data-tool-id="blur-mosaic">
+                <div class="tool-container" data-tool-id="blur-mosaic-brush">
+
                     <div class="editor-container">
-                        <div class="toolbar">
-                            <button class="tool-btn" id="btnUpload">
-                                <span class="material-symbols-rounded">upload</span>
-                                이미지 열기
+                        <!-- Toolbar -->
+                        <div class="toolbar" id="toolbar" style="display:none;">
+                            <button class="tool-btn active" id="modeBlur" onclick="tool.setMode('blur')">
+                                <span class="material-symbols-rounded">blur_on</span>
+                                블러
                             </button>
-                            <div class="divider"></div>
-
-                            <div style="font-size: 13px; color: var(--text-secondary); margin-right: 8px;">강도:</div>
-                            <input type="range" id="effectStrength" min="1" max="20" value="10" style="width: 100px;">
-
-                            <div class="divider"></div>
-
-                            <button class="tool-btn" id="btnBlur">
-                                <span class="material-symbols-rounded">blur_circular</span>
-                                블러 적용
-                            </button>
-                            <button class="tool-btn" id="btnMosaic">
+                            <button class="tool-btn" id="modeMosaic" onclick="tool.setMode('mosaic')">
                                 <span class="material-symbols-rounded">grid_4x4</span>
-                                모자이크 적용
+                                모자이크
                             </button>
 
                             <div class="divider"></div>
 
-                            <button class="tool-btn" id="btnDownload">
+                            <div style="display:flex; flex-direction:column; gap:4px; margin: 0 8px;">
+                                <div style="font-size:11px; color:var(--text-secondary);">브러시 크기 <span
+                                        id="brushSizeVal">30</span>px</div>
+                                <input type="range" id="brushSize" min="10" max="100" value="30" style="width:100px;">
+                            </div>
+
+                            <div style="display:flex; flex-direction:column; gap:4px; margin: 0 8px;">
+                                <div style="font-size:11px; color:var(--text-secondary);">강도 <span
+                                        id="strengthVal">10</span></div>
+                                <input type="range" id="strength" min="1" max="20" value="10" style="width:100px;">
+                            </div>
+
+                            <div class="divider"></div>
+
+                            <button class="tool-btn" onclick="tool.undo()">
+                                <span class="material-symbols-rounded">undo</span>
+                                실행취소
+                            </button>
+                            <button class="tool-btn" onclick="tool.clear()">
+                                <span class="material-symbols-rounded">restart_alt</span>
+                                초기화
+                            </button>
+                            <button class="tool-btn" onclick="tool.download()">
                                 <span class="material-symbols-rounded">download</span>
                                 저장
                             </button>
+
+                            <div class="divider"></div>
+                            <button class="tool-btn" onclick="document.getElementById('hiddenFileInput').click()">
+                                <span class="material-symbols-rounded">folder_open</span>
+                                열기
+                            </button>
                         </div>
 
-                        <div class="canvas-area" id="dropZone">
+                        <!-- Canvas Area -->
+                        <div class="canvas-area" id="canvasContainer">
                             <canvas id="editorCanvas"></canvas>
-                            <div class="placeholder-text" id="placeholder">
-                                <span class="material-symbols-rounded" style="font-size: 48px;">image</span>
-                                <div>이미지를 드래그하거나 '열기'를 클릭하세요</div>
+
+                            <!-- File Upload Overlay -->
+                            <div class="file-drop-area" id="dropArea">
+                                <span class="material-symbols-rounded file-drop-icon">add_photo_alternate</span>
+                                <div class="file-drop-text">이미지를 여기에 드래그하세요</div>
+                                <div class="file-drop-sub">또는 클릭하여 파일 선택</div>
+                                <button class="btn btn-primary"
+                                    onclick="document.getElementById('hiddenFileInput').click()">파일 선택</button>
                             </div>
                         </div>
                     </div>
-                    <input type="file" id="hiddenFileInput" accept="image/*">
+                    <input type="file" id="hiddenFileInput" accept="image/*" style="display:none;">
                 </div>
             </div>
         </main>
@@ -191,65 +260,54 @@
 
     <script src="../../js/common.js"></script>
     <script>
-        Utilsly.registerTool('blur-mosaic', {
+        const tool = {
             canvas: null,
             ctx: null,
             img: null,
-            isDragging: false,
-            startX: 0,
-            startY: 0,
-            rectX: 0,
-            rectY: 0,
-            rectW: 0,
-            rectH: 0,
+            isDrawing: false,
+            mode: 'blur', // blur or mosaic
+            brushSize: 30,
             strength: 10,
-            history: [], // For undo if needed (optional)
+            history: [],
 
             init() {
                 this.canvas = document.getElementById('editorCanvas');
-                this.ctx = this.canvas.getContext('2d');
+                this.ctx = this.canvas.getContext('2d', { willReadFrequently: true });
+                this.dropArea = document.getElementById('dropArea');
                 this.fileInput = document.getElementById('hiddenFileInput');
-                this.dropZone = document.getElementById('dropZone');
-                this.placeholder = document.getElementById('placeholder');
+                this.toolbar = document.getElementById('toolbar');
 
-                // Elements
-                this.els = {
-                    btnUpload: document.getElementById('btnUpload'),
-                    btnBlur: document.getElementById('btnBlur'),
-                    btnMosaic: document.getElementById('btnMosaic'),
-                    btnDownload: document.getElementById('btnDownload'),
-                    rangeStrength: document.getElementById('effectStrength')
-                };
-
-                // Listeners
-                this.els.btnUpload.addEventListener('click', () => this.fileInput.click());
-                this.fileInput.addEventListener('change', (e) => this.handleFile(e.target.files[0]));
-
-                this.dropZone.addEventListener('dragover', (e) => { e.preventDefault(); this.dropZone.style.background = 'var(--bg-active)'; });
-                this.dropZone.addEventListener('dragleave', (e) => { e.preventDefault(); this.dropZone.style.background = 'var(--bg-hover)'; });
-                this.dropZone.addEventListener('drop', (e) => {
+                // Events
+                this.dropArea.addEventListener('click', (e) => {
+                    if (e.target === this.dropArea || e.target.closest('.file-drop-text')) this.fileInput.click();
+                });
+                this.dropArea.addEventListener('dragover', (e) => { e.preventDefault(); this.dropArea.classList.add('active'); });
+                this.dropArea.addEventListener('dragleave', (e) => { e.preventDefault(); this.dropArea.classList.remove('active'); });
+                this.dropArea.addEventListener('drop', (e) => {
                     e.preventDefault();
-                    this.dropZone.style.background = 'var(--bg-hover)';
-                    this.handleFile(e.dataTransfer.files[0]);
+                    this.dropArea.classList.remove('active');
+                    this.loadFile(e.dataTransfer.files[0]);
                 });
 
-                this.els.rangeStrength.addEventListener('input', (e) => {
+                this.fileInput.addEventListener('change', (e) => this.loadFile(e.target.files[0]));
+
+                // Canvas Events
+                this.canvas.addEventListener('mousedown', (e) => this.startDraw(e));
+                window.addEventListener('mousemove', (e) => this.draw(e));
+                window.addEventListener('mouseup', () => this.stopDraw());
+
+                // Controls
+                document.getElementById('brushSize').addEventListener('input', (e) => {
+                    this.brushSize = parseInt(e.target.value);
+                    document.getElementById('brushSizeVal').textContent = this.brushSize;
+                });
+                document.getElementById('strength').addEventListener('input', (e) => {
                     this.strength = parseInt(e.target.value);
+                    document.getElementById('strengthVal').textContent = this.strength;
                 });
-
-                // Canvas Interaction
-                this.canvas.addEventListener('mousedown', (e) => this.onMouseDown(e));
-                window.addEventListener('mousemove', (e) => this.onMouseMove(e));
-                window.addEventListener('mouseup', (e) => this.onMouseUp(e));
-
-                this.els.btnBlur.addEventListener('click', () => this.applyEffect('blur'));
-                this.els.btnMosaic.addEventListener('click', () => this.applyEffect('mosaic'));
-                this.els.btnDownload.addEventListener('click', () => this.download());
-
-                // Auto resize canvas placeholder? No, handled by css max-width/height.
             },
 
-            handleFile(file) {
+            loadFile(file) {
                 if (!file || !file.type.startsWith('image/')) return;
 
                 const reader = new FileReader();
@@ -259,19 +317,29 @@
                         this.img = img;
                         this.canvas.width = img.width;
                         this.canvas.height = img.height;
+
+                        // Fit canvas into view if too large (visually)
+                        // But we want 1:1 editing usually. CSS `max-width: 100%` handles display.
+
                         this.ctx.drawImage(img, 0, 0);
-                        this.placeholder.style.display = 'none';
-                        this.rectW = 0;
-                        this.rectH = 0;
+                        this.saveState();
+
+                        this.dropArea.style.display = 'none';
+                        this.toolbar.style.display = 'flex';
                     };
                     img.src = e.target.result;
                 };
                 reader.readAsDataURL(file);
             },
 
+            setMode(m) {
+                this.mode = m;
+                document.getElementById('modeBlur').classList.toggle('active', m === 'blur');
+                document.getElementById('modeMosaic').classList.toggle('active', m === 'mosaic');
+            },
+
             getMousePos(e) {
                 const rect = this.canvas.getBoundingClientRect();
-                // Map screen pixels to canvas pixels
                 const scaleX = this.canvas.width / rect.width;
                 const scaleY = this.canvas.height / rect.height;
                 return {
@@ -280,201 +348,194 @@
                 };
             },
 
-            onMouseDown(e) {
+            startDraw(e) {
                 if (!this.img) return;
-                this.isDragging = true;
+                this.isDrawing = true;
+                this.saveState(); // Save before stroke
+                this.draw(e);
+            },
+
+            draw(e) {
+                if (!this.isDrawing) return;
                 const pos = this.getMousePos(e);
-                this.startX = pos.x;
-                this.startY = pos.y;
-                this.rectX = pos.x;
-                this.rectY = pos.y;
-                this.rectW = 0;
-                this.rectH = 0;
-                this.redraw();
+                this.applyBrush(pos.x, pos.y);
             },
 
-            onMouseMove(e) {
-                if (!this.isDragging) return;
-                const pos = this.getMousePos(e);
-                this.rectW = pos.x - this.startX;
-                this.rectH = pos.y - this.startY;
-                this.redraw();
+            stopDraw() {
+                this.isDrawing = false;
             },
 
-            onMouseUp(e) {
-                if (this.isDragging) {
-                    this.isDragging = false;
-                    // Normalize rect
-                    if (this.rectW < 0) { this.rectX += this.rectW; this.rectW = -this.rectW; }
-                    if (this.rectH < 0) { this.rectY += this.rectH; this.rectH = -this.rectH; }
-                    this.redraw(); // Draw selection box
-                }
-            },
+            applyBrush(x, y) {
+                // We need to apply filter only within the brush circle
+                // 1. Get Image Data of rect around brush
+                const r = this.brushSize / 2;
+                const sx = Math.max(0, Math.floor(x - r));
+                const sy = Math.max(0, Math.floor(y - r));
+                const sw = Math.min(this.canvas.width - sx, r * 2);
+                const sh = Math.min(this.canvas.height - sy, r * 2);
 
-            redraw() {
-                if (!this.img) return;
-                // Draw Image data (accumulated edits usually) 
-                // Wait, if I clearRect, I lose previous edits because I haven't saved them to `this.img`?
-                // The canvas holds the current state.
-                // But `drawImage(this.img)` will overwrite edits if `this.img` is the original.
+                if (sw <= 0 || sh <= 0) return;
 
-                // Correction: Using `this.img` as base is wrong if we want cumulative edits.
-                // We should assume canvas context *is* the image source.
-                // But to draw the selection overlay, we DO need to clear and redraw, OR use an overlay canvas.
-                // OR `putImageData`.
-                // Efficient way: Save canvas state before drawing selection line?
+                // This is slow if we do it pixel by pixel in JS every mouse move
+                // But for a brush, maybe acceptable.
 
-                // Let's use `putImageData` approach.
-                // But that is heavy for mouse move.
-
-                // Better: 
-                // 1. On MouseDown, save current canvas snapshot (ImageData).
-                // 2. On MouseMove, putImageData(snapshot), then draw rect.
-                // 3. On MouseUp, apply rect visually (or just the final state is shown).
-
-                if (this.isDragging && !this.snapshot) {
-                    this.snapshot = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
-                }
-
-                if (this.snapshot) {
-                    this.ctx.putImageData(this.snapshot, 0, 0);
-
-                    // Draw selection rect
-                    this.ctx.strokeStyle = '#fff';
-                    this.ctx.lineWidth = 2;
-                    this.ctx.setLineDash([5, 5]);
-                    this.ctx.strokeRect(this.startX, this.startY, this.rectW, this.rectH);
-
-                    this.ctx.strokeStyle = '#000';
-                    this.ctx.setLineDash([5, 5]);
-                    this.ctx.lineDashOffset = 5;
-                    this.ctx.strokeRect(this.startX, this.startY, this.rectW, this.rectH);
-                    this.ctx.setLineDash([]);
-                }
-            },
-
-            applyEffect(type) {
-                if (!this.img || this.rectW === 0 || this.rectH === 0) {
-                    Utilsly.showAlert('이미지를 열고 영역을 드래그하여 선택해주세요.');
-                    return;
-                }
-
-                // Restore clean image (remove selection dashes)
-                this.ctx.putImageData(this.snapshot, 0, 0);
-                this.snapshot = null; // Clear snapshot so next drag takes new one
-
-                // Get ROI
-                const imgData = this.ctx.getImageData(this.rectX, this.rectY, this.rectW, this.rectH);
+                const imgData = this.ctx.getImageData(sx, sy, sw, sh);
                 const data = imgData.data;
-                const w = imgData.width;
-                const h = imgData.height;
-                const s = this.strength;
+                const pixelCount = sw * sh;
 
-                if (type === 'mosaic') {
-                    const blockSize = Math.max(4, s * 2);
+                // Helper to check if pixel is inside circle
+                // We iterate relevant pixels
+
+                const cx = x - sx; // Center relative to imageData
+                const cy = y - sy;
+                const rSq = r * r;
+
+                // Process
+                if (this.mode === 'mosaic') {
+                    const blockSize = Math.max(4, this.strength * 2);
+
+                    // Mosaic logic usually aligns to global grid to prevent jitter
+                    // Calculate global start block
+                    const startBlockX = Math.floor(sx / blockSize) * blockSize;
+                    const startBlockY = Math.floor(sy / blockSize) * blockSize;
+
+                    // We need to fetch a slightly larger area to cover full blocks?
+                    // Or just process blocks that intersect our circle.
+
+                    // Simpler approach for brush:
+                    // Just pixelate locally. But overlapping strokes look weird if not aligned.
+                    // Global alignment is key for Mosaic brush.
+
+                    // Re-fetch aligned data?
+                    // Let's do a trick: 
+                    // Mosaic the ENTIRE image (or large chunk) to a temp canvas once (or on strength change).
+                    // Then just copy pixels from Mosaic Canvas to Main Canvas inside the Brush Circle.
+                    // This is much faster and cleaner!
+
+                    this.ensureMosaicSource();
+
+                    // Draw from mosaicSource to ctx with clipping
+                    this.ctx.save();
+                    this.ctx.beginPath();
+                    this.ctx.arc(x, y, r, 0, Math.PI * 2);
+                    this.ctx.clip();
+                    this.ctx.drawImage(this.mosaicSource, 0, 0); // Draws full image clipped?
+                    // Ideally draw only relevant part:
+                    // drawImage(source, sx, sy, sw, sh, dx, dy, dw, dh)
+                    // this.ctx.drawImage(this.mosaicSource, sx, sy, sw, sh, sx, sy, sw, sh);
+                    // But clip handles destination
+                    this.ctx.drawImage(this.mosaicSource, sx, sy, sw, sh, sx, sy, sw, sh);
+                    this.ctx.restore();
+
+                } else {
+                    // Blur
+                    // Same trick? Pre-blur entire image? 
+                    // Blurring entire image is expensive.
+                    // But standard 'blur' filter on context is available.
+
+                    this.ctx.save();
+                    this.ctx.beginPath();
+                    this.ctx.arc(x, y, r, 0, Math.PI * 2);
+                    this.ctx.clip();
+                    this.ctx.filter = `blur(${this.strength}px)`;
+                    // Draw image onto itself?
+                    // Draw the current canvas onto itself to apply blur?
+                    // No, `drawImage(this.canvas)` is recursive source definition issues?
+                    // Actually `drawImage(this.canvas, ...)` works but uses state before draw call.
+                    this.ctx.drawImage(this.canvas, sx, sy, sw, sh, sx, sy, sw, sh);
+                    this.ctx.restore();
+                }
+            },
+
+            ensureMosaicSource() {
+                // If strength changed or mode changed, regenerate mosaic source
+                // Or if base image changed (which we don't support mid-edit easily unless we track layers)
+                // For simplicity: Generate a full mosaic version of the *Current* canvas? 
+                // No, typically you mosaic the *Original* or *Current State*.
+                // If I mosaic current state, it double-mosaics.
+                // Let's just mosaic the *Current* state blocks.
+
+                // Wait, pre-generating full image mosaic is slow for 4k images.
+                // Dynamic generation is better.
+
+                if (!this.mosaicCanvas) {
+                    this.mosaicCanvas = document.createElement('canvas');
+                }
+                if (this.mosaicCanvas.width !== this.canvas.width || this.mosaicCanvas.height !== this.canvas.height) {
+                    this.mosaicCanvas.width = this.canvas.width;
+                    this.mosaicCanvas.height = this.canvas.height;
+                    this.mosaicCtx = this.mosaicCanvas.getContext('2d');
+                    this.mosaicStale = true;
+                }
+
+                // If strength changed
+                if (this.lastStrength !== this.strength) this.mosaicStale = true;
+
+                if (this.mosaicStale) {
+                    // Generate full mosaic (expensive!)
+                    // Optimization: Only generate needed tile?
+                    // Let's do global generation for now, assume reasonable image size.
+
+                    this.mosaicCtx.drawImage(this.canvas, 0, 0);
+
+                    const w = this.canvas.width;
+                    const h = this.canvas.height;
+                    const blockSize = Math.max(4, this.strength * 2);
+
+                    // Box filter-ish
+                    // HTML5 Canvas doesn't have native Mosaic filter.
+                    // Manual Pixel Manipulation...
+
+                    const imgData = this.mosaicCtx.getImageData(0, 0, w, h);
+                    const data = imgData.data;
 
                     for (let y = 0; y < h; y += blockSize) {
                         for (let x = 0; x < w; x += blockSize) {
-                            // Calculate Average color of block
                             let r = 0, g = 0, b = 0, count = 0;
-
+                            // Avg
                             for (let dy = 0; dy < blockSize && y + dy < h; dy++) {
                                 for (let dx = 0; dx < blockSize && x + dx < w; dx++) {
                                     const i = ((y + dy) * w + (x + dx)) * 4;
-                                    r += data[i];
-                                    g += data[i + 1];
-                                    b += data[i + 2];
+                                    r += data[i]; g += data[i + 1]; b += data[i + 2];
                                     count++;
                                 }
                             }
-
-                            r = Math.floor(r / count);
-                            g = Math.floor(g / count);
-                            b = Math.floor(b / count);
-
-                            // Fill block
+                            r = Math.floor(r / count); g = Math.floor(g / count); b = Math.floor(b / count);
+                            // Fill
                             for (let dy = 0; dy < blockSize && y + dy < h; dy++) {
                                 for (let dx = 0; dx < blockSize && x + dx < w; dx++) {
                                     const i = ((y + dy) * w + (x + dx)) * 4;
-                                    data[i] = r;
-                                    data[i + 1] = g;
-                                    data[i + 2] = b;
+                                    data[i] = r; data[i + 1] = g; data[i + 2] = b;
                                 }
                             }
                         }
                     }
-                } else if (type === 'blur') {
-                    // Simple Stack Blur approximation or Box Blur multiple passes
-                    // Let's use simplified box blur
-                    const radius = Math.max(2, s);
-
-                    // Horizontal pass
-                    // (Omitted essentially for brevity? No, user needs it working)
-                    // Writing a fast blur in JS without library is verbose.
-                    // Let's use a very simple pixel averaging for "blur-like" effect or heavy pixelation (mosaic) is safer?
-                    // But user asked for Blur.
-
-                    // Simple Box Blur (Horizontal + Vertical)
-                    // Note: This is slow in JS for large areas. But manageable for ROI.
-
-                    const copy = new Uint8ClampedArray(data);
-
-                    const boxBlur = (iterations) => {
-                        for (let i = 0; i < iterations; i++) {
-                            // This is actually complex to write inline correctly and efficiently.
-                            // Let's implement a random scatter blur? Easier.
-                            // Or just force Mosaic if blur is too hard? No.
-                            // Let's do a simple weighted average of neighbors.
-
-                            // 1 pass of 3x3 kernel?
-                        }
-                    };
-
-                    // Let's stick to Mosaic for now? 
-                    // No, I will implement a rudimentary blur:
-                    // Random sampling neighbors? 
-                    // Actually, "CanvasRenderingContext2D.filter = 'blur(5px)'" exists!
-                    // I can use that!
-
-                    // 1. Create temporary canvas
-                    const tempCanvas = document.createElement('canvas');
-                    tempCanvas.width = w;
-                    tempCanvas.height = h;
-                    const tCtx = tempCanvas.getContext('2d');
-
-                    // 2. Put image data
-                    tCtx.putImageData(imgData, 0, 0);
-
-                    // 3. Draw it back with filter
-                    // We need to draw the tempCanvas onto main canvas at position rectX, rectY with filter.
-
-                    // Current context state:
-                    this.ctx.save();
-                    this.ctx.filter = `blur(${s}px)`; // blur strength
-                    // Clip to rect
-                    this.ctx.beginPath();
-                    this.ctx.rect(this.rectX, this.rectY, this.rectW, this.rectH);
-                    this.ctx.clip();
-                    // Draw the image itself again at same position? 
-                    // No, that blurs the whole image (or clipped part) but using source as ..
-                    // If we draw generic image, it works.
-                    // Actually, `ctx.filter` affects drawing commands.
-                    // `drawImage` of the ROI onto itself?
-
-                    this.ctx.drawImage(this.canvas, this.rectX, this.rectY, this.rectW, this.rectH, this.rectX, this.rectY, this.rectW, this.rectH);
-
-                    this.ctx.restore();
-
-                    // Reset rect
-                    this.rectW = 0;
-                    this.rectH = 0;
-                    return; // Done
+                    this.mosaicCtx.putImageData(imgData, 0, 0);
+                    this.lastStrength = this.strength;
+                    this.mosaicStale = false;
                 }
+                this.mosaicSource = this.mosaicCanvas;
+            },
 
-                // If Mosaic (manual pixel manip), put back
-                this.ctx.putImageData(imgData, this.rectX, this.rectY);
-                this.rectW = 0;
-                this.rectH = 0;
+            saveState() {
+                if (this.history.length > 5) this.history.shift();
+                this.history.push(this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height));
+            },
+
+            undo() {
+                if (this.history.length > 0) {
+                    const State = this.history.pop();
+                    this.ctx.putImageData(State, 0, 0);
+                    this.mosaicStale = true; // State changed
+                }
+            },
+
+            clear() {
+                if (this.img) {
+                    this.ctx.drawImage(this.img, 0, 0);
+                    this.history = [];
+                    this.mosaicStale = true;
+                }
             },
 
             download() {
@@ -484,7 +545,9 @@
                 link.href = this.canvas.toDataURL();
                 link.click();
             }
-        });
+        };
+
+        Utilsly.registerTool('blur-mosaic-brush', tool);
     </script>
 </body>
 
