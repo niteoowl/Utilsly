@@ -174,7 +174,7 @@ const Utilsly = {
     // 수정됨: 모든 path에서 .html 제거
     sidebarTools: [
         {
-            category: "커뮤니티 (Community)",
+            category: "커뮤니티",
             items: [
                 { name: "전체글 보기", icon: "forum", path: "/community/index.html?category=all" },
                 { name: "공지사항", icon: "campaign", path: "/community/index.html?category=notice" },
@@ -183,29 +183,31 @@ const Utilsly = {
             ]
         },
         {
-            category: "랜덤 (Random)",
+            category: "랜덤",
             items: [
                 { name: "룰렛 돌리기", icon: "casino", path: "/tools/random/roulette" },
                 { name: "제비뽑기", icon: "confirmation_number", path: "/tools/random/random-picker" },
+                { name: "사다리 타기", icon: "polyline", path: "/tools/random/ghost-leg" },
                 { name: "주사위 굴리기", icon: "deployed_code", path: "/tools/random/dice-roller" },
                 { name: "투표 하기", icon: "how_to_vote", path: "/tools/random/vote" },
                 { name: "비밀번호 생성", icon: "password", path: "/tools/random/password-generator" },
             ]
         },
         {
-            category: "이미지 (Image)",
+            category: "이미지",
             items: [
                 { name: "이미지 리사이저", icon: "image", path: "/tools/image/image-resizer" },
                 { name: "이미지 변환기", icon: "transform", path: "/tools/image/image-converter" },
                 { name: "이미지 자르기", icon: "crop", path: "/tools/image/image-cropper" },
                 { name: "이미지 필터", icon: "photo_filter", path: "/tools/image/image-filters" },
+                { name: "이미지 모자이크/블러", icon: "blur_on", path: "/tools/image/blur-mosaic" },
                 { name: "이미지 색상 추출", icon: "colorize", path: "/tools/image/color-extractor" },
                 { name: "OCR 텍스트 추출", icon: "find_in_page", path: "/tools/image/ocr" },
                 { name: "ASCII 아트", icon: "grid_on", path: "/tools/image/ascii-art" },
             ]
         },
         {
-            category: "비디오 (Video)",
+            category: "비디오",
             items: [
                 { name: "비디오 플레이어", icon: "play_circle", path: "/tools/video/video-player" },
                 { name: "GIF 변환기", icon: "gif", path: "/tools/video/video-to-gif" },
@@ -221,7 +223,7 @@ const Utilsly = {
             ]
         },
         {
-            category: "오디오 (Audio)",
+            category: "오디오",
             items: [
                 { name: "음성 녹음기", icon: "mic", path: "/tools/audio/voice-recorder" },
                 { name: "주파수 생성기", icon: "graphic_eq", path: "/tools/audio/tone-generator" },
@@ -229,7 +231,7 @@ const Utilsly = {
             ]
         },
         {
-            category: "메모/텍스트 (Memo)",
+            category: "메모/텍스트",
             items: [
                 { name: "빠른 메모장", icon: "edit_note", path: "/tools/memo/notepad" },
                 { name: "스마트 화이트보드", icon: "draw", path: "/tools/memo/whiteboard" },
@@ -244,7 +246,7 @@ const Utilsly = {
             ]
         },
         {
-            category: "개발 (Dev)",
+            category: "개발",
             items: [
                 { name: "HTML 플레이그라운드", icon: "code", path: "/tools/dev/html-playground" },
                 { name: "QR 코드 생성", icon: "qr_code_2", path: "/tools/dev/qr-generator" },
@@ -259,7 +261,7 @@ const Utilsly = {
             ]
         },
         {
-            category: "수학/계산 (Math)",
+            category: "수학/계산",
             items: [
                 { name: "공학용 계산기", icon: "calculate", path: "/tools/math/scientific-calculator" },
                 { name: "단위 변환기", icon: "scale", path: "/tools/math/unit-converter" },
@@ -267,7 +269,7 @@ const Utilsly = {
             ]
         },
         {
-            category: "날짜/시간 (Date)",
+            category: "날짜/시간",
             items: [
                 { name: "타이머", icon: "timer", path: "/tools/date/timer" },
                 { name: "뽀모도로 타이머", icon: "check_circle", path: "/tools/date/pomodoro" },
@@ -277,14 +279,14 @@ const Utilsly = {
             ]
         },
         {
-            category: "색상 (Color)",
+            category: "색상",
             items: [
                 { name: "컬러 피커", icon: "palette", path: "/tools/color/color-picker" },
                 { name: "그라디언트 생성", icon: "gradient", path: "/tools/color/gradient-generator" },
             ]
         },
         {
-            category: "건강 (Health)",
+            category: "건강",
             items: [
                 { name: "BMI 계산기", icon: "monitor_weight", path: "/tools/health/bmi-calculator" },
                 { name: "BMR 계산기", icon: "local_fire_department", path: "/tools/health/bmr-calculator" },
@@ -292,8 +294,10 @@ const Utilsly = {
             ]
         },
         {
-            category: "금융/투자 (Finance)",
+            category: "금융/투자",
             items: [
+                { name: "복리 이자 계산기", icon: "savings", path: "/tools/finance/compound-interest" },
+                { name: "부동산 양도세 계산기", icon: "real_estate_agent", path: "/tools/finance/capital-gains-tax" },
                 { name: "물타기 계산기", icon: "water_drop", path: "/tools/finance/average-down" },
                 { name: "수익률 계산기", icon: "trending_up", path: "/tools/finance/profit-calculator" },
             ]
