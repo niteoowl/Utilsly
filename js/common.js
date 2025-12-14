@@ -6,6 +6,7 @@
 const Utilsly = {
     init() {
         this.loadIcons();
+        this.loadHeader(); // NEW: Load Common Header (Favicon)
         this.loadAuth(); // NEW: Load Auth Manager
         this.initTheme();
         this.injectEarlyThemeScript(); // Prevent flash
@@ -31,6 +32,12 @@ const Utilsly = {
         // Assume root absolute for now as per project structure.
         script.src = '/js/auth-manager.js';
         document.body.appendChild(script);
+    },
+
+    loadHeader() {
+        const script = document.createElement('script');
+        script.src = '/js/header.js';
+        document.head.appendChild(script);
     },
 
     hiddenTools: new Set(),
