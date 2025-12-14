@@ -16,24 +16,25 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
     <style>
-        .upload-area {
+        .drop-zone {
             border: 2px dashed var(--border-color);
             border-radius: 12px;
-            padding: 60px 40px;
+            padding: 40px;
             text-align: center;
             cursor: pointer;
             transition: all 0.2s;
             background: var(--bg-primary);
+            margin-bottom: 24px;
         }
 
-        .upload-area:hover,
-        .upload-area.dragover {
+        .drop-zone:hover,
+        .drop-zone.dragover {
             border-color: var(--accent-blue);
             background: var(--bg-hover);
         }
 
         .upload-icon {
-            font-size: 64px;
+            font-size: 48px;
             color: var(--text-tertiary);
             margin-bottom: 16px;
         }
@@ -177,8 +178,8 @@
                 </div>
 
                 <div class="tool-container" data-tool-id="heic-to-jpg">
-                    <div class="upload-area" id="dropZone">
-                        <span class="material-symbols-rounded upload-icon">add_photo_alternate</span>
+                    <div class="drop-zone" id="dropZone">
+                        <span class="material-symbols-rounded upload-icon">cloud_upload</span>
                         <p class="upload-text">HEIC 이미지를 드래그하거나 클릭하여 업로드</p>
                         <p class="upload-hint">HEIC 파일 지원</p>
                         <input type="file" id="fileInput" accept=".heic,.HEIC" multiple style="display: none;">
@@ -225,6 +226,7 @@
         Utilsly.registerTool('heic-to-jpg', {
             elements: {},
             files: [],
+            pasteHandler: null,
 
             init() {
                 this.elements = {
@@ -255,6 +257,25 @@
                     });
                 });
 
+                // Robust Paste Handler (Only checks for images, user might try to paste HEIC? Browser paste usually gives PNG/JPG representation of clipboard. 
+                // Handling actual HEIC binary from clipboard is rare. 
+                // We'll stick to image/* check which usually works for what users copy.)
+                this.pasteHandler = (e) => {
+                    const items = e.clipboardData.items;
+                    const files = [];
+                    for (let i = 0; i < items.length; i++) {
+                        if (items[i].type.startsWith('image/')) {
+                            const file = items[i].getAsFile();
+                            if (file) files.push(file);
+                        }
+                    }
+                    if (files.length > 0) {
+                        e.preventDefault();
+                        this.handleFiles(files);
+                    }
+                };
+                document.addEventListener('paste', this.pasteHandler);
+
                 this.elements.qualityInput.addEventListener('input', (e) => {
                     this.elements.qualityValue.textContent = e.target.value;
                 });
@@ -270,26 +291,10 @@
                 this.elements.loading.style.display = 'block';
                 this.renderFileListInitial(); // Show placeholders first
 
-                // We'll generate previews sequentially or in parallel?
-                // HEIC conversion is heavy. Let's do previews.
-                // Actually, heic2any can be slow. For Preview, maybe just show file names and a placeholder until we convert?
-                // Or we can convert small thumbnails?
-                // For now let's just show placeholders and then replace them with thumbnails if we can, or just wait for download.
-                // Let's TRY to generate previews for all.
-
                 // Show file list UI immediately
                 this.elements.loading.style.display = 'none';
                 this.elements.previewContainer.style.display = 'block';
 
-                // Initial render with placeholders
-                this.renderFileListInitial();
-
-                // Try to generate previews in background?
-                // HEIC previews are heavy. We might skip preview generation until user clicks something or just skip preview for heavy batch.
-                // But user expects preview. Let's do a "lighter" preview attempt?
-                // heic2any allows simple conversion.
-
-                // We will convert one by one for preview to avoid freezing UI
                 this.generatePreviews();
 
                 if (this.files.length > 1) {
@@ -319,7 +324,19 @@
                 for (let i = 0; i < this.files.length; i++) {
                     try {
                         const file = this.files[i];
-                        const blob = await heic2any({ blob: file, toType: "image/jpeg", quality: 0.1 }); // Low quality for preview
+                        // If pasted from clipboard (blob), it might not be HEIC but PNG. handleFiles checks? 
+                        // Actually paste events give PNG usually. heic2any converts HEIC. 
+                        // If file is not HEIC, we should just read it or skip heic2any.
+                        // But tool is specifically HEIC->JPG. If user pastes PNG, we can convert it to JPG anyway.
+                        // Let's rely on heic2any or just checking type.
+
+                        let blob;
+                        if (file.type === 'image/heic' || file.name.toLowerCase().endsWith('.heic')) {
+                            blob = await heic2any({ blob: file, toType: "image/jpeg", quality: 0.1 }); // Low quality for preview
+                        } else {
+                            // Assuming it's already an image we can display (like pasted PNG)
+                            blob = file;
+                        }
                         const url = URL.createObjectURL(blob);
 
                         const item = document.getElementById(`file-item-${i}`);
@@ -350,7 +367,15 @@
 
                 try {
                     if (this.files.length === 1) {
-                        const blob = await heic2any({ blob: this.files[0], toType: "image/jpeg", quality: quality });
+                        // Similar logic to previews, check if heic or supported
+                        const file = this.files[0];
+                        let blob;
+                        if (file.type === 'image/heic' || file.name.toLowerCase().endsWith('.heic')) {
+                            blob = await heic2any({ blob: file, toType: "image/jpeg", quality: quality });
+                        } else {
+                            // Convert non-heic (e.g. pasted png) to jpg
+                            blob = await this.convertImageFile(file, quality);
+                        }
                         saveAs(blob, this.files[0].name.replace(/\.[^/.]+$/, "") + ".jpg");
                     } else {
                         const zip = new JSZip();
@@ -358,7 +383,12 @@
                         // Concurrent IS risky for HEIC. Let's do sequential.
                         for (const file of this.files) {
                             try {
-                                const blob = await heic2any({ blob: file, toType: "image/jpeg", quality: quality });
+                                let blob;
+                                if (file.type === 'image/heic' || file.name.toLowerCase().endsWith('.heic')) {
+                                    blob = await heic2any({ blob: file, toType: "image/jpeg", quality: quality });
+                                } else {
+                                    blob = await this.convertImageFile(file, quality);
+                                }
                                 zip.file(file.name.replace(/\.[^/.]+$/, "") + ".jpg", blob);
                             } catch (e) {
                                 console.error(`Failed to convert ${file.name}`, e);
@@ -377,6 +407,29 @@
                 }
             },
 
+            // Helper for converting regular images if pasted
+            convertImageFile(file, quality) {
+                return new Promise((resolve, reject) => {
+                    const img = new Image();
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        img.onload = () => {
+                            const canvas = document.createElement('canvas');
+                            canvas.width = img.width;
+                            canvas.height = img.height;
+                            const ctx = canvas.getContext('2d');
+                            ctx.fillStyle = '#FFFFFF'; // JPG needs bg
+                            ctx.fillRect(0, 0, canvas.width, canvas.height);
+                            ctx.drawImage(img, 0, 0);
+                            canvas.toBlob((blob) => resolve(blob), 'image/jpeg', quality);
+                        };
+                        img.onerror = reject;
+                        img.src = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                });
+            },
+
             reset() {
                 this.files = [];
                 this.elements.fileList.innerHTML = '';
@@ -386,6 +439,13 @@
                 this.elements.loading.style.display = 'none';
                 this.elements.qualityInput.value = 0.9;
                 this.elements.qualityValue.textContent = '0.9';
+            },
+
+            cleanup() {
+                if (this.pasteHandler) {
+                    document.removeEventListener('paste', this.pasteHandler);
+                    this.pasteHandler = null;
+                }
             }
         });
     </script>

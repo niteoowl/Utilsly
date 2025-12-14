@@ -15,24 +15,25 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
     <style>
-        .upload-area {
+        .drop-zone {
             border: 2px dashed var(--border-color);
             border-radius: 12px;
-            padding: 60px 40px;
+            padding: 40px;
             text-align: center;
             cursor: pointer;
             transition: all 0.2s;
             background: var(--bg-primary);
+            margin-bottom: 24px;
         }
 
-        .upload-area:hover,
-        .upload-area.dragover {
+        .drop-zone:hover,
+        .drop-zone.dragover {
             border-color: var(--accent-blue);
             background: var(--bg-hover);
         }
 
         .upload-icon {
-            font-size: 64px;
+            font-size: 48px;
             color: var(--text-tertiary);
             margin-bottom: 16px;
         }
@@ -125,8 +126,8 @@
                 </div>
 
                 <div class="tool-container" data-tool-id="jpg-to-png">
-                    <div class="upload-area" id="dropZone">
-                        <span class="material-symbols-rounded upload-icon">add_photo_alternate</span>
+                    <div class="drop-zone" id="dropZone">
+                        <span class="material-symbols-rounded upload-icon">cloud_upload</span>
                         <p class="upload-text">JPG 이미지를 드래그하거나 클릭하여 업로드</p>
                         <p class="upload-hint">여러 파일 선택 가능 • Ctrl+V 붙여넣기</p>
                         <input type="file" id="fileInput" accept="image/jpeg, image/jpg" multiple
@@ -162,6 +163,7 @@
         Utilsly.registerTool('jpg-to-png', {
             elements: {},
             files: [],
+            pasteHandler: null,
 
             init() {
                 this.elements = {
@@ -189,13 +191,22 @@
                     });
                 });
 
-                document.addEventListener('paste', (e) => {
-                    const items = Array.from(e.clipboardData.items).filter(i => i.type.startsWith('image/'));
-                    if (items.length) {
-                        const files = items.map(item => item.getAsFile());
+                // Robust Paste Handler
+                this.pasteHandler = (e) => {
+                    const items = e.clipboardData.items;
+                    const files = [];
+                    for (let i = 0; i < items.length; i++) {
+                        if (items[i].type.startsWith('image/')) {
+                            const file = items[i].getAsFile();
+                            if (file) files.push(file);
+                        }
+                    }
+                    if (files.length > 0) {
+                        e.preventDefault();
                         this.handleFiles(files);
                     }
-                });
+                };
+                document.addEventListener('paste', this.pasteHandler);
 
                 this.elements.downloadBtn.addEventListener('click', () => this.batchConvertAndDownload());
                 this.elements.resetBtn.addEventListener('click', () => this.reset());
@@ -296,6 +307,13 @@
                 this.elements.fileInput.value = '';
                 this.elements.previewContainer.style.display = 'none';
                 this.elements.dropZone.style.display = 'block';
+            },
+
+            cleanup() {
+                if (this.pasteHandler) {
+                    document.removeEventListener('paste', this.pasteHandler);
+                    this.pasteHandler = null;
+                }
             }
         });
     </script>

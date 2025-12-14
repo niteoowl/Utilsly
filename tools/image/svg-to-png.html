@@ -15,24 +15,25 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
     <style>
-        .upload-area {
+        .drop-zone {
             border: 2px dashed var(--border-color);
             border-radius: 12px;
-            padding: 60px 40px;
+            padding: 40px;
             text-align: center;
             cursor: pointer;
             transition: all 0.2s;
             background: var(--bg-primary);
+            margin-bottom: 24px;
         }
 
-        .upload-area:hover,
-        .upload-area.dragover {
+        .drop-zone:hover,
+        .drop-zone.dragover {
             border-color: var(--accent-blue);
             background: var(--bg-hover);
         }
 
         .upload-icon {
-            font-size: 64px;
+            font-size: 48px;
             color: var(--text-tertiary);
             margin-bottom: 16px;
         }
@@ -73,11 +74,9 @@
             width: 100%;
             height: 100px;
             object-fit: contain;
-            /* SVG usually contain */
             border-radius: 4px;
             margin-bottom: 8px;
             background: #fff;
-            /* White bg for SVG preview visibility */
         }
 
         .file-name {
@@ -86,19 +85,6 @@
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
-        }
-
-        .preview-image {
-            max-width: 100%;
-            max-height: 400px;
-            border-radius: 12px;
-            box-shadow: var(--shadow-md);
-            border: 1px solid var(--border-color);
-            /* Added border for better SVG visibility */
-            background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgZmlsbD0ibm9uZSI+PHBhdGggZD0iTTAgMGgyMHYyMEgwVjB6IiBmaWxsPSIjZmZmIi8+PHBhdGggZD0iTTAgMGgxMHYxMEgwVjB6bTEwIDEwaDEwdjEwSDEwVjEweiIgZmlsbD0iI2VlZSIvPjwvc3ZnPg==');
-            /* Checkerboard pattern */
-            display: block;
-            margin: 0 auto;
         }
 
         .controls {
@@ -159,10 +145,10 @@
                 </div>
 
                 <div class="tool-container" data-tool-id="svg-to-png">
-                    <div class="upload-area" id="dropZone">
-                        <span class="material-symbols-rounded upload-icon">add_photo_alternate</span>
+                    <div class="drop-zone" id="dropZone">
+                        <span class="material-symbols-rounded upload-icon">cloud_upload</span>
                         <p class="upload-text">SVG 파일을 드래그하거나 클릭하여 업로드</p>
-                        <p class="upload-hint">SVG 파일 지원</p>
+                        <p class="upload-hint">SVG 파일 지원 • Ctrl+V 붙여넣기</p>
                         <input type="file" id="fileInput" accept=".svg,image/svg+xml" multiple style="display: none;">
                     </div>
 
@@ -202,6 +188,7 @@
         Utilsly.registerTool('svg-to-png', {
             elements: {},
             files: [],
+            pasteHandler: null,
 
             init() {
                 this.elements = {
@@ -230,25 +217,142 @@
                     });
                 });
 
+                // Paste Handler
+                this.pasteHandler = (e) => {
+                    const items = e.clipboardData.items;
+                    const files = [];
+                    for (let i = 0; i < items.length; i++) {
+                        // SVG might be text/plain or image/svg+xml. 
+                        // But mostly user copies SVG text. Handling SVG text paste?
+                        // If user copies 'image' from another place, browsers often give PNG representation.
+                        // If we want to support pasting SVG code, we need to check text/plain and parse?
+                        // For now, let's just support file-like operations if browser supports it.
+                        if (items[i].type.indexOf('image') !== -1 || items[i].type === 'text/plain') {
+                            const file = items[i].getAsFile();
+                            if (file) files.push(file);
+                        }
+                    }
+                    if (files.length > 0) {
+                        // Filter for svg?
+                        const svgs = files.filter(f => f.type === 'image/svg+xml' || f.name.endsWith('.svg'));
+                        if (svgs.length > 0) {
+                            e.preventDefault();
+                            this.handleFiles(svgs);
+                        }
+                    }
+                };
+                document.addEventListener('paste', this.pasteHandler);
+
                 this.elements.downloadBtn.addEventListener('click', () => this.batchConvertAndDownload());
                 this.elements.resetBtn.addEventListener('click', () => this.reset());
             },
 
-            const link = document.createElement('a');
-            link.download = `converted-svg.png`;
-            link.href = dataUrl;
-            link.click();
-        },
+            handleFiles(files) {
+                if (!files || files.length === 0) return;
+                this.files = files;
+                this.renderFileList();
+                this.elements.dropZone.style.display = 'none';
+                this.elements.previewContainer.style.display = 'block';
+
+                if (this.files.length > 1) {
+                    this.elements.downloadBtn.innerHTML = `<span class="material-symbols-rounded" style="font-size: 18px; margin-right: 8px;">download</span>전체 다운로드 (ZIP)`;
+                } else {
+                    this.elements.downloadBtn.innerHTML = `<span class="material-symbols-rounded" style="font-size: 18px; margin-right: 8px;">download</span>PNG로 다운로드`;
+                }
+            },
+
+            renderFileList() {
+                this.elements.fileList.innerHTML = '';
+                this.files.forEach((file, index) => {
+                    const reader = new FileReader();
+                    const div = document.createElement('div');
+                    div.className = 'file-item';
+                    div.innerHTML = `
+                        <div class="file-img-wrapper" id="img-wrapper-${index}" style="height: 100px; display: flex; align-items: center; justify-content: center; background: #fff; border-radius: 4px; margin-bottom: 8px;">
+                            <span class="material-symbols-rounded" style="color:#aaa;">image</span>
+                        </div>
+                        <div class="file-name">${file.name}</div>
+                    `;
+                    this.elements.fileList.appendChild(div);
+                    reader.onload = (e) => {
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        img.className = 'file-preview';
+                        div.querySelector('.file-img-wrapper').replaceWith(img);
+                    };
+                    reader.readAsDataURL(file);
+                });
+            },
+
+            async batchConvertAndDownload() {
+                if (!this.files.length) return;
+
+                const scale = parseFloat(this.elements.scaleInput.value) || 1;
+                const btn = this.elements.downloadBtn;
+                const originalText = btn.innerHTML;
+                btn.disabled = true;
+                btn.innerText = "변환 중...";
+
+                try {
+                    if (this.files.length === 1) {
+                        const blob = await this.convertFile(this.files[0], scale);
+                        saveAs(blob, this.files[0].name.replace(/\.[^/.]+$/, "") + ".png");
+                    } else {
+                        const zip = new JSZip();
+                        const promises = this.files.map(async (file) => {
+                            const blob = await this.convertFile(file, scale);
+                            zip.file(file.name.replace(/\.[^/.]+$/, "") + ".png", blob);
+                        });
+                        await Promise.all(promises);
+                        const content = await zip.generateAsync({ type: "blob" });
+                        saveAs(content, "converted_images.zip");
+                    }
+                } catch (e) {
+                    console.error(e);
+                    alert("변환 중 오류가 발생했습니다.");
+                } finally {
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+                }
+            },
+
+            convertFile(file, scale) {
+                return new Promise((resolve, reject) => {
+                    const img = new Image();
+                    const url = URL.createObjectURL(file);
+
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        canvas.width = img.width * scale;
+                        canvas.height = img.height * scale;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        URL.revokeObjectURL(url);
+                        canvas.toBlob((blob) => resolve(blob), 'image/png');
+                    };
+                    img.onerror = () => {
+                        URL.revokeObjectURL(url);
+                        reject(new Error("Image load error"));
+                    };
+                    img.src = url;
+                });
+            },
 
             reset() {
-            this.originalImage = null;
-            this.elements.preview.src = '';
-            this.elements.fileInput.value = '';
-            this.elements.previewContainer.style.display = 'none';
-            this.elements.dropZone.style.display = 'block';
-            this.elements.scaleInput.value = 1;
-            this.elements.scaleValue.textContent = '1';
-        }
+                this.files = [];
+                this.elements.fileList.innerHTML = '';
+                this.elements.fileInput.value = '';
+                this.elements.previewContainer.style.display = 'none';
+                this.elements.dropZone.style.display = 'block';
+                this.elements.scaleInput.value = 1;
+            },
+
+            cleanup() {
+                if (this.pasteHandler) {
+                    document.removeEventListener('paste', this.pasteHandler);
+                    this.pasteHandler = null;
+                }
+            }
         });
     </script>
 </body>

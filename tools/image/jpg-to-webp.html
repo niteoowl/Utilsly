@@ -15,24 +15,25 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
     <style>
-        .upload-area {
+        .drop-zone {
             border: 2px dashed var(--border-color);
             border-radius: 12px;
-            padding: 60px 40px;
+            padding: 40px;
             text-align: center;
             cursor: pointer;
             transition: all 0.2s;
             background: var(--bg-primary);
+            margin-bottom: 24px;
         }
 
-        .upload-area:hover,
-        .upload-area.dragover {
+        .drop-zone:hover,
+        .drop-zone.dragover {
             border-color: var(--accent-blue);
             background: var(--bg-hover);
         }
 
         .upload-icon {
-            font-size: 64px;
+            font-size: 48px;
             color: var(--text-tertiary);
             margin-bottom: 16px;
         }
@@ -148,14 +149,14 @@
                         <span class="material-symbols-rounded">image</span>
                     </div>
                     <h1>JPG WEBP 변환</h1>
-                    <p class="description">여러 JPG 이미지를 최신 웹 포맷인 WEBP로 변환하세요. 화질은 유지하면서 용량을 줄일 수 있습니다.</p>
+                    <p class="description">여러 JPG 이미지를 최신 웹 포맷인 WEBP로 변환하여 용량을 최적화하세요.</p>
                 </div>
 
                 <div class="tool-container" data-tool-id="jpg-to-webp">
-                    <div class="upload-area" id="dropZone">
-                        <span class="material-symbols-rounded upload-icon">add_photo_alternate</span>
+                    <div class="drop-zone" id="dropZone">
+                        <span class="material-symbols-rounded upload-icon">cloud_upload</span>
                         <p class="upload-text">JPG 이미지를 드래그하거나 클릭하여 업로드</p>
-                        <p class="upload-hint">여러 파일 선택 가능</p>
+                        <p class="upload-hint">여러 파일 선택 가능 • Ctrl+V 붙여넣기</p>
                         <input type="file" id="fileInput" accept="image/jpeg, image/jpg" multiple
                             style="display: none;">
                     </div>
@@ -196,6 +197,7 @@
         Utilsly.registerTool('jpg-to-webp', {
             elements: {},
             files: [],
+            pasteHandler: null,
 
             init() {
                 this.elements = {
@@ -224,6 +226,23 @@
                         if (eventName === 'drop' && e.dataTransfer.files.length) this.handleFiles(Array.from(e.dataTransfer.files));
                     });
                 });
+
+                // Robust Paste Handler
+                this.pasteHandler = (e) => {
+                    const items = e.clipboardData.items;
+                    const files = [];
+                    for (let i = 0; i < items.length; i++) {
+                        if (items[i].type.startsWith('image/')) {
+                            const file = items[i].getAsFile();
+                            if (file) files.push(file);
+                        }
+                    }
+                    if (files.length > 0) {
+                        e.preventDefault();
+                        this.handleFiles(files);
+                    }
+                };
+                document.addEventListener('paste', this.pasteHandler);
 
                 this.elements.qualityInput.addEventListener('input', (e) => {
                     this.elements.qualityValue.textContent = e.target.value;
@@ -330,6 +349,13 @@
                 this.elements.dropZone.style.display = 'block';
                 this.elements.qualityInput.value = 0.9;
                 this.elements.qualityValue.textContent = '0.9';
+            },
+
+            cleanup() {
+                if (this.pasteHandler) {
+                    document.removeEventListener('paste', this.pasteHandler);
+                    this.pasteHandler = null;
+                }
             }
         });
     </script>
