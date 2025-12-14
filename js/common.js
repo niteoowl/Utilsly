@@ -186,6 +186,7 @@ const Utilsly = {
             category: "랜덤 (Random)",
             items: [
                 { name: "룰렛 돌리기", icon: "casino", path: "/tools/random/roulette" },
+                { name: "사다리 타기", icon: "line_style", path: "/tools/random/ladder" },
                 { name: "제비뽑기", icon: "confirmation_number", path: "/tools/random/random-picker" },
                 { name: "주사위 굴리기", icon: "deployed_code", path: "/tools/random/dice-roller" },
                 { name: "투표 하기", icon: "how_to_vote", path: "/tools/random/vote" },
@@ -196,7 +197,14 @@ const Utilsly = {
             category: "이미지 (Image)",
             items: [
                 { name: "이미지 리사이저", icon: "image", path: "/tools/image/image-resizer" },
-                { name: "이미지 변환기", icon: "transform", path: "/tools/image/image-converter" },
+                { name: "PNG JPG 변환", icon: "transform", path: "/tools/image/png-to-jpg" },
+                { name: "JPG PNG 변환", icon: "transform", path: "/tools/image/jpg-to-png" },
+                { name: "HEIC JPG 변환", icon: "phone_iphone", path: "/tools/image/heic-to-jpg" },
+                { name: "WEBP JPG 변환", icon: "image", path: "/tools/image/webp-to-jpg" },
+                { name: "SVG PNG 변환", icon: "polyline", path: "/tools/image/svg-to-png" },
+                { name: "SVG JPG 변환", icon: "polyline", path: "/tools/image/svg-to-jpg" },
+                { name: "PNG WEBP 변환", icon: "image", path: "/tools/image/png-to-webp" },
+                { name: "JPG WEBP 변환", icon: "image", path: "/tools/image/jpg-to-webp" },
                 { name: "이미지 자르기", icon: "crop", path: "/tools/image/image-cropper" },
                 { name: "이미지 필터", icon: "photo_filter", path: "/tools/image/image-filters" },
                 { name: "이미지 색상 추출", icon: "colorize", path: "/tools/image/color-extractor" },
@@ -294,6 +302,7 @@ const Utilsly = {
         {
             category: "금융/투자 (Finance)",
             items: [
+                { name: "복리 이자 계산기", icon: "monetization_on", path: "/tools/finance/compound-interest" },
                 { name: "물타기 계산기", icon: "water_drop", path: "/tools/finance/average-down" },
                 { name: "수익률 계산기", icon: "trending_up", path: "/tools/finance/profit-calculator" },
             ]
