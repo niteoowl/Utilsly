@@ -670,6 +670,7 @@ input[type="range"]::-webkit-slider-thumb:hover {
     white-space: nowrap;
     word-wrap: normal;
     direction: ltr;
+    font-feature-settings: 'liga';
     -webkit-font-feature-settings: 'liga';
     -webkit-font-smoothing: antialiased;
     font-display: block;
@@ -773,7 +774,6 @@ input[type="range"]::-webkit-slider-thumb:hover {
     .sidebar.active {
         transform: translateX(0);
         box-shadow: 10px 0 30px rgba(0, 0, 0, 0.1);
-        /* Only shadow allowed: sidebar overlay */
     }
 
     .close-sidebar-btn {
@@ -781,7 +781,8 @@ input[type="range"]::-webkit-slider-thumb:hover {
     }
 
     .main-content {
-        margin-left: 0;
+        margin-left: 0 !important;
+        width: 100%;
     }
 
     .top-bar {
@@ -789,7 +790,20 @@ input[type="range"]::-webkit-slider-thumb:hover {
     }
 
     .menu-toggle-btn {
-        display: block;
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: var(--text-primary);
+        padding: 8px;
+        margin-right: 8px;
+        border-radius: 8px;
+    }
+
+    .menu-toggle-btn:hover {
+        background: var(--bg-hover);
     }
 
     .content-area {
@@ -797,7 +811,8 @@ input[type="range"]::-webkit-slider-thumb:hover {
     }
 
     .dashboard-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 12px !important;
     }
 
     .stats-bar {
@@ -806,7 +821,33 @@ input[type="range"]::-webkit-slider-thumb:hover {
     }
 
     h1 {
-        font-size: 32px;
+        font-size: 28px !important;
+    }
+
+    .page-header h1 {
+        font-size: 24px !important;
+    }
+
+    .description {
+        font-size: 14px !important;
+    }
+
+    /* Tool cards on mobile */
+    .tool-card {
+        padding: 16px !important;
+    }
+
+    .card-icon {
+        width: 40px !important;
+        height: 40px !important;
+    }
+
+    .card-title {
+        font-size: 13px !important;
+    }
+
+    .card-desc {
+        font-size: 11px !important;
     }
 
     /* Improve button sizing on mobile */
@@ -829,5 +870,26 @@ input[type="range"]::-webkit-slider-thumb:hover {
     .modal-container {
         width: 95%;
         max-height: 90vh;
+    }
+
+    /* Header icon on mobile */
+    .header-icon-wrapper {
+        width: 48px !important;
+        height: 48px !important;
+    }
+
+    .header-icon-wrapper .material-symbols-rounded {
+        font-size: 24px !important;
+    }
+}
+
+/* Extra small screens */
+@media (max-width: 480px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr 1fr !important;
+    }
+
+    .card-desc {
+        display: none !important;
     }
 }
