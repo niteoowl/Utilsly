@@ -174,7 +174,16 @@ const Utilsly = {
     // 수정됨: 모든 path에서 .html 제거
     sidebarTools: [
         {
-            category: "랜덤",
+            category: "커뮤니티 (Community)",
+            items: [
+                { name: "전체글 보기", icon: "forum", path: "/community/index.html?category=all" },
+                { name: "공지사항", icon: "campaign", path: "/community/index.html?category=notice" },
+                { name: "버그 제보", icon: "bug_report", path: "/community/index.html?category=bug" },
+                { name: "기능 건의", icon: "lightbulb", path: "/community/index.html?category=suggestion" },
+            ]
+        },
+        {
+            category: "랜덤 (Random)",
             items: [
                 { name: "룰렛 돌리기", icon: "casino", path: "/tools/random/roulette" },
                 { name: "제비뽑기", icon: "confirmation_number", path: "/tools/random/random-picker" },
@@ -184,20 +193,19 @@ const Utilsly = {
             ]
         },
         {
-            category: "이미지",
+            category: "이미지 (Image)",
             items: [
                 { name: "이미지 리사이저", icon: "image", path: "/tools/image/image-resizer" },
                 { name: "이미지 변환기", icon: "transform", path: "/tools/image/image-converter" },
                 { name: "이미지 자르기", icon: "crop", path: "/tools/image/image-cropper" },
                 { name: "이미지 필터", icon: "photo_filter", path: "/tools/image/image-filters" },
-                { name: "이미지 블러/모자이크", icon: "blur_on", path: "/tools/image/blur-mosaic" },
                 { name: "이미지 색상 추출", icon: "colorize", path: "/tools/image/color-extractor" },
                 { name: "OCR 텍스트 추출", icon: "find_in_page", path: "/tools/image/ocr" },
                 { name: "ASCII 아트", icon: "grid_on", path: "/tools/image/ascii-art" },
             ]
         },
         {
-            category: "비디오",
+            category: "비디오 (Video)",
             items: [
                 { name: "비디오 플레이어", icon: "play_circle", path: "/tools/video/video-player" },
                 { name: "GIF 변환기", icon: "gif", path: "/tools/video/video-to-gif" },
@@ -213,7 +221,7 @@ const Utilsly = {
             ]
         },
         {
-            category: "오디오",
+            category: "오디오 (Audio)",
             items: [
                 { name: "음성 녹음기", icon: "mic", path: "/tools/audio/voice-recorder" },
                 { name: "주파수 생성기", icon: "graphic_eq", path: "/tools/audio/tone-generator" },
@@ -221,9 +229,10 @@ const Utilsly = {
             ]
         },
         {
-            category: "메모/텍스트",
+            category: "메모/텍스트 (Memo)",
             items: [
                 { name: "빠른 메모장", icon: "edit_note", path: "/tools/memo/notepad" },
+                { name: "스마트 화이트보드", icon: "draw", path: "/tools/memo/whiteboard" },
                 { name: "EPUB 리더", icon: "menu_book", path: "/tools/text/epub-reader" },
                 { name: "텍스트 비교", icon: "difference", path: "/tools/text/text-diff" },
                 { name: "글자수 세기", icon: "article", path: "/tools/text/word-counter" },
@@ -235,7 +244,7 @@ const Utilsly = {
             ]
         },
         {
-            category: "개발",
+            category: "개발 (Dev)",
             items: [
                 { name: "HTML 플레이그라운드", icon: "code", path: "/tools/dev/html-playground" },
                 { name: "QR 코드 생성", icon: "qr_code_2", path: "/tools/dev/qr-generator" },
@@ -246,10 +255,11 @@ const Utilsly = {
                 { name: "URL 인코더", icon: "link", path: "/tools/dev/url-encoder" },
                 { name: "Base64 인코더", icon: "package_2", path: "/tools/dev/base64-encoder" },
                 { name: "UUID 생성기", icon: "fingerprint", path: "/tools/dev/uuid-generator" },
+                { name: "인터넷 속도 테스트", icon: "speed", path: "/tools/dev/speed-test" },
             ]
         },
         {
-            category: "수학/계산",
+            category: "수학/계산 (Math)",
             items: [
                 { name: "공학용 계산기", icon: "calculate", path: "/tools/math/scientific-calculator" },
                 { name: "단위 변환기", icon: "scale", path: "/tools/math/unit-converter" },
@@ -257,7 +267,7 @@ const Utilsly = {
             ]
         },
         {
-            category: "날짜/시간",
+            category: "날짜/시간 (Date)",
             items: [
                 { name: "타이머", icon: "timer", path: "/tools/date/timer" },
                 { name: "뽀모도로 타이머", icon: "check_circle", path: "/tools/date/pomodoro" },
@@ -267,14 +277,14 @@ const Utilsly = {
             ]
         },
         {
-            category: "색상",
+            category: "색상 (Color)",
             items: [
                 { name: "컬러 피커", icon: "palette", path: "/tools/color/color-picker" },
                 { name: "그라디언트 생성", icon: "gradient", path: "/tools/color/gradient-generator" },
             ]
         },
         {
-            category: "건강",
+            category: "건강 (Health)",
             items: [
                 { name: "BMI 계산기", icon: "monitor_weight", path: "/tools/health/bmi-calculator" },
                 { name: "BMR 계산기", icon: "local_fire_department", path: "/tools/health/bmr-calculator" },
@@ -282,7 +292,7 @@ const Utilsly = {
             ]
         },
         {
-            category: "금융/투자",
+            category: "금융/투자 (Finance)",
             items: [
                 { name: "물타기 계산기", icon: "water_drop", path: "/tools/finance/average-down" },
                 { name: "수익률 계산기", icon: "trending_up", path: "/tools/finance/profit-calculator" },
@@ -320,10 +330,6 @@ const Utilsly = {
                 <a href="/" class="nav-item" id="nav-home">
                     <span class="material-symbols-rounded icon">home</span>
                     <span class="label">홈</span>
-                </a>
-                <a href="/community/index.html" class="nav-item" id="nav-community">
-                    <span class="material-symbols-rounded icon">group</span>
-                    <span class="label">커뮤니티</span>
                 </a>
                 <a href="/settings" class="nav-item" id="nav-settings">
                     <span class="material-symbols-rounded icon">settings</span>
