@@ -7,64 +7,29 @@
     <title>로그인 - Utilsly</title>
     <link rel="stylesheet" href="css/style.css">
     <style>
-        :root {
-            --auth-bg: var(--bg-primary);
-            --input-bg: #f2f4f6;
-            --input-focus-bg: #e8ebed;
-            --primary-color: #3182f6;
-            /* Toss Blue */
-            --primary-hover: #1b64da;
-        }
-
-        body {
-            background-color: var(--auth-bg);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            margin: 0;
-            padding: 24px;
-            font-family: var(--font-sans);
-        }
-
-        .auth-wrapper {
-            width: 100%;
+        .auth-container {
             max-width: 400px;
-            animation: fadeIn 0.5s ease-out;
+            margin: 80px auto;
+            padding: 40px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: var(--shadow-md);
+            text-align: center;
         }
 
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .header-section {
-            margin-bottom: 40px;
-            text-align: left;
-        }
-
-        .app-logo {
-            font-size: 24px;
+        .auth-logo {
+            font-size: 32px;
             font-weight: 800;
             color: var(--text-primary);
-            margin-bottom: 12px;
-            display: inline-block;
+            margin-bottom: 8px;
+            letter-spacing: -1px;
         }
 
-        .page-title {
-            font-size: 30px;
-            font-weight: 700;
-            color: var(--text-primary);
-            line-height: 1.3;
-            letter-spacing: -0.5px;
+        .auth-desc {
+            color: var(--text-secondary);
+            margin-bottom: 32px;
+            font-size: 14px;
         }
 
         .auth-form {
@@ -73,161 +38,111 @@
             gap: 16px;
         }
 
+        .form-group {
+            text-align: left;
+        }
+
         .form-label {
             display: block;
+            margin-bottom: 6px;
             font-size: 14px;
             font-weight: 600;
-            color: var(--text-secondary);
-            margin-bottom: 8px;
-            margin-left: 4px;
-        }
-
-        .input-group {
-            position: relative;
-        }
-
-        .input-field {
-            width: 100%;
-            padding: 18px 20px;
-            border-radius: 16px;
-            border: none;
-            background: var(--input-bg);
             color: var(--text-primary);
-            font-size: 17px;
-            font-weight: 500;
-            transition: all 0.2s;
-            outline: none;
         }
 
-        .input-field:focus {
-            background: var(--input-focus-bg);
-            box-shadow: 0 0 0 2px rgba(49, 130, 246, 0.1);
-        }
-
-        .input-field::placeholder {
-            color: #b0b8c1;
-        }
-
-        .submit-btn {
-            background: var(--primary-color);
-            color: white;
+        .auth-btn {
+            background: var(--text-primary);
+            color: var(--bg-primary);
             border: none;
-            width: 100%;
-            padding: 18px;
-            border-radius: 16px;
-            font-size: 17px;
-            font-weight: 600;
             cursor: pointer;
+            font-weight: 600;
+            margin-top: 8px;
+            padding: 12px;
+            font-size: 16px;
+        }
+
+        .auth-btn:hover {
+            opacity: 0.9;
+        }
+
+        .auth-links {
             margin-top: 24px;
-            transition: background 0.2s;
-        }
-
-        .submit-btn:hover {
-            background: var(--primary-hover);
-        }
-
-        .submit-btn:disabled {
-            background: #cbd0d6;
-            cursor: not-allowed;
-        }
-
-        .sub-links {
-            margin-top: 24px;
-            text-align: center;
             font-size: 14px;
             color: var(--text-secondary);
         }
 
-        .sub-links a {
-            color: var(--text-secondary);
+        .auth-links a {
+            color: var(--text-primary);
+            font-weight: 600;
             text-decoration: underline;
-            text-underline-offset: 4px;
-            margin-left: 8px;
         }
 
         .error-msg {
-            background: #fff0f0;
-            color: #e92c2c;
-            padding: 14px;
-            border-radius: 12px;
+            color: #d32f2f;
             font-size: 14px;
-            font-weight: 500;
+            margin-top: 8px;
             display: none;
-            margin-top: 10px;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .back-link {
-            position: absolute;
-            top: 24px;
-            left: 24px;
-            color: var(--text-primary);
-            text-decoration: none;
-            padding: 8px;
-            margin: -8px;
-        }
-
-        .back-link span {
-            font-size: 24px;
-        }
-
-        @media (max-width: 480px) {
-            body {
-                padding: 20px;
-                justify-content: flex-start;
-                padding-top: 80px;
-            }
-
-            .page-title {
-                font-size: 26px;
-            }
         }
     </style>
 </head>
 
 <body>
-    <a href="/" class="back-link">
-        <span class="material-symbols-rounded">arrow_back</span>
-    </a>
-
-    <div class="auth-wrapper">
-        <div class="header-section">
-            <div class="app-logo">Utilsly</div>
-            <div class="page-title">안녕하세요,<br>로그인해주세요.</div>
-        </div>
-
-        <form class="auth-form" id="loginForm">
-            <div class="input-group">
-                <label class="form-label">이메일</label>
-                <input type="email" id="email" class="input-field" placeholder="이메일 주소" required autocomplete="email">
+    <div class="app-container">
+        <!-- Sidebar will be injected by common.js -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="user-profile">
+                    <div style="font-size: 24px; font-weight: 800; color: var(--text-primary); letter-spacing: -0.5px;">
+                        Utilsly.</div>
+                </div>
             </div>
+            <nav class="sidebar-nav"></nav>
+        </aside>
 
-            <div class="input-group">
-                <label class="form-label">비밀번호</label>
-                <input type="password" id="password" class="input-field" placeholder="비밀번호" required
-                    autocomplete="current-password">
+        <main class="main-content">
+            <header class="top-bar">
+                <div class="breadcrumbs">
+                    <span class="breadcrumb-item">Utilsly</span>
+                    <span class="separator">/</span>
+                    <span class="breadcrumb-item current-page">로그인</span>
+                </div>
+            </header>
+
+            <div class="content-area">
+                <div class="auth-container">
+                    <div class="auth-logo">Utilsly</div>
+                    <p class="auth-desc">다양한 웹 도구를 더 편리하게 사용하세요.</p>
+
+                    <form class="auth-form" id="loginForm">
+                        <div class="form-group">
+                            <label class="form-label" for="email">이메일</label>
+                            <input type="email" id="email" required placeholder="name@example.com" autocomplete="email">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="password">비밀번호</label>
+                            <input type="password" id="password" required placeholder="비밀번호 입력"
+                                autocomplete="current-password">
+                        </div>
+
+                        <div class="error-msg" id="errorMsg"></div>
+
+                        <button type="submit" class="btn auth-btn">로그인</button>
+                    </form>
+
+                    <div class="auth-links">
+                        계정이 없으신가요? <a href="/signup.html">회원가입</a>
+                    </div>
+                </div>
             </div>
-
-            <div class="error-msg" id="errorMsg">
-                <span class="material-symbols-rounded" style="font-size: 18px;">error_outline</span>
-                <span class="msg-text">로그인 정보가 올바르지 않습니다.</span>
-            </div>
-
-            <button type="submit" class="submit-btn" id="loginBtn">로그인</button>
-        </form>
-
-        <div class="sub-links">
-            계정이 없으신가요? <a href="/signup.html">회원가입</a>
-        </div>
+        </main>
     </div>
 
-    <!-- Scripts preserved and adapted -->
     <script src="js/common.js"></script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
+        // Config should match existing one
         const firebaseConfig = {
             apiKey: "AIzaSyCbSmDuJNCSrIB7Fx9IzbePERD_2ka3rQE",
             authDomain: "utilsly.firebaseapp.com",
@@ -243,42 +158,32 @@
 
         const form = document.getElementById('loginForm');
         const errorMsg = document.getElementById('errorMsg');
-        const msgText = errorMsg.querySelector('.msg-text');
-        const btn = document.getElementById('loginBtn');
 
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
-            const originalBtnContent = btn.innerHTML;
+            const btn = form.querySelector('button');
 
             try {
                 btn.disabled = true;
-                btn.innerHTML = '로그인 중...';
+                btn.textContent = '로그인 중...';
                 errorMsg.style.display = 'none';
 
                 await signInWithEmailAndPassword(auth, email, password);
+
+                // Redirect to home or previous page
                 window.location.href = '/';
             } catch (error) {
                 console.error(error);
                 let msg = '로그인에 실패했습니다.';
                 if (error.code === 'auth/invalid-credential') msg = '이메일 또는 비밀번호가 올바르지 않습니다.';
-                else if (error.code === 'auth/too-many-requests') msg = '너무 많은 시도가 있었습니다. 잠시 후 다시 시도해주세요.';
+                else if (error.code === 'auth/too-many-requests') msg = '너무 많은 시도 실패로 잠시 후 다시 시도해주세요.';
 
-                msgText.textContent = msg;
-                errorMsg.style.display = 'flex';
+                errorMsg.textContent = msg;
+                errorMsg.style.display = 'block';
                 btn.disabled = false;
-                btn.innerHTML = originalBtnContent;
-
-                // Shake animation
-                const wrapper = document.querySelector('.auth-wrapper');
-                wrapper.animate([
-                    { transform: 'translateX(0)' },
-                    { transform: 'translateX(-4px)' },
-                    { transform: 'translateX(4px)' },
-                    { transform: 'translateX(-4px)' },
-                    { transform: 'translateX(0)' }
-                ], { duration: 300 });
+                btn.textContent = '로그인';
             }
         });
     </script>

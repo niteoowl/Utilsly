@@ -7,61 +7,29 @@
     <title>회원가입 - Utilsly</title>
     <link rel="stylesheet" href="css/style.css">
     <style>
-        :root {
-            --auth-bg: var(--bg-primary);
-            --input-bg: #f2f4f6;
-            --input-focus-bg: #e8ebed;
-            --primary-color: #3182f6;
-            --primary-hover: #1b64da;
-        }
-
-        body {
-            background-color: var(--auth-bg);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            margin: 0;
-            padding: 24px;
-            font-family: var(--font-sans);
-        }
-
-        .auth-wrapper {
-            width: 100%;
+        .auth-container {
             max-width: 400px;
-            animation: fadeIn 0.5s ease-out;
+            margin: 80px auto;
+            padding: 40px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: var(--shadow-md);
+            text-align: center;
         }
 
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .header-section {
-            margin-bottom: 32px;
-            text-align: left;
-        }
-
-        .page-title {
-            font-size: 30px;
-            font-weight: 700;
+        .auth-logo {
+            font-size: 32px;
+            font-weight: 800;
             color: var(--text-primary);
-            line-height: 1.3;
-            letter-spacing: -0.5px;
+            margin-bottom: 8px;
+            letter-spacing: -1px;
         }
 
-        .page-desc {
-            font-size: 15px;
+        .auth-desc {
             color: var(--text-secondary);
-            margin-top: 8px;
+            margin-bottom: 32px;
+            font-size: 14px;
         }
 
         .auth-form {
@@ -70,162 +38,110 @@
             gap: 16px;
         }
 
+        .form-group {
+            text-align: left;
+        }
+
         .form-label {
             display: block;
+            margin-bottom: 6px;
             font-size: 14px;
             font-weight: 600;
-            color: var(--text-secondary);
-            margin-bottom: 8px;
-            margin-left: 4px;
-        }
-
-        .input-group {
-            position: relative;
-        }
-
-        .input-field {
-            width: 100%;
-            padding: 18px 20px;
-            border-radius: 16px;
-            border: none;
-            background: var(--input-bg);
             color: var(--text-primary);
-            font-size: 17px;
-            font-weight: 500;
-            transition: all 0.2s;
-            outline: none;
         }
 
-        .input-field:focus {
-            background: var(--input-focus-bg);
-            box-shadow: 0 0 0 2px rgba(49, 130, 246, 0.1);
-        }
-
-        .input-field::placeholder {
-            color: #b0b8c1;
-        }
-
-        .submit-btn {
-            background: var(--primary-color);
-            color: white;
+        .auth-btn {
+            background: var(--text-primary);
+            color: var(--bg-primary);
             border: none;
-            width: 100%;
-            padding: 18px;
-            border-radius: 16px;
-            font-size: 17px;
-            font-weight: 600;
             cursor: pointer;
+            font-weight: 600;
+            margin-top: 8px;
+            padding: 12px;
+            font-size: 16px;
+        }
+
+        .auth-btn:hover {
+            opacity: 0.9;
+        }
+
+        .auth-links {
             margin-top: 24px;
-            transition: background 0.2s;
-        }
-
-        .submit-btn:hover {
-            background: var(--primary-hover);
-        }
-
-        .submit-btn:disabled {
-            background: #cbd0d6;
-            cursor: not-allowed;
-        }
-
-        .sub-links {
-            margin-top: 24px;
-            text-align: center;
             font-size: 14px;
             color: var(--text-secondary);
         }
 
-        .sub-links a {
-            color: var(--text-secondary);
+        .auth-links a {
+            color: var(--text-primary);
+            font-weight: 600;
             text-decoration: underline;
-            text-underline-offset: 4px;
-            margin-left: 8px;
         }
 
         .error-msg {
-            background: #fff0f0;
-            color: #e92c2c;
-            padding: 14px;
-            border-radius: 12px;
+            color: #d32f2f;
             font-size: 14px;
-            font-weight: 500;
+            margin-top: 8px;
             display: none;
-            margin-top: 10px;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .back-link {
-            position: absolute;
-            top: 24px;
-            left: 24px;
-            color: var(--text-primary);
-            text-decoration: none;
-            padding: 8px;
-            margin: -8px;
-        }
-
-        .back-link span {
-            font-size: 24px;
-        }
-
-        @media (max-width: 480px) {
-            body {
-                padding: 20px;
-                justify-content: flex-start;
-                padding-top: 80px;
-            }
-
-            .page-title {
-                font-size: 26px;
-            }
         }
     </style>
 </head>
 
 <body>
-    <a href="/login.html" class="back-link">
-        <span class="material-symbols-rounded">arrow_back</span>
-    </a>
-
-    <div class="auth-wrapper">
-        <div class="header-section">
-            <div class="page-title">반가워요!<br>계정을 만들어주세요.</div>
-            <div class="page-desc">Utilsly의 모든 기능을 무료로 이용할 수 있습니다.</div>
-        </div>
-
-        <form class="auth-form" id="signupForm">
-            <div class="input-group">
-                <label class="form-label">닉네임</label>
-                <input type="text" id="nickname" class="input-field" placeholder="별명 입력" required minlength="2"
-                    maxlength="10">
+    <div class="app-container">
+        <!-- Sidebar will be injected by common.js -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="user-profile">
+                    <div style="font-size: 24px; font-weight: 800; color: var(--text-primary); letter-spacing: -0.5px;">
+                        Utilsly.</div>
+                </div>
             </div>
+            <nav class="sidebar-nav"></nav>
+        </aside>
 
-            <div class="input-group">
-                <label class="form-label">이메일</label>
-                <input type="email" id="email" class="input-field" placeholder="이메일 주소" required autocomplete="email">
+        <main class="main-content">
+            <header class="top-bar">
+                <div class="breadcrumbs">
+                    <span class="breadcrumb-item">Utilsly</span>
+                    <span class="separator">/</span>
+                    <span class="breadcrumb-item current-page">회원가입</span>
+                </div>
+            </header>
+
+            <div class="content-area">
+                <div class="auth-container">
+                    <div class="auth-logo">Utilsly</div>
+                    <p class="auth-desc">계정을 만들고 더 많은 기능을 이용하세요.</p>
+
+                    <form class="auth-form" id="signupForm">
+                        <div class="form-group">
+                            <label class="form-label" for="nickname">닉네임</label>
+                            <input type="text" id="nickname" required placeholder="커뮤니티에서 사용할 이름" minlength="2"
+                                maxlength="10" autocomplete="username">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="email">이메일</label>
+                            <input type="email" id="email" required placeholder="name@example.com" autocomplete="email">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="password">비밀번호</label>
+                            <input type="password" id="password" required placeholder="6자 이상 입력" minlength="6"
+                                autocomplete="new-password">
+                        </div>
+
+                        <div class="error-msg" id="errorMsg"></div>
+
+                        <button type="submit" class="btn auth-btn">회원가입</button>
+                    </form>
+
+                    <div class="auth-links">
+                        이미 계정이 있으신가요? <a href="/login.html">로그인</a>
+                    </div>
+                </div>
             </div>
-
-            <div class="input-group">
-                <label class="form-label">비밀번호</label>
-                <input type="password" id="password" class="input-field" placeholder="6자 이상 입력" required minlength="6"
-                    autocomplete="new-password">
-            </div>
-
-            <div class="error-msg" id="errorMsg">
-                <span class="material-symbols-rounded" style="font-size: 18px;">error_outline</span>
-                <span class="msg-text">회원가입에 실패했습니다.</span>
-            </div>
-
-            <button type="submit" class="submit-btn" id="signupBtn">동의하고 가입하기</button>
-        </form>
-
-        <div class="sub-links">
-            이미 계정이 있으신가요? <a href="/login.html">로그인</a>
-        </div>
+        </main>
     </div>
 
-    <!-- Scripts preserved -->
     <script src="js/common.js"></script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -248,29 +164,29 @@
 
         const form = document.getElementById('signupForm');
         const errorMsg = document.getElementById('errorMsg');
-        const msgText = errorMsg.querySelector('.msg-text');
-        const btn = document.getElementById('signupBtn');
 
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
             const nickname = document.getElementById('nickname').value;
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
-            const originalBtnContent = btn.innerHTML;
+            const btn = form.querySelector('button');
 
             try {
                 btn.disabled = true;
-                btn.innerHTML = '가입 처리 중...';
+                btn.textContent = '가입 처리 중...';
                 errorMsg.style.display = 'none';
 
                 // 1. Create Auth User
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                 const user = userCredential.user;
 
-                // 2. Update Profile
-                await updateProfile(user, { displayName: nickname });
+                // 2. Update Profile (DisplayName)
+                await updateProfile(user, {
+                    displayName: nickname
+                });
 
-                // 3. Save User Data
+                // 3. Save User Data to Firestore (optional but good for future)
                 await setDoc(doc(db, "users", user.uid), {
                     nickname: nickname,
                     email: email,
@@ -278,11 +194,7 @@
                 });
 
                 // Success
-                if (window.Utilsly && window.Utilsly.showAlert) {
-                    await window.Utilsly.showAlert('회원가입이 완료되었습니다!', '환영합니다');
-                } else {
-                    alert('회원가입이 완료되었습니다!');
-                }
+                alert('회원가입이 완료되었습니다!');
                 window.location.href = '/';
 
             } catch (error) {
@@ -292,19 +204,10 @@
                 else if (error.code === 'auth/weak-password') msg = '비밀번호가 너무 약합니다.';
                 else if (error.code === 'auth/invalid-email') msg = '유효하지 않은 이메일 주소입니다.';
 
-                msgText.textContent = msg;
-                errorMsg.style.display = 'flex';
+                errorMsg.textContent = msg;
+                errorMsg.style.display = 'block';
                 btn.disabled = false;
-                btn.innerHTML = originalBtnContent;
-
-                const wrapper = document.querySelector('.auth-wrapper');
-                wrapper.animate([
-                    { transform: 'translateX(0)' },
-                    { transform: 'translateX(-4px)' },
-                    { transform: 'translateX(4px)' },
-                    { transform: 'translateX(-4px)' },
-                    { transform: 'translateX(0)' }
-                ], { duration: 300 });
+                btn.textContent = '회원가입';
             }
         });
     </script>
