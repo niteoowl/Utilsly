@@ -42,16 +42,6 @@
         }
 
         /* Standard Upload Area */
-        .upload-area {
-            border: 2px dashed var(--border-color);
-            border-radius: 12px;
-            padding: 60px 40px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.2s;
-            background: var(--bg-primary);
-        }
-
         .upload-area:hover,
         .upload-area.dragover {
             border-color: var(--accent-blue);
@@ -62,17 +52,6 @@
             font-size: 64px;
             color: var(--text-tertiary);
             margin-bottom: 16px;
-        }
-
-        .upload-text {
-            font-size: 16px;
-            color: var(--text-secondary);
-            margin-bottom: 8px;
-        }
-
-        .upload-hint {
-            font-size: 13px;
-            color: var(--text-tertiary);
         }
     </style>
 </head>
@@ -107,35 +86,25 @@
                 </div>
 
                 <div class="tool-container" data-tool-id="image-cropper">
-                    <div class="upload-area" id="dropZone">
-                        <span class="material-symbols-rounded upload-icon">cloud_upload</span>
-                        <p class="upload-text">이미지를 드래그하거나 클릭하여 업로드</p>
-                        <p class="upload-hint">JPG, PNG, WEBP 등 지원</p>
-                        <input type="file" id="fileInput" accept="image/*" style="display: none;">
-                    </div>
-
-                    <div class="editor-container" id="editorContainer">
-                        <div class="toolbar">
-                            <button class="btn" id="btn169">16:9</button>
-                            <button class="btn" id="btn43">4:3</button>
-                            <button class="btn" id="btn11">1:1</button>
-                            <button class="btn" id="btnFree">자유</button>
-                            <button class="btn" id="btnRotate">
-                                <span class="material-symbols-rounded">rotate_right</span>
-                            </button>
-                            <button class="btn" id="btnFlip">
-                                <span class="material-symbols-rounded">flip</span>
-                            </button>
-                        </div>
-                        <div class="img-container">
-                            <img id="image" src="" alt="Picture">
-                        </div>
-                        <button class="btn btn-primary" id="cropBtn" style="width: 100%; margin-top: 16px;">자르기 및
-                            다운로드</button>
-                    </div>
+                    <button class="btn" id="btn43">4:3</button>
+                    <button class="btn" id="btn11">1:1</button>
+                    <button class="btn" id="btnFree">자유</button>
+                    <button class="btn" id="btnRotate">
+                        <span class="material-symbols-rounded">rotate_right</span>
+                    </button>
+                    <button class="btn" id="btnFlip">
+                        <span class="material-symbols-rounded">flip</span>
+                    </button>
                 </div>
+                <div class="img-container">
+                    <img id="image" src="" alt="Picture">
+                </div>
+                <button class="btn btn-primary" id="cropBtn" style="width: 100%; margin-top: 16px;">자르기 및
+                    다운로드</button>
             </div>
-        </main>
+    </div>
+    </div>
+    </main>
     </div>
     <script src="../../js/common.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>

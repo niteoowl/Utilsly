@@ -184,20 +184,78 @@
                             <label>내용</label>
                             <!-- Rich Text Toolbar -->
                             <div class="toolbar"
-                                style="border: 1px solid var(--border-color); border-bottom: none; padding: 8px; background: var(--bg-hover); border-radius: 4px 4px 0 0; display:flex; gap: 4px;">
-                                <button type="button" class="tool-btn" data-cmd="bold"
-                                    style="font-weight:bold;">B</button>
-                                <button type="button" class="tool-btn" data-cmd="italic"
-                                    style="font-style:italic;">I</button>
-                                <button type="button" class="tool-btn" data-cmd="underline"
-                                    style="text-decoration:underline;">U</button>
-                                <div style="width:1px; background:var(--border-color); margin:0 4px;"></div>
-                                <button type="button" class="tool-btn" data-cmd="justifyLeft"><span
+                                style="border: 1px solid var(--border-color); border-bottom: none; padding: 8px; background: var(--bg-hover); border-radius: 4px 4px 0 0; display:flex; flex-wrap: wrap; gap: 4px; align-items: center;">
+
+                                <!-- Text Style -->
+                                <button type="button" class="tool-btn" data-cmd="bold" title="굵게"><b>B</b></button>
+                                <button type="button" class="tool-btn" data-cmd="italic" title="기울임"><i>I</i></button>
+                                <button type="button" class="tool-btn" data-cmd="underline" title="밑줄"><u>U</u></button>
+                                <button type="button" class="tool-btn" data-cmd="strikeThrough"
+                                    title="취소선"><s>S</s></button>
+
+                                <div style="width:1px; height: 20px; background:var(--border-color); margin:0 4px;">
+                                </div>
+
+                                <!-- Font Size -->
+                                <select id="fontSizeSelect"
+                                    style="width:auto; padding: 4px; height: 32px; font-size: 13px;">
+                                    <option value="3">기본 크기</option>
+                                    <option value="1">작게</option>
+                                    <option value="5">크게</option>
+                                    <option value="7">아주 크게</option>
+                                </select>
+
+                                <div style="width:1px; height: 20px; background:var(--border-color); margin:0 4px;">
+                                </div>
+
+                                <!-- Colors -->
+                                <div style="position:relative;">
+                                    <button type="button" class="tool-btn" id="textColorBtn" title="글자 색상"><span
+                                            style="color:var(--accent-blue); font-weight:bold;">A</span></button>
+                                    <input type="color" id="foreColorInput"
+                                        style="position:absolute; opacity:0; width:1px; height:1px; bottom:0; left:0;">
+                                </div>
+                                <div style="position:relative;">
+                                    <button type="button" class="tool-btn" id="bgColorBtn" title="배경 색상"><span
+                                            style="background:var(--accent-blue); color:white; padding:0 4px; font-size:12px;">A</span></button>
+                                    <input type="color" id="hiliteColorInput"
+                                        style="position:absolute; opacity:0; width:1px; height:1px; bottom:0; left:0;">
+                                </div>
+
+                                <div style="width:1px; height: 20px; background:var(--border-color); margin:0 4px;">
+                                </div>
+
+                                <!-- Alignment -->
+                                <button type="button" class="tool-btn" data-cmd="justifyLeft" title="왼쪽 정렬"><span
                                         class="material-symbols-rounded"
-                                        style="font-size:16px;">format_align_left</span></button>
-                                <button type="button" class="tool-btn" data-cmd="justifyCenter"><span
+                                        style="font-size:18px;">format_align_left</span></button>
+                                <button type="button" class="tool-btn" data-cmd="justifyCenter" title="가운데 정렬"><span
                                         class="material-symbols-rounded"
-                                        style="font-size:16px;">format_align_center</span></button>
+                                        style="font-size:18px;">format_align_center</span></button>
+                                <button type="button" class="tool-btn" data-cmd="justifyRight" title="오른쪽 정렬"><span
+                                        class="material-symbols-rounded"
+                                        style="font-size:18px;">format_align_right</span></button>
+
+                                <div style="width:1px; height: 20px; background:var(--border-color); margin:0 4px;">
+                                </div>
+
+                                <!-- Lists -->
+                                <button type="button" class="tool-btn" data-cmd="insertUnorderedList"
+                                    title="글머리 기호"><span class="material-symbols-rounded"
+                                        style="font-size:18px;">format_list_bulleted</span></button>
+                                <button type="button" class="tool-btn" data-cmd="insertOrderedList" title="번호 매기기"><span
+                                        class="material-symbols-rounded"
+                                        style="font-size:18px;">format_list_numbered</span></button>
+
+                                <div style="width:1px; height: 20px; background:var(--border-color); margin:0 4px;">
+                                </div>
+
+                                <!-- Insert -->
+                                <button type="button" class="tool-btn" data-cmd="createLink" title="링크"><span
+                                        class="material-symbols-rounded" style="font-size:18px;">link</span></button>
+                                <button type="button" class="tool-btn" id="insertImageBtn" title="이미지 (압축 첨부)"><span
+                                        class="material-symbols-rounded" style="font-size:18px;">image</span></button>
+                                <input type="file" id="imageUploadInput" accept="image/*" style="display:none;">
                             </div>
                             <!-- Content Editable Div -->
                             <div id="editor" contenteditable="true"
@@ -268,13 +326,96 @@
         setTimeout(checkAuth, 500);
 
         // Initialize Editor
-        document.querySelectorAll('.tool-btn').forEach(btn => {
+        // Initialize Editor
+        const editor = document.getElementById('editor');
+
+        // Toolbar Buttons (execCommand)
+        document.querySelectorAll('.tool-btn[data-cmd]').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
                 const cmd = btn.dataset.cmd;
-                document.execCommand(cmd, false, null);
-                document.getElementById('editor').focus();
+                if (cmd === 'createLink') {
+                    const url = prompt('링크 주소를 입력하세요:');
+                    if (url) document.execCommand(cmd, false, url);
+                } else {
+                    document.execCommand(cmd, false, null);
+                }
+                editor.focus();
             });
+        });
+
+        // Font Size
+        document.getElementById('fontSizeSelect').addEventListener('change', (e) => {
+            document.execCommand('fontSize', false, e.target.value);
+            editor.focus();
+        });
+
+        // Colors
+        const textColorBtn = document.getElementById('textColorBtn');
+        const foreColorInput = document.getElementById('foreColorInput');
+        textColorBtn.addEventListener('click', () => foreColorInput.click());
+        foreColorInput.addEventListener('change', (e) => {
+            document.execCommand('foreColor', false, e.target.value);
+            editor.focus();
+        });
+
+        const bgColorBtn = document.getElementById('bgColorBtn');
+        const hiliteColorInput = document.getElementById('hiliteColorInput');
+        bgColorBtn.addEventListener('click', () => hiliteColorInput.click());
+        hiliteColorInput.addEventListener('change', (e) => {
+            document.execCommand('hiliteColor', false, e.target.value);
+            editor.focus();
+        });
+
+        // Image Handling
+        const insertImageBtn = document.getElementById('insertImageBtn');
+        const imageUploadInput = document.getElementById('imageUploadInput');
+
+        insertImageBtn.addEventListener('click', () => imageUploadInput.click());
+
+        imageUploadInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            // Compress and Insert
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
+
+                    // Resize if too big (Max width 800px)
+                    const MAX_WIDTH = 800;
+                    if (width > MAX_WIDTH) {
+                        height *= MAX_WIDTH / width;
+                        width = MAX_WIDTH;
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    // Compress to JPEG 0.5 quality
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.5);
+
+                    // Insert into editor
+                    // We use execCommand 'insertImage' or manual insertion
+                    editor.focus();
+                    document.execCommand('insertImage', false, dataUrl);
+
+                    // Add some spacing after image
+                    const br = document.createElement('br');
+                    editor.appendChild(br);
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+
+            // Reset input
+            imageUploadInput.value = '';
         });
 
         document.getElementById('write-form').addEventListener('submit', async (e) => {

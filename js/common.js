@@ -207,6 +207,7 @@ const Utilsly = {
                 { name: "JPG WEBP 변환", icon: "image", path: "/tools/image/jpg-to-webp" },
                 { name: "이미지 자르기", icon: "crop", path: "/tools/image/image-cropper" },
                 { name: "이미지 필터", icon: "photo_filter", path: "/tools/image/image-filters" },
+                { name: "이미지 블러", icon: "blur_on", path: "/tools/image/image-blur" },
                 { name: "이미지 색상 추출", icon: "colorize", path: "/tools/image/color-extractor" },
                 { name: "OCR 텍스트 추출", icon: "find_in_page", path: "/tools/image/ocr" },
                 { name: "ASCII 아트", icon: "grid_on", path: "/tools/image/ascii-art" },

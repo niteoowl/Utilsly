@@ -441,6 +441,41 @@ h1 {
     border: none;
 }
 
+/* Global Drop Zone / Upload Area */
+.drop-zone {
+    border: 2px dashed var(--border-color);
+    border-radius: 12px;
+    padding: 40px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: var(--bg-primary);
+    margin-bottom: 24px;
+}
+
+.drop-zone:hover,
+.drop-zone.dragover {
+    border-color: var(--accent-blue);
+    background: var(--bg-hover);
+}
+
+.drop-zone .upload-icon {
+    font-size: 48px;
+    color: var(--text-tertiary);
+    margin-bottom: 16px;
+}
+
+.drop-zone .upload-text {
+    font-size: 16px;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+}
+
+.drop-zone .upload-hint {
+    font-size: 13px;
+    color: var(--text-tertiary);
+}
+
 /* Inputs & Textareas */
 textarea,
 input[type="text"],
