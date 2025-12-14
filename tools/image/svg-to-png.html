@@ -12,6 +12,8 @@
     </script>
     <link rel="preload" href="../../css/style.css" as="style">
     <link rel="stylesheet" href="../../css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
     <style>
         .upload-area {
             border: 2px dashed var(--border-color);
@@ -49,6 +51,41 @@
         .preview-container {
             margin-top: 24px;
             display: none;
+        }
+
+        .file-list {
+            margin-top: 24px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 16px;
+        }
+
+        .file-item {
+            background: var(--bg-sidebar);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+            position: relative;
+        }
+
+        .file-preview {
+            width: 100%;
+            height: 100px;
+            object-fit: contain;
+            /* SVG usually contain */
+            border-radius: 4px;
+            margin-bottom: 8px;
+            background: #fff;
+            /* White bg for SVG preview visibility */
+        }
+
+        .file-name {
+            font-size: 12px;
+            color: var(--text-secondary);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
         .preview-image {
@@ -115,10 +152,10 @@
             <div class="content-area">
                 <div class="page-header">
                     <div class="header-icon-wrapper">
-                        <span class="material-symbols-rounded">polyline</span>
+                        <span class="material-symbols-rounded">image</span>
                     </div>
                     <h1>SVG PNG 변환</h1>
-                    <p class="description">SVG 벡터 파일을 원하는 해상도의 PNG로 변환하세요.</p>
+                    <p class="description">벡터 SVG 파일을 PNG 이미지로 변환하세요. 스케일(해상도)을 조절할 수 있습니다.</p>
                 </div>
 
                 <div class="tool-container" data-tool-id="svg-to-png">
@@ -126,19 +163,20 @@
                         <span class="material-symbols-rounded upload-icon">add_photo_alternate</span>
                         <p class="upload-text">SVG 파일을 드래그하거나 클릭하여 업로드</p>
                         <p class="upload-hint">SVG 파일 지원</p>
-                        <input type="file" id="fileInput" accept=".svg, image/svg+xml" style="display: none;">
+                        <input type="file" id="fileInput" accept=".svg,image/svg+xml" multiple style="display: none;">
                     </div>
 
                     <div class="preview-container" id="previewContainer">
-                        <img id="preview" class="preview-image" alt="Preview">
+                        <div class="file-list" id="fileList"></div>
 
                         <div class="controls">
                             <div class="control-group">
-                                <label>스케일 (배율)</label>
-                                <input type="number" id="scaleInput" min="0.1" max="10" step="0.1" value="1">
-                                <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">
-                                    기본 크기의 <span id="scaleValue">1</span>배로 변환
-                                </div>
+                                <label>스케일 (해상도 배율)</label>
+                                <input type="number" id="scaleInput" value="1" min="0.1" max="10" step="0.1"
+                                    class="form-input">
+                                <p class="help-text"
+                                    style="font-size: 12px; color: var(--text-tertiary); margin-top: 4px;">지정된 배율로 이미지를
+                                    확대/축소하여 저장합니다.</p>
                             </div>
                         </div>
 
@@ -146,12 +184,12 @@
                             <button class="btn btn-primary" id="downloadBtn">
                                 <span class="material-symbols-rounded"
                                     style="font-size: 18px; margin-right: 8px;">download</span>
-                                PNG로 다운로드
+                                전체 다운로드 (ZIP)
                             </button>
                             <button class="btn" id="resetBtn">
                                 <span class="material-symbols-rounded"
                                     style="font-size: 18px; margin-right: 8px;">refresh</span>
-                                다른 이미지
+                                초기화
                             </button>
                         </div>
                     </div>
@@ -163,102 +201,54 @@
     <script>
         Utilsly.registerTool('svg-to-png', {
             elements: {},
-            originalImage: null,
+            files: [],
 
             init() {
                 this.elements = {
                     dropZone: document.getElementById('dropZone'),
                     fileInput: document.getElementById('fileInput'),
-                    preview: document.getElementById('preview'),
                     previewContainer: document.getElementById('previewContainer'),
+                    fileList: document.getElementById('fileList'),
                     scaleInput: document.getElementById('scaleInput'),
-                    scaleValue: document.getElementById('scaleValue'),
                     downloadBtn: document.getElementById('downloadBtn'),
                     resetBtn: document.getElementById('resetBtn')
                 };
                 this.bindEvents();
-                console.log('SVG to PNG Converter initialized');
+                console.log('SVG to PNG Converter (Batch) initialized');
             },
 
             bindEvents() {
                 this.elements.dropZone.addEventListener('click', () => this.elements.fileInput.click());
-                this.elements.fileInput.addEventListener('change', (e) => this.handleFile(e.target.files[0]));
+                this.elements.fileInput.addEventListener('change', (e) => this.handleFiles(Array.from(e.target.files)));
 
                 ['dragover', 'dragleave', 'drop'].forEach(eventName => {
                     this.elements.dropZone.addEventListener(eventName, (e) => {
                         e.preventDefault();
                         if (eventName === 'dragover') this.elements.dropZone.classList.add('dragover');
                         else this.elements.dropZone.classList.remove('dragover');
-                        if (eventName === 'drop' && e.dataTransfer.files.length) this.handleFile(e.dataTransfer.files[0]);
+                        if (eventName === 'drop' && e.dataTransfer.files.length) this.handleFiles(Array.from(e.dataTransfer.files));
                     });
                 });
 
-                this.elements.scaleInput.addEventListener('input', (e) => {
-                    this.elements.scaleValue.textContent = e.target.value;
-                });
-
-                this.elements.downloadBtn.addEventListener('click', () => this.convertAndDownload());
+                this.elements.downloadBtn.addEventListener('click', () => this.batchConvertAndDownload());
                 this.elements.resetBtn.addEventListener('click', () => this.reset());
             },
 
-            handleFile(file) {
-                if (!file) return;
-
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    this.originalImage = new Image();
-                    this.originalImage.onload = () => {
-                        this.elements.preview.src = this.originalImage.src;
-                        this.elements.previewContainer.style.display = 'block';
-                        this.elements.dropZone.style.display = 'none';
-                    };
-                    this.originalImage.src = e.target.result;
-                };
-                reader.readAsDataURL(file);
-            },
-
-            convertAndDownload() {
-                if (!this.originalImage) return;
-
-                const scale = parseFloat(this.elements.scaleInput.value);
-                const canvas = document.createElement('canvas');
-
-                // SVG dimensions might be unitless or intricate, but the Image object will try to guess or use viewBox.
-                // We multiply by scale.
-
-                let width = this.originalImage.width;
-                let height = this.originalImage.height;
-
-                // Fallback for SVG if width/height are 0 (sometimes happens with raw svgs without explicit size)
-                if (width === 0 || height === 0) {
-                    width = 300; height = 150; // Default fallback
-                    // In real app we might parse SVG to find viewBox. 
-                    // But usually browser layout engine handles img.src = svg well enough.
-                }
-
-                canvas.width = width * scale;
-                canvas.height = height * scale;
-                const ctx = canvas.getContext('2d');
-
-                ctx.drawImage(this.originalImage, 0, 0, canvas.width, canvas.height);
-
-                const dataUrl = canvas.toDataURL('image/png');
-
-                const link = document.createElement('a');
-                link.download = `converted-svg.png`;
-                link.href = dataUrl;
-                link.click();
-            },
+            const link = document.createElement('a');
+            link.download = `converted-svg.png`;
+            link.href = dataUrl;
+            link.click();
+        },
 
             reset() {
-                this.originalImage = null;
-                this.elements.preview.src = '';
-                this.elements.fileInput.value = '';
-                this.elements.previewContainer.style.display = 'none';
-                this.elements.dropZone.style.display = 'block';
-                this.elements.scaleInput.value = 1;
-                this.elements.scaleValue.textContent = '1';
-            }
+            this.originalImage = null;
+            this.elements.preview.src = '';
+            this.elements.fileInput.value = '';
+            this.elements.previewContainer.style.display = 'none';
+            this.elements.dropZone.style.display = 'block';
+            this.elements.scaleInput.value = 1;
+            this.elements.scaleValue.textContent = '1';
+        }
         });
     </script>
 </body>

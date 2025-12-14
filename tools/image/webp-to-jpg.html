@@ -12,6 +12,8 @@
     </script>
     <link rel="preload" href="../../css/style.css" as="style">
     <link rel="stylesheet" href="../../css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
     <style>
         .upload-area {
             border: 2px dashed var(--border-color);
@@ -51,13 +53,36 @@
             display: none;
         }
 
-        .preview-image {
-            max-width: 100%;
-            max-height: 400px;
-            border-radius: 12px;
-            box-shadow: var(--shadow-md);
-            display: block;
-            margin: 0 auto;
+        .file-list {
+            margin-top: 24px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 16px;
+        }
+
+        .file-item {
+            background: var(--bg-sidebar);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+            position: relative;
+        }
+
+        .file-preview {
+            width: 100%;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 4px;
+            margin-bottom: 8px;
+        }
+
+        .file-name {
+            font-size: 12px;
+            color: var(--text-secondary);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
         .controls {
@@ -114,19 +139,19 @@
                         <span class="material-symbols-rounded">image</span>
                     </div>
                     <h1>WEBP JPG 변환</h1>
-                    <p class="description">웹용 WEBP 이미지를 범용 JPG로 변환하여 호환성을 높이세요.</p>
+                    <p class="description">여러 WEBP 이미지를 범용 JPG로 변환하세요. 호환성 문제를 해결할 수 있습니다.</p>
                 </div>
 
                 <div class="tool-container" data-tool-id="webp-to-jpg">
                     <div class="upload-area" id="dropZone">
                         <span class="material-symbols-rounded upload-icon">add_photo_alternate</span>
                         <p class="upload-text">WEBP 이미지를 드래그하거나 클릭하여 업로드</p>
-                        <p class="upload-hint">WEBP 파일 지원</p>
-                        <input type="file" id="fileInput" accept="image/webp" style="display: none;">
+                        <p class="upload-hint">여러 파일 선택 가능</p>
+                        <input type="file" id="fileInput" accept="image/webp" multiple style="display: none;">
                     </div>
 
                     <div class="preview-container" id="previewContainer">
-                        <img id="preview" class="preview-image" alt="Preview">
+                        <div class="file-list" id="fileList"></div>
 
                         <div class="controls">
                             <div class="control-group">
@@ -143,12 +168,12 @@
                             <button class="btn btn-primary" id="downloadBtn">
                                 <span class="material-symbols-rounded"
                                     style="font-size: 18px; margin-right: 8px;">download</span>
-                                JPG로 다운로드
+                                전체 다운로드 (ZIP)
                             </button>
                             <button class="btn" id="resetBtn">
                                 <span class="material-symbols-rounded"
                                     style="font-size: 18px; margin-right: 8px;">refresh</span>
-                                다른 이미지
+                                초기화
                             </button>
                         </div>
                     </div>
@@ -160,33 +185,33 @@
     <script>
         Utilsly.registerTool('webp-to-jpg', {
             elements: {},
-            originalImage: null,
+            files: [],
 
             init() {
                 this.elements = {
                     dropZone: document.getElementById('dropZone'),
                     fileInput: document.getElementById('fileInput'),
-                    preview: document.getElementById('preview'),
                     previewContainer: document.getElementById('previewContainer'),
+                    fileList: document.getElementById('fileList'),
                     qualityInput: document.getElementById('qualityInput'),
                     qualityValue: document.getElementById('qualityValue'),
                     downloadBtn: document.getElementById('downloadBtn'),
                     resetBtn: document.getElementById('resetBtn')
                 };
                 this.bindEvents();
-                console.log('WEBP to JPG Converter initialized');
+                console.log('WEBP to JPG Converter (Batch) initialized');
             },
 
             bindEvents() {
                 this.elements.dropZone.addEventListener('click', () => this.elements.fileInput.click());
-                this.elements.fileInput.addEventListener('change', (e) => this.handleFile(e.target.files[0]));
+                this.elements.fileInput.addEventListener('change', (e) => this.handleFiles(Array.from(e.target.files)));
 
                 ['dragover', 'dragleave', 'drop'].forEach(eventName => {
                     this.elements.dropZone.addEventListener(eventName, (e) => {
                         e.preventDefault();
                         if (eventName === 'dragover') this.elements.dropZone.classList.add('dragover');
                         else this.elements.dropZone.classList.remove('dragover');
-                        if (eventName === 'drop' && e.dataTransfer.files.length) this.handleFile(e.dataTransfer.files[0]);
+                        if (eventName === 'drop' && e.dataTransfer.files.length) this.handleFiles(Array.from(e.dataTransfer.files));
                     });
                 });
 
@@ -194,54 +219,110 @@
                     this.elements.qualityValue.textContent = e.target.value;
                 });
 
-                this.elements.downloadBtn.addEventListener('click', () => this.convertAndDownload());
+                this.elements.downloadBtn.addEventListener('click', () => this.batchConvertAndDownload());
                 this.elements.resetBtn.addEventListener('click', () => this.reset());
             },
 
-            handleFile(file) {
-                if (!file) return;
+            handleFiles(files) {
+                if (!files || files.length === 0) return;
+                this.files = files;
+                this.renderFileList();
+                this.elements.dropZone.style.display = 'none';
+                this.elements.previewContainer.style.display = 'block';
 
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    this.originalImage = new Image();
-                    this.originalImage.onload = () => {
-                        this.elements.preview.src = this.originalImage.src;
-                        this.elements.previewContainer.style.display = 'block';
-                        this.elements.dropZone.style.display = 'none';
-                    };
-                    this.originalImage.src = e.target.result;
-                };
-                reader.readAsDataURL(file);
+                if (this.files.length > 1) {
+                    this.elements.downloadBtn.innerHTML = `<span class="material-symbols-rounded" style="font-size: 18px; margin-right: 8px;">download</span>전체 다운로드 (ZIP)`;
+                } else {
+                    this.elements.downloadBtn.innerHTML = `<span class="material-symbols-rounded" style="font-size: 18px; margin-right: 8px;">download</span>JPG로 다운로드`;
+                }
             },
 
-            convertAndDownload() {
-                if (!this.originalImage) return;
+            renderFileList() {
+                this.elements.fileList.innerHTML = '';
+                this.files.forEach((file, index) => {
+                    const reader = new FileReader();
+                    const div = document.createElement('div');
+                    div.className = 'file-item';
+                    div.innerHTML = `
+                        <div class="file-img-wrapper" id="img-wrapper-${index}" style="height: 100px; display: flex; align-items: center; justify-content: center; background: #eee; border-radius: 4px; margin-bottom: 8px;">
+                            <span class="material-symbols-rounded" style="color:#aaa;">image</span>
+                        </div>
+                        <div class="file-name">${file.name}</div>
+                    `;
+                    this.elements.fileList.appendChild(div);
+                    reader.onload = (e) => {
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        img.className = 'file-preview';
+                        div.querySelector('.file-img-wrapper').replaceWith(img);
+                    };
+                    reader.readAsDataURL(file);
+                });
+            },
 
-                const canvas = document.createElement('canvas');
-                canvas.width = this.originalImage.width;
-                canvas.height = this.originalImage.height;
-                const ctx = canvas.getContext('2d');
-
-                // Fill white for transparency
-                ctx.fillStyle = '#FFFFFF';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                ctx.drawImage(this.originalImage, 0, 0);
+            async batchConvertAndDownload() {
+                if (!this.files.length) return;
 
                 const quality = parseFloat(this.elements.qualityInput.value);
-                const dataUrl = canvas.toDataURL('image/jpeg', quality);
+                const btn = this.elements.downloadBtn;
+                const originalText = btn.innerHTML;
+                btn.disabled = true;
+                btn.innerText = "변환 중...";
 
-                const link = document.createElement('a');
-                link.download = `converted-image.jpg`;
-                link.href = dataUrl;
-                link.click();
+                try {
+                    if (this.files.length === 1) {
+                        const blob = await this.convertFile(this.files[0], quality);
+                        saveAs(blob, this.files[0].name.replace(/\.[^/.]+$/, "") + ".jpg");
+                    } else {
+                        const zip = new JSZip();
+                        const promises = this.files.map(async (file) => {
+                            const blob = await this.convertFile(file, quality);
+                            zip.file(file.name.replace(/\.[^/.]+$/, "") + ".jpg", blob);
+                        });
+                        await Promise.all(promises);
+                        const content = await zip.generateAsync({ type: "blob" });
+                        saveAs(content, "converted_images.zip");
+                    }
+                } catch (e) {
+                    console.error(e);
+                    alert("변환 중 오류가 발생했습니다.");
+                } finally {
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+                }
+            },
+
+            convertFile(file, quality) {
+                return new Promise((resolve, reject) => {
+                    const img = new Image();
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        img.onload = () => {
+                            const canvas = document.createElement('canvas');
+                            canvas.width = img.width;
+                            canvas.height = img.height;
+                            const ctx = canvas.getContext('2d');
+                            // Fill white
+                            ctx.fillStyle = '#FFFFFF';
+                            ctx.fillRect(0, 0, canvas.width, canvas.height);
+                            ctx.drawImage(img, 0, 0);
+                            canvas.toBlob((blob) => resolve(blob), 'image/jpeg', quality);
+                        };
+                        img.onerror = reject;
+                        img.src = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                });
             },
 
             reset() {
-                this.originalImage = null;
-                this.elements.preview.src = '';
+                this.files = [];
+                this.elements.fileList.innerHTML = '';
                 this.elements.fileInput.value = '';
                 this.elements.previewContainer.style.display = 'none';
                 this.elements.dropZone.style.display = 'block';
+                this.elements.qualityInput.value = 0.9;
+                this.elements.qualityValue.textContent = '0.9';
             }
         });
     </script>

@@ -12,7 +12,9 @@
     </script>
     <link rel="preload" href="../../css/style.css" as="style">
     <link rel="stylesheet" href="../../css/style.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/heic2any/0.0.3/heic2any.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/heic2any/0.0.4/heic2any.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
     <style>
         .upload-area {
             border: 2px dashed var(--border-color);
@@ -52,13 +54,49 @@
             display: none;
         }
 
-        .preview-image {
-            max-width: 100%;
-            max-height: 400px;
-            border-radius: 12px;
-            box-shadow: var(--shadow-md);
-            display: block;
-            margin: 0 auto;
+        .file-list {
+            margin-top: 24px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 16px;
+        }
+
+        .file-item {
+            background: var(--bg-sidebar);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+            position: relative;
+        }
+
+        .file-preview {
+            width: 100%;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 4px;
+            margin-bottom: 8px;
+        }
+
+        .file-name {
+            font-size: 12px;
+            color: var(--text-secondary);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
         }
 
         .controls {
@@ -86,16 +124,14 @@
             justify-content: center;
         }
 
-        /* Loading Spinner */
         .spinner {
-            border: 4px solid rgba(0, 0, 0, 0.1);
-            width: 36px;
-            height: 36px;
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--accent-blue);
             border-radius: 50%;
-            border-left-color: var(--accent-blue);
             animation: spin 1s linear infinite;
-            margin: 20px auto;
-            display: none;
+            margin: 0 auto 16px;
         }
 
         @keyframes spin {
@@ -134,10 +170,10 @@
             <div class="content-area">
                 <div class="page-header">
                     <div class="header-icon-wrapper">
-                        <span class="material-symbols-rounded">phone_iphone</span>
+                        <span class="material-symbols-rounded">image</span>
                     </div>
                     <h1>HEIC JPG 변환</h1>
-                    <p class="description">iPhone이나 iPad로 찍은 HEIC 사진을 JPG로 간편하게 변환하세요.</p>
+                    <p class="description">iPhone/iPad의 HEIC 이미지를 넓리 쓰이는 JPG로 변환하세요. 여러 파일을 한번에 처리할 수 있습니다.</p>
                 </div>
 
                 <div class="tool-container" data-tool-id="heic-to-jpg">
@@ -145,13 +181,16 @@
                         <span class="material-symbols-rounded upload-icon">add_photo_alternate</span>
                         <p class="upload-text">HEIC 이미지를 드래그하거나 클릭하여 업로드</p>
                         <p class="upload-hint">HEIC 파일 지원</p>
-                        <input type="file" id="fileInput" accept=".heic, .heif" style="display: none;">
+                        <input type="file" id="fileInput" accept=".heic,.HEIC" multiple style="display: none;">
                     </div>
 
-                    <div class="spinner" id="spinner"></div>
+                    <div id="loading" style="display: none; text-align: center; margin: 40px 0;">
+                        <div class="spinner"></div>
+                        <p>변환 준비 중...</p>
+                    </div>
 
                     <div class="preview-container" id="previewContainer">
-                        <img id="preview" class="preview-image" alt="Preview">
+                        <div class="file-list" id="fileList"></div>
 
                         <div class="controls">
                             <div class="control-group">
@@ -168,12 +207,12 @@
                             <button class="btn btn-primary" id="downloadBtn">
                                 <span class="material-symbols-rounded"
                                     style="font-size: 18px; margin-right: 8px;">download</span>
-                                JPG로 다운로드
+                                전체 다운로드 (ZIP)
                             </button>
                             <button class="btn" id="resetBtn">
                                 <span class="material-symbols-rounded"
                                     style="font-size: 18px; margin-right: 8px;">refresh</span>
-                                다른 이미지
+                                초기화
                             </button>
                         </div>
                     </div>
@@ -185,122 +224,168 @@
     <script>
         Utilsly.registerTool('heic-to-jpg', {
             elements: {},
-            originalBlob: null,
-            convertedBlob: null,
+            files: [],
 
             init() {
                 this.elements = {
                     dropZone: document.getElementById('dropZone'),
                     fileInput: document.getElementById('fileInput'),
-                    preview: document.getElementById('preview'),
                     previewContainer: document.getElementById('previewContainer'),
-                    spinner: document.getElementById('spinner'),
+                    fileList: document.getElementById('fileList'),
                     qualityInput: document.getElementById('qualityInput'),
                     qualityValue: document.getElementById('qualityValue'),
                     downloadBtn: document.getElementById('downloadBtn'),
-                    resetBtn: document.getElementById('resetBtn')
+                    resetBtn: document.getElementById('resetBtn'),
+                    loading: document.getElementById('loading')
                 };
                 this.bindEvents();
-                console.log('HEIC to JPG Converter initialized');
+                console.log('HEIC to JPG Converter (Batch) initialized');
             },
 
             bindEvents() {
                 this.elements.dropZone.addEventListener('click', () => this.elements.fileInput.click());
-                this.elements.fileInput.addEventListener('change', (e) => this.handleFile(e.target.files[0]));
+                this.elements.fileInput.addEventListener('change', (e) => this.handleFiles(Array.from(e.target.files)));
 
                 ['dragover', 'dragleave', 'drop'].forEach(eventName => {
                     this.elements.dropZone.addEventListener(eventName, (e) => {
                         e.preventDefault();
                         if (eventName === 'dragover') this.elements.dropZone.classList.add('dragover');
                         else this.elements.dropZone.classList.remove('dragover');
-                        if (eventName === 'drop' && e.dataTransfer.files.length) this.handleFile(e.dataTransfer.files[0]);
+                        if (eventName === 'drop' && e.dataTransfer.files.length) this.handleFiles(Array.from(e.dataTransfer.files));
                     });
                 });
 
                 this.elements.qualityInput.addEventListener('input', (e) => {
                     this.elements.qualityValue.textContent = e.target.value;
-                    // Re-conversion might be needed if they change quality, but heic conversion is slow.
-                    // We will just apply quality setting on Download, re-running conversion then or 
-                    // caching original blob and re-converting. Re-converting HEIC is expensive.
-                    // Let's re-convert on download click? Or convert on file load with default quality?
-                    // Strategy: Convert on file load to display preview (JPG). Then re-convert *from* that blob or original?
-                    // Best: Convert original HEIC to Blob on load with quality.
                 });
 
-                this.elements.downloadBtn.addEventListener('click', () => this.download());
+                this.elements.downloadBtn.addEventListener('click', () => this.batchConvertAndDownload());
                 this.elements.resetBtn.addEventListener('click', () => this.reset());
             },
 
-            async handleFile(file) {
-                if (!file) return;
-
+            async handleFiles(files) {
+                if (!files || files.length === 0) return;
+                this.files = files;
                 this.elements.dropZone.style.display = 'none';
-                this.elements.spinner.style.display = 'block';
+                this.elements.loading.style.display = 'block';
+                this.renderFileListInitial(); // Show placeholders first
 
-                try {
-                    // heic2any conversion
-                    const quality = parseFloat(this.elements.qualityInput.value);
-                    const convertedBlob = await heic2any({
-                        blob: file,
-                        toType: "image/jpeg",
-                        quality: quality
-                    });
+                // We'll generate previews sequentially or in parallel?
+                // HEIC conversion is heavy. Let's do previews.
+                // Actually, heic2any can be slow. For Preview, maybe just show file names and a placeholder until we convert?
+                // Or we can convert small thumbnails?
+                // For now let's just show placeholders and then replace them with thumbnails if we can, or just wait for download.
+                // Let's TRY to generate previews for all.
 
-                    this.convertedBlob = Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob;
-                    this.originalBlob = file; // Store original to re-convert if needed
+                // Show file list UI immediately
+                this.elements.loading.style.display = 'none';
+                this.elements.previewContainer.style.display = 'block';
 
-                    this.elements.preview.src = URL.createObjectURL(this.convertedBlob);
-                    this.elements.spinner.style.display = 'none';
-                    this.elements.previewContainer.style.display = 'block';
+                // Initial render with placeholders
+                this.renderFileListInitial();
 
-                } catch (error) {
-                    console.error('HEIC conversion failed:', error);
-                    alert('HEIC 변환에 실패했습니다. 올바른 HEIC 파일인지 확인해주세요.');
-                    this.reset();
+                // Try to generate previews in background?
+                // HEIC previews are heavy. We might skip preview generation until user clicks something or just skip preview for heavy batch.
+                // But user expects preview. Let's do a "lighter" preview attempt?
+                // heic2any allows simple conversion.
+
+                // We will convert one by one for preview to avoid freezing UI
+                this.generatePreviews();
+
+                if (this.files.length > 1) {
+                    this.elements.downloadBtn.innerHTML = `<span class="material-symbols-rounded" style="font-size: 18px; margin-right: 8px;">download</span>전체 다운로드 (ZIP)`;
+                } else {
+                    this.elements.downloadBtn.innerHTML = `<span class="material-symbols-rounded" style="font-size: 18px; margin-right: 8px;">download</span>JPG로 다운로드`;
                 }
             },
 
-            async download() {
-                // Should we re-convert if quality changed since load? 
-                // For simplicity now, let's just download the one we made.
-                // Ideally, we'd check if quality input value != used quality, then re-convert.
-                // But HEIC conversion is heavy. Let's assume user accepts current preview or re-uploads.
-                // Wait, if we want quality control to actually work, we MUST re-convert if it changed.
+            renderFileListInitial() {
+                this.elements.fileList.innerHTML = '';
+                this.files.forEach((file, index) => {
+                    const div = document.createElement('div');
+                    div.className = 'file-item';
+                    div.id = `file-item-${index}`;
+                    div.innerHTML = `
+                        <div class="file-img-wrapper" style="height: 100px; display: flex; align-items: center; justify-content: center; background: #eee; border-radius: 4px; margin-bottom: 8px;">
+                            <div class="spinner" style="width: 20px; height: 20px; border-width: 2px; margin: 0;"></div>
+                        </div>
+                        <div class="file-name">${file.name}</div>
+                    `;
+                    this.elements.fileList.appendChild(div);
+                });
+            },
 
-                // Let's quickly re-convert for the download to respect the *current* slider value.
-                // Since this might be slow, we show spinner? Or just download.
-                // Let's assume the user might have adjusted it.
+            async generatePreviews() {
+                for (let i = 0; i < this.files.length; i++) {
+                    try {
+                        const file = this.files[i];
+                        const blob = await heic2any({ blob: file, toType: "image/jpeg", quality: 0.1 }); // Low quality for preview
+                        const url = URL.createObjectURL(blob);
+
+                        const item = document.getElementById(`file-item-${i}`);
+                        if (item) {
+                            const img = document.createElement('img');
+                            img.src = url;
+                            img.className = 'file-preview';
+                            item.querySelector('.file-img-wrapper').replaceWith(img);
+                        }
+                    } catch (e) {
+                        console.error("Preview generation failed", e);
+                        const item = document.getElementById(`file-item-${i}`);
+                        if (item) {
+                            item.querySelector('.file-img-wrapper').innerHTML = `<span style="color:red; font-size: 10px;">Preview Error</span>`;
+                        }
+                    }
+                }
+            },
+
+            async batchConvertAndDownload() {
+                if (!this.files.length) return;
 
                 const quality = parseFloat(this.elements.qualityInput.value);
-                // We could re-convert here.
+                const btn = this.elements.downloadBtn;
+                const originalText = btn.innerHTML;
+                btn.disabled = true;
+                btn.innerText = "변환 중...";
 
                 try {
-                    const finalBlob = await heic2any({
-                        blob: this.originalBlob,
-                        toType: "image/jpeg",
-                        quality: quality
-                    });
+                    if (this.files.length === 1) {
+                        const blob = await heic2any({ blob: this.files[0], toType: "image/jpeg", quality: quality });
+                        saveAs(blob, this.files[0].name.replace(/\.[^/.]+$/, "") + ".jpg");
+                    } else {
+                        const zip = new JSZip();
 
-                    const blob = Array.isArray(finalBlob) ? finalBlob[0] : finalBlob;
-                    const url = URL.createObjectURL(blob);
+                        // Concurrent IS risky for HEIC. Let's do sequential.
+                        for (const file of this.files) {
+                            try {
+                                const blob = await heic2any({ blob: file, toType: "image/jpeg", quality: quality });
+                                zip.file(file.name.replace(/\.[^/.]+$/, "") + ".jpg", blob);
+                            } catch (e) {
+                                console.error(`Failed to convert ${file.name}`, e);
+                            }
+                        }
 
-                    const link = document.createElement('a');
-                    link.download = `converted-heic.jpg`;
-                    link.href = url;
-                    link.click();
+                        const content = await zip.generateAsync({ type: "blob" });
+                        saveAs(content, "converted_images.zip");
+                    }
                 } catch (e) {
-                    alert("Download failed");
+                    console.error(e);
+                    alert("변환 중 오류가 발생했습니다.");
+                } finally {
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
                 }
             },
 
             reset() {
-                this.convertedBlob = null;
-                this.originalBlob = null;
-                this.elements.preview.src = '';
+                this.files = [];
+                this.elements.fileList.innerHTML = '';
                 this.elements.fileInput.value = '';
                 this.elements.previewContainer.style.display = 'none';
-                this.elements.spinner.style.display = 'none';
                 this.elements.dropZone.style.display = 'block';
+                this.elements.loading.style.display = 'none';
+                this.elements.qualityInput.value = 0.9;
+                this.elements.qualityValue.textContent = '0.9';
             }
         });
     </script>

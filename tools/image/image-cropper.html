@@ -40,6 +40,40 @@
             margin-bottom: 16px;
             flex-wrap: wrap;
         }
+
+        /* Standard Upload Area */
+        .upload-area {
+            border: 2px dashed var(--border-color);
+            border-radius: 12px;
+            padding: 60px 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: var(--bg-primary);
+        }
+
+        .upload-area:hover,
+        .upload-area.dragover {
+            border-color: var(--accent-blue);
+            background: var(--bg-hover);
+        }
+
+        .upload-icon {
+            font-size: 64px;
+            color: var(--text-tertiary);
+            margin-bottom: 16px;
+        }
+
+        .upload-text {
+            font-size: 16px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .upload-hint {
+            font-size: 13px;
+            color: var(--text-tertiary);
+        }
     </style>
 </head>
 
@@ -73,11 +107,10 @@
                 </div>
 
                 <div class="tool-container" data-tool-id="image-cropper">
-                    <div class="drop-zone" id="dropZone"
-                        style="border: 2px dashed var(--border-color); padding: 40px; text-align: center; cursor: pointer; margin-bottom: 24px;">
-                        <span class="material-symbols-rounded"
-                            style="font-size: 48px; color: var(--text-tertiary);">cloud_upload</span>
-                        <p style="margin-top: 16px;">이미지를 업로드하세요</p>
+                    <div class="upload-area" id="dropZone">
+                        <span class="material-symbols-rounded upload-icon">cloud_upload</span>
+                        <p class="upload-text">이미지를 드래그하거나 클릭하여 업로드</p>
+                        <p class="upload-hint">JPG, PNG, WEBP 등 지원</p>
                         <input type="file" id="fileInput" accept="image/*" style="display: none;">
                     </div>
 
@@ -97,8 +130,8 @@
                         <div class="img-container">
                             <img id="image" src="" alt="Picture">
                         </div>
-                        <button class="btn btn-primary" id="cropBtn" style="width: 100%; margin-top: 16px;">자르기
-                            및 다운로드</button>
+                        <button class="btn btn-primary" id="cropBtn" style="width: 100%; margin-top: 16px;">자르기 및
+                            다운로드</button>
                     </div>
                 </div>
             </div>

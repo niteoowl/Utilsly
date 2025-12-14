@@ -254,15 +254,23 @@
                     totalInterest: document.getElementById('totalInterest'),
                     totalPrincipal: document.getElementById('totalPrincipal'),
                     returnRate: document.getElementById('returnRate'),
-                    ctx: document.getElementById('resultChart').getContext('2d')
+                    ctx: document.getElementById('resultChart')
                 };
 
                 this.elements.calculateBtn.addEventListener('click', () => this.calculate());
 
-                // Auto calculate on enter or initial load?
-                this.calculate();
+                // Try initial calc, but wait for Chart to be ready?
+                // Chart.js is loaded from CDN in head.
+                setTimeout(() => this.calculate(), 100);
 
                 console.log('Compound Interest Calculator initialized');
+            },
+
+            cleanup() {
+                if (this.chart) {
+                    this.chart.destroy();
+                    this.chart = null;
+                }
             },
 
             calculate() {
@@ -270,105 +278,53 @@
                 const PMT = parseFloat(this.elements.monthlyContribution.value) || 0;
                 const r = (parseFloat(this.elements.interestRate.value) || 0) / 100;
                 const t = parseFloat(this.elements.years.value) || 1;
-                const n = parseInt(this.elements.compoundFrequency.value);
+                const n = parseInt(this.elements.compoundFrequency.value) || 12;
 
-                const totalMonths = t * 12;
-                let futureValue = P;
-                let totalInvested = P;
+                const totalMonths = Math.floor(t * 12);
+
+                let currentBalance = P;
+                let totalPrincipal = P;
 
                 // Data for chart
                 const labels = [];
                 const principalData = [];
                 const interestData = [];
 
-                // Calculation logic: Step by step for accurate monthly additional accumulation even if compounding varies
-                // Simple approx: convert everything to monthly steps for chart
-
-                // If freq is 12 (monthly), simple. If 1 (yearly), interest adds only annually but PMT adds monthly?
-                // Usually compound interest calc with monthly contribution assumes monthly compounding or contribution happening at compounding interval.
-                // Let's assume contribution happens at the end of each compounding period for simplicity if matched,
-                // or just standard formula: FV = P(1+r/n)^(nt) + PMT * ... ?
-                // Standard formula for Monthly Contribution PMT, Monthly Compounding:
-                // FV = P * (1 + r/12)^(12t) + PMT * [ (1 + r/12)^(12t) - 1 ] / (r/12)
-
-                // Let's do a loop for year-by-year data points for the chart.
-
-                let currentBalance = P;
-                let totalPrincipal = P;
-
-                for (let year = 1; year <= t; year++) {
-                    labels.push(year + '년');
-
-                    // Add monthly contributions and compound
-                    // To support different compounding frequencies accurately, let's step by month internally
-
-                    for (let m = 0; m < 12; m++) {
-                        // Interest accrual depends on n
-                        // Simplified: daily/monthly accrual is common. 
-                        // If user selects Annual compounding but Monthly contribution, strictly interest applies only at yearend.
-                        // But usually banks calculate monthly or daily. Let's stick to n=12 is standard for "Monthly", n=1 for "Yearly".
-
-                        // Wait, if n=1 (Yearly), effectively PMT sits idle until year capitalization? 
-                        // Let's simplify: Treat 'n' strictly as capitalization frequency.
-                        // Contributions PMT happen monthly.
-
-                        // We accumulate PMT to a non-interest bucket every month.
-                        // At compounding event (every 12/n months), we apply interest to Balance and merge accumulations.
-
-                        // For chart smoothness, let's use the Formula approach for end-of-year points.
-                    }
-
-                    // Actually, let's just use the standard Future Value of a Series formula modified for P and PMT
-                    // Assuming PMT is made at end of each month, and compounding is 'n' times per year.
-                    // This is complex. Most calculators simplify to: Compounding = Monthly (n=12).
-                    // If user selects n=1, it's roughly:
-
-                    // Let's stick to the n=12 (Monthly Compounding) formula for monthly contributions as default best practice unless strict yearly is needed.
-                    // If n differs, we iterate.
-
-                    // ITERATIVE SIMULATION (Best for chart)
-                    // Reset for full simulation
-                }
-
-                labels.length = 0; principalData.length = 0; interestData.length = 0;
-
-                currentBalance = P;
-                totalPrincipal = P;
-
-                // Simulation step: 1 Month
-                // Rate per month = r / 12 (if n=12). 
-                // If n=1, rate per month = 0, rate per year = r.
-
-                const compoundIntervalMonths = 12 / n; // e.g. 12/12=1 month, 12/1=12 months
-                let nextCompoundMonth = compoundIntervalMonths;
-
-                // Start with Year 0
+                // Add Initial Point
                 labels.push('시작');
                 principalData.push(P);
                 interestData.push(0);
 
-                for (let month = 1; month <= totalMonths; month++) {
-                    // Add contribution
+                // Simulation per month
+                for (let m = 1; m <= totalMonths; m++) {
+                    // 1. Add Contribution
                     currentBalance += PMT;
                     totalPrincipal += PMT;
 
-                    // Compound Interest?
-                    if (month % (12 / n) < 0.01) { // Floating point safety, or just checking integer divisibility
-                        // close enough to compound interval? 
-                        // actually 12/n might be integer. 12/12=1, 12/1=12, 12/4=3. Yes.
-                        // Wait, logic: At month M, if M is multiple of interval, apply interest.
-                        // Interest Rate per period = r / n
-                        const interest = (currentBalance - PMT) * (r / n); // Previous balance earns interest
-                        // Actually interest is usually on average balance or start balance. 
-                        // Let's assume interest applies to balance BEFORE this month's deposit generally, or After? 
-                        // Standard: Interest on balance at start of period.
-                        // let's apply interest to (CurrentBalance - PMT).
+                    // 2. Apply Interest?
+                    // Interval for interest: 12 / n months.
+                    // e.g. n=12 -> interval=1. Every month.
+                    // e.g. n=1 -> interval=12. Every 12th month.
+                    // e.g. n=4 -> interval=3. Every 3rd month.
+
+                    // Check if this month is a compounding month
+                    const interval = 12 / n;
+                    if (m % interval === 0) {
+                        // Rate per compounding period
+                        const ratePerPeriod = r / n;
+                        // Interest applies to the balance BEFORE this month's deposit? 
+                        // Usually Banks: Average balance. 
+                        // Simplification: Apply to currentBalance.
+                        // But we just added PMT. Let's assume PMT is end-of-month, Interest is calculated on balance.
+                        // So we should subtract PMT before calculating interest
+                        const balanceConfig = currentBalance - PMT;
+                        const interest = balanceConfig * ratePerPeriod;
                         currentBalance += interest;
                     }
 
-                    // Record data point at end of each YEAR
-                    if (month % 12 === 0) {
-                        labels.push((month / 12) + '년');
+                    // 3. Record Data (Yearly)
+                    if (m % 12 === 0) {
+                        labels.push((m / 12) + '년');
                         principalData.push(Math.round(totalPrincipal));
                         interestData.push(Math.round(currentBalance - totalPrincipal));
                     }
@@ -378,7 +334,7 @@
                 const finalBal = Math.round(currentBalance);
                 const totalPrin = Math.round(totalPrincipal);
                 const totalInt = finalBal - totalPrin;
-                const retRate = ((totalInt / totalPrin) * 100).toFixed(2);
+                const retRate = totalPrin > 0 ? ((totalInt / totalPrin) * 100).toFixed(2) : "0.00";
 
                 this.elements.finalAmount.innerText = finalBal.toLocaleString() + '원';
                 this.elements.totalInterest.innerText = totalInt.toLocaleString() + '원';
@@ -389,46 +345,32 @@
             },
 
             drawChart(labels, principalData, interestData) {
-                if (this.chart) this.chart.destroy();
+                if (typeof Chart === 'undefined') {
+                    console.error("Chart.js not loaded");
+                    return;
+                }
+
+                if (this.chart) {
+                    this.chart.destroy();
+                    this.chart = null;
+                }
 
                 const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
                 const gridColor = isDark ? '#333' : '#E5E5E5';
                 const textColor = isDark ? '#AAA' : '#666';
 
-                this.chart = new Chart(this.elements.ctx, {
+                const ctx = this.elements.ctx; // Pass canvas element directly
+
+                this.chart = new Chart(ctx, {
                     type: 'line',
-                    data: {
-                        labels: labels,
-                        datasets: [
-                            {
-                                label: '원금',
-                                data: principalData,
-                                borderColor: '#9B9A97', // Grey
-                                backgroundColor: 'rgba(155, 154, 151, 0.1)',
-                                fill: true,
-                                tension: 0.4
-                            },
-                            {
-                                label: '이자 수익',
-                                data: interestData, // We want stacked? No, total value line?
-                                // Let's show Total Value vs Principal
-                                // Actually better: Stacked Area? Or just two lines.
-                                // Let's show Total Balance line and Principal line.
-                                // "interestData" here is just interest amount. 
-                                // Total Balance = Principal + Interest.
-                                // Let's re-map to: Principal (Base), Total (Top)
-                            }
-                        ]
-                    },
-                    // Re-do datasets for better viz
                     data: {
                         labels: labels,
                         datasets: [
                             {
                                 label: '총 자산',
                                 data: principalData.map((p, i) => p + interestData[i]),
-                                borderColor: '#000000', // Accent Blue equivalent? or Black/White
-                                backgroundColor: 'rgba(0, 0, 0, 0.05)',
+                                borderColor: isDark ? '#ffffff' : '#000000',
+                                backgroundColor: isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)',
                                 fill: true,
                                 tension: 0.4,
                                 order: 1
@@ -453,11 +395,11 @@
                         },
                         scales: {
                             x: {
-                                grid: { color: 'transparent' },
+                                grid: { color: 'transparent', borderColor: 'transparent' },
                                 ticks: { color: textColor }
                             },
                             y: {
-                                grid: { color: gridColor },
+                                grid: { color: gridColor, borderColor: 'transparent' },
                                 ticks: {
                                     color: textColor,
                                     callback: (val) => {
@@ -480,13 +422,6 @@
                         }
                     }
                 });
-
-                // Color adjustment for Dark Mode
-                if (isDark) {
-                    this.chart.data.datasets[0].borderColor = '#FFFFFF';
-                    this.chart.data.datasets[0].backgroundColor = 'rgba(255, 255, 255, 0.1)';
-                    this.chart.update();
-                }
             }
         });
     </script>
