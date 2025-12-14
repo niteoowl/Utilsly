@@ -255,11 +255,28 @@
                                         class="material-symbols-rounded" style="font-size:18px;">link</span></button>
                                 <button type="button" class="tool-btn" id="insertImageBtn" title="이미지 (압축 첨부)"><span
                                         class="material-symbols-rounded" style="font-size:18px;">image</span></button>
+                                <button type="button" class="tool-btn" id="insertVideoBtn" title="유튜브 영상"><span
+                                        class="material-symbols-rounded" style="font-size:18px;">movie</span></button>
+
+                                <div style="width:1px; height: 20px; background:var(--border-color); margin:0 4px;">
+                                </div>
+
+                                <!-- Advanced -->
+                                <button type="button" class="tool-btn" id="insertTableBtn" title="표 삽입 (3x3)"><span
+                                        class="material-symbols-rounded"
+                                        style="font-size:18px;">table_chart</span></button>
+                                <button type="button" class="tool-btn" id="insertQuoteBtn" title="인용구"><span
+                                        class="material-symbols-rounded"
+                                        style="font-size:18px;">format_quote</span></button>
+                                <button type="button" class="tool-btn" id="insertCodeBtn" title="코드 블록"><span
+                                        class="material-symbols-rounded" style="font-size:18px;">code</span></button>
+
                                 <input type="file" id="imageUploadInput" accept="image/*" style="display:none;">
                             </div>
                             <!-- Content Editable Div -->
                             <div id="editor" contenteditable="true"
                                 style="min-height: 400px; padding: 16px; border: 1px solid var(--border-color); border-radius: 0 0 4px 4px; background: var(--bg-primary); line-height: 1.6; outline: none; overflow-y: auto;">
+                                <p><br></p>
                             </div>
                             <textarea id="content" style="display:none;"></textarea>
                         </div>
@@ -326,8 +343,20 @@
         setTimeout(checkAuth, 500);
 
         // Initialize Editor
-        // Initialize Editor
         const editor = document.getElementById('editor');
+
+        // --- PASTE HANDLER (Strip Styles) ---
+        editor.addEventListener('paste', (e) => {
+            e.preventDefault();
+            let text = (e.originalEvent || e).clipboardData.getData('text/plain');
+
+            // Basic HTML cleanup / insertion as plain text
+            // If we want to support basic formatting from word etc, we need a sanitizer.
+            // But user requested "like original format" was bad. They likely want Clean Text or Clean HTML.
+            // "붙여넣으면 그 원본 서식대로 붙여넣어져..." (It pastes with original format... [implied complaint])
+            // So we force plain text.
+            document.execCommand('insertText', false, text);
+        });
 
         // Toolbar Buttons (execCommand)
         document.querySelectorAll('.tool-btn[data-cmd]').forEach(btn => {
@@ -367,6 +396,62 @@
             editor.focus();
         });
 
+        // --- NEW FEATURES Handlers ---
+
+        // 1. YouTube Video
+        document.getElementById('insertVideoBtn').addEventListener('click', () => {
+            const url = prompt('YouTube 동영상 주소(URL)를 입력하세요:');
+            if (url) {
+                // Extract Video ID
+                let videoId = null;
+                const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+                const match = url.match(regExp);
+                if (match && match[2].length === 11) {
+                    videoId = match[2];
+                }
+
+                if (videoId) {
+                    const iframeHtml = `<div class="video-container" style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; margin: 16px 0;"><iframe src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></iframe></div><p><br></p>`;
+                    // Insert HTML
+                    editor.focus();
+                    document.execCommand('insertHTML', false, iframeHtml);
+                } else {
+                    alert('유효하지 않은 YouTube URL입니다.');
+                }
+            }
+        });
+
+        // 2. Table (3x3 default)
+        document.getElementById('insertTableBtn').addEventListener('click', () => {
+            const tableHtml = `
+                <table style="width: 100%; border-collapse: collapse; margin: 16px 0; border: 1px solid var(--border-color);">
+                    <tbody>
+                        <tr><td style="border: 1px solid var(--border-color); padding: 8px;">내용</td><td style="border: 1px solid var(--border-color); padding: 8px;">내용</td><td style="border: 1px solid var(--border-color); padding: 8px;">내용</td></tr>
+                        <tr><td style="border: 1px solid var(--border-color); padding: 8px;">내용</td><td style="border: 1px solid var(--border-color); padding: 8px;">내용</td><td style="border: 1px solid var(--border-color); padding: 8px;">내용</td></tr>
+                        <tr><td style="border: 1px solid var(--border-color); padding: 8px;">내용</td><td style="border: 1px solid var(--border-color); padding: 8px;">내용</td><td style="border: 1px solid var(--border-color); padding: 8px;">내용</td></tr>
+                    </tbody>
+                </table>
+                <p><br></p>
+            `;
+            editor.focus();
+            document.execCommand('insertHTML', false, tableHtml);
+        });
+
+        // 3. Quote
+        document.getElementById('insertQuoteBtn').addEventListener('click', () => {
+            const quoteHtml = `<blockquote style="border-left: 4px solid var(--accent-blue); padding-left: 16px; color: var(--text-secondary); margin: 16px 0;">인용구를 입력하세요</blockquote><p><br></p>`;
+            editor.focus();
+            document.execCommand('insertHTML', false, quoteHtml);
+        });
+
+        // 4. Code Block
+        document.getElementById('insertCodeBtn').addEventListener('click', () => {
+            const codeHtml = `<pre style="background: #282c34; color: #abb2bf; padding: 16px; border-radius: 4px; overflow-x: auto; font-family: monospace; margin: 16px 0;"><code>코드를 입력하세요...</code></pre><p><br></p>`;
+            editor.focus();
+            document.execCommand('insertHTML', false, codeHtml);
+        });
+
+
         // Image Handling
         const insertImageBtn = document.getElementById('insertImageBtn');
         const imageUploadInput = document.getElementById('imageUploadInput');
@@ -402,7 +487,6 @@
                     const dataUrl = canvas.toDataURL('image/jpeg', 0.5);
 
                     // Insert into editor
-                    // We use execCommand 'insertImage' or manual insertion
                     editor.focus();
                     document.execCommand('insertImage', false, dataUrl);
 

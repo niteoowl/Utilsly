@@ -4,83 +4,192 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>사다리 타기 - Utilsly</title>
-    <meta name="description" content="랜덤으로 결과를 결정하는 사다리 타기 게임입니다. 내기나 추첨에 활용하세요.">
-    <script>
-        !function () { const e = localStorage.getItem("theme"), t = window.matchMedia("(prefers-color-scheme: dark)").matches; "dark" !== e && (e || !t) || document.documentElement.setAttribute("data-theme", "dark") }();
-    </script>
-    <link rel="preload" href="../../css/style.css" as="style">
+    <meta name="description" content="참여자와 벌칙을 설정하고 두근두근 사다리 게임을 즐겨보세요.">
     <link rel="stylesheet" href="../../css/style.css">
     <style>
-        .game-setup {
+        .game-container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        /* Setup Card */
+        .setup-card {
             background: var(--bg-sidebar);
-            padding: 24px;
-            border-radius: 12px;
             border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+        }
+
+        .setup-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 24px;
         }
 
-        .controls-row {
+        .player-count-control {
             display: flex;
-            gap: 16px;
             align-items: center;
-            margin-bottom: 16px;
-        }
-
-        .player-inputs {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
             gap: 12px;
-            margin-top: 16px;
+            background: var(--bg-primary);
+            padding: 4px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
         }
 
-        .input-group {
+        .count-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: var(--bg-hover);
+            border-radius: 6px;
+            cursor: pointer;
             display: flex;
-            flex-direction: column;
-            gap: 4px;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-primary);
         }
 
-        .input-group label {
-            font-size: 12px;
+        .count-btn:hover {
+            background: var(--border-color);
+        }
+
+        .count-display {
+            font-weight: 700;
+            min-width: 40px;
+            text-align: center;
+            font-size: 16px;
+        }
+
+        .participants-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .participant-item {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px;
+            position: relative;
+            transition: transform 0.2s;
+        }
+
+        .participant-item:hover {
+            transform: translateY(-2px);
+            border-color: var(--accent-blue);
+        }
+
+        .p-label {
+            font-size: 11px;
+            color: var(--text-tertiary);
+            margin-bottom: 4px;
+            display: block;
+        }
+
+        .p-input {
+            width: 100%;
+            border: none;
+            background: transparent;
+            border-bottom: 1px solid var(--border-color);
+            padding: 4px 0;
+            font-size: 14px;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+        .p-input:focus {
+            outline: none;
+            border-bottom-color: var(--accent-blue);
+        }
+
+        .p-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 13px;
+            margin: 0 auto 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Game Board */
+        .game-board {
+            display: none;
+            flex-direction: column;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .board-toolbar {
+            padding: 16px;
+            background: var(--bg-sidebar);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            gap: 12px;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
             color: var(--text-secondary);
         }
 
-        .input-group input {
-            text-align: center;
-        }
-
-        .game-board {
-            position: relative;
-            background: var(--bg-primary);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 20px;
+        .canvas-container {
             overflow-x: auto;
-            min-height: 400px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        canvas {
-            cursor: pointer;
-        }
-
-        .result-modal {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: var(--bg-primary);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 24px;
-            z-index: 1000;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-            min-width: 300px;
+            overflow-y: hidden;
+            padding: 40px 20px;
+            /* Custom Scrollbar */
+            scrollbar-width: thin;
+            scrollbar-color: var(--text-tertiary) transparent;
             text-align: center;
+            cursor: grab;
+        }
+
+        .canvas-container:active {
+            cursor: grabbing;
+        }
+
+        /* Modal for single result */
+        .result-toast {
+            position: fixed;
+            bottom: 32px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--text-primary);
+            color: var(--bg-primary);
+            padding: 12px 24px;
+            border-radius: 50px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            font-weight: 600;
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .result-toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
         }
     </style>
 </head>
@@ -91,18 +200,17 @@
             <div class="sidebar-header">
                 <div class="user-profile">
                     <div class="avatar">U</div>
-                    <span class="username">Utilsly</span>
                 </div>
             </div>
-            <nav class="sidebar-nav">
-                <!-- Sidebar content generated by js/common.js -->
-            </nav>
+            <nav class="sidebar-nav"></nav>
         </aside>
 
         <main class="main-content">
             <header class="top-bar">
                 <div class="breadcrumbs">
                     <span class="breadcrumb-item">랜덤/추첨</span>
+                    <span class="separator">/</span>
+                    <span class="breadcrumb-item">사다리 타기</span>
                 </div>
             </header>
 
@@ -112,330 +220,517 @@
                         <span class="material-symbols-rounded">line_style</span>
                     </div>
                     <h1>사다리 타기</h1>
-                    <p class="description">참여자 수와 벌칙을 입력하고 사다리를 타보세요.</p>
+                    <p class="description">친구, 동료들과 함께 즐기는 스릴 만점 사다리 게임!</p>
                 </div>
 
                 <div class="tool-container" data-tool-id="ladder-game">
-                    <div class="game-setup" id="setupArea">
-                        <div class="controls-row">
-                            <label style="font-weight: 600;">참여자 수 (2~10명)</label>
-                            <input type="number" id="playerCount" value="4" min="2" max="10" style="width: 80px;">
-                            <button class="btn btn-primary" id="setupBtn">설정</button>
-                        </div>
+                    <div class="game-container">
 
-                        <div id="inputsArea" style="display: none;">
-                            <div style="display: flex; justify-content: space-between; margin-top: 16px;">
-                                <strong>참여자 이름 / 결과 입력</strong>
+                        <!-- STEP 1: SETUP -->
+                        <div class="setup-card" id="setupCard">
+                            <div class="setup-header">
+                                <h3 style="margin:0; font-size:18px;">참여자 설정</h3>
+                                <div class="player-count-control">
+                                    <button class="count-btn" id="decreaseBtn"><span
+                                            class="material-symbols-rounded">remove</span></button>
+                                    <div class="count-display" id="countDisplay">4</div>
+                                    <button class="count-btn" id="increaseBtn"><span
+                                            class="material-symbols-rounded">add</span></button>
+                                </div>
                             </div>
-                            <div class="player-inputs" id="playerList"></div>
 
-                            <div style="margin-top: 24px; text-align: center;">
-                                <button class="btn btn-primary" id="startBtn" style="padding: 10px 32px;">
-                                    <span class="material-symbols-rounded"
-                                        style="font-size: 20px; margin-right: 8px;">play_arrow</span>
-                                    사다리 생성 및 시작
+                            <div class="participants-grid" id="participantsGrid">
+                                <!-- Generated by JS -->
+                            </div>
+
+                            <div style="display:flex; justify-content:center; gap:12px; margin-top:32px;">
+                                <button class="btn" id="autoFillBtn" style="color:var(--text-secondary);">
+                                    <span class="material-symbols-rounded" style="margin-right:6px">autorenew</span>
+                                    자동 채우기
+                                </button>
+                                <button class="btn btn-primary" id="startDeviceBtn"
+                                    style="padding:12px 40px; font-size:16px;">
+                                    게임 시작
+                                    <span class="material-symbols-rounded" style="margin-left:8px">arrow_forward</span>
                                 </button>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="game-board" id="gameBoard" style="display: none;">
-                        <canvas id="ladderCanvas"></canvas>
-                        <div style="margin-top: 16px;">
-                            <button class="btn" id="resetBtn">다시 하기</button>
+                        <!-- STEP 2: GAME BOARD -->
+                        <div class="game-board" id="gameBoard">
+                            <div class="board-toolbar">
+                                <button class="btn btn-sm" id="resetGameBtn">
+                                    <span class="material-symbols-rounded"
+                                        style="font-size:18px; margin-right:4px;">arrow_back</span>
+                                    설정으로
+                                </button>
+
+                                <div class="speed-control">
+                                    <span>속도</span>
+                                    <input type="range" id="speedRange" min="1" max="5" value="3" style="width:80px">
+                                </div>
+
+                                <button class="btn btn-primary btn-sm" id="runAllBtn">
+                                    <span class="material-symbols-rounded"
+                                        style="font-size:18px; margin-right:4px;">play_circle</span>
+                                    전체 결과 보기
+                                </button>
+                            </div>
+
+                            <div class="canvas-container" id="canvasContainer">
+                                <canvas id="ladderCanvas"></canvas>
+                            </div>
                         </div>
+
                     </div>
                 </div>
             </div>
         </main>
 
-        <div class="result-modal" id="resultModal">
-            <h3 style="margin-bottom: 16px; font-size: 20px;">결과 확인</h3>
-            <div id="resultText" style="font-size: 24px; margin-bottom: 24px; font-weight: bold;"></div>
-            <button class="btn btn-primary"
-                onclick="document.getElementById('resultModal').style.display='none'">닫기</button>
+        <div class="result-toast" id="resultToast">
+            <span id="toastMessage">결과 메세지</span>
         </div>
     </div>
-
     <script src="../../js/common.js"></script>
     <script>
         Utilsly.registerTool('ladder-game', {
-            elements: {},
-            players: [],
-            results: [],
-            ladderData: [], // horizontal lines
-            stepHeight: 40,
-            columnWidth: 80,
-            ctx: null,
+            // State
+            players: [], // { id, name, result, color }
+            ladderMap: [], // 2D array of bridges
+            isGameRunning: false,
             isAnimating: false,
+            animationSpeed: 3,
+
+            // Constants
+            COLORS: [
+                '#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8',
+                '#F7DC6F', '#BB8FCE', '#F1948A', '#82E0AA', '#85C1E9',
+                '#F0B27A', '#D7BDE2', '#A3E4D7', '#F5CBA7', '#D2B4DE'
+            ],
+            colWidth: 100,
+            stepHeight: 40,
+            numSteps: 12,
+
+            elements: {},
+            ctx: null,
 
             init() {
                 this.elements = {
-                    playerCount: document.getElementById('playerCount'),
-                    setupBtn: document.getElementById('setupBtn'),
-                    inputsArea: document.getElementById('inputsArea'),
-                    playerList: document.getElementById('playerList'),
-                    startBtn: document.getElementById('startBtn'),
+                    setupCard: document.getElementById('setupCard'),
                     gameBoard: document.getElementById('gameBoard'),
+                    participantsGrid: document.getElementById('participantsGrid'),
+                    countDisplay: document.getElementById('countDisplay'),
+                    decreaseBtn: document.getElementById('decreaseBtn'),
+                    increaseBtn: document.getElementById('increaseBtn'),
+                    autoFillBtn: document.getElementById('autoFillBtn'),
+                    startDeviceBtn: document.getElementById('startDeviceBtn'),
+                    resetGameBtn: document.getElementById('resetGameBtn'),
+                    runAllBtn: document.getElementById('runAllBtn'),
+                    speedRange: document.getElementById('speedRange'),
                     canvas: document.getElementById('ladderCanvas'),
-                    resetBtn: document.getElementById('resetBtn'),
-                    setupArea: document.getElementById('setupArea')
+                    canvasContainer: document.getElementById('canvasContainer'),
+                    resultToast: document.getElementById('resultToast'),
+                    toastMessage: document.getElementById('toastMessage')
                 };
 
                 this.ctx = this.elements.canvas.getContext('2d');
-                this.elements.setupBtn.addEventListener('click', () => this.generateInputs());
-                this.elements.startBtn.addEventListener('click', () => this.startGame());
-                this.elements.resetBtn.addEventListener('click', () => this.resetGame());
-                this.elements.canvas.addEventListener('click', (e) => this.handleCanvasClick(e));
-
-                // Initial inputs generation
-                this.generateInputs();
-
-                console.log('Ladder Game initialized');
+                this.bindEvents();
+                this.updatePlayerCount(4); // Default 4
             },
 
-            generateInputs() {
-                const count = parseInt(this.elements.playerCount.value);
-                if (count < 2 || count > 10) {
-                    alert("참여자 수는 2명에서 10명 사이여야 합니다.");
-                    return;
+            bindEvents() {
+                this.elements.decreaseBtn.addEventListener('click', () => this.updatePlayerCount(this.players.length - 1));
+                this.elements.increaseBtn.addEventListener('click', () => this.updatePlayerCount(this.players.length + 1));
+
+                this.elements.autoFillBtn.addEventListener('click', () => this.autoFill());
+                this.elements.startDeviceBtn.addEventListener('click', () => this.startGame());
+                this.elements.resetGameBtn.addEventListener('click', () => this.resetGame());
+
+                this.elements.runAllBtn.addEventListener('click', () => this.runAll());
+                this.elements.speedRange.addEventListener('input', (e) => this.animationSpeed = parseInt(e.target.value));
+
+                // Canvas Click for individual run
+                this.elements.canvas.addEventListener('click', (e) => this.handleCanvasClick(e));
+
+                // Drag to scroll handling
+                let isDown = false;
+                let startX;
+                let scrollLeft;
+                const slider = this.elements.canvasContainer;
+
+                slider.addEventListener('mousedown', (e) => {
+                    isDown = true;
+                    slider.classList.add('active');
+                    startX = e.pageX - slider.offsetLeft;
+                    scrollLeft = slider.scrollLeft;
+                });
+                slider.addEventListener('mouseleave', () => { isDown = false; slider.classList.remove('active'); });
+                slider.addEventListener('mouseup', () => { isDown = false; slider.classList.remove('active'); });
+                slider.addEventListener('mousemove', (e) => {
+                    if (!isDown) return;
+                    e.preventDefault();
+                    const x = e.pageX - slider.offsetLeft;
+                    const walk = (x - startX) * 2;
+                    slider.scrollLeft = scrollLeft - walk;
+                });
+            },
+
+            updatePlayerCount(count) {
+                if (count < 2) count = 2;
+                if (count > 24) count = 24;
+
+                const currentCount = this.players.length;
+
+                if (count > currentCount) {
+                    // Add players
+                    for (let i = currentCount; i < count; i++) {
+                        this.players.push({
+                            id: i,
+                            name: `참가자 ${i + 1}`,
+                            result: i % 2 === 0 ? "꽝" : "당첨", // simple default
+                            color: this.COLORS[i % this.COLORS.length]
+                        });
+                    }
+                } else if (count < currentCount) {
+                    // Remove players
+                    this.players = this.players.slice(0, count);
                 }
 
-                let html = '';
-                for (let i = 0; i < count; i++) {
-                    html += `
-                    <div class="input-group">
-                        <input type="text" placeholder="이름 ${i + 1}" class="player-name" value="${i + 1}">
-                        <div style="height: 20px; border-left: 2px solid var(--border-color); margin: 0 auto;"></div>
-                        <input type="text" placeholder="결과 ${i + 1}" class="player-result" value="꽝">
-                    </div>
+                this.elements.countDisplay.textContent = count;
+                this.renderParticipants();
+            },
+
+            renderParticipants() {
+                this.elements.participantsGrid.innerHTML = '';
+                this.players.forEach((player, index) => {
+                    const el = document.createElement('div');
+                    el.className = 'participant-item';
+                    el.innerHTML = `
+                        <div class="p-avatar" style="background:${player.color}">${player.name[0]}</div>
+                        <label class="p-label">이름</label>
+                        <input class="p-input name-input" data-index="${index}" value="${player.name}">
+                        <label class="p-label">결과</label>
+                        <input class="p-input result-input" data-index="${index}" value="${player.result}">
                     `;
-                }
-                this.elements.playerList.innerHTML = html;
-                this.elements.inputsArea.style.display = 'block';
+                    this.elements.participantsGrid.appendChild(el);
+                });
 
-                // Set default winning/losing mostly losing for fun default?
-                // actually users will type.
+                // Sync inputs to data
+                this.elements.participantsGrid.querySelectorAll('.name-input').forEach(input => {
+                    input.addEventListener('input', (e) => {
+                        this.players[parseInt(e.target.dataset.index)].name = e.target.value;
+                        const avatar = e.target.closest('.participant-item').querySelector('.p-avatar');
+                        if (e.target.value) avatar.textContent = e.target.value[0];
+                    });
+                });
+                this.elements.participantsGrid.querySelectorAll('.result-input').forEach(input => {
+                    input.addEventListener('input', (e) => {
+                        this.players[parseInt(e.target.dataset.index)].result = e.target.value;
+                    });
+                });
+            },
+
+            autoFill() {
+                this.players.forEach((p, i) => {
+                    p.name = `참가자 ${i + 1}`;
+                    p.result = (i < 1) ? "당첨" : "꽝"; // Just 1 winner default
+                });
+                // Shuffle results for fun?
+                const results = this.players.map(p => p.result);
+                for (let i = results.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [results[i], results[j]] = [results[j], results[i]];
+                }
+                this.players.forEach((p, i) => p.result = results[i]);
+
+                this.renderParticipants();
+                Utilsly.showAlert('참가자 이름과 결과를 자동으로 채웠습니다.');
             },
 
             startGame() {
-                // Collect inputs
-                const nameInputs = document.querySelectorAll('.player-name');
-                const resultInputs = document.querySelectorAll('.player-result');
+                // Generate Ladder Logic
+                this.generateLadderMap();
 
-                this.players = Array.from(nameInputs).map(input => input.value || 'Player');
-                this.results = Array.from(resultInputs).map(input => input.value || 'Result');
-
-                this.elements.setupArea.style.display = 'none';
+                // UI Switch
+                this.elements.setupCard.style.display = 'none';
                 this.elements.gameBoard.style.display = 'flex';
+                this.isGameRunning = true;
 
-                this.generateLadder();
-                this.drawLadder();
+                // Canvas Setup
+                this.resizeCanvas();
+                this.drawLadderBase();
+
+                // Initial Toast
+                this.showToast('이름을 클릭하면 사다리를 탑니다!', 3000);
             },
 
-            generateLadder() {
+            resetGame() {
+                this.isGameRunning = false;
+                this.isAnimating = false;
+                this.elements.gameBoard.style.display = 'none';
+                this.elements.setupCard.style.display = 'block';
+            },
+
+            generateLadderMap() {
                 const count = this.players.length;
-                const height = 400; // Fixed height for ladder part
-                const steps = 10; // Number of potential horizontal lines per column gap
+                this.numSteps = Math.max(10, count * 2); // More players = longer ladder
 
-                this.ladderData = [];
+                // Grid: [col][step] = boolean (true if bridge to right)
+                // Col range: 0 to count-2
+                this.ladderMap = Array(count - 1).fill().map(() => Array(this.numSteps).fill(false));
 
-                // For each gap between vertical lines (count - 1 gaps)
-                for (let gap = 0; gap < count - 1; gap++) {
-                    // Decide random horizontal bridges
-                    for (let s = 0; s < steps; s++) {
-                        // 50% chance to have a bridge? Maybe less to avoid clutter
-                        if (Math.random() > 0.6) {
-                            // Ensure no adjacent bridges connected to the same point? 
-                            // Simple logic: just store step index.
-                            // We need to coordinate to avoid overlapping or X shapes (unless allowed?)
-                            // Standard ladder doesn't cross.
-                            this.ladderData.push({ col: gap, step: s });
-                        }
-                    }
-                }
-                // Filter to ensure no two bridges share a start point on the same vertical line at same step
-                // Actually simple grid model: Lines are at discrete y-steps.
-                // If column i has bridge at step k, column i-1 or i+1 cannot have bridge at step k.
+                // Random Generation with Constraints
+                for (let step = 0; step < this.numSteps; step++) {
+                    for (let col = 0; col < count - 1; col++) {
+                        // Bridge Constraint:
+                        // 1. Not adjacent to another bridge on left (col-1) at same step
+                        // 2. Random chance ~40%
 
-                // Re-gen with safety
-                this.ladderData = [];
-                const numSteps = 15;
-                const grid = Array(count - 1).fill().map(() => Array(numSteps).fill(false));
-
-                for (let y = 0; y < numSteps; y++) {
-                    for (let x = 0; x < count - 1; x++) {
-                        // Check left neighbor at this step
                         let canPlace = true;
-                        if (x > 0 && grid[x - 1][y]) canPlace = false;
+                        if (col > 0 && this.ladderMap[col - 1][step]) canPlace = false;
 
-                        // Random placement if valid
-                        if (canPlace && Math.random() > 0.6) {
-                            grid[x][y] = true;
+                        if (canPlace && Math.random() < 0.4) {
+                            this.ladderMap[col][step] = true;
                         }
                     }
                 }
-                this.ladderData = grid;
-                this.numSteps = numSteps;
             },
 
-            drawLadder() {
+            resizeCanvas() {
+                const padding = 50;
+                const width = Math.max(this.elements.canvasContainer.clientWidth, this.players.length * this.colWidth + padding * 2);
+                const height = this.numSteps * this.stepHeight + 200; // Top/Bottom space
+
+                // High DPI
+                const dpr = window.devicePixelRatio || 1;
+                this.elements.canvas.width = width * dpr;
+                this.elements.canvas.height = height * dpr;
+                this.elements.canvas.style.width = width + 'px';
+                this.elements.canvas.style.height = height + 'px';
+                this.ctx.scale(dpr, dpr);
+
+                this.canvasW = width;
+                this.canvasH = height;
+            },
+
+            drawLadderBase() {
                 const ctx = this.ctx;
-                const canvas = this.elements.canvas;
-                const pCount = this.players.length;
+                const marginX = 60;
+                const marginY = 80;
+                ctx.clearRect(0, 0, this.canvasW, this.canvasH);
 
-                // Dimensions
-                const margin = 50;
-                const topPadd = 60;
-                const bottomPadd = 60;
-                const colW = this.columnWidth; // 80px
-                const stepH = 25; // height per step
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
 
-                const w = Math.max(800, pCount * colW + margin * 2);
-                const h = topPadd + this.numSteps * stepH + bottomPadd;
+                // Draw Vertical Lines
+                this.players.forEach((p, i) => {
+                    const x = marginX + i * this.colWidth;
 
-                canvas.width = w;
-                canvas.height = h;
-
-                ctx.clearRect(0, 0, w, h);
-                ctx.font = '16px "Pretendard"';
-                ctx.textAlign = 'center';
-
-                // Draw Vertical Lines & Names
-                ctx.strokeStyle = '#DDD';
-                ctx.lineWidth = 4;
-                ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--text-primary');
-
-                for (let i = 0; i < pCount; i++) {
-                    const x = margin + i * colW;
-                    // Name
-                    ctx.fillText(this.players[i], x, 30);
-                    // Line
+                    // Avatar/Name Top
+                    ctx.fillStyle = p.color;
                     ctx.beginPath();
-                    ctx.moveTo(x, topPadd);
-                    ctx.lineTo(x, h - bottomPadd);
-                    ctx.stroke();
-                    // Result
-                    ctx.fillText(this.results[i], x, h - 10);
-                }
+                    ctx.arc(x, marginY - 40, 20, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.fillStyle = '#FFF';
+                    ctx.font = 'bold 14px Pretendard';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(p.name[0], x, marginY - 40);
 
-                // Draw Horizontal Lines
+                    ctx.fillStyle = '#333'; // Text Color from theme? simplified
+                    ctx.font = '14px Pretendard';
+                    ctx.fillText(p.name, x, marginY - 70);
+
+                    // Line
+                    ctx.lineWidth = 4;
+                    ctx.strokeStyle = '#E0E0E0';
+                    ctx.beginPath();
+                    ctx.moveTo(x, marginY);
+                    ctx.lineTo(x, marginY + this.numSteps * this.stepHeight);
+                    ctx.stroke();
+
+                    // Result Bottom
+                    const resY = marginY + this.numSteps * this.stepHeight + 30;
+                    ctx.fillStyle = '#333';
+                    ctx.font = 'bold 16px Pretendard';
+                    ctx.fillText(p.result, x, resY);
+                });
+
+                // Draw Horizontal Bridges
                 ctx.lineWidth = 4;
-                for (let x = 0; x < pCount - 1; x++) {
-                    for (let y = 0; y < this.numSteps; y++) {
-                        if (this.ladderData[x][y]) {
-                            const x1 = margin + x * colW;
-                            const x2 = x1 + colW;
-                            const yPos = topPadd + y * stepH + (stepH / 2);
+                ctx.strokeStyle = '#E0E0E0';
+                for (let col = 0; col < this.players.length - 1; col++) {
+                    for (let step = 0; step < this.numSteps; step++) {
+                        if (this.ladderMap[col][step]) {
+                            const x1 = marginX + col * this.colWidth;
+                            const x2 = x1 + this.colWidth;
+                            const y = marginY + step * this.stepHeight + (this.stepHeight / 2);
 
                             ctx.beginPath();
-                            ctx.moveTo(x1, yPos);
-                            ctx.lineTo(x2, yPos);
+                            ctx.moveTo(x1, y);
+                            ctx.lineTo(x2, y);
                             ctx.stroke();
                         }
                     }
                 }
             },
 
-            async runPath(playerIndex) {
-                if (this.isAnimating) return;
-                this.isAnimating = true;
-
-                const ctx = this.ctx;
-                const margin = 50;
-                const topPadd = 60;
-                const colW = this.columnWidth;
-                const stepH = 25;
-
-                let currentCol = playerIndex;
-                let currentX = margin + currentCol * colW;
-                let currentY = topPadd;
-
-                ctx.beginPath();
-                ctx.strokeStyle = '#FF3B30'; // Red path
-                ctx.lineWidth = 6;
-                ctx.moveTo(currentX, currentY);
-
-                // Animation loop logic simplified: move step by step
-                // We will just draw stepwise with small delay
-
-                for (let y = 0; y < this.numSteps; y++) {
-                    const yPos = topPadd + y * stepH + (stepH / 2);
-
-                    // Move down to next bridge level
-                    await this.animateLine(currentX, currentY, currentX, yPos);
-                    currentY = yPos;
-
-                    // Check bridges
-                    // Check right
-                    if (currentCol < this.players.length - 1 && this.ladderData[currentCol][y]) {
-                        // Move right
-                        await this.animateLine(currentX, currentY, currentX + colW, currentY);
-                        currentCol++;
-                        currentX += colW;
-                    }
-                    // Check left
-                    else if (currentCol > 0 && this.ladderData[currentCol - 1][y]) {
-                        // Move left
-                        await this.animateLine(currentX, currentY, currentX - colW, currentY);
-                        currentCol--;
-                        currentX -= colW;
-                    }
-                }
-
-                // Final drop
-                await this.animateLine(currentX, currentY, currentX, this.elements.canvas.height - 60);
-
-                // Show result
-                document.getElementById('resultText').innerText = `${this.players[playerIndex]} -> ${this.results[currentCol]}`;
-                document.getElementById('resultModal').style.display = 'block';
-                this.isAnimating = false;
-            },
-
-            animateLine(x1, y1, x2, y2) {
-                return new Promise(resolve => {
-                    const duration = 100; // ms per segment
-                    const startTime = performance.now();
-                    const ctx = this.ctx;
-
-                    function step(time) {
-                        const progress = Math.min((time - startTime) / duration, 1);
-                        const currX = x1 + (x2 - x1) * progress;
-                        const currY = y1 + (y2 - y1) * progress;
-
-                        ctx.beginPath();
-                        ctx.moveTo(x1, y1);
-                        ctx.lineTo(currX, currY);
-                        ctx.stroke();
-
-                        if (progress < 1) requestAnimationFrame(step);
-                        else resolve();
-                    }
-                    requestAnimationFrame(step);
-                });
-            },
-
             handleCanvasClick(e) {
                 if (this.isAnimating) return;
 
                 const rect = this.elements.canvas.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const y = e.clientY - rect.top;
+                const x = (e.clientX - rect.left) * (this.elements.canvas.width / rect.width / window.devicePixelRatio);
+                const y = (e.clientY - rect.top) * (this.elements.canvas.height / rect.height / window.devicePixelRatio);
 
-                // Click on start area?
-                if (y < 60) {
-                    const col = Math.round((x - 50) / this.columnWidth);
-                    if (col >= 0 && col < this.players.length && Math.abs(x - (50 + col * this.columnWidth)) < 30) {
-                        this.drawLadder(); // Clear previous paths
-                        this.runPath(col);
+                // Check Top Click (Avatar Area)
+                if (y < 80) {
+                    const marginX = 60;
+                    const clickedCol = Math.round((x - marginX) / this.colWidth);
+
+                    if (clickedCol >= 0 && clickedCol < this.players.length) {
+                        // Check proximity
+                        const targetX = marginX + clickedCol * this.colWidth;
+                        if (Math.abs(x - targetX) < 40) {
+                            this.runPath(clickedCol);
+                        }
                     }
                 }
             },
 
-            resetGame() {
-                this.elements.gameBoard.style.display = 'none';
-                this.elements.setupArea.style.display = 'block';
+            async runPath(playerIdx) {
+                if (this.isAnimating) return;
+                this.isAnimating = true;
+
+                this.drawLadderBase(); // Clear previous
+
+                const path = this.calculatePath(playerIdx);
+                await this.animatePath(path, this.players[playerIdx].color);
+
+                // Show Result
+                const finalCol = path[path.length - 1].col;
+                const result = this.players[finalCol].result;
+                this.showToast(`${this.players[playerIdx].name}: ${result}`);
+
                 this.isAnimating = false;
+            },
+
+            async runAll() {
+                if (this.isAnimating) return;
+                this.isAnimating = true;
+                this.drawLadderBase(); // Clear
+
+                const promises = this.players.map((p, idx) => {
+                    const path = this.calculatePath(idx);
+                    return this.animatePath(path, p.color, true); // true = concurrent
+                });
+
+                await Promise.all(promises);
+                this.showToast("모든 결과 확인 완료!");
+                this.isAnimating = false;
+
+                // Maybe draw all final lines permanently? 
+                // Currently animatePath draws using ctx, so they persist until clear.
+            },
+
+            calculatePath(startCol) {
+                // Return array of points {x, y}
+                const marginX = 60;
+                const marginY = 80;
+                let col = startCol;
+                let x = marginX + col * this.colWidth;
+                let y = marginY;
+
+                const path = [{ x, y }];
+
+                for (let step = 0; step < this.numSteps; step++) {
+                    const stepY = marginY + step * this.stepHeight + (this.stepHeight / 2);
+
+                    // Move Vertical to Bridge Level
+                    path.push({ x: marginX + col * this.colWidth, y: stepY });
+
+                    // Check Bridges
+                    let bridgeDir = 0; // -1 left, 1 right
+                    if (col < this.players.length - 1 && this.ladderMap[col][step]) {
+                        bridgeDir = 1;
+                    } else if (col > 0 && this.ladderMap[col - 1][step]) {
+                        bridgeDir = -1;
+                    }
+
+                    if (bridgeDir !== 0) {
+                        col += bridgeDir;
+                        path.push({ x: marginX + col * this.colWidth, y: stepY });
+                    }
+                }
+
+                // Final Vertical
+                path.push({ x: marginX + col * this.colWidth, y: marginY + this.numSteps * this.stepHeight });
+                // Add col info for result lookup
+                path[path.length - 1].col = col;
+
+                return path;
+            },
+
+            animatePath(path, color, isConcurrent = false) {
+                return new Promise(resolve => {
+                    const ctx = this.ctx;
+                    let currentPoint = 0;
+
+                    // Base speed: 1 segment per X frames
+                    // Speed multiplier: 1(slow) to 5(fast)
+                    // frames per segment = base / speed
+                    const baseFrames = 20;
+                    const framesPerSeg = Math.max(1, baseFrames / this.animationSpeed);
+
+                    let progress = 0;
+
+                    const tick = () => {
+                        if (currentPoint >= path.length - 1) {
+                            resolve();
+                            return;
+                        }
+
+                        const p1 = path[currentPoint];
+                        const p2 = path[currentPoint + 1];
+
+                        progress += 1 / framesPerSeg;
+                        if (progress > 1) progress = 1;
+
+                        const curX = p1.x + (p2.x - p1.x) * progress;
+                        const curY = p1.y + (p2.y - p1.y) * progress;
+
+                        ctx.beginPath();
+                        ctx.strokeStyle = color;
+                        ctx.lineWidth = 5;
+                        ctx.moveTo(p1.x, p1.y); // Actually we should draw from prev completed segment?
+                        // For smooth continuous line, we just draw small segment?
+                        // Better: Draw full line from p1 to cur positions
+                        ctx.lineTo(curX, curY);
+                        ctx.stroke();
+
+                        // We reset path for next frame to avoid overdraw? 
+                        // No, Canvas persists. We just draw the new tip.
+                        // wait, we need to move to p1 first.
+
+                        if (progress >= 1) {
+                            progress = 0;
+                            currentPoint++;
+                        }
+
+                        if (this.isAnimating) requestAnimationFrame(tick);
+                    };
+                    tick();
+                });
+            },
+
+            showToast(msg, duration = 3000) {
+                const toast = this.elements.resultToast;
+                this.elements.toastMessage.textContent = msg;
+                toast.classList.add('show');
+
+                if (this.toastTimer) clearTimeout(this.toastTimer);
+                this.toastTimer = setTimeout(() => {
+                    toast.classList.remove('show');
+                }, duration);
             }
         });
     </script>
