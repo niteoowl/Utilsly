@@ -461,44 +461,7 @@
         imageUploadInput.addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (!file) return;
-
-            // Compress and Insert
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                const img = new Image();
-                img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    let width = img.width;
-                    let height = img.height;
-
-                    // Resize if too big (Max width 800px)
-                    const MAX_WIDTH = 800;
-                    if (width > MAX_WIDTH) {
-                        height *= MAX_WIDTH / width;
-                        width = MAX_WIDTH;
-                    }
-
-                    canvas.width = width;
-                    canvas.height = height;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, width, height);
-
-                    // Compress to JPEG 0.5 quality
-                    const dataUrl = canvas.toDataURL('image/jpeg', 0.5);
-
-                    // Insert into editor
-                    editor.focus();
-                    document.execCommand('insertImage', false, dataUrl);
-
-                    // Add some spacing after image
-                    const br = document.createElement('br');
-                    editor.appendChild(br);
-                };
-                img.src = event.target.result;
-            };
-            reader.readAsDataURL(file);
-
-            // Reset input
+            handleImageUpload(file);
             imageUploadInput.value = '';
         });
 
