@@ -6,53 +6,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>수익률 계산기 - Utilsly</title>
-    <meta name="description" content="매수/매도 가격과 수수료를 반영하여 정확한 주식, 코인 수익률과 실현 손익을 계산하세요.">
+    <meta name="description" content="매수/매도 가격과 수수료, 거래세를 반영하여 정확한 주식, 코인 수익률을 계산합니다.">
 
     <link rel="preload" href="../../css/style.css" as="style">
     <link rel="stylesheet" href="../../css/style.css">
     <style>
-        .result-card {
+        .tool-container {
+            max-width: 1200px !important;
+        }
+
+        .calc-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        @media (max-width: 768px) {
+            .calc-wrapper {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .section-card {
             background: var(--bg-secondary);
-            border-radius: 16px;
-            padding: 24px;
-            margin-top: 24px;
-            position: relative;
-            overflow: hidden;
-            transition: all 0.3s ease;
             border: 1px solid var(--border-color);
-        }
-
-        .result-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-            font-size: 15px;
-        }
-
-        .result-item.highlight {
-            margin-top: 16px;
-            padding-top: 16px;
-            border-top: 1px dashed var(--border-color);
-            font-weight: 700;
-            font-size: 18px;
-        }
-
-        .result-label {
-            color: var(--text-secondary);
-        }
-
-        .result-value {
-            color: var(--text-primary);
-            font-weight: 600;
-        }
-
-        .value-plus {
-            color: #34c759;
-        }
-
-        .value-minus {
-            color: #ff3b30;
+            border-radius: 12px;
+            padding: 24px;
+            height: 100%;
         }
 
         .input-group {
@@ -64,31 +44,101 @@
             margin-bottom: 8px;
             font-weight: 500;
             color: var(--text-secondary);
+            font-size: 13px;
+        }
+
+        .relative-input {
+            position: relative;
+        }
+
+        .relative-input input {
+            width: 100%;
+            padding-right: 32px;
+            text-align: right;
+            font-weight: 500;
+        }
+
+        .unit-label {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-tertiary);
+            font-size: 13px;
+            pointer-events: none;
+        }
+
+        .preset-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            background: var(--bg-hover);
+            border: 1px solid var(--border-color);
+            font-size: 11px;
+            margin-left: 8px;
+            cursor: pointer;
+            color: var(--text-secondary);
+        }
+
+        .preset-badge:hover {
+            background: var(--accent-blue);
+            color: white;
+            border-color: var(--accent-blue);
+        }
+
+        /* Result Section */
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .result-row:last-child {
+            border-bottom: none;
+        }
+
+        .result-row.total {
+            background: var(--bg-primary);
+            padding: 16px;
+            border-radius: 8px;
+            margin-top: 16px;
+            border: 1px solid var(--border-color);
+        }
+
+        .result-label {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .result-val {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 15px;
+        }
+
+        .val-plus {
+            color: #34c759;
+        }
+
+        .val-minus {
+            color: #ff3b30;
+        }
+
+        .val-total {
+            font-size: 20px;
+            font-weight: 700;
         }
 
         .disclaimer {
-            margin-top: 32px;
+            margin-top: 24px;
             padding: 16px;
             background: rgba(255, 59, 48, 0.05);
             border-radius: 8px;
-            font-size: 13px;
-            color: var(--text-secondary);
-            line-height: 1.5;
-            border: 1px solid rgba(255, 59, 48, 0.1);
-        }
-
-        .preset-btn {
-            padding: 4px 8px;
             font-size: 12px;
-            border-radius: 4px;
-            border: 1px solid var(--border-color);
-            background: var(--bg-secondary);
-            cursor: pointer;
-            margin-right: 4px;
-        }
-
-        .preset-btn:hover {
-            background: var(--bg-hover);
+            color: var(--text-secondary);
+            border: 1px solid rgba(255, 59, 48, 0.1);
         }
     </style>
 </head>
@@ -109,81 +159,137 @@
         <main class="main-content">
             <header class="top-bar">
                 <div class="breadcrumbs">
+                    <span class="breadcrumb-item">금융</span>
+                    <span class="breadcrumb-separator">/</span>
                     <span class="breadcrumb-item">수익률 계산기</span>
+                </div>
+                <div class="top-bar-actions">
+                    <button class="btn btn-secondary" onclick="Utilsly.tools['profit-calculator'].reset()">
+                        <span class="material-symbols-rounded">refresh</span>
+                        초기화
+                    </button>
                 </div>
             </header>
 
             <div class="content-area">
                 <div class="page-header">
                     <div class="header-icon-wrapper">
-                        <span class="material-symbols-rounded">trending_up</span> // Icon choice
+                        <span class="material-symbols-rounded">trending_up</span>
                     </div>
                     <h1>수익률 계산기</h1>
-                    <p class="description">매매 수수료를 포함한 정확한 수익금을 확인하세요.</p>
+                    <p class="description">수수료와 거래세를 포함한 실현 손익 계산</p>
                 </div>
 
                 <div class="tool-container" data-tool-id="profit-calculator">
-                    <div class="dashboard-grid">
-                        <div class="tool-card" style="cursor: default; grid-column: span 2;">
-                            <div class="dashboard-grid" style="gap: 20px;">
-                                <div class="input-group">
-                                    <label>매수 가격 (단가)</label>
-                                    <input type="number" id="buy-price" class="search-input" placeholder="0" min="0">
+                    <div class="calc-wrapper">
+                        <!-- Input Section -->
+                        <div class="section-card">
+                            <h3 style="margin-bottom: 20px; font-size: 16px;">매매 정보 입력</h3>
+
+                            <div class="input-group">
+                                <label>
+                                    수수료 (매수/매도 각각 적용)
+                                    <span class="preset-badge"
+                                        onclick="Utilsly.tools['profit-calculator'].setPreset(0.015, 0.2)">국내주식</span>
+                                    <span class="preset-badge"
+                                        onclick="Utilsly.tools['profit-calculator'].setPreset(0.25, 0)">해외주식</span>
+                                    <span class="preset-badge"
+                                        onclick="Utilsly.tools['profit-calculator'].setPreset(0.05, 0)">코인</span>
+                                </label>
+                                <div class="relative-input">
+                                    <input type="number" id="fee-rate" class="search-input" value="0.015" step="0.001">
+                                    <span class="unit-label">%</span>
                                 </div>
-                                <div class="input-group">
-                                    <label>매도 가격 (단가)</label>
-                                    <input type="number" id="sell-price" class="search-input" placeholder="0" min="0">
+                            </div>
+
+                            <div class="input-group">
+                                <label>거래세 (매도 시에만 적용)</label>
+                                <div class="relative-input">
+                                    <input type="number" id="tax-rate" class="search-input" value="0.20" step="0.01">
+                                    <span class="unit-label">%</span>
                                 </div>
-                                <div class="input-group">
-                                    <label>수량</label>
-                                    <input type="number" id="quantity" class="search-input" placeholder="0" min="0">
+                            </div>
+
+                            <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 24px 0;">
+
+                            <div class="input-group">
+                                <label>매수 단가</label>
+                                <div class="relative-input">
+                                    <input type="number" id="buy-price" class="search-input" placeholder="0">
+                                    <span class="unit-label">원</span>
                                 </div>
-                                <div class="input-group">
-                                    <label>
-                                        수수료율 (%)
-                                        <div style="float: right;">
-                                            <button class="preset-btn"
-                                                onclick="Utilsly.tools['profit-calculator'].setFee(0.015)">국내주식</button>
-                                            <button class="preset-btn"
-                                                onclick="Utilsly.tools['profit-calculator'].setFee(0.25)">해외주식</button>
-                                            <button class="preset-btn"
-                                                onclick="Utilsly.tools['profit-calculator'].setFee(0.05)">코인</button>
-                                        </div>
-                                    </label>
-                                    <input type="number" id="fee-rate" class="search-input" placeholder="0.015"
-                                        step="0.001" min="0" value="0.015">
+                            </div>
+
+                            <div class="input-group">
+                                <label>매도 수량</label>
+                                <div class="relative-input">
+                                    <input type="number" id="sell-qty" class="search-input" placeholder="0">
+                                    <span class="unit-label">주</span>
+                                </div>
+                            </div>
+
+                            <div class="input-group">
+                                <label>매도 단가</label>
+                                <div class="relative-input">
+                                    <input type="number" id="sell-price" class="search-input" placeholder="0">
+                                    <span class="unit-label">원</span>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="result-card">
-                        <div class="result-item">
-                            <span class="result-label">총 매수 금액</span>
-                            <span class="result-value" id="total-buy">0</span>
-                        </div>
-                        <div class="result-item">
-                            <span class="result-label">총 매도 금액</span>
-                            <span class="result-value" id="total-sell">0</span>
-                        </div>
-                        <div class="result-item">
-                            <span class="result-label">예상 수수료 (매수+매도)</span>
-                            <span class="result-value" id="total-fee">0</span>
-                        </div>
-                        <div class="result-item highlight">
-                            <span class="result-label">순수익 (수익금)</span>
-                            <span class="result-value" id="net-profit">0</span>
-                        </div>
-                        <div class="result-item">
-                            <span class="result-label">최종 수익률</span>
-                            <span class="result-value" id="roi">0%</span>
+                        <!-- Result Section -->
+                        <div class="section-card">
+                            <h3 style="margin-bottom: 20px; font-size: 16px;">계산 결과</h3>
+
+                            <div class="result-row">
+                                <span class="result-label">총 매수 금액</span>
+                                <span class="result-val" id="res-buy-total">0원</span>
+                            </div>
+                            <div class="result-row">
+                                <span class="result-label">총 매도 금액</span>
+                                <span class="result-val" id="res-sell-total">0원</span>
+                            </div>
+
+                            <div
+                                style="margin: 20px 0; padding: 16px; background: var(--bg-hover); border-radius: 8px; font-size: 13px;">
+                                <div class="result-row" style="border:none; padding: 4px 0;">
+                                    <span class="result-label">매수 수수료</span>
+                                    <span class="result-val" id="res-buy-fee"
+                                        style="color: var(--text-secondary); font-weight: 500;">0원</span>
+                                </div>
+                                <div class="result-row" style="border:none; padding: 4px 0;">
+                                    <span class="result-label">매도 수수료</span>
+                                    <span class="result-val" id="res-sell-fee"
+                                        style="color: var(--text-secondary); font-weight: 500;">0원</span>
+                                </div>
+                                <div class="result-row" style="border:none; padding: 4px 0;">
+                                    <span class="result-label">거래세 (매도)</span>
+                                    <span class="result-val" id="res-tax"
+                                        style="color: var(--text-secondary); font-weight: 500;">0원</span>
+                                </div>
+                                <div class="result-row"
+                                    style="border-top: 1px dashed var(--border-color); padding-top: 8px; margin-top: 4px;">
+                                    <span class="result-label">제비용 합계</span>
+                                    <span class="result-val" id="res-total-cost"
+                                        style="color: var(--text-tertiary);">0원</span>
+                                </div>
+                            </div>
+
+                            <div class="result-row total">
+                                <span class="result-label" style="font-weight: 600;">최종 수익금</span>
+                                <span class="result-val val-total" id="res-net-profit">0원</span>
+                            </div>
+
+                            <div class="result-row" style="justify-content: center; border: none; padding-top: 16px;">
+                                <span class="result-val" id="res-roi" style="font-size: 24px;">0.00%</span>
+                            </div>
                         </div>
                     </div>
 
                     <div class="disclaimer">
                         <span class="material-symbols-rounded"
                             style="font-size: 16px; vertical-align: text-bottom; margin-right: 4px; color: #ff3b30;">warning</span>
-                        본 계산기의 결과는 단순 참고용이며, 실제 매매 비용(증권사/거래소 정책, 세금 등)은 포함되지 않을 수 있습니다.
+                        본 계산기의 결과는 단순 참고용이며, 실제 증권사/거래소 정책에 따라 다를 수 있습니다.
                         <strong>본 결과는 투자 판단의 근거가 되지 않으며, 투자 결과에 대한 책임은 본인에게 있습니다.</strong>
                     </div>
                 </div>
@@ -197,74 +303,89 @@
 
             init() {
                 this.elements = {
-                    buyPrice: document.getElementById('buy-price'),
-                    sellPrice: document.getElementById('sell-price'),
-                    quantity: document.getElementById('quantity'),
                     feeRate: document.getElementById('fee-rate'),
-                    totalBuy: document.getElementById('total-buy'),
-                    totalSell: document.getElementById('total-sell'),
-                    totalFee: document.getElementById('total-fee'),
-                    netProfit: document.getElementById('net-profit'),
-                    roi: document.getElementById('roi')
+                    taxRate: document.getElementById('tax-rate'),
+                    buyPrice: document.getElementById('buy-price'),
+                    sellQty: document.getElementById('sell-qty'),
+                    sellPrice: document.getElementById('sell-price'),
+
+                    resBuyTotal: document.getElementById('res-buy-total'),
+                    resSellTotal: document.getElementById('res-sell-total'),
+                    resBuyFee: document.getElementById('res-buy-fee'),
+                    resSellFee: document.getElementById('res-sell-fee'),
+                    resTax: document.getElementById('res-tax'),
+                    resTotalCost: document.getElementById('res-total-cost'),
+                    resNetProfit: document.getElementById('res-net-profit'),
+                    resRoi: document.getElementById('res-roi')
                 };
 
                 const inputs = [
-                    this.elements.buyPrice,
-                    this.elements.sellPrice,
-                    this.elements.quantity,
-                    this.elements.feeRate
+                    this.elements.feeRate, this.elements.taxRate,
+                    this.elements.buyPrice, this.elements.sellQty, this.elements.sellPrice
                 ];
 
-                inputs.forEach(input => {
-                    input.addEventListener('input', () => this.calculate());
-                });
-
-                console.log('Profit Calculator initialized');
+                inputs.forEach(el => el.addEventListener('input', () => this.calculate()));
             },
 
-            cleanup() {
-                this.elements = {};
+            cleanup() { this.elements = {}; },
+
+            reset() {
+                this.elements.buyPrice.value = '';
+                this.elements.sellQty.value = '';
+                this.elements.sellPrice.value = '';
+                this.calculate();
             },
 
-            setFee(rate) {
-                if (this.elements.feeRate) {
-                    this.elements.feeRate.value = rate;
-                    this.calculate();
-                }
+            setPreset(fee, tax) {
+                this.elements.feeRate.value = fee;
+                this.elements.taxRate.value = tax;
+                this.calculate();
+            },
+
+            format(num) {
+                return num.toLocaleString('ko-KR') + '원';
             },
 
             calculate() {
+                const feeRate = parseFloat(this.elements.feeRate.value) || 0;
+                const taxRate = parseFloat(this.elements.taxRate.value) || 0;
+
                 const bPrice = parseFloat(this.elements.buyPrice.value) || 0;
+                const qty = parseFloat(this.elements.sellQty.value) || 0;
                 const sPrice = parseFloat(this.elements.sellPrice.value) || 0;
-                const qty = parseFloat(this.elements.quantity.value) || 0;
-                const feePercent = parseFloat(this.elements.feeRate.value) || 0;
 
-                const buyAmt = bPrice * qty;
-                const sellAmt = sPrice * qty;
+                const buyTotal = bPrice * qty;
+                const sellTotal = sPrice * qty;
 
-                // Fee is usually applied on both buy and sell total amounts
-                const buyFee = buyAmt * (feePercent / 100);
-                const sellFee = sellAmt * (feePercent / 100);
-                const totalFee = buyFee + sellFee;
+                // Fee Logic: Fee is percent of total transaction amount
+                const buyFee = buyTotal * (feeRate / 100);
+                const sellFee = sellTotal * (feeRate / 100);
 
-                const netProfit = sellAmt - buyAmt - totalFee;
+                // Tax Logic: Tax is percent of sell amount (usually only on sell)
+                const tax = sellTotal * (taxRate / 100);
+
+                const totalCost = buyFee + sellFee + tax;
+                const netProfit = sellTotal - buyTotal - totalCost; // Profit = Revenue - Cost - Fees
+
+                // Handle visual
+                this.elements.resBuyTotal.textContent = this.format(Math.floor(buyTotal));
+                this.elements.resSellTotal.textContent = this.format(Math.floor(sellTotal));
+
+                this.elements.resBuyFee.textContent = this.format(Math.floor(buyFee));
+                this.elements.resSellFee.textContent = this.format(Math.floor(sellFee));
+                this.elements.resTax.textContent = this.format(Math.floor(tax));
+                this.elements.resTotalCost.textContent = '-' + this.format(Math.floor(totalCost));
+
+                const profitStr = (netProfit > 0 ? '+' : '') + this.format(Math.floor(netProfit));
+                this.elements.resNetProfit.textContent = profitStr;
+                this.elements.resNetProfit.className = 'result-val val-total ' + (netProfit > 0 ? 'val-plus' : (netProfit < 0 ? 'val-minus' : ''));
+
                 let roi = 0;
-                if (buyAmt > 0) {
-                    roi = (netProfit / buyAmt) * 100;
-                }
+                if (buyTotal > 0) roi = (netProfit / buyTotal) * 100;
 
-                const fmt = (num) => num.toLocaleString('ko-KR', { maximumFractionDigits: 0 });
-                const fmtPct = (num) => num.toLocaleString('ko-KR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '%';
-
-                this.elements.totalBuy.textContent = fmt(buyAmt);
-                this.elements.totalSell.textContent = fmt(sellAmt);
-                this.elements.totalFee.textContent = fmt(totalFee);
-
-                this.elements.netProfit.textContent = (netProfit > 0 ? '+' : '') + fmt(netProfit);
-                this.elements.netProfit.className = 'result-value ' + (netProfit > 0 ? 'value-plus' : (netProfit < 0 ? 'value-minus' : ''));
-
-                this.elements.roi.textContent = (roi > 0 ? '+' : '') + fmtPct(roi);
-                this.elements.roi.className = 'result-value ' + (roi > 0 ? 'value-plus' : (roi < 0 ? 'value-minus' : ''));
+                const roiStr = (roi > 0 ? '+' : '') + roi.toFixed(2) + '%';
+                this.elements.resRoi.textContent = roiStr;
+                this.elements.resRoi.className = 'result-val ' + (roi > 0 ? 'val-plus' : (roi < 0 ? 'val-minus' : ''));
             }
         });
     </script>
