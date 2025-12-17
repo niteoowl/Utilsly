@@ -80,6 +80,11 @@
             background: rgba(0, 0, 0, 0.05);
         }
 
+        .tool-btn.active {
+            background: var(--bg-hover);
+            border-color: var(--border-color);
+        }
+
         .user-info-display {
             padding: 16px;
             background: var(--bg-sidebar);
@@ -100,6 +105,14 @@
             align-items: center;
             justify-content: center;
             font-weight: 700;
+        }
+
+        /* 에디터 내 이미지 스타일 */
+        #editor img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin: 10px 0;
         }
 
         @media (max-width: 768px) {
@@ -142,7 +155,6 @@
                         <h2>글쓰기</h2>
                     </div>
 
-                    <!-- User info shown when logged in -->
                     <div class="user-info-display" id="userInfoDisplay" style="display: none;">
                         <div class="user-avatar-mini" id="userAvatarMini">U</div>
                         <div>
@@ -161,7 +173,6 @@
                             </select>
                         </div>
 
-                        <!-- Only shown when NOT logged in -->
                         <div class="form-row" id="guestInputs">
                             <div class="form-group">
                                 <label>닉네임</label>
@@ -186,7 +197,7 @@
                             <div class="toolbar"
                                 style="border: 1px solid var(--border-color); border-bottom: none; padding: 8px; background: var(--bg-hover); border-radius: 4px 4px 0 0; display:flex; flex-wrap: wrap; gap: 4px; align-items: center;">
 
-                                <!-- Text Style -->
+                                <!-- 텍스트 스타일 -->
                                 <button type="button" class="tool-btn" data-cmd="bold" title="굵게"><b>B</b></button>
                                 <button type="button" class="tool-btn" data-cmd="italic" title="기울임"><i>I</i></button>
                                 <button type="button" class="tool-btn" data-cmd="underline" title="밑줄"><u>U</u></button>
@@ -196,36 +207,41 @@
                                 <div style="width:1px; height: 20px; background:var(--border-color); margin:0 4px;">
                                 </div>
 
-                                <!-- Font Size -->
+                                <!-- 폰트 사이즈 (숫자로 변경) -->
                                 <select id="fontSizeSelect"
                                     style="width:auto; padding: 4px; height: 32px; font-size: 13px;">
-                                    <option value="3">기본 크기</option>
-                                    <option value="1">작게</option>
-                                    <option value="5">크게</option>
-                                    <option value="7">아주 크게</option>
+                                    <option value="">글자 크기</option>
+                                    <option value="1">10px</option>
+                                    <option value="2">13px</option>
+                                    <option value="3">16px (기본)</option>
+                                    <option value="4">18px</option>
+                                    <option value="5">24px</option>
+                                    <option value="6">32px</option>
+                                    <option value="7">48px</option>
                                 </select>
 
                                 <div style="width:1px; height: 20px; background:var(--border-color); margin:0 4px;">
                                 </div>
 
-                                <!-- Colors -->
+                                <!-- 색상 -->
                                 <div style="position:relative;">
                                     <button type="button" class="tool-btn" id="textColorBtn" title="글자 색상"><span
-                                            style="color:var(--accent-blue); font-weight:bold;">A</span></button>
+                                            style="color:red; font-weight:bold; border-bottom: 2px solid red;">A</span></button>
                                     <input type="color" id="foreColorInput"
-                                        style="position:absolute; opacity:0; width:1px; height:1px; bottom:0; left:0;">
+                                        style="position:absolute; opacity:0; width:100%; height:100%; top:0; left:0; cursor:pointer;">
                                 </div>
                                 <div style="position:relative;">
                                     <button type="button" class="tool-btn" id="bgColorBtn" title="배경 색상"><span
-                                            style="background:var(--accent-blue); color:white; padding:0 4px; font-size:12px;">A</span></button>
+                                            style="background:yellow; color:black; padding:0 2px; font-size:12px;">A</span></button>
                                     <input type="color" id="hiliteColorInput"
-                                        style="position:absolute; opacity:0; width:1px; height:1px; bottom:0; left:0;">
+                                        style="position:absolute; opacity:0; width:100%; height:100%; top:0; left:0; cursor:pointer;"
+                                        value="#ffff00">
                                 </div>
 
                                 <div style="width:1px; height: 20px; background:var(--border-color); margin:0 4px;">
                                 </div>
 
-                                <!-- Alignment -->
+                                <!-- 정렬 -->
                                 <button type="button" class="tool-btn" data-cmd="justifyLeft" title="왼쪽 정렬"><span
                                         class="material-symbols-rounded"
                                         style="font-size:18px;">format_align_left</span></button>
@@ -239,21 +255,30 @@
                                 <div style="width:1px; height: 20px; background:var(--border-color); margin:0 4px;">
                                 </div>
 
-                                <!-- Lists -->
+                                <!-- 리스트 및 들여쓰기 -->
                                 <button type="button" class="tool-btn" data-cmd="insertUnorderedList"
                                     title="글머리 기호"><span class="material-symbols-rounded"
                                         style="font-size:18px;">format_list_bulleted</span></button>
                                 <button type="button" class="tool-btn" data-cmd="insertOrderedList" title="번호 매기기"><span
                                         class="material-symbols-rounded"
                                         style="font-size:18px;">format_list_numbered</span></button>
+                                <button type="button" class="tool-btn" data-cmd="outdent" title="내어쓰기"><span
+                                        class="material-symbols-rounded"
+                                        style="font-size:18px;">format_indent_decrease</span></button>
+                                <button type="button" class="tool-btn" data-cmd="indent" title="들여쓰기"><span
+                                        class="material-symbols-rounded"
+                                        style="font-size:18px;">format_indent_increase</span></button>
 
                                 <div style="width:1px; height: 20px; background:var(--border-color); margin:0 4px;">
                                 </div>
 
-                                <!-- Insert -->
+                                <!-- 삽입 기능 -->
                                 <button type="button" class="tool-btn" data-cmd="createLink" title="링크"><span
                                         class="material-symbols-rounded" style="font-size:18px;">link</span></button>
-                                <button type="button" class="tool-btn" id="insertImageBtn" title="이미지 (압축 첨부)"><span
+                                <button type="button" class="tool-btn" data-cmd="unlink" title="링크 해제"><span
+                                        class="material-symbols-rounded"
+                                        style="font-size:18px;">link_off</span></button>
+                                <button type="button" class="tool-btn" id="insertImageBtn" title="이미지 첨부"><span
                                         class="material-symbols-rounded" style="font-size:18px;">image</span></button>
                                 <button type="button" class="tool-btn" id="insertVideoBtn" title="유튜브 영상"><span
                                         class="material-symbols-rounded" style="font-size:18px;">movie</span></button>
@@ -261,8 +286,8 @@
                                 <div style="width:1px; height: 20px; background:var(--border-color); margin:0 4px;">
                                 </div>
 
-                                <!-- Advanced -->
-                                <button type="button" class="tool-btn" id="insertTableBtn" title="표 삽입 (3x3)"><span
+                                <!-- 특수 기능 -->
+                                <button type="button" class="tool-btn" id="insertTableBtn" title="표 삽입"><span
                                         class="material-symbols-rounded"
                                         style="font-size:18px;">table_chart</span></button>
                                 <button type="button" class="tool-btn" id="insertQuoteBtn" title="인용구"><span
@@ -270,12 +295,16 @@
                                         style="font-size:18px;">format_quote</span></button>
                                 <button type="button" class="tool-btn" id="insertCodeBtn" title="코드 블록"><span
                                         class="material-symbols-rounded" style="font-size:18px;">code</span></button>
+                                <button type="button" class="tool-btn" data-cmd="removeFormat" title="서식 지우기"><span
+                                        class="material-symbols-rounded"
+                                        style="font-size:18px;">format_clear</span></button>
 
                                 <input type="file" id="imageUploadInput" accept="image/*" style="display:none;">
                             </div>
-                            <!-- Content Editable Div -->
+
+                            <!-- Editor Div -->
                             <div id="editor" contenteditable="true"
-                                style="min-height: 400px; padding: 16px; border: 1px solid var(--border-color); border-radius: 0 0 4px 4px; background: var(--bg-primary); line-height: 1.6; outline: none; overflow-y: auto;">
+                                style="min-height: 500px; padding: 20px; border: 1px solid var(--border-color); border-radius: 0 0 4px 4px; background: var(--bg-primary); line-height: 1.6; outline: none; overflow-y: auto;">
                                 <p><br></p>
                             </div>
                             <textarea id="content" style="display:none;"></textarea>
@@ -308,14 +337,16 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Set default category from URL
+        const editor = document.getElementById('editor');
+
+        // URL 파라미터 처리
         const urlParams = new URLSearchParams(window.location.search);
         const urlCat = urlParams.get('category');
         if (urlCat && urlCat !== 'all' && urlCat !== 'notice' && urlCat !== 'resolved') {
             document.getElementById('category').value = urlCat;
         }
 
-        // Check login status
+        // 로그인 체크
         let currentUser = null;
         function checkAuth() {
             if (window.UtilslyAuth && window.UtilslyAuth.currentUser) {
@@ -339,32 +370,22 @@
             }
         });
 
-        // Check on load
         setTimeout(checkAuth, 500);
 
-        // Initialize Editor
-        const editor = document.getElementById('editor');
+        // --- 에디터 핵심 로직 ---
 
-        // --- PASTE HANDLER (Strip Styles) ---
         editor.addEventListener('paste', (e) => {
             e.preventDefault();
-            let text = (e.originalEvent || e).clipboardData.getData('text/plain');
-
-            // Basic HTML cleanup / insertion as plain text
-            // If we want to support basic formatting from word etc, we need a sanitizer.
-            // But user requested "like original format" was bad. They likely want Clean Text or Clean HTML.
-            // "붙여넣으면 그 원본 서식대로 붙여넣어져..." (It pastes with original format... [implied complaint])
-            // So we force plain text.
+            const text = (e.originalEvent || e).clipboardData.getData('text/plain');
             document.execCommand('insertText', false, text);
         });
 
-        // Toolbar Buttons (execCommand)
         document.querySelectorAll('.tool-btn[data-cmd]').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
                 const cmd = btn.dataset.cmd;
                 if (cmd === 'createLink') {
-                    const url = prompt('링크 주소를 입력하세요:');
+                    const url = prompt('연결할 URL을 입력하세요:');
                     if (url) document.execCommand(cmd, false, url);
                 } else {
                     document.execCommand(cmd, false, null);
@@ -373,106 +394,103 @@
             });
         });
 
-        // Font Size
         document.getElementById('fontSizeSelect').addEventListener('change', (e) => {
-            document.execCommand('fontSize', false, e.target.value);
+            if (e.target.value) {
+                document.execCommand('fontSize', false, e.target.value);
+            }
             editor.focus();
         });
 
-        // Colors
-        const textColorBtn = document.getElementById('textColorBtn');
-        const foreColorInput = document.getElementById('foreColorInput');
-        textColorBtn.addEventListener('click', () => foreColorInput.click());
-        foreColorInput.addEventListener('change', (e) => {
+        document.getElementById('foreColorInput').addEventListener('input', (e) => {
             document.execCommand('foreColor', false, e.target.value);
-            editor.focus();
         });
 
-        const bgColorBtn = document.getElementById('bgColorBtn');
-        const hiliteColorInput = document.getElementById('hiliteColorInput');
-        bgColorBtn.addEventListener('click', () => hiliteColorInput.click());
-        hiliteColorInput.addEventListener('change', (e) => {
+        document.getElementById('hiliteColorInput').addEventListener('input', (e) => {
             document.execCommand('hiliteColor', false, e.target.value);
-            editor.focus();
         });
 
-        // --- NEW FEATURES Handlers ---
+        // 이미지 압축 및 첨부 기능 (Canvas 사용)
+        const imageUploadInput = document.getElementById('imageUploadInput');
+        document.getElementById('insertImageBtn').addEventListener('click', () => imageUploadInput.click());
 
-        // 1. YouTube Video
+        imageUploadInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        // Canvas 생성
+                        const canvas = document.createElement('canvas');
+                        let width = img.width;
+                        let height = img.height;
+
+                        // 최대 너비 제한 (너무 큰 이미지는 압축 전 리사이징)
+                        const max_width = 1200;
+                        if (width > max_width) {
+                            height *= max_width / width;
+                            width = max_width;
+                        }
+
+                        canvas.width = width;
+                        canvas.height = height;
+
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+
+                        // 50% 압축 (quality: 0.5)
+                        const compressedBase64 = canvas.toDataURL('image/jpeg', 0.5);
+
+                        const imgHtml = `<img src="${compressedBase64}" alt="압축된 이미지"><p><br></p>`;
+                        editor.focus();
+                        document.execCommand('insertHTML', false, imgHtml);
+                    };
+                    img.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+            imageUploadInput.value = '';
+        });
+
         document.getElementById('insertVideoBtn').addEventListener('click', () => {
-            const url = prompt('YouTube 동영상 주소(URL)를 입력하세요:');
+            const url = prompt('YouTube URL을 입력하세요:');
             if (url) {
-                // Extract Video ID
-                let videoId = null;
                 const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
                 const match = url.match(regExp);
                 if (match && match[2].length === 11) {
-                    videoId = match[2];
-                }
-
-                if (videoId) {
-                    const iframeHtml = `<div class="video-container" style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; margin: 16px 0;"><iframe src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></iframe></div><p><br></p>`;
-                    // Insert HTML
+                    const videoId = match[2];
+                    const iframeHtml = `<div class="video-container" style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; margin: 16px 0;"><iframe src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></iframe></div><p><br></p>`;
                     editor.focus();
                     document.execCommand('insertHTML', false, iframeHtml);
                 } else {
-                    alert('유효하지 않은 YouTube URL입니다.');
+                    alert('올바른 유튜브 주소가 아닙니다.');
                 }
             }
         });
 
-        // 2. Table (3x3 default)
         document.getElementById('insertTableBtn').addEventListener('click', () => {
-            const tableHtml = `
-                <table style="width: 100%; border-collapse: collapse; margin: 16px 0; border: 1px solid var(--border-color);">
-                    <tbody>
-                        <tr><td style="border: 1px solid var(--border-color); padding: 8px;">내용</td><td style="border: 1px solid var(--border-color); padding: 8px;">내용</td><td style="border: 1px solid var(--border-color); padding: 8px;">내용</td></tr>
-                        <tr><td style="border: 1px solid var(--border-color); padding: 8px;">내용</td><td style="border: 1px solid var(--border-color); padding: 8px;">내용</td><td style="border: 1px solid var(--border-color); padding: 8px;">내용</td></tr>
-                        <tr><td style="border: 1px solid var(--border-color); padding: 8px;">내용</td><td style="border: 1px solid var(--border-color); padding: 8px;">내용</td><td style="border: 1px solid var(--border-color); padding: 8px;">내용</td></tr>
-                    </tbody>
-                </table>
-                <p><br></p>
-            `;
+            const tableHtml = `<table style="width: 100%; border-collapse: collapse; margin: 16px 0; border: 1px solid var(--border-color);"><tbody><tr><td style="border: 1px solid var(--border-color); padding: 8px;"></td><td style="border: 1px solid var(--border-color); padding: 8px;"></td><td style="border: 1px solid var(--border-color); padding: 8px;"></td></tr><tr><td style="border: 1px solid var(--border-color); padding: 8px;"></td><td style="border: 1px solid var(--border-color); padding: 8px;"></td><td style="border: 1px solid var(--border-color); padding: 8px;"></td></tr></tbody></table><p><br></p>`;
             editor.focus();
             document.execCommand('insertHTML', false, tableHtml);
         });
 
-        // 3. Quote
         document.getElementById('insertQuoteBtn').addEventListener('click', () => {
-            const quoteHtml = `<blockquote style="border-left: 4px solid var(--accent-blue); padding-left: 16px; color: var(--text-secondary); margin: 16px 0;">인용구를 입력하세요</blockquote><p><br></p>`;
+            const quoteHtml = `<blockquote style="border-left: 4px solid var(--accent-blue); padding: 10px 20px; color: var(--text-secondary); background: var(--bg-hover); margin: 16px 0; border-radius: 0 4px 4px 0;">인용 내용을 입력하세요</blockquote><p><br></p>`;
             editor.focus();
             document.execCommand('insertHTML', false, quoteHtml);
         });
 
-        // 4. Code Block
         document.getElementById('insertCodeBtn').addEventListener('click', () => {
-            const codeHtml = `<pre style="background: #282c34; color: #abb2bf; padding: 16px; border-radius: 4px; overflow-x: auto; font-family: monospace; margin: 16px 0;"><code>코드를 입력하세요...</code></pre><p><br></p>`;
+            const codeHtml = `<pre style="background: #2d2d2d; color: #ccc; padding: 15px; border-radius: 4px; overflow-x: auto; font-family: 'Consolas', monospace; margin: 16px 0;"><code>// 코드를 입력하세요</code></pre><p><br></p>`;
             editor.focus();
             document.execCommand('insertHTML', false, codeHtml);
-        });
-
-
-        // Image Handling
-        const insertImageBtn = document.getElementById('insertImageBtn');
-        const imageUploadInput = document.getElementById('imageUploadInput');
-
-        insertImageBtn.addEventListener('click', () => imageUploadInput.click());
-
-        imageUploadInput.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-            handleImageUpload(file);
-            imageUploadInput.value = '';
         });
 
         document.getElementById('write-form').addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            // Sync Editor Content to Textarea
-            const editorContent = document.getElementById('editor').innerHTML;
-            document.getElementById('content').value = editorContent;
-
-            if (!document.getElementById('editor').textContent.trim() && !editorContent.includes('<img')) {
+            const editorContent = editor.innerHTML;
+            if (!editor.textContent.trim() && !editorContent.includes('<img')) {
                 return alert('내용을 입력해주세요.');
             }
 
@@ -482,17 +500,14 @@
 
             const category = document.getElementById('category').value;
             const title = document.getElementById('title').value;
-            const content = editorContent;
 
-            // Get nickname and password
             let nickname, password;
             if (currentUser) {
                 nickname = currentUser.displayName || currentUser.email.split('@')[0];
-                password = 'user_' + currentUser.uid.substring(0, 8); // Auto-generated
+                password = 'user_' + currentUser.uid.substring(0, 8);
             } else {
                 nickname = document.getElementById('nickname').value;
                 password = document.getElementById('password').value;
-
                 if (!nickname || !password) {
                     alert('닉네임과 비밀번호를 입력해주세요.');
                     submitBtn.disabled = false;
@@ -507,17 +522,16 @@
                     nickname,
                     password,
                     title,
-                    content,
+                    content: editorContent,
                     views: 0,
                     commentCount: 0,
                     userId: currentUser ? currentUser.uid : null,
                     createdAt: serverTimestamp()
                 });
-
                 window.location.href = `/community/index.html?category=${category}`;
-            } catch (e) {
-                console.error("Error adding document: ", e);
-                alert("글 등록 중 오류가 발생했습니다.");
+            } catch (error) {
+                console.error("Error:", error);
+                alert("등록 실패");
                 submitBtn.disabled = false;
                 submitBtn.textContent = '등록';
             }
