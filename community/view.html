@@ -8,107 +8,175 @@
     <link rel="stylesheet" href="../css/style.css">
     <script src="../js/common.js"></script>
     <style>
+        :root {
+            --blind-bg: #f6f7f9;
+            --blind-border: #eeeeee;
+            --blind-text-main: #222222;
+            --blind-text-sub: #94969b;
+            --blind-accent: #37acc3;
+        }
+
         .view-container {
-            max-width: 1000px;
+            max-width: 800px;
             margin: 0 auto;
+            background: #fff;
+            padding: 20px;
         }
 
         .post-header {
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 16px;
-            margin-bottom: 24px;
+            border-bottom: 1px solid var(--blind-border);
+            padding-bottom: 20px;
+            margin-bottom: 30px;
         }
 
         .post-category {
-            font-size: 14px;
-            color: var(--accent-blue);
-            font-weight: 600;
-            margin-bottom: 8px;
+            font-size: 13px;
+            color: var(--blind-accent);
+            font-weight: 700;
+            margin-bottom: 10px;
+            display: inline-block;
         }
 
         .post-title {
-            font-size: 24px;
+            font-size: 26px;
             font-weight: 700;
-            margin-bottom: 12px;
-            color: var(--text-primary);
+            margin-bottom: 15px;
+            color: var(--blind-text-main);
+            line-height: 1.4;
+            letter-spacing: -0.5px;
         }
 
         .post-info {
             display: flex;
-            gap: 16px;
-            font-size: 14px;
-            color: var(--text-secondary);
-            flex-wrap: wrap;
+            align-items: center;
+            gap: 12px;
+            font-size: 13px;
+            color: var(--blind-text-sub);
+        }
+
+        .post-info .author {
+            font-weight: 600;
+            color: #444;
+        }
+
+        .post-info .dot {
+            width: 2px;
+            height: 2px;
+            background: var(--blind-text-sub);
+            border-radius: 50%;
         }
 
         .post-content {
-            min-height: 200px;
+            min-height: 300px;
             line-height: 1.8;
             font-size: 16px;
-            margin-bottom: 40px;
-            color: var(--text-primary);
+            margin-bottom: 50px;
+            color: var(--blind-text-main);
         }
 
-        .post-content p {
-            margin-bottom: 12px;
+        /* 추천 버튼 섹션 */
+        .post-recommend-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 40px;
+            padding: 30px 0;
+            border-top: 1px solid var(--blind-border);
+        }
+
+        .recommend-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 70px;
+            height: 70px;
+            border: 1px solid var(--blind-border);
+            border-radius: 50%;
+            background: #fff;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--blind-text-sub);
+        }
+
+        .recommend-btn:hover {
+            border-color: var(--blind-accent);
+            color: var(--blind-accent);
+            background: rgba(55, 172, 195, 0.05);
+        }
+
+        .recommend-btn.active {
+            background: var(--blind-accent);
+            border-color: var(--blind-accent);
+            color: #fff;
+        }
+
+        .recommend-count {
+            margin-top: 10px;
+            font-weight: 700;
+            font-size: 15px;
+            color: var(--blind-text-main);
         }
 
         .post-actions {
             display: flex;
-            justify-content: flex-end;
-            gap: 8px;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 24px;
-            margin-bottom: 24px;
-            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--blind-border);
+            margin-bottom: 30px;
+        }
+
+        .action-left,
+        .action-right {
+            display: flex;
+            gap: 10px;
         }
 
         /* Comments */
         .comments-section {
-            background: var(--bg-sidebar);
-            padding: 24px;
-            border-radius: 8px;
+            background: #fff;
         }
 
         .comments-header {
             font-weight: 700;
-            margin-bottom: 16px;
-            font-size: 16px;
+            margin-bottom: 20px;
+            font-size: 17px;
+            color: var(--blind-text-main);
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
 
         .comment-list {
-            margin-bottom: 24px;
+            margin-bottom: 30px;
         }
 
         .comment-item {
-            padding: 12px 0;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .comment-item:last-child {
-            border-bottom: none;
+            padding: 16px 0;
+            border-bottom: 1px solid var(--blind-border);
         }
 
         .comment-meta {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 4px;
+            margin-bottom: 8px;
             font-size: 13px;
         }
 
         .comment-writer {
-            font-weight: 600;
-            color: var(--text-primary);
+            font-weight: 700;
+            color: var(--blind-text-main);
         }
 
         .comment-date {
-            color: var(--text-tertiary);
+            color: var(--blind-text-sub);
         }
 
         .comment-content {
             font-size: 14px;
-            color: var(--text-primary);
-            line-height: 1.5;
+            color: var(--blind-text-main);
+            line-height: 1.6;
             white-space: pre-wrap;
             word-break: break-word;
         }
@@ -117,54 +185,68 @@
             display: flex;
             flex-direction: column;
             gap: 12px;
-            background: var(--bg-primary);
+            background: var(--blind-bg);
             padding: 16px;
-            border-radius: 4px;
-            border: 1px solid var(--border-color);
+            border-radius: 8px;
         }
 
         .comment-inputs {
             display: flex;
-            gap: 8px;
+            gap: 10px;
         }
 
         .comment-inputs input {
-            flex: 1;
+            background: #fff;
+            border: 1px solid var(--blind-border);
+            font-size: 13px;
+            height: 36px;
         }
 
         .logged-in-info {
             display: flex;
             align-items: center;
-            gap: 10px;
-            padding: 10px 14px;
-            background: var(--bg-hover);
-            border-radius: 8px;
+            gap: 8px;
+            padding: 5px 0;
         }
 
         .user-avatar-sm {
-            width: 28px;
-            height: 28px;
+            width: 24px;
+            height: 24px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background: #ddd;
+            color: #fff;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 700;
-            font-size: 12px;
+            font-size: 11px;
+        }
+
+        textarea#c-content {
+            background: #fff;
+            border: 1px solid var(--blind-border);
+            border-radius: 4px;
+            font-size: 14px;
+            min-height: 80px;
+        }
+
+        .btn-primary {
+            background: var(--blind-accent) !important;
+            border: none !important;
+            font-weight: 700;
         }
 
         @media (max-width: 768px) {
+            .view-container {
+                padding: 15px;
+            }
+
+            .post-title {
+                font-size: 20px;
+            }
+
             .comment-inputs {
                 flex-direction: column;
-            }
-
-            .post-actions {
-                flex-direction: column;
-            }
-
-            .post-actions .btn {
-                width: 100%;
             }
         }
     </style>
@@ -192,15 +274,15 @@
                 <div class="breadcrumbs">
                     <span class="breadcrumb-item">커뮤니티</span>
                     <span class="separator">/</span>
-                    <span class="breadcrumb-item current-page">게시글 보기</span>
+                    <span class="breadcrumb-item current-page">게시글</span>
                 </div>
             </div>
 
             <div class="content-area">
                 <div class="view-container" id="post-container">
-                    <div style="text-align: center; padding: 40px;">
+                    <div style="text-align: center; padding: 100px 0;">
                         <span class="material-symbols-rounded"
-                            style="animation: spin 1s linear infinite;">refresh</span>
+                            style="animation: spin 1s linear infinite; color: var(--blind-accent);">refresh</span>
                     </div>
                 </div>
             </div>
@@ -209,7 +291,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, doc, getDoc, updateDoc, increment, collection, addDoc, query, orderBy, getDocs, serverTimestamp, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, updateDoc, increment, collection, addDoc, query, orderBy, getDocs, serverTimestamp, deleteDoc, runTransaction } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCbSmDuJNCSrIB7Fx9IzbePERD_2ka3rQE",
@@ -242,7 +324,6 @@
         window.addEventListener('authStateChanged', (e) => {
             if (e.detail.user) {
                 currentUser = e.detail.user;
-                // Update comment form if already rendered
                 updateCommentForm();
             }
         });
@@ -253,11 +334,7 @@
             const docRef = doc(db, "posts", postId);
 
             try {
-                // Increment views
-                await updateDoc(docRef, {
-                    views: increment(1)
-                });
-
+                await updateDoc(docRef, { views: increment(1) });
                 const docSnap = await getDoc(docRef);
 
                 if (docSnap.exists()) {
@@ -275,53 +352,91 @@
         }
 
         function renderPost(post) {
-            const date = post.createdAt ? post.createdAt.toDate().toLocaleString() : '-';
+            const date = post.createdAt ? post.createdAt.toDate().toLocaleDateString() : '-';
             const catMap = { 'free': '자유', 'bug': '버그', 'suggestion': '건의', 'notice': '공지', 'resolved': '해결' };
+            const recommendCount = post.recommendCount || 0;
 
             const html = `
                 <div class="post-header">
                     <div class="post-category">${catMap[post.category] || '자유'}</div>
                     <div class="post-title">${post.title}</div>
                     <div class="post-info">
-                        <span>${post.nickname}</span>
+                        <span class="author">${post.nickname}</span>
+                        <div class="dot"></div>
                         <span>${date}</span>
+                        <div class="dot"></div>
                         <span>조회 ${post.views}</span>
                     </div>
                 </div>
 
                 <div class="post-content">${post.content}</div>
 
+                <div class="post-recommend-section">
+                    <button class="recommend-btn" id="recommendBtn" onclick="handleRecommend()">
+                        <span class="material-symbols-rounded">thumb_up</span>
+                    </button>
+                    <div class="recommend-count">추천 <span id="recommend-count-num">${recommendCount}</span></div>
+                </div>
+
                 <div class="post-actions">
-                    <button class="btn" onclick="window.location.href='/community/index.html?category=${post.category}'">목록으로</button>
-                    <button class="btn" onclick="deletePost('${post.password}', '${post.userId || ''}')" style="color: #d32f2f;">삭제</button>
+                    <div class="action-left">
+                        <button class="btn" onclick="window.location.href='/community/index.html?category=${post.category}'">목록</button>
+                    </div>
+                    <div class="action-right">
+                        <button class="btn" onclick="deletePost('${post.password}', '${post.userId || ''}')" style="color: #999; font-size:13px; border:none; background:none;">삭제</button>
+                    </div>
                 </div>
 
                 <div class="comments-section">
-                    <div class="comments-header">댓글 <span id="comment-count">0</span></div>
+                    <div class="comments-header">댓글 <span id="comment-count" style="color:var(--blind-accent);">${post.commentCount || 0}</span></div>
                     <div class="comment-list" id="comment-list"></div>
                     
                     <form class="comment-form" id="comment-form">
                         <div id="guestCommentInputs" class="comment-inputs">
-                            <input type="text" id="c-nickname" placeholder="닉네임" style="flex:1;">
-                            <input type="password" id="c-password" placeholder="비밀번호" style="flex:1;">
+                            <input type="text" id="c-nickname" placeholder="닉네임" required>
+                            <input type="password" id="c-password" placeholder="비밀번호" required>
                         </div>
                         <div id="loggedInCommentInfo" class="logged-in-info" style="display: none;">
                             <div class="user-avatar-sm" id="commentUserAvatar">U</div>
-                            <span id="commentUserName" style="font-weight: 600;"></span>
+                            <span id="commentUserName" style="font-weight: 700; font-size:13px;"></span>
                         </div>
-                        <div style="display:flex; gap:8px; align-items:flex-start;">
-                            <textarea id="c-content" placeholder="댓글을 입력하세요" required style="flex:4; height: 60px; padding: 8px; resize: none;"></textarea>
-                            <button type="submit" class="btn btn-primary" style="flex:1; height: 60px;">등록</button>
+                        <div style="display:flex; flex-direction:column; gap:8px;">
+                            <textarea id="c-content" placeholder="댓글 내용을 입력하세요" required></textarea>
+                            <div style="display:flex; justify-content:flex-end;">
+                                <button type="submit" class="btn btn-primary" style="padding: 8px 24px;">등록</button>
+                            </div>
                         </div>
                     </form>
                 </div>
             `;
             document.getElementById('post-container').innerHTML = html;
 
-            // Update comment form for logged in user
             updateCommentForm();
 
-            // Bind delete event
+            // 추천 기능 핸들러
+            window.handleRecommend = async () => {
+                const btn = document.getElementById('recommendBtn');
+                if (btn.disabled) return;
+                btn.disabled = true;
+
+                try {
+                    const postRef = doc(db, "posts", postId);
+                    await runTransaction(db, async (transaction) => {
+                        const pDoc = await transaction.get(postRef);
+                        if (!pDoc.exists()) throw "Post does not exist";
+
+                        const newCount = (pDoc.data().recommendCount || 0) + 1;
+                        transaction.update(postRef, { recommendCount: newCount });
+                        document.getElementById('recommend-count-num').textContent = newCount;
+                    });
+                    btn.classList.add('active');
+                } catch (e) {
+                    console.error(e);
+                    alert('추천 처리 중 오류가 발생했습니다.');
+                    btn.disabled = false;
+                }
+            };
+
             window.deletePost = async (correctPassword, postUserId) => {
                 const isOwner = currentUser && postUserId && currentUser.uid === postUserId;
                 const isAdmin = localStorage.getItem('utilsly_admin_auth') === 'true';
@@ -346,14 +461,12 @@
                 }
             };
 
-            // Re-bind form submit
             document.getElementById('comment-form').addEventListener('submit', handleCommentSubmit);
         }
 
         function updateCommentForm() {
             const guestInputs = document.getElementById('guestCommentInputs');
             const loggedInInfo = document.getElementById('loggedInCommentInfo');
-
             if (!guestInputs || !loggedInInfo) return;
 
             if (currentUser) {
@@ -373,24 +486,19 @@
             const snapshot = await getDocs(q);
             const list = document.getElementById('comment-list');
             const count = document.getElementById('comment-count');
-
             count.textContent = snapshot.size;
 
             let html = '';
             snapshot.forEach(doc => {
                 const c = doc.data();
-                const d = c.createdAt ? c.createdAt.toDate().toLocaleString() : '';
-
-                const adminBadge = c.isAdmin ? `<span class="material-symbols-rounded" style="font-size:14px; color:#2196F3; margin-left:4px;" title="관리자">verified</span>` : '';
-                const writerClass = c.isAdmin ? 'font-weight: bold;' : '';
-
+                const d = c.createdAt ? c.createdAt.toDate().toLocaleString('ko-KR', { fontSize: '11px' }) : '';
                 html += `
-                    <div class="comment-item" ${c.isAdmin ? 'style="background:rgba(33,150,243,0.05);"' : ''}>
+                    <div class="comment-item">
                         <div class="comment-meta">
-                            <span class="comment-writer" style="${writerClass} display:flex; align-items:center;">${c.nickname}${adminBadge}</span>
-                            <div style="display:flex; gap:8px; align-items:center;">
+                            <span class="comment-writer">${c.nickname}</span>
+                            <div style="display:flex; gap:10px; align-items:center;">
                                 <span class="comment-date">${d}</span>
-                                <button onclick="deleteComment('${doc.id}', '${c.password}', '${c.userId || ''}')" style="background:none; border:none; cursor:pointer; color:var(--text-tertiary); font-size:16px;">
+                                <button onclick="deleteComment('${doc.id}', '${c.password}', '${c.userId || ''}')" style="background:none; border:none; cursor:pointer; color:#ccc;">
                                     <span class="material-symbols-rounded" style="font-size:14px;">close</span>
                                 </button>
                             </div>
@@ -399,32 +507,29 @@
                     </div>
                 `;
             });
-            list.innerHTML = html;
+            list.innerHTML = html || '<div style="color:#bbb; font-size:13px; text-align:center; padding:20px;">첫 댓글을 남겨보세요.</div>';
 
             window.deleteComment = async (commentId, correctPassword, commentUserId) => {
                 const isOwner = currentUser && commentUserId && currentUser.uid === commentUserId;
                 const isAdmin = localStorage.getItem('utilsly_admin_auth') === 'true';
 
                 if (isOwner || isAdmin) {
-                    if (!confirm(isAdmin ? '[관리자] 댓글을 삭제하시겠습니까?' : '댓글을 삭제하시겠습니까?')) return;
+                    if (!confirm('댓글을 삭제하시겠습니까?')) return;
                 } else {
-                    const input = prompt("댓글 비밀번호:");
+                    const input = prompt("비밀번호 입력:");
                     if (input !== correctPassword) return alert('비밀번호 불일치');
                 }
 
                 try {
                     await deleteDoc(doc(db, `posts/${postId}/comments`, commentId));
-                    await updateDoc(doc(db, "posts", postId), {
-                        commentCount: increment(-1)
-                    });
+                    await updateDoc(doc(db, "posts", postId), { commentCount: increment(-1) });
                     loadComments();
-                } catch (e) { console.error(e); alert('삭제 실패'); }
+                } catch (e) { alert('삭제 실패'); }
             };
         }
 
         async function handleCommentSubmit(e) {
             e.preventDefault();
-
             let nick, pass;
             if (currentUser) {
                 nick = currentUser.displayName || currentUser.email.split('@')[0];
@@ -432,15 +537,9 @@
             } else {
                 nick = document.getElementById('c-nickname').value;
                 pass = document.getElementById('c-password').value;
-
-                if (!nick || !pass) {
-                    alert('닉네임과 비밀번호를 입력해주세요.');
-                    return;
-                }
             }
 
             const content = document.getElementById('c-content').value;
-
             try {
                 await addDoc(collection(db, `posts/${postId}/comments`), {
                     nickname: nick,
@@ -449,18 +548,10 @@
                     userId: currentUser ? currentUser.uid : null,
                     createdAt: serverTimestamp()
                 });
-
-                // Update comment count on post
-                await updateDoc(doc(db, "posts", postId), {
-                    commentCount: increment(1)
-                });
-
+                await updateDoc(doc(db, "posts", postId), { commentCount: increment(1) });
                 document.getElementById('c-content').value = '';
-                loadComments(); // Reload comments
-            } catch (err) {
-                console.error(err);
-                alert('댓글 등록 실패');
-            }
+                loadComments();
+            } catch (err) { alert('등록 실패'); }
         }
 
         loadPost();
