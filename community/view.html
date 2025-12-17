@@ -10,17 +10,39 @@
     <style>
         :root {
             --blind-bg: #f6f7f9;
+            --blind-card: #ffffff;
             --blind-border: #eeeeee;
             --blind-text-main: #222222;
             --blind-text-sub: #94969b;
             --blind-accent: #37acc3;
+            --blind-hover: rgba(55, 172, 195, 0.05);
+            --blind-comment-input: #f6f7f9;
+        }
+
+        /* 다크 모드 테마 정의 */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --blind-bg: #121212;
+                --blind-card: #1e1e1e;
+                --blind-border: #333333;
+                --blind-text-main: #e1e1e1;
+                --blind-text-sub: #888888;
+                --blind-accent: #48c1d9;
+                --blind-hover: rgba(72, 193, 217, 0.1);
+                --blind-comment-input: #2a2a2a;
+            }
+
+            body {
+                background-color: var(--blind-bg);
+            }
         }
 
         .view-container {
             max-width: 800px;
             margin: 0 auto;
-            background: #fff;
+            background: var(--blind-card);
             padding: 20px;
+            color: var(--blind-text-main);
         }
 
         .post-header {
@@ -56,7 +78,8 @@
 
         .post-info .author {
             font-weight: 600;
-            color: #444;
+            color: var(--blind-text-main);
+            opacity: 0.8;
         }
 
         .post-info .dot {
@@ -93,7 +116,7 @@
             height: 70px;
             border: 1px solid var(--blind-border);
             border-radius: 50%;
-            background: #fff;
+            background: var(--blind-card);
             cursor: pointer;
             transition: all 0.2s;
             color: var(--blind-text-sub);
@@ -102,7 +125,7 @@
         .recommend-btn:hover {
             border-color: var(--blind-accent);
             color: var(--blind-accent);
-            background: rgba(55, 172, 195, 0.05);
+            background: var(--blind-hover);
         }
 
         .recommend-btn.active {
@@ -135,7 +158,7 @@
 
         /* Comments */
         .comments-section {
-            background: #fff;
+            background: var(--blind-card);
         }
 
         .comments-header {
@@ -181,11 +204,17 @@
             word-break: break-word;
         }
 
+        .mention-tag {
+            color: var(--blind-accent);
+            font-weight: 600;
+            margin-right: 4px;
+        }
+
         .comment-form {
             display: flex;
             flex-direction: column;
             gap: 12px;
-            background: var(--blind-bg);
+            background: var(--blind-comment-input);
             padding: 16px;
             border-radius: 8px;
         }
@@ -196,10 +225,12 @@
         }
 
         .comment-inputs input {
-            background: #fff;
+            background: var(--blind-card);
             border: 1px solid var(--blind-border);
             font-size: 13px;
             height: 36px;
+            color: var(--blind-text-main);
+            padding: 0 10px;
         }
 
         .logged-in-info {
@@ -213,7 +244,7 @@
             width: 24px;
             height: 24px;
             border-radius: 50%;
-            background: #ddd;
+            background: var(--blind-text-sub);
             color: #fff;
             display: flex;
             align-items: center;
@@ -223,17 +254,57 @@
         }
 
         textarea#c-content {
-            background: #fff;
+            background: var(--blind-card);
             border: 1px solid var(--blind-border);
             border-radius: 4px;
             font-size: 14px;
             min-height: 80px;
+            padding: 12px;
+            color: var(--blind-text-main);
         }
 
         .btn-primary {
             background: var(--blind-accent) !important;
             border: none !important;
             font-weight: 700;
+            color: #fff;
+        }
+
+        .reply-btn {
+            font-size: 12px;
+            color: var(--blind-text-sub);
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            margin-right: 8px;
+            display: flex;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .reply-btn:hover {
+            color: var(--blind-accent);
+        }
+
+        /* Scrollbar styling for dark mode */
+        @media (prefers-color-scheme: dark) {
+            ::-webkit-scrollbar {
+                width: 10px;
+            }
+
+            ::-webkit-scrollbar-track {
+                background: #1e1e1e;
+            }
+
+            ::-webkit-scrollbar-thumb {
+                background: #333;
+                border-radius: 5px;
+            }
+
+            ::-webkit-scrollbar-thumb:hover {
+                background: #444;
+            }
         }
 
         @media (max-width: 768px) {
@@ -383,7 +454,7 @@
                         <button class="btn" onclick="window.location.href='/community/index.html?category=${post.category}'">목록</button>
                     </div>
                     <div class="action-right">
-                        <button class="btn" onclick="deletePost('${post.password}', '${post.userId || ''}')" style="color: #999; font-size:13px; border:none; background:none;">삭제</button>
+                        <button class="btn" onclick="deletePost('${post.password}', '${post.userId || ''}')" style="color: var(--blind-text-sub); font-size:13px; border:none; background:none;">삭제</button>
                     </div>
                 </div>
 
@@ -491,23 +562,42 @@
             let html = '';
             snapshot.forEach(doc => {
                 const c = doc.data();
-                const d = c.createdAt ? c.createdAt.toDate().toLocaleString('ko-KR', { fontSize: '11px' }) : '';
+                const d = c.createdAt ? c.createdAt.toDate().toLocaleString('ko-KR') : '';
+
+                // 멘션(@닉네임) 스타일 처리
+                let contentHtml = c.content;
+                const mentionRegex = /^(@[^\s]+)\s/;
+                const match = contentHtml.match(mentionRegex);
+                if (match) {
+                    contentHtml = contentHtml.replace(match[1], `<span class="mention-tag">${match[1]}</span>`);
+                }
+
                 html += `
                     <div class="comment-item">
                         <div class="comment-meta">
                             <span class="comment-writer">${c.nickname}</span>
                             <div style="display:flex; gap:10px; align-items:center;">
+                                <button class="reply-btn" onclick="mentionUser('${c.nickname}')">
+                                    <span class="material-symbols-rounded" style="font-size:14px;">reply</span> 답글
+                                </button>
                                 <span class="comment-date">${d}</span>
-                                <button onclick="deleteComment('${doc.id}', '${c.password}', '${c.userId || ''}')" style="background:none; border:none; cursor:pointer; color:#ccc;">
+                                <button onclick="deleteComment('${doc.id}', '${c.password}', '${c.userId || ''}')" style="background:none; border:none; cursor:pointer; color:var(--blind-text-sub); opacity: 0.5;">
                                     <span class="material-symbols-rounded" style="font-size:14px;">close</span>
                                 </button>
                             </div>
                         </div>
-                        <div class="comment-content">${c.content}</div>
+                        <div class="comment-content">${contentHtml}</div>
                     </div>
                 `;
             });
-            list.innerHTML = html || '<div style="color:#bbb; font-size:13px; text-align:center; padding:20px;">첫 댓글을 남겨보세요.</div>';
+            list.innerHTML = html || `<div style="color:var(--blind-text-sub); font-size:13px; text-align:center; padding:20px;">첫 댓글을 남겨보세요.</div>`;
+
+            window.mentionUser = (nickname) => {
+                const textarea = document.getElementById('c-content');
+                textarea.value = `@${nickname} ${textarea.value}`;
+                textarea.focus();
+                textarea.setSelectionRange(textarea.value.length, textarea.value.length);
+            };
 
             window.deleteComment = async (commentId, correctPassword, commentUserId) => {
                 const isOwner = currentUser && commentUserId && currentUser.uid === commentUserId;
@@ -540,6 +630,8 @@
             }
 
             const content = document.getElementById('c-content').value;
+            if (!content.trim()) return alert('댓글 내용을 입력하세요.');
+
             try {
                 await addDoc(collection(db, `posts/${postId}/comments`), {
                     nickname: nick,
