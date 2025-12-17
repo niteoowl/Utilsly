@@ -231,6 +231,7 @@
             height: 36px;
             color: var(--blind-text-main);
             padding: 0 10px;
+            width: 100%;
         }
 
         .logged-in-info {
@@ -261,6 +262,8 @@
             min-height: 80px;
             padding: 12px;
             color: var(--blind-text-main);
+            width: 100%;
+            box-sizing: border-box;
         }
 
         .btn-primary {
@@ -386,20 +389,21 @@
         }
 
         let currentUser = null;
-        function checkAuth() {
+
+        // 인증 상태 체크 개선
+        function updateCurrentUser() {
             if (window.UtilslyAuth && window.UtilslyAuth.currentUser) {
                 currentUser = window.UtilslyAuth.currentUser;
+                updateCommentFormUI();
             }
         }
 
         window.addEventListener('authStateChanged', (e) => {
-            if (e.detail.user) {
-                currentUser = e.detail.user;
-                updateCommentForm();
-            }
+            currentUser = e.detail.user;
+            updateCommentFormUI();
         });
 
-        setTimeout(checkAuth, 500);
+        setTimeout(updateCurrentUser, 500);
 
         async function loadPost() {
             const docRef = doc(db, "posts", postId);
@@ -410,6 +414,8 @@
 
                 if (docSnap.exists()) {
                     const post = docSnap.data();
+                    // 페이지 타이틀 설정
+                    document.title = `${post.title} - Utilsly`;
                     renderPost(post);
                     loadComments();
                 } else {
@@ -418,7 +424,8 @@
                 }
             } catch (error) {
                 console.error("Error:", error);
-                document.getElementById('post-container').innerHTML = '오류가 발생했습니다.';
+                const container = document.getElementById('post-container');
+                if (container) container.innerHTML = '오류가 발생했습니다.';
             }
         }
 
@@ -454,7 +461,7 @@
                         <button class="btn" onclick="window.location.href='/community/index.html?category=${post.category}'">목록</button>
                     </div>
                     <div class="action-right">
-                        <button class="btn" onclick="deletePost('${post.password}', '${post.userId || ''}')" style="color: var(--blind-text-sub); font-size:13px; border:none; background:none;">삭제</button>
+                        <button class="btn" onclick="deletePost('${post.password}', '${post.userId || ''}')" style="color: var(--blind-text-sub); font-size:13px; border:none; background:none; cursor:pointer;">삭제</button>
                     </div>
                 </div>
 
@@ -474,7 +481,7 @@
                         <div style="display:flex; flex-direction:column; gap:8px;">
                             <textarea id="c-content" placeholder="댓글 내용을 입력하세요" required></textarea>
                             <div style="display:flex; justify-content:flex-end;">
-                                <button type="submit" class="btn btn-primary" style="padding: 8px 24px;">등록</button>
+                                <button type="submit" class="btn btn-primary" style="padding: 8px 24px; cursor:pointer;">등록</button>
                             </div>
                         </div>
                     </form>
@@ -482,9 +489,9 @@
             `;
             document.getElementById('post-container').innerHTML = html;
 
-            updateCommentForm();
+            updateCommentFormUI();
 
-            // 추천 기능 핸들러
+            // 추천 기능
             window.handleRecommend = async () => {
                 const btn = document.getElementById('recommendBtn');
                 if (btn.disabled) return;
@@ -508,6 +515,7 @@
                 }
             };
 
+            // 게시글 삭제
             window.deletePost = async (correctPassword, postUserId) => {
                 const isOwner = currentUser && postUserId && currentUser.uid === postUserId;
                 const isAdmin = localStorage.getItem('utilsly_admin_auth') === 'true';
@@ -535,19 +543,26 @@
             document.getElementById('comment-form').addEventListener('submit', handleCommentSubmit);
         }
 
-        function updateCommentForm() {
+        // 로그인 상태에 따른 댓글창 UI 업데이트 함수 분리
+        function updateCommentFormUI() {
             const guestInputs = document.getElementById('guestCommentInputs');
             const loggedInInfo = document.getElementById('loggedInCommentInfo');
             if (!guestInputs || !loggedInInfo) return;
 
             if (currentUser) {
-                const nickname = currentUser.displayName || currentUser.email.split('@')[0];
+                const nickname = currentUser.displayName || (currentUser.email ? currentUser.email.split('@')[0] : '사용자');
                 guestInputs.style.display = 'none';
+                // 로그인 시 input 필수 속성 해제 (hidden 상태이므로)
+                document.getElementById('c-nickname').required = false;
+                document.getElementById('c-password').required = false;
+
                 loggedInInfo.style.display = 'flex';
                 document.getElementById('commentUserName').textContent = nickname;
                 document.getElementById('commentUserAvatar').textContent = nickname[0].toUpperCase();
             } else {
                 guestInputs.style.display = 'flex';
+                document.getElementById('c-nickname').required = true;
+                document.getElementById('c-password').required = true;
                 loggedInInfo.style.display = 'none';
             }
         }
@@ -557,14 +572,13 @@
             const snapshot = await getDocs(q);
             const list = document.getElementById('comment-list');
             const count = document.getElementById('comment-count');
-            count.textContent = snapshot.size;
+            if (count) count.textContent = snapshot.size;
 
             let html = '';
-            snapshot.forEach(doc => {
-                const c = doc.data();
+            snapshot.forEach(docSnap => {
+                const c = docSnap.data();
                 const d = c.createdAt ? c.createdAt.toDate().toLocaleString('ko-KR') : '';
 
-                // 멘션(@닉네임) 스타일 처리
                 let contentHtml = c.content;
                 const mentionRegex = /^(@[^\s]+)\s/;
                 const match = contentHtml.match(mentionRegex);
@@ -581,7 +595,7 @@
                                     <span class="material-symbols-rounded" style="font-size:14px;">reply</span> 답글
                                 </button>
                                 <span class="comment-date">${d}</span>
-                                <button onclick="deleteComment('${doc.id}', '${c.password}', '${c.userId || ''}')" style="background:none; border:none; cursor:pointer; color:var(--blind-text-sub); opacity: 0.5;">
+                                <button onclick="deleteComment('${docSnap.id}', '${c.password}', '${c.userId || ''}')" style="background:none; border:none; cursor:pointer; color:var(--blind-text-sub); opacity: 0.5;">
                                     <span class="material-symbols-rounded" style="font-size:14px;">close</span>
                                 </button>
                             </div>
@@ -590,7 +604,7 @@
                     </div>
                 `;
             });
-            list.innerHTML = html || `<div style="color:var(--blind-text-sub); font-size:13px; text-align:center; padding:20px;">첫 댓글을 남겨보세요.</div>`;
+            if (list) list.innerHTML = html || `<div style="color:var(--blind-text-sub); font-size:13px; text-align:center; padding:20px;">첫 댓글을 남겨보세요.</div>`;
 
             window.mentionUser = (nickname) => {
                 const textarea = document.getElementById('c-content');
@@ -599,22 +613,31 @@
                 textarea.setSelectionRange(textarea.value.length, textarea.value.length);
             };
 
+            // 댓글 삭제 로직 수정 (댓삭 권한 체크)
             window.deleteComment = async (commentId, correctPassword, commentUserId) => {
                 const isOwner = currentUser && commentUserId && currentUser.uid === commentUserId;
                 const isAdmin = localStorage.getItem('utilsly_admin_auth') === 'true';
 
-                if (isOwner || isAdmin) {
-                    if (!confirm('댓글을 삭제하시겠습니까?')) return;
-                } else {
+                // 주인이나 관리자가 아닐 때만 비밀번호 체크
+                if (!isOwner && !isAdmin) {
                     const input = prompt("비밀번호 입력:");
-                    if (input !== correctPassword) return alert('비밀번호 불일치');
+                    if (input === null) return; // 취소 시 중단
+                    if (input !== correctPassword) {
+                        alert('비밀번호가 일치하지 않습니다.');
+                        return;
+                    }
                 }
 
-                try {
-                    await deleteDoc(doc(db, `posts/${postId}/comments`, commentId));
-                    await updateDoc(doc(db, "posts", postId), { commentCount: increment(-1) });
-                    loadComments();
-                } catch (e) { alert('삭제 실패'); }
+                if (confirm('댓글을 삭제하시겠습니까?')) {
+                    try {
+                        await deleteDoc(doc(db, `posts/${postId}/comments`, commentId));
+                        await updateDoc(doc(db, "posts", postId), { commentCount: increment(-1) });
+                        loadComments();
+                    } catch (e) {
+                        console.error(e);
+                        alert('삭제 실패');
+                    }
+                }
             };
         }
 
@@ -622,7 +645,7 @@
             e.preventDefault();
             let nick, pass;
             if (currentUser) {
-                nick = currentUser.displayName || currentUser.email.split('@')[0];
+                nick = currentUser.displayName || (currentUser.email ? currentUser.email.split('@')[0] : '사용자');
                 pass = 'user_' + currentUser.uid.substring(0, 8);
             } else {
                 nick = document.getElementById('c-nickname').value;
