@@ -59,6 +59,23 @@
             display: inline-block;
         }
 
+        .post-header-top {
+            margin-bottom: 8px;
+        }
+
+        .channel-link {
+            font-size: 14px;
+            color: var(--blind-accent);
+            font-weight: 700;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .channel-link:hover {
+            text-decoration: underline;
+        }
+
         .post-title {
             font-size: 26px;
             font-weight: 700;
@@ -431,12 +448,24 @@
 
         function renderPost(post) {
             const date = post.createdAt ? post.createdAt.toDate().toLocaleDateString() : '-';
-            const catMap = { 'free': '자유', 'bug': '버그', 'suggestion': '건의', 'notice': '공지', 'resolved': '해결' };
+            const catMap = {
+                'free': '자유',
+                'bug': '버그',
+                'suggestion': '건의',
+                'notice': '공지',
+                'resolved': '해결',
+                'humor': '유머',
+                'dev': '개발',
+                'stock': '주식',
+                'game': '게임'
+            };
             const recommendCount = post.recommendCount || 0;
 
             const html = `
                 <div class="post-header">
-                    <div class="post-category">${catMap[post.category] || '자유'}</div>
+                    <div class="post-header-top">
+                        <a href="/community/index.html?category=${post.category}" class="channel-link">${catMap[post.category] || '자유'} 갤러리 <span class="material-symbols-rounded" style="font-size: 14px; vertical-align: middle;">chevron_right</span></a>
+                    </div>
                     <div class="post-title">${post.title}</div>
                     <div class="post-info">
                         <span class="author">${post.nickname}</span>
