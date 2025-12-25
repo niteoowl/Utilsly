@@ -1,11 +1,15 @@
 <!DOCTYPE html>
-<html lang="ko" data-theme="light">
+<html lang="ko">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>목표 평단 계산기 - Utilsly</title>
     <meta name="description" content="현재 평단가에서 목표 평단가를 맞추기 위해 얼마에 몇 주를 더 사야하는지 계산합니다.">
+    <script>
+        !function () { const e = localStorage.getItem("theme"), t = window.matchMedia("(prefers-color-scheme: dark)").matches; "dark" !== e && (e || !t) || document.documentElement.setAttribute("data-theme", "dark") }();
+    </script>
     <link rel="stylesheet" href="../../css/style.css">
     <style>
         .calc-wrapper {
@@ -38,7 +42,7 @@
 
         .relative-input input {
             width: 100%;
-            padding-right: 32px;
+            padding-right: 36px;
             text-align: right;
             font-weight: 500;
         }
@@ -54,77 +58,111 @@
         }
 
         .result-field {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            padding: 16px;
+            border-radius: 8px;
             font-size: 24px;
             font-weight: 700;
             color: var(--text-primary);
             text-align: right;
+            margin-top: 8px;
+        }
+
+        .disclaimer {
+            margin-top: 24px;
+            padding: 16px;
+            background: rgba(255, 59, 48, 0.05);
+            border-radius: 8px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            border: 1px solid rgba(255, 59, 48, 0.1);
         }
     </style>
 </head>
 
 <body>
     <div class="app-container">
-        <nav class="sidebar"></nav>
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="user-profile">
+                    <div style="font-size: 24px; font-weight: 800; color: var(--text-primary); letter-spacing: -0.5px;">
+                        Utilsly.</div>
+                </div>
+            </div>
+            <nav class="sidebar-nav"></nav>
+        </aside>
 
         <main class="main-content">
             <header class="top-bar">
+                <button class="menu-toggle-btn" onclick="Utilsly.toggleSidebar(true)">
+                    <span class="material-symbols-rounded">menu</span>
+                </button>
                 <div class="breadcrumbs">
-                    <span class="breadcrumb-item">목표 평단 계산기</span>
+                    <span class="breadcrumb-item current-page">목표 평단 계산기</span>
                 </div>
             </header>
 
-            <div class="tool-header">
-                <div class="header-icon-wrapper">
-                    <span class="material-symbols-rounded">gps_fixed</span>
+            <div class="content-area">
+                <div class="page-header">
+                    <div class="header-icon-wrapper">
+                        <span class="material-symbols-rounded">gps_fixed</span>
+                    </div>
+                    <h1>목표 평단 계산기</h1>
+                    <p class="description">원하는 평단가를 만들기 위해 필요한 추가 매수 수량을 계산해보세요.</p>
                 </div>
-                <h1>목표 평단 계산기</h1>
-                <p class="description">원하는 평단가를 만들기 위해 필요한 추가 매수 수량을 계산해보세요.</p>
-            </div>
 
-            <div class="tool-container" data-tool-id="target-price">
-                <div class="calc-wrapper">
-                    <div class="section-card" style="border-top: 3px solid #FF9F0A;">
+                <div class="tool-container" data-tool-id="target-price">
+                    <div class="calc-wrapper">
+                        <div class="section-card" style="border-top: 3px solid #FF9F0A;">
 
-                        <div class="input-wrapper">
-                            <label class="input-label">현재 보유 수량</label>
-                            <div class="relative-input">
-                                <input type="number" id="curr-qty" class="search-input" placeholder="0">
-                                <span class="unit-label">주</span>
+                            <div class="input-wrapper">
+                                <label class="input-label">현재 보유 수량</label>
+                                <div class="relative-input">
+                                    <input type="number" id="curr-qty" class="search-input" placeholder="0">
+                                    <span class="unit-label">주</span>
+                                </div>
                             </div>
-                        </div>
-                        <div class="input-wrapper">
-                            <label class="input-label">현재 평단가</label>
-                            <div class="relative-input">
-                                <input type="number" id="curr-price" class="search-input" placeholder="0">
-                                <span class="unit-label">원</span>
+                            <div class="input-wrapper">
+                                <label class="input-label">현재 평단가</label>
+                                <div class="relative-input">
+                                    <input type="number" id="curr-price" class="search-input" placeholder="0">
+                                    <span class="unit-label">원</span>
+                                </div>
                             </div>
-                        </div>
 
-                        <hr style="border:none; border-top:1px dashed var(--border-color); margin:24px 0;">
+                            <hr style="border:none; border-top:1px dashed var(--border-color); margin:24px 0;">
 
-                        <div class="input-wrapper">
-                            <label class="input-label">목표 평단가</label>
-                            <div class="relative-input">
-                                <input type="number" id="target-avg" class="search-input" placeholder="0">
-                                <span class="unit-label">원</span>
+                            <div class="input-wrapper">
+                                <label class="input-label">목표 평단가</label>
+                                <div class="relative-input">
+                                    <input type="number" id="target-avg" class="search-input" placeholder="0">
+                                    <span class="unit-label">원</span>
+                                </div>
                             </div>
-                        </div>
-                        <div class="input-wrapper">
-                            <label class="input-label">추가 매수 단가 (얼마에 살 예정인가요?)</label>
-                            <div class="relative-input">
-                                <input type="number" id="target-buy-price" class="search-input" placeholder="0">
-                                <span class="unit-label">원</span>
+                            <div class="input-wrapper">
+                                <label class="input-label">추가 매수 단가 (얼마에 살 예정인가요?)</label>
+                                <div class="relative-input">
+                                    <input type="number" id="target-buy-price" class="search-input" placeholder="0">
+                                    <span class="unit-label">원</span>
+                                </div>
                             </div>
+
+                            <div class="input-wrapper" style="margin-top:24px;">
+                                <label class="input-label">필요 매수 수량</label>
+                                <div class="result-field" id="target-needed-qty" style="color:#FF9F0A;">0주</div>
+                                <div style="font-size:13px; color:var(--text-tertiary); margin-top:8px; text-align:right;"
+                                    id="target-needed-amt">예상 소요금액: 0원</div>
+                            </div>
+
                         </div>
 
-                        <div class="input-wrapper"
-                            style="margin-top:24px; background:var(--bg-primary); padding:16px; border-radius:8px;">
-                            <label class="input-label">필요 매수 수량</label>
-                            <div class="result-field" id="target-needed-qty" style="color:#FF9F0A;">0주</div>
-                            <div style="font-size:13px; color:var(--text-tertiary); margin-top:8px; text-align:right;"
-                                id="target-needed-amt">예상 소요금액: 0원</div>
+                        <div class="disclaimer">
+                            <span class="material-symbols-rounded"
+                                style="font-size: 16px; vertical-align: text-bottom; margin-right: 4px; color: #ff3b30;">warning</span>
+                            본 계산기의 결과는 단순 참고용이며, 실제 매매 비용(수수료, 세금 등)은 포함되지 않을 수 있습니다.
+                            <strong>본 결과는 투자 판단의 근거가 되지 않으며, 투자 결과에 대한 책임은 본인에게 있습니다.</strong>
                         </div>
-
                     </div>
                 </div>
             </div>
@@ -166,10 +204,6 @@
                     return;
                 }
 
-                // Check feasibility
-                // If we want lower avg (cp > tAvg), we must buy lower than tAvg (buyP < tAvg)
-                // If we want higher avg (cp < tAvg), we must buy higher than tAvg (buyP > tAvg)
-
                 if ((cp > tAvg && buyP >= tAvg) || (cp < tAvg && buyP <= tAvg)) {
                     this.elements.neededQty.textContent = "불가능";
                     this.elements.neededAmt.textContent = "목표 평단가 달성이 불가능한 매수 단가입니다.";
@@ -182,21 +216,12 @@
                     return;
                 }
 
-                // Formula:
-                // NewAvg = (OldTotal + Q * BuyP) / (OldQty + Q) = tAvg
-                // OldTotal + Q * BuyP = tAvg * OldQty + tAvg * Q
-                // Q * BuyP - tAvg * Q = tAvg * OldQty - OldTotal
-                // Q * (BuyP - tAvg) = tAvg * OldQty - (cp * OldQty)
-                // Q = (tAvg * OldQty - cp * OldQty) / (BuyP - tAvg)
-                // Q = OldQty * (tAvg - cp) / (BuyP - tAvg)
-
                 const numerator = cq * (tAvg - cp);
                 const denominator = buyP - tAvg;
 
                 let q = numerator / denominator;
 
                 if (q < 0) {
-                    // Should be covered by feasibility check, but just in case
                     q = Math.abs(q);
                 }
 

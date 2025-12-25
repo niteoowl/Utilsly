@@ -5,120 +5,142 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>글쓰기 - Utilsly Community</title>
+    <script>
+        !function () { const e = localStorage.getItem("theme"), t = window.matchMedia("(prefers-color-scheme: dark)").matches; "dark" !== e && (e || !t) || document.documentElement.setAttribute("data-theme", "dark") }();
+    </script>
     <link rel="stylesheet" href="../css/style.css">
-    <script src="../js/common.js"></script>
     <style>
         .write-container {
             max-width: 800px;
             margin: 0 auto;
         }
 
-        .write-header {
-            border-bottom: 2px solid var(--text-primary);
-            padding-bottom: 16px;
-            margin-bottom: 24px;
-        }
-
-        .form-group {
-            margin-bottom: 16px;
-        }
-
-        .form-row {
-            display: flex;
-            gap: 16px;
-        }
-
-        .form-row .form-group {
-            flex: 1;
-        }
-
-        label {
-            display: block;
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: var(--text-primary);
-        }
-
-        input,
-        select,
-        textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid var(--border-color);
+        .write-card {
             background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 32px;
+        }
+
+        .write-title-input {
+            width: 100%;
+            border: none;
+            background: transparent;
+            font-size: 32px;
+            font-weight: 800;
             color: var(--text-primary);
-            border-radius: 4px;
+            margin-bottom: 24px;
+            padding: 0;
+            outline: none;
+            letter-spacing: -0.02em;
         }
 
-        textarea {
-            min-height: 400px;
-            resize: vertical;
-            line-height: 1.6;
+        .write-title-input::placeholder {
+            color: var(--text-placeholder);
         }
 
-        .btn-group {
+        .form-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 32px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .form-item label {
+            display: block;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-tertiary);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        .toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 12px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px 12px 0 0;
+            border-bottom: none;
+        }
+
+        .tool-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text-secondary);
+            border: 1px solid transparent;
+            background: transparent;
+        }
+
+        .tool-btn:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .tool-btn.active {
+            background: var(--bg-active);
+            border-color: var(--border-color);
+            color: var(--text-primary);
+        }
+
+        .editor-surface {
+            min-height: 500px;
+            padding: 24px;
+            border: 1px solid var(--border-color);
+            border-radius: 0 0 12px 12px;
+            outline: none;
+            font-size: 16px;
+            line-height: 1.8;
+            color: var(--text-primary);
+            background: var(--bg-primary);
+        }
+
+        .editor-surface img {
+            max-width: 100%;
+            border-radius: 12px;
+        }
+
+        .publish-footer {
             display: flex;
             justify-content: flex-end;
             gap: 12px;
             margin-top: 24px;
         }
 
-        .tool-btn {
-            width: 32px;
-            height: 32px;
-            border: 1px solid transparent;
-            background: transparent;
-            border-radius: 4px;
-            cursor: pointer;
-            color: var(--text-primary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .tool-btn:hover {
-            background: rgba(0, 0, 0, 0.05);
-        }
-
-        .tool-btn.active {
-            background: var(--bg-hover);
-            border-color: var(--border-color);
-        }
-
-        .user-info-display {
-            padding: 16px;
-            background: var(--bg-sidebar);
-            border-radius: 8px;
-            margin-bottom: 16px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .user-avatar-mini {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-        }
-
-        /* 에디터 내 이미지 스타일 */
-        #editor img {
-            max-width: 100%;
-            height: auto;
-            border-radius: 8px;
-            margin: 10px 0;
-        }
-
         @media (max-width: 768px) {
-            .form-row {
-                flex-direction: column;
+            .form-section {
+                grid-template-columns: 1fr;
             }
+
+            .write-card {
+                padding: 20px;
+            }
+
+            .write-title-input {
+                font-size: 24px;
+            }
+        }
+
+        .user-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--bg-secondary);
+            padding: 6px 12px;
+            border-radius: 50px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 16px;
         }
     </style>
 </head>
@@ -132,202 +154,112 @@
                         Utilsly.</div>
                 </div>
             </div>
-            <nav class="sidebar-nav">
-                <!-- Sidebar content generated by js/common.js -->
-            </nav>
+            <nav class="sidebar-nav"></nav>
         </aside>
 
-        <div class="main-content">
-            <div class="top-bar">
+        <main class="main-content">
+            <header class="top-bar">
                 <button class="menu-toggle-btn" onclick="Utilsly.toggleSidebar(true)">
                     <span class="material-symbols-rounded">menu</span>
                 </button>
                 <div class="breadcrumbs">
-                    <span class="breadcrumb-item">커뮤니티</span>
+                    <span class="breadcrumb-item"><a href="/community/index.html">커뮤니티</a></span>
                     <span class="separator">/</span>
                     <span class="breadcrumb-item current-page">글쓰기</span>
                 </div>
-            </div>
+            </header>
 
             <div class="content-area">
                 <div class="write-container">
-                    <div class="write-header">
-                        <h2>글쓰기</h2>
-                    </div>
-
-                    <div class="user-info-display" id="userInfoDisplay" style="display: none;">
-                        <div class="user-avatar-mini" id="userAvatarMini">U</div>
-                        <div>
-                            <div style="font-weight: 600;" id="userNickname">닉네임</div>
-                            <div style="font-size: 12px; color: var(--text-secondary);">로그인됨</div>
-                        </div>
-                    </div>
-
-                    <form id="write-form">
-                        <div class="form-group">
-                            <label>분류</label>
-                            <select id="category" required>
-                                <option value="free" selected>자유 채널</option>
-                                <option value="stock">주식/투자</option>
-                                <option value="dev">개발/코딩</option>
-                                <option value="humor">유머/잡담</option>
-                                <option value="suggestion">건의사항</option>
-                                <option value="bug">버그제보</option>
-                            </select>
-                        </div>
-
-                        <div class="form-row" id="guestInputs">
-                            <div class="form-group">
-                                <label>닉네임</label>
-                                <input type="text" id="nickname" placeholder="닉네임 입력" maxlength="20"
-                                    autocomplete="username">
-                            </div>
-                            <div class="form-group">
-                                <label>비밀번호</label>
-                                <input type="password" id="password" placeholder="삭제 시 필요" maxlength="20"
-                                    autocomplete="new-password">
+                    <div class="write-card">
+                        <div id="logged-in-chip" style="display:none;">
+                            <div class="user-chip">
+                                <span class="material-symbols-rounded" style="font-size:18px;">account_circle</span>
+                                <span id="user-name-display">사용자</span>
+                                <span style="opacity:0.5; font-weight:400;">로그인됨</span>
                             </div>
                         </div>
 
-                        <div class="form-group">
-                            <label>제목</label>
-                            <input type="text" id="title" required placeholder="제목을 입력해 주세요" maxlength="100">
-                        </div>
+                        <input type="text" id="post-title" class="write-title-input" placeholder="제목을 입력하세요"
+                            maxlength="100">
 
-                        <div class="form-group">
-                            <label>내용</label>
-                            <!-- Rich Text Toolbar -->
-                            <div class="toolbar"
-                                style="border: 1px solid var(--border-color); border-bottom: none; padding: 8px; background: var(--bg-hover); border-radius: 4px 4px 0 0; display:flex; flex-wrap: wrap; gap: 4px; align-items: center;">
-
-                                <!-- 텍스트 스타일 -->
-                                <button type="button" class="tool-btn" data-cmd="bold" title="굵게"><b>B</b></button>
-                                <button type="button" class="tool-btn" data-cmd="italic" title="기울임"><i>I</i></button>
-                                <button type="button" class="tool-btn" data-cmd="underline" title="밑줄"><u>U</u></button>
-                                <button type="button" class="tool-btn" data-cmd="strikeThrough"
-                                    title="취소선"><s>S</s></button>
-
-                                <div style="width:1px; height: 20px; background:var(--border-color); margin:0 4px;">
-                                </div>
-
-                                <!-- 폰트 사이즈 (숫자로 변경) -->
-                                <select id="fontSizeSelect"
-                                    style="width:auto; padding: 4px; height: 32px; font-size: 13px;">
-                                    <option value="">글자 크기</option>
-                                    <option value="1">10px</option>
-                                    <option value="2">13px</option>
-                                    <option value="3">16px (기본)</option>
-                                    <option value="4">18px</option>
-                                    <option value="5">24px</option>
-                                    <option value="6">32px</option>
-                                    <option value="7">48px</option>
+                        <div class="form-section">
+                            <div class="form-item">
+                                <label>채널 선택</label>
+                                <select id="post-category">
+                                    <option value="free">자유</option>
+                                    <option value="stock">주식/코인</option>
+                                    <option value="dev">개발</option>
+                                    <option value="humor">유머</option>
+                                    <option value="suggestion">건의사항</option>
+                                    <option value="notice">공지사항</option>
                                 </select>
-
-                                <div style="width:1px; height: 20px; background:var(--border-color); margin:0 4px;">
-                                </div>
-
-                                <!-- 색상 -->
-                                <div style="position:relative;">
-                                    <button type="button" class="tool-btn" id="textColorBtn" title="글자 색상"><span
-                                            style="color:red; font-weight:bold; border-bottom: 2px solid red;">A</span></button>
-                                    <input type="color" id="foreColorInput"
-                                        style="position:absolute; opacity:0; width:100%; height:100%; top:0; left:0; cursor:pointer;">
-                                </div>
-                                <div style="position:relative;">
-                                    <button type="button" class="tool-btn" id="bgColorBtn" title="배경 색상"><span
-                                            style="background:yellow; color:black; padding:0 2px; font-size:12px;">A</span></button>
-                                    <input type="color" id="hiliteColorInput"
-                                        style="position:absolute; opacity:0; width:100%; height:100%; top:0; left:0; cursor:pointer;"
-                                        value="#ffff00">
-                                </div>
-
-                                <div style="width:1px; height: 20px; background:var(--border-color); margin:0 4px;">
-                                </div>
-
-                                <!-- 정렬 -->
-                                <button type="button" class="tool-btn" data-cmd="justifyLeft" title="왼쪽 정렬"><span
-                                        class="material-symbols-rounded"
-                                        style="font-size:18px;">format_align_left</span></button>
-                                <button type="button" class="tool-btn" data-cmd="justifyCenter" title="가운데 정렬"><span
-                                        class="material-symbols-rounded"
-                                        style="font-size:18px;">format_align_center</span></button>
-                                <button type="button" class="tool-btn" data-cmd="justifyRight" title="오른쪽 정렬"><span
-                                        class="material-symbols-rounded"
-                                        style="font-size:18px;">format_align_right</span></button>
-
-                                <div style="width:1px; height: 20px; background:var(--border-color); margin:0 4px;">
-                                </div>
-
-                                <!-- 리스트 및 들여쓰기 -->
-                                <button type="button" class="tool-btn" data-cmd="insertUnorderedList"
-                                    title="글머리 기호"><span class="material-symbols-rounded"
-                                        style="font-size:18px;">format_list_bulleted</span></button>
-                                <button type="button" class="tool-btn" data-cmd="insertOrderedList" title="번호 매기기"><span
-                                        class="material-symbols-rounded"
-                                        style="font-size:18px;">format_list_numbered</span></button>
-                                <button type="button" class="tool-btn" data-cmd="outdent" title="내어쓰기"><span
-                                        class="material-symbols-rounded"
-                                        style="font-size:18px;">format_indent_decrease</span></button>
-                                <button type="button" class="tool-btn" data-cmd="indent" title="들여쓰기"><span
-                                        class="material-symbols-rounded"
-                                        style="font-size:18px;">format_indent_increase</span></button>
-
-                                <div style="width:1px; height: 20px; background:var(--border-color); margin:0 4px;">
-                                </div>
-
-                                <!-- 삽입 기능 -->
-                                <button type="button" class="tool-btn" data-cmd="createLink" title="링크"><span
-                                        class="material-symbols-rounded" style="font-size:18px;">link</span></button>
-                                <button type="button" class="tool-btn" data-cmd="unlink" title="링크 해제"><span
-                                        class="material-symbols-rounded"
-                                        style="font-size:18px;">link_off</span></button>
-                                <button type="button" class="tool-btn" id="insertImageBtn" title="이미지 첨부"><span
-                                        class="material-symbols-rounded" style="font-size:18px;">image</span></button>
-                                <button type="button" class="tool-btn" id="insertVideoBtn" title="유튜브 영상"><span
-                                        class="material-symbols-rounded" style="font-size:18px;">movie</span></button>
-
-                                <div style="width:1px; height: 20px; background:var(--border-color); margin:0 4px;">
-                                </div>
-
-                                <!-- 특수 기능 -->
-                                <button type="button" class="tool-btn" id="insertTableBtn" title="표 삽입"><span
-                                        class="material-symbols-rounded"
-                                        style="font-size:18px;">table_chart</span></button>
-                                <button type="button" class="tool-btn" id="insertQuoteBtn" title="인용구"><span
-                                        class="material-symbols-rounded"
-                                        style="font-size:18px;">format_quote</span></button>
-                                <button type="button" class="tool-btn" id="insertCodeBtn" title="코드 블록"><span
-                                        class="material-symbols-rounded" style="font-size:18px;">code</span></button>
-                                <button type="button" class="tool-btn" data-cmd="removeFormat" title="서식 지우기"><span
-                                        class="material-symbols-rounded"
-                                        style="font-size:18px;">format_clear</span></button>
-
-                                <input type="file" id="imageUploadInput" accept="image/*" style="display:none;">
                             </div>
+                            <div class="form-item guest-field">
+                                <label>닉네임</label>
+                                <input type="text" id="post-nickname" placeholder="닉네임">
+                            </div>
+                            <div class="form-item guest-field">
+                                <label>비밀번호</label>
+                                <input type="password" id="post-password" placeholder="비밀번호">
+                            </div>
+                        </div>
 
-                            <!-- Editor Div -->
-                            <div id="editor" contenteditable="true"
-                                style="min-height: 500px; padding: 20px; border: 1px solid var(--border-color); border-radius: 0 0 4px 4px; background: var(--bg-primary); line-height: 1.6; outline: none; overflow-y: auto;">
+                        <div class="editor-area">
+                            <div class="toolbar">
+                                <button type="button" class="tool-btn" data-cmd="bold" title="굵게">
+                                    <span class="material-symbols-rounded" style="font-size:20px;">format_bold</span>
+                                </button>
+                                <button type="button" class="tool-btn" data-cmd="italic" title="기울임">
+                                    <span class="material-symbols-rounded" style="font-size:20px;">format_italic</span>
+                                </button>
+                                <button type="button" class="tool-btn" data-cmd="underline" title="밑줄">
+                                    <span class="material-symbols-rounded"
+                                        style="font-size:20px;">format_underlined</span>
+                                </button>
+                                <div style="width:1px; height:20px; background:var(--border-color); margin:0 4px;">
+                                </div>
+                                <button type="button" class="tool-btn" id="btn-img" title="이미지">
+                                    <span class="material-symbols-rounded" style="font-size:20px;">image</span>
+                                </button>
+                                <button type="button" class="tool-btn" id="btn-link" title="링크">
+                                    <span class="material-symbols-rounded" style="font-size:20px;">link</span>
+                                </button>
+                                <button type="button" class="tool-btn" data-cmd="justifyLeft">
+                                    <span class="material-symbols-rounded"
+                                        style="font-size: 20px;">format_align_left</span>
+                                </button>
+                                <button type="button" class="tool-btn" data-cmd="justifyCenter">
+                                    <span class="material-symbols-rounded"
+                                        style="font-size: 20px;">format_align_center</span>
+                                </button>
+                                <button type="button" class="tool-btn" data-cmd="insertUnorderedList">
+                                    <span class="material-symbols-rounded"
+                                        style="font-size: 20px;">format_list_bulleted</span>
+                                </button>
+                                <input type="file" id="file-input" accept="image/*" style="display:none;">
+                            </div>
+                            <div id="post-editor" class="editor-surface" contenteditable="true">
                                 <p><br></p>
                             </div>
-                            <textarea id="content" style="display:none;"></textarea>
                         </div>
 
-                        <div class="btn-group">
-                            <button type="button" class="btn" onclick="history.back()">취소</button>
-                            <button type="submit" class="btn btn-primary" id="submit-btn">등록</button>
+                        <div class="publish-footer">
+                            <button class="btn" onclick="history.back()">취소</button>
+                            <button class="btn btn-primary" id="publish-btn">게시글 등록</button>
                         </div>
-                    </form>
+                    </div>
                 </div>
             </div>
-        </div>
+        </main>
     </div>
 
+    <script src="../js/common.js"></script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        const firebaseConfig = {
+        const app = initializeApp({
             apiKey: "AIzaSyCbSmDuJNCSrIB7Fx9IzbePERD_2ka3rQE",
             authDomain: "utilsly.firebaseapp.com",
             projectId: "utilsly",
@@ -335,213 +267,90 @@
             messagingSenderId: "713000931988",
             appId: "1:713000931988:web:8891efe6d0ab2d61b61a81",
             measurementId: "G-WSRTSNGT8G"
-        };
-
-        const app = initializeApp(firebaseConfig);
+        });
         const db = getFirestore(app);
 
-        const editor = document.getElementById('editor');
-
-        // URL 파라미터 처리
+        const editor = document.getElementById('post-editor');
         const urlParams = new URLSearchParams(window.location.search);
-        const urlChannel = urlParams.get('channel') || urlParams.get('category');
-        if (urlChannel && urlChannel !== 'all') {
-            const select = document.getElementById('category');
-            if (select.querySelector(`option[value="${urlChannel}"]`)) {
-                select.value = urlChannel;
-            }
-        }
+        const channel = urlParams.get('channel');
+        if (channel) document.getElementById('post-category').value = channel;
 
-        // 로그인 체크
         let currentUser = null;
         function checkAuth() {
             if (window.UtilslyAuth && window.UtilslyAuth.currentUser) {
                 currentUser = window.UtilslyAuth.currentUser;
-                showLoggedInUI(currentUser);
+                const nickname = currentUser.displayName || currentUser.email.split('@')[0];
+                document.querySelectorAll('.guest-field').forEach(f => f.style.display = 'none');
+                document.getElementById('logged-in-chip').style.display = 'block';
+                document.getElementById('user-name-display').textContent = nickname;
             }
         }
-
-        function showLoggedInUI(user) {
-            const nickname = user.displayName || user.email.split('@')[0];
-            document.getElementById('guestInputs').style.display = 'none';
-            document.getElementById('userInfoDisplay').style.display = 'flex';
-            document.getElementById('userNickname').textContent = nickname;
-            document.getElementById('userAvatarMini').textContent = nickname[0].toUpperCase();
-        }
-
-        window.addEventListener('authStateChanged', (e) => {
-            if (e.detail.user) {
-                currentUser = e.detail.user;
-                showLoggedInUI(currentUser);
-            }
-        });
-
         setTimeout(checkAuth, 500);
 
-        // --- 에디터 핵심 로직 ---
-
-        editor.addEventListener('paste', (e) => {
-            e.preventDefault();
-            const text = (e.originalEvent || e).clipboardData.getData('text/plain');
-            document.execCommand('insertText', false, text);
-        });
-
+        // Editor interactions
         document.querySelectorAll('.tool-btn[data-cmd]').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.preventDefault();
-                const cmd = btn.dataset.cmd;
-                if (cmd === 'createLink') {
-                    const url = prompt('연결할 URL을 입력하세요:');
-                    if (url) document.execCommand(cmd, false, url);
-                } else {
-                    document.execCommand(cmd, false, null);
-                }
+            btn.addEventListener('click', () => {
+                document.execCommand(btn.dataset.cmd, false, null);
                 editor.focus();
             });
         });
 
-        document.getElementById('fontSizeSelect').addEventListener('change', (e) => {
-            if (e.target.value) {
-                document.execCommand('fontSize', false, e.target.value);
-            }
-            editor.focus();
-        });
+        document.getElementById('btn-link').onclick = () => {
+            const url = prompt('URL을 입력하세요:');
+            if (url) document.execCommand('createLink', false, url);
+        };
 
-        document.getElementById('foreColorInput').addEventListener('input', (e) => {
-            document.execCommand('foreColor', false, e.target.value);
-        });
-
-        document.getElementById('hiliteColorInput').addEventListener('input', (e) => {
-            document.execCommand('hiliteColor', false, e.target.value);
-        });
-
-        // 이미지 압축 및 첨부 기능 (Canvas 사용)
-        const imageUploadInput = document.getElementById('imageUploadInput');
-        document.getElementById('insertImageBtn').addEventListener('click', () => imageUploadInput.click());
-
-        imageUploadInput.addEventListener('change', (e) => {
+        const fileInput = document.getElementById('file-input');
+        document.getElementById('btn-img').onclick = () => fileInput.click();
+        fileInput.onchange = (e) => {
             const file = e.target.files[0];
             if (file) {
                 const reader = new FileReader();
-                reader.onload = (event) => {
-                    const img = new Image();
-                    img.onload = () => {
-                        // Canvas 생성
-                        const canvas = document.createElement('canvas');
-                        let width = img.width;
-                        let height = img.height;
-
-                        // 최대 너비 제한 (너무 큰 이미지는 압축 전 리사이징)
-                        const max_width = 1200;
-                        if (width > max_width) {
-                            height *= max_width / width;
-                            width = max_width;
-                        }
-
-                        canvas.width = width;
-                        canvas.height = height;
-
-                        const ctx = canvas.getContext('2d');
-                        ctx.drawImage(img, 0, 0, width, height);
-
-                        // 50% 압축 (quality: 0.5)
-                        const compressedBase64 = canvas.toDataURL('image/jpeg', 0.5);
-
-                        const imgHtml = `<img src="${compressedBase64}" alt="압축된 이미지"><p><br></p>`;
-                        editor.focus();
-                        document.execCommand('insertHTML', false, imgHtml);
-                    };
-                    img.src = event.target.result;
+                reader.onload = (ev) => {
+                    const img = `<img src="${ev.target.result}" style="max-width:100%; border-radius:12px;"><p><br></p>`;
+                    editor.focus();
+                    document.execCommand('insertHTML', false, img);
                 };
                 reader.readAsDataURL(file);
             }
-            imageUploadInput.value = '';
-        });
+        };
 
-        document.getElementById('insertVideoBtn').addEventListener('click', () => {
-            const url = prompt('YouTube URL을 입력하세요:');
-            if (url) {
-                const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-                const match = url.match(regExp);
-                if (match && match[2].length === 11) {
-                    const videoId = match[2];
-                    const iframeHtml = `<div class="video-container" style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; margin: 16px 0;"><iframe src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></iframe></div><p><br></p>`;
-                    editor.focus();
-                    document.execCommand('insertHTML', false, iframeHtml);
-                } else {
-                    alert('올바른 유튜브 주소가 아닙니다.');
-                }
-            }
-        });
+        document.getElementById('publish-btn').onclick = async () => {
+            const title = document.getElementById('post-title').value.trim();
+            const category = document.getElementById('post-category').value;
+            const content = editor.innerHTML;
 
-        document.getElementById('insertTableBtn').addEventListener('click', () => {
-            const tableHtml = `<table style="width: 100%; border-collapse: collapse; margin: 16px 0; border: 1px solid var(--border-color);"><tbody><tr><td style="border: 1px solid var(--border-color); padding: 8px;"></td><td style="border: 1px solid var(--border-color); padding: 8px;"></td><td style="border: 1px solid var(--border-color); padding: 8px;"></td></tr><tr><td style="border: 1px solid var(--border-color); padding: 8px;"></td><td style="border: 1px solid var(--border-color); padding: 8px;"></td><td style="border: 1px solid var(--border-color); padding: 8px;"></td></tr></tbody></table><p><br></p>`;
-            editor.focus();
-            document.execCommand('insertHTML', false, tableHtml);
-        });
-
-        document.getElementById('insertQuoteBtn').addEventListener('click', () => {
-            const quoteHtml = `<blockquote style="border-left: 4px solid var(--accent-blue); padding: 10px 20px; color: var(--text-secondary); background: var(--bg-hover); margin: 16px 0; border-radius: 0 4px 4px 0;">인용 내용을 입력하세요</blockquote><p><br></p>`;
-            editor.focus();
-            document.execCommand('insertHTML', false, quoteHtml);
-        });
-
-        document.getElementById('insertCodeBtn').addEventListener('click', () => {
-            const codeHtml = `<pre style="background: #2d2d2d; color: #ccc; padding: 15px; border-radius: 4px; overflow-x: auto; font-family: 'Consolas', monospace; margin: 16px 0;"><code>// 코드를 입력하세요</code></pre><p><br></p>`;
-            editor.focus();
-            document.execCommand('insertHTML', false, codeHtml);
-        });
-
-        document.getElementById('write-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-
-            const editorContent = editor.innerHTML;
-            if (!editor.textContent.trim() && !editorContent.includes('<img')) {
-                return alert('내용을 입력해주세요.');
-            }
-
-            const submitBtn = document.getElementById('submit-btn');
-            submitBtn.disabled = true;
-            submitBtn.textContent = '등록 중...';
-
-            const category = document.getElementById('category').value;
-            const title = document.getElementById('title').value;
+            if (!title) return alert('제목을 입력해주세요.');
+            if (!editor.textContent.trim() && !content.includes('<img')) return alert('내용을 입력해주세요.');
 
             let nickname, password;
             if (currentUser) {
                 nickname = currentUser.displayName || currentUser.email.split('@')[0];
                 password = 'user_' + currentUser.uid.substring(0, 8);
             } else {
-                nickname = document.getElementById('nickname').value;
-                password = document.getElementById('password').value;
-                if (!nickname || !password) {
-                    alert('닉네임과 비밀번호를 입력해주세요.');
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = '등록';
-                    return;
-                }
+                nickname = document.getElementById('post-nickname').value.trim();
+                password = document.getElementById('post-password').value.trim();
+                if (!nickname || !password) return alert('닉네임과 비밀번호를 입력해주세요.');
             }
+
+            const btn = document.getElementById('publish-btn');
+            btn.disabled = true;
+            btn.textContent = '등록 중...';
 
             try {
                 await addDoc(collection(db, "posts"), {
-                    category,
-                    nickname,
-                    password,
-                    title,
-                    content: editorContent,
-                    views: 0,
-                    commentCount: 0,
+                    title, category, nickname, password, content,
+                    views: 0, commentCount: 0, recommendCount: 0,
                     userId: currentUser ? currentUser.uid : null,
                     createdAt: serverTimestamp()
                 });
-                window.location.href = `/community/index.html?channel=${category}`;
-            } catch (error) {
-                console.error("Error:", error);
-                alert("등록 실패");
-                submitBtn.disabled = false;
-                submitBtn.textContent = '등록';
+                location.href = `/community/index.html?channel=${category}`;
+            } catch (err) {
+                alert('등록 실패');
+                btn.disabled = false;
+                btn.textContent = '게시글 등록';
             }
-        });
+        };
     </script>
 </body>
 

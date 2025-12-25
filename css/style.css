@@ -17,6 +17,7 @@
     /* Notion-like Palette (Light Mode) */
     --bg-primary: #FFFFFF;
     --bg-sidebar: #F7F7F5;
+    --bg-secondary: #F1F1EF;
     --bg-hover: #EFEFEF;
     --bg-active: #E5E5E5;
 
@@ -60,6 +61,7 @@ html:not(.loaded) body {
     /* Notion-like Palette (Dark Mode) */
     --bg-primary: #191919;
     --bg-sidebar: #202020;
+    --bg-secondary: #252525;
     --bg-hover: #2C2C2C;
     --bg-active: #373737;
 

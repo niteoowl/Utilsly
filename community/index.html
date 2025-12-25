@@ -9,207 +9,221 @@
         !function () { const e = localStorage.getItem("theme"), t = window.matchMedia("(prefers-color-scheme: dark)").matches; "dark" !== e && (e || !t) || document.documentElement.setAttribute("data-theme", "dark") }();
     </script>
     <link rel="stylesheet" href="../css/style.css">
-    <script src="../js/common.js"></script>
     <style>
         .community-container {
             max-width: 1000px;
             margin: 0 auto;
         }
 
-        /* Channel List View */
-        .channel-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-            gap: 16px;
+        /* Premium Navigator */
+        .channel-nav-container {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            padding: 8px 4px 20px 4px;
             margin-bottom: 24px;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
         }
 
-        .channel-card {
-            background: var(--bg-primary);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 24px;
-            text-align: center;
-            text-decoration: none;
-            color: var(--text-primary);
-            transition: all 0.2s;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .channel-card:hover {
-            border-color: var(--accent-blue);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        }
-
-        .channel-card .icon {
-            font-size: 32px;
-            color: var(--accent-blue);
-        }
-
-        .channel-card .name {
-            font-size: 16px;
-            font-weight: 700;
-        }
-
-        /* Channel Detail View */
-        .channel-header {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 24px;
-            padding-bottom: 16px;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .channel-title {
-            font-size: 20px;
-            font-weight: 800;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .search-bar-wrapper {
-            flex: 1;
-            display: flex;
-            justify-content: flex-end;
-            gap: 8px;
-        }
-
-        .search-input-group {
-            position: relative;
-            width: 100%;
-            max-width: 300px;
-        }
-
-        .search-input-group input {
-            width: 100%;
-            padding: 8px 12px;
-            padding-right: 36px;
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-            background: var(--bg-primary);
-            color: var(--text-primary);
-        }
-
-        .search-input-group .search-icon {
-            position: absolute;
-            right: 8px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--text-tertiary);
-            cursor: pointer;
-        }
-
-        /* Post List */
-        .post-list-container {
-            background: var(--bg-primary);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            overflow: hidden;
-        }
-
-        .list-item {
-            display: flex;
-            align-items: center;
-            padding: 16px 20px;
-            border-bottom: 1px solid var(--border-color);
-            text-decoration: none;
-            color: var(--text-primary);
-            transition: background 0.1s;
-            gap: 12px;
-        }
-
-        .list-item:hover {
-            background: var(--bg-hover);
-        }
-
-        .list-item:last-child {
-            border-bottom: none;
-        }
-
-        .post-title-area {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .post-title {
-            font-weight: 500;
-            font-size: 15px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        .post-meta {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            color: var(--text-tertiary);
-            font-size: 13px;
-        }
-
-        .empty-state {
-            padding: 60px 20px;
-            text-align: center;
-            color: var(--text-secondary);
-        }
-
-        .write-fab {
+        .channel-nav-container::-webkit-scrollbar {
             display: none;
         }
 
+        .channel-nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 16px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            min-width: 100px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .channel-nav-item:hover {
+            background: var(--bg-hover);
+            transform: translateY(-2px);
+        }
+
+        .channel-nav-item.active {
+            background: var(--text-primary);
+            border-color: var(--text-primary);
+            color: var(--bg-primary);
+        }
+
+        .channel-nav-item.active .material-symbols-rounded {
+            color: var(--bg-primary);
+        }
+
+        .channel-nav-item .material-symbols-rounded {
+            font-size: 28px;
+            color: var(--text-secondary);
+        }
+
+        .channel-nav-item .name {
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        /* Post List Filter Header */
+        .list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .list-title {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .search-wrapper {
+            position: relative;
+            max-width: 300px;
+            width: 100%;
+        }
+
+        .search-wrapper input {
+            width: 100%;
+            padding: 10px 16px 10px 40px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 50px;
+            font-size: 14px;
+        }
+
+        .search-wrapper .material-symbols-rounded {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 20px;
+            color: var(--text-tertiary);
+        }
+
+        /* Premium Post List */
+        .post-card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 12px;
+            text-decoration: none;
+            color: var(--text-primary);
+            transition: all 0.15s;
+            display: block;
+        }
+
+        .post-card:hover {
+            border-color: var(--text-primary);
+            background: var(--bg-hover);
+            transform: translateX(4px);
+        }
+
+        .post-card .post-title-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .post-card .post-title {
+            font-size: 17px;
+            font-weight: 700;
+            line-height: 1.4;
+            flex: 1;
+            margin-right: 12px;
+        }
+
+        .post-card .comment-count {
+            color: #ff5252;
+            font-size: 13px;
+            font-weight: 600;
+            margin-left: 4px;
+        }
+
+        .post-card .post-meta {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .post-card .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .post-card .author-badge {
+            background: var(--bg-secondary);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* Empty State */
+        .empty-state {
+            padding: 80px 20px;
+            text-align: center;
+            color: var(--text-tertiary);
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            border: 1px dashed var(--border-color);
+        }
+
         @media (max-width: 768px) {
-            .channel-header {
+            .list-header {
                 flex-direction: column;
                 align-items: flex-start;
                 gap: 16px;
             }
 
-            .search-bar-wrapper {
-                width: 100%;
-            }
-
-            .search-input-group {
+            .search-wrapper {
                 max-width: 100%;
             }
 
-            .list-item {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 8px;
+            .post-card {
+                padding: 16px;
             }
 
-            .post-meta {
-                width: 100%;
-                justify-content: space-between;
+            .post-card .post-title {
+                font-size: 15px;
             }
+        }
 
-            .write-fab {
-                display: flex;
-                position: fixed;
-                bottom: 20px;
-                right: 20px;
-                width: 56px;
-                height: 56px;
-                border-radius: 50%;
-                background: var(--text-primary);
-                color: var(--bg-primary);
-                border: none;
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-                cursor: pointer;
-                align-items: center;
-                justify-content: center;
-                z-index: 50;
-            }
+        .write-fab {
+            position: fixed;
+            bottom: 32px;
+            right: 32px;
+            width: 56px;
+            height: 56px;
+            border-radius: 16px;
+            background: var(--text-primary);
+            color: var(--bg-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+            z-index: 100;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
 
-            .desktop-write-btn {
-                display: none;
-            }
+        .write-fab:hover {
+            transform: scale(1.1) rotate(5deg);
         }
     </style>
 </head>
@@ -225,77 +239,64 @@
             </div>
             <nav class="sidebar-nav"></nav>
         </aside>
-        <div class="main-content">
-            <div class="top-bar">
+
+        <main class="main-content">
+            <header class="top-bar">
                 <button class="menu-toggle-btn" onclick="Utilsly.toggleSidebar(true)">
                     <span class="material-symbols-rounded">menu</span>
                 </button>
                 <div class="breadcrumbs">
-                    <span class="breadcrumb-item"><a href="/community/index.html"
-                            style="color:inherit; text-decoration:none;">커뮤니티</a></span>
-                    <span class="breadcrumb-separator" id="bc-sep" style="display:none;">/</span>
-                    <span class="breadcrumb-item" id="bc-channel" style="display:none;"></span>
+                    <span class="breadcrumb-item current-page">커뮤니티</span>
                 </div>
-            </div>
+            </header>
+
             <div class="content-area">
                 <div class="community-container">
-
-                    <!-- Channel List View -->
-                    <div id="channel-list-view">
-                        <h2 style="margin-bottom:16px;">채널 목록</h2>
-                        <div class="channel-grid" id="channel-grid">
-                            <!-- Populated by JS -->
+                    <div class="page-header">
+                        <div class="header-icon-wrapper">
+                            <span class="material-symbols-rounded">forum</span>
                         </div>
+                        <h1>커뮤니티</h1>
+                        <p class="description">관심 있는 채널에서 자유롭게 소통하세요.</p>
                     </div>
 
-                    <!-- Post List View -->
-                    <div id="post-list-view" style="display:none;">
-                        <div class="channel-header">
-                            <div class="channel-title">
-                                <button onclick="location.href='/community/index.html'" class="btn-icon-sm"
-                                    style="margin-right:8px;">
-                                    <span class="material-symbols-rounded">arrow_back</span>
-                                </button>
-                                <span id="current-channel-name"></span>
-                            </div>
+                    <!-- Visual Channel Navigator -->
+                    <div class="channel-nav-container" id="channel-nav">
+                        <!-- Populated by JS -->
+                    </div>
 
-                            <div class="search-bar-wrapper">
-                                <div class="search-input-group">
-                                    <input type="text" id="post-search" placeholder="검색 (제목, 내용)">
-                                    <span class="material-symbols-rounded search-icon"
-                                        onclick="filterPosts()">search</span>
-                                </div>
-                                <a href="#" id="write-btn" class="btn btn-primary desktop-write-btn"
-                                    style="flex-shrink:0;">
-                                    <span class="material-symbols-rounded"
-                                        style="font-size:18px; margin-right:4px;">edit</span> 글쓰기
-                                </a>
+                    <!-- Post List Section -->
+                    <div id="post-list-section">
+                        <div class="list-header">
+                            <h2 class="list-title" id="current-channel-title">전체 글 보기</h2>
+                            <div class="search-wrapper">
+                                <span class="material-symbols-rounded">search</span>
+                                <input type="text" id="post-search" placeholder="키워드로 검색...">
                             </div>
                         </div>
 
-                        <div class="post-list-container" id="postList">
+                        <div id="post-list-container">
                             <div class="empty-state">
                                 <span class="material-symbols-rounded"
-                                    style="font-size: 32px; animation: spin 1s linear infinite;">refresh</span>
-                                <div style="margin-top: 12px;">게시글을 불러오는 중...</div>
+                                    style="font-size: 48px; margin-bottom: 16px;">pending</span>
+                                <div>채널을 선택하여 게시글을 확인하세요.</div>
                             </div>
                         </div>
                     </div>
-
                 </div>
 
-                <!-- Mobile FAB -->
-                <button class="write-fab" id="mobile-write-btn">
-                    <span class="material-symbols-rounded" style="font-size: 24px;">edit</span>
-                </button>
+                <a href="/community/write.html" class="write-fab" id="write-btn">
+                    <span class="material-symbols-rounded" style="font-size: 32px;">add</span>
+                </a>
             </div>
-        </div>
+        </main>
     </div>
+
+    <script src="../js/common.js"></script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, query, where, orderBy, limit, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // Init Firebase (Keep Config)
         const app = initializeApp({
             apiKey: "AIzaSyCbSmDuJNCSrIB7Fx9IzbePERD_2ka3rQE",
             authDomain: "utilsly.firebaseapp.com",
@@ -308,86 +309,74 @@
         const db = getFirestore(app);
 
         const CHANNELS = [
-            { id: 'free', name: '자유 채널', icon: 'chat_bubble' },
-            { id: 'stock', name: '주식/투자', icon: 'candlestick_chart' },
-            { id: 'dev', name: '개발/코딩', icon: 'terminal' },
-            { id: 'humor', name: '유머/잡담', icon: 'mood' },
+            { id: 'all', name: '전체', icon: 'grid_view' },
+            { id: 'free', name: '자유', icon: 'chat_bubble' },
+            { id: 'stock', name: '주식/코인', icon: 'candlestick_chart' },
+            { id: 'dev', name: '개발', icon: 'terminal' },
+            { id: 'humor', name: '유머', icon: 'mood' },
             { id: 'suggestion', name: '건의사항', icon: 'lightbulb' },
-            { id: 'bug', name: '버그제보', icon: 'bug_report' },
             { id: 'notice', name: '공지사항', icon: 'campaign' }
         ];
 
-        const urlParams = new URLSearchParams(window.location.search);
-        const currentChannel = urlParams.get('channel');
+        let currentPosts = [];
+        let activeChannel = new URLSearchParams(window.location.search).get('channel') || 'all';
 
         function init() {
-            if (currentChannel) {
-                showPostList(currentChannel);
-            } else {
-                showChannelList();
-            }
+            renderChannelNav();
+            switchChannel(activeChannel);
+            bindEvents();
         }
 
-        function showChannelList() {
-            document.getElementById('channel-list-view').style.display = 'block';
-            document.getElementById('post-list-view').style.display = 'none';
-
-            const grid = document.getElementById('channel-grid');
-            grid.innerHTML = CHANNELS.map(ch => `
-                <a href="?channel=${ch.id}" class="channel-card">
-                    <span class="material-symbols-rounded icon">${ch.icon}</span>
+        function renderChannelNav() {
+            const nav = document.getElementById('channel-nav');
+            nav.innerHTML = CHANNELS.map(ch => `
+                <div class="channel-nav-item ${activeChannel === ch.id ? 'active' : ''}" data-id="${ch.id}">
+                    <span class="material-symbols-rounded">${ch.icon}</span>
                     <span class="name">${ch.name}</span>
-                </a>
+                </div>
             `).join('');
+
+            nav.querySelectorAll('.channel-nav-item').forEach(item => {
+                item.addEventListener('click', () => switchChannel(item.dataset.id));
+            });
         }
 
-        async function showPostList(channelId) {
-            document.getElementById('channel-list-view').style.display = 'none';
-            document.getElementById('post-list-view').style.display = 'block';
+        function switchChannel(id) {
+            activeChannel = id;
+            document.querySelectorAll('.channel-nav-item').forEach(item => {
+                item.classList.toggle('active', item.dataset.id === id);
+            });
 
-            const channel = CHANNELS.find(c => c.id === channelId) || { name: '알 수 없는 채널', id: channelId };
-            document.getElementById('current-channel-name').textContent = channel.name;
+            const channel = CHANNELS.find(c => c.id === id);
+            document.getElementById('current-channel-title').textContent = `${channel.name} 채널`;
 
-            // Breadcrumbs
-            document.getElementById('bc-sep').style.display = 'inline';
-            const bcEl = document.getElementById('bc-channel');
-            bcEl.style.display = 'inline';
-            bcEl.textContent = channel.name;
+            // Update write button
+            const writeBtn = document.getElementById('write-btn');
+            writeBtn.href = `/community/write.html?channel=${id === 'all' ? 'free' : id}`;
 
-            // Update Write Links
-            const writeUrl = `/community/write.html?channel=${channelId}`;
-            document.getElementById('write-btn').href = writeUrl;
-            document.getElementById('mobile-write-btn').onclick = () => location.href = writeUrl;
+            // Update URL
+            const url = new URL(window.location);
+            url.searchParams.set('channel', id);
+            window.history.pushState({}, '', url);
 
-            await loadPosts(channelId);
+            loadPosts(id);
         }
-
-        let currentPosts = [];
 
         async function loadPosts(channelId) {
-            const listBody = document.getElementById('postList');
-            const postsRef = collection(db, "posts");
-            listBody.innerHTML = `<div class="empty-state"><span class="material-symbols-rounded spin">refresh</span> 불러오는 중...</div>`;
+            const container = document.getElementById('post-list-container');
+            container.innerHTML = `
+                <div class="empty-state">
+                    <span class="material-symbols-rounded spin" style="font-size: 32px; margin-bottom: 12px;">refresh</span>
+                    <div>불러오는 중...</div>
+                </div>`;
 
             try {
-                // If notice, only notice. If other, include notices on top?
+                const postsRef = collection(db, "posts");
                 let q;
-                if (channelId === 'notice') {
-                    q = query(postsRef, where("category", "==", "notice"), orderBy("createdAt", "desc"), limit(50));
+                if (channelId === 'all') {
+                    q = query(postsRef, orderBy("createdAt", "desc"), limit(40));
                 } else {
-                    // Fetch channel posts + notices?
-                    // For simplicity, just fetch channel posts. Notices are in notice channel.
-                    // Or global notices?
-                    // Let's just fetch channel posts for now.
-                    q = query(postsRef, where("category", "==", channelId), orderBy("createdAt", "desc"), limit(50));
-
-                    // IF channel is 'stock' but we don't have existing stock posts, it will be empty.
-                    // Migration: Old 'all' or 'free' posts won't show here. That's fine for "New Feature".
-                }
-
-                // Temporary: if channel is 'free', also fetch old 'free' posts? Yes.
-                if (channelId === 'free' || channelId === 'all') { // Handle 'all' legacy
-                    // q = query(postsRef, orderBy("createdAt", "desc"), limit(50)); // Just show all for free? No, separate.
+                    q = query(postsRef, where("category", "==", channelId), orderBy("createdAt", "desc"), limit(40));
                 }
 
                 const querySnapshot = await getDocs(q);
@@ -397,69 +386,74 @@
                 });
 
                 renderPosts(currentPosts);
-
             } catch (error) {
                 console.error(error);
-                listBody.innerHTML = `<div class="empty-state">오류 발생</div>`;
+                container.innerHTML = `<div class="empty-state">데이터를 가져오는데 실패했습니다.</div>`;
             }
         }
 
         function renderPosts(posts) {
-            const listBody = document.getElementById('postList');
+            const container = document.getElementById('post-list-container');
             if (posts.length === 0) {
-                listBody.innerHTML = `<div class="empty-state">글이 없습니다. 첫 글을 남겨보세요!</div>`;
+                container.innerHTML = `<div class="empty-state">게시글이 없습니다. 첫 글을 작성해보세요!</div>`;
                 return;
             }
 
-            let html = '';
-            posts.forEach(post => {
-                const dateStart = formatDate(post.createdAt);
-                html += `
-                    <a href="/community/view.html?id=${post.id}" class="list-item">
-                        <div class="post-title-area">
-                            <div class="post-title">${escapeHtml(post.title)} <span style="color:#ff5252; font-size:12px;">${post.commentCount ? '[' + post.commentCount + ']' : ''}</span></div>
+            container.innerHTML = posts.map(post => {
+                const date = formatDate(post.createdAt);
+                return `
+                    <a href="/community/view.html?id=${post.id}" class="post-card">
+                        <div class="post-title-row">
+                            <div class="post-title">
+                                ${escapeHtml(post.title)}
+                                ${post.commentCount ? `<span class="comment-count">[${post.commentCount}]</span>` : ''}
+                            </div>
+                            ${post.thumbnail ? `<img src="${post.thumbnail}" style="width:50px; height:50px; border-radius:4px; object-fit:cover;">` : ''}
                         </div>
                         <div class="post-meta">
-                            <span>${escapeHtml(post.nickname)}</span>
-                            <span>${dateStart}</span>
-                            <span><span class="material-symbols-rounded" style="font-size:14px; vertical-align:middle;">visibility</span> ${post.views || 0}</span>
+                            <span class="author-badge">${escapeHtml(post.nickname)}</span>
+                            <span class="meta-item">
+                                <span class="material-symbols-rounded" style="font-size:16px;">schedule</span>
+                                ${date}
+                            </span>
+                            <span class="meta-item">
+                                <span class="material-symbols-rounded" style="font-size:16px;">visibility</span>
+                                ${post.views || 0}
+                            </span>
                         </div>
                     </a>
                 `;
-            });
-            listBody.innerHTML = html;
+            }).join('');
         }
 
-        function formatDate(timestamp) {
-            if (!timestamp) return '-';
-            const date = timestamp.toDate();
-            const isToday = date.toDateString() === new Date().toDateString();
-            return isToday ? date.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false }) : date.toLocaleDateString('ko-KR', { month: '2-digit', day: '2-digit' });
+        function formatDate(ts) {
+            if (!ts) return '-';
+            const date = ts.toDate();
+            const now = new Date();
+            const diff = (now - date) / 1000;
+            if (diff < 60) return '방금 전';
+            if (diff < 3600) return Math.floor(diff / 60) + '분 전';
+            if (diff < 86400) return Math.floor(diff / 3600) + '시간 전';
+            return date.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' });
         }
 
         function escapeHtml(text) {
             if (!text) return '';
-            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+            const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+            return text.replace(/[&<>"']/g, m => map[m]);
         }
 
-        // Search Filter (Client Side for now)
-        window.filterPosts = function () {
-            const keyword = document.getElementById('post-search').value.toLowerCase();
-            if (!keyword) {
-                renderPosts(currentPosts);
-                return;
-            }
-            const filtered = currentPosts.filter(p =>
-                (p.title && p.title.toLowerCase().includes(keyword)) ||
-                (p.content && p.content.toLowerCase().includes(keyword)) ||
-                (p.nickname && p.nickname.toLowerCase().includes(keyword))
-            );
-            renderPosts(filtered);
-        };
-
-        document.getElementById('post-search').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') filterPosts();
-        });
+        function bindEvents() {
+            const searchInput = document.getElementById('post-search');
+            searchInput.addEventListener('input', (e) => {
+                const keyword = e.target.value.toLowerCase();
+                const filtered = currentPosts.filter(p =>
+                    p.title?.toLowerCase().includes(keyword) ||
+                    p.nickname?.toLowerCase().includes(keyword)
+                );
+                renderPosts(filtered);
+            });
+        }
 
         init();
     </script>

@@ -5,339 +5,226 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Utilsly Community</title>
+    <script>
+        !function () { const e = localStorage.getItem("theme"), t = window.matchMedia("(prefers-color-scheme: dark)").matches; "dark" !== e && (e || !t) || document.documentElement.setAttribute("data-theme", "dark") }();
+    </script>
     <link rel="stylesheet" href="../css/style.css">
-    <script src="../js/common.js"></script>
     <style>
-        :root {
-            --blind-bg: #f6f7f9;
-            --blind-card: #ffffff;
-            --blind-border: #eeeeee;
-            --blind-text-main: #222222;
-            --blind-text-sub: #94969b;
-            --blind-accent: #37acc3;
-            --blind-hover: rgba(55, 172, 195, 0.05);
-            --blind-comment-input: #f6f7f9;
-        }
-
-        /* 다크 모드 테마 정의 */
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --blind-bg: #121212;
-                --blind-card: #1e1e1e;
-                --blind-border: #333333;
-                --blind-text-main: #e1e1e1;
-                --blind-text-sub: #888888;
-                --blind-accent: #48c1d9;
-                --blind-hover: rgba(72, 193, 217, 0.1);
-                --blind-comment-input: #2a2a2a;
-            }
-
-            body {
-                background-color: var(--blind-bg);
-            }
-        }
-
         .view-container {
             max-width: 800px;
             margin: 0 auto;
-            background: var(--blind-card);
-            padding: 20px;
-            color: var(--blind-text-main);
+        }
+
+        .post-main {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 24px;
         }
 
         .post-header {
-            border-bottom: 1px solid var(--blind-border);
-            padding-bottom: 20px;
-            margin-bottom: 30px;
+            margin-bottom: 24px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid var(--border-color);
         }
 
-        .post-category {
+        .post-category-tag {
             font-size: 13px;
-            color: var(--blind-accent);
             font-weight: 700;
-            margin-bottom: 10px;
-            display: inline-block;
-        }
-
-        .post-header-top {
-            margin-bottom: 8px;
-        }
-
-        .channel-link {
-            font-size: 14px;
-            color: var(--blind-accent);
-            font-weight: 700;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-        }
-
-        .channel-link:hover {
-            text-decoration: underline;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 12px;
+            display: block;
         }
 
         .post-title {
-            font-size: 26px;
-            font-weight: 700;
-            margin-bottom: 15px;
-            color: var(--blind-text-main);
-            line-height: 1.4;
-            letter-spacing: -0.5px;
+            font-size: 32px;
+            font-weight: 800;
+            line-height: 1.3;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+            letter-spacing: -0.02em;
         }
 
-        .post-info {
+        .post-meta {
             display: flex;
             align-items: center;
-            gap: 12px;
-            font-size: 13px;
-            color: var(--blind-text-sub);
+            gap: 16px;
+            font-size: 14px;
+            color: var(--text-secondary);
         }
 
-        .post-info .author {
+        .post-meta .author-badge {
+            background: var(--bg-secondary);
+            padding: 4px 12px;
+            border-radius: 6px;
             font-weight: 600;
-            color: var(--blind-text-main);
-            opacity: 0.8;
-        }
-
-        .post-info .dot {
-            width: 2px;
-            height: 2px;
-            background: var(--blind-text-sub);
-            border-radius: 50%;
+            color: var(--text-primary);
         }
 
         .post-content {
-            min-height: 300px;
-            line-height: 1.8;
             font-size: 16px;
-            margin-bottom: 50px;
-            color: var(--blind-text-main);
+            line-height: 1.8;
+            color: var(--text-primary);
+            min-height: 200px;
+            margin-bottom: 40px;
         }
 
-        /* 추천 버튼 섹션 */
-        .post-recommend-section {
+        .post-content img {
+            max-width: 100%;
+            border-radius: 12px;
+            margin: 20px 0;
+        }
+
+        /* Recommend Button */
+        .recommend-action {
             display: flex;
             flex-direction: column;
             align-items: center;
-            margin-bottom: 40px;
-            padding: 30px 0;
-            border-top: 1px solid var(--blind-border);
+            margin-top: 40px;
+            padding-top: 40px;
+            border-top: 1px solid var(--border-color);
         }
 
         .recommend-btn {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
-            width: 70px;
-            height: 70px;
-            border: 1px solid var(--blind-border);
-            border-radius: 50%;
-            background: var(--blind-card);
             cursor: pointer;
             transition: all 0.2s;
-            color: var(--blind-text-sub);
+            color: var(--text-secondary);
         }
 
         .recommend-btn:hover {
-            border-color: var(--blind-accent);
-            color: var(--blind-accent);
-            background: var(--blind-hover);
+            border-color: var(--text-primary);
+            color: var(--text-primary);
+            transform: scale(1.1);
         }
 
         .recommend-btn.active {
-            background: var(--blind-accent);
-            border-color: var(--blind-accent);
-            color: #fff;
+            background: var(--text-primary);
+            border-color: var(--text-primary);
+            color: var(--bg-primary);
         }
 
         .recommend-count {
-            margin-top: 10px;
+            margin-top: 12px;
             font-weight: 700;
             font-size: 15px;
-            color: var(--blind-text-main);
         }
 
-        .post-actions {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 0;
-            border-bottom: 1px solid var(--blind-border);
-            margin-bottom: 30px;
-        }
-
-        .action-left,
-        .action-right {
-            display: flex;
-            gap: 10px;
-        }
-
-        /* Comments */
+        /* Comments Section */
         .comments-section {
-            background: var(--blind-card);
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 32px;
         }
 
         .comments-header {
-            font-weight: 700;
-            margin-bottom: 20px;
-            font-size: 17px;
-            color: var(--blind-text-main);
+            font-size: 18px;
+            font-weight: 800;
+            margin-bottom: 24px;
             display: flex;
             align-items: center;
-            gap: 6px;
-        }
-
-        .comment-list {
-            margin-bottom: 30px;
+            gap: 8px;
         }
 
         .comment-item {
-            padding: 16px 0;
-            border-bottom: 1px solid var(--blind-border);
+            padding: 20px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .comment-item:last-child {
+            border-bottom: none;
         }
 
         .comment-meta {
             display: flex;
             justify-content: space-between;
+            align-items: center;
             margin-bottom: 8px;
-            font-size: 13px;
         }
 
-        .comment-writer {
+        .comment-author {
             font-weight: 700;
-            color: var(--blind-text-main);
+            font-size: 14px;
+            color: var(--text-primary);
         }
 
         .comment-date {
-            color: var(--blind-text-sub);
+            font-size: 12px;
+            color: var(--text-tertiary);
         }
 
         .comment-content {
-            font-size: 14px;
-            color: var(--blind-text-main);
+            font-size: 14.5px;
             line-height: 1.6;
+            color: var(--text-primary);
             white-space: pre-wrap;
-            word-break: break-word;
-        }
-
-        .mention-tag {
-            color: var(--blind-accent);
-            font-weight: 600;
-            margin-right: 4px;
+            word-break: break-all;
         }
 
         .comment-form {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            background: var(--blind-comment-input);
-            padding: 16px;
-            border-radius: 8px;
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 32px;
         }
 
         .comment-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .comment-form textarea {
+            min-height: 100px;
+            margin-bottom: 12px;
+            resize: none;
+        }
+
+        .action-row {
             display: flex;
-            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 24px;
+            gap: 12px;
         }
 
-        .comment-inputs input {
-            background: var(--blind-card);
-            border: 1px solid var(--blind-border);
-            font-size: 13px;
-            height: 36px;
-            color: var(--blind-text-main);
-            padding: 0 10px;
-            width: 100%;
-        }
-
-        .logged-in-info {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 5px 0;
-        }
-
-        .user-avatar-sm {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            background: var(--blind-text-sub);
-            color: #fff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 11px;
-        }
-
-        textarea#c-content {
-            background: var(--blind-card);
-            border: 1px solid var(--blind-border);
-            border-radius: 4px;
-            font-size: 14px;
-            min-height: 80px;
-            padding: 12px;
-            color: var(--blind-text-main);
-            width: 100%;
-            box-sizing: border-box;
-        }
-
-        .btn-primary {
-            background: var(--blind-accent) !important;
-            border: none !important;
-            font-weight: 700;
-            color: #fff;
-        }
-
-        .reply-btn {
-            font-size: 12px;
-            color: var(--blind-text-sub);
+        .btn-ghost {
             background: none;
             border: none;
+            color: var(--text-tertiary);
+            font-size: 13px;
             cursor: pointer;
-            padding: 0;
-            margin-right: 8px;
-            display: flex;
-            align-items: center;
-            gap: 2px;
+            padding: 4px 8px;
         }
 
-        .reply-btn:hover {
-            color: var(--blind-accent);
-        }
-
-        /* Scrollbar styling for dark mode */
-        @media (prefers-color-scheme: dark) {
-            ::-webkit-scrollbar {
-                width: 10px;
-            }
-
-            ::-webkit-scrollbar-track {
-                background: #1e1e1e;
-            }
-
-            ::-webkit-scrollbar-thumb {
-                background: #333;
-                border-radius: 5px;
-            }
-
-            ::-webkit-scrollbar-thumb:hover {
-                background: #444;
-            }
+        .btn-ghost:hover {
+            color: var(--text-primary);
         }
 
         @media (max-width: 768px) {
-            .view-container {
-                padding: 15px;
+
+            .post-main,
+            .comments-section {
+                padding: 20px;
             }
 
             .post-title {
-                font-size: 20px;
+                font-size: 24px;
             }
 
             .comment-inputs {
-                flex-direction: column;
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -352,39 +239,50 @@
                         Utilsly.</div>
                 </div>
             </div>
-            <nav class="sidebar-nav">
-                <!-- Sidebar content generated by js/common.js -->
-            </nav>
+            <nav class="sidebar-nav"></nav>
         </aside>
 
-        <div class="main-content">
-            <div class="top-bar">
+        <main class="main-content">
+            <header class="top-bar">
                 <button class="menu-toggle-btn" onclick="Utilsly.toggleSidebar(true)">
                     <span class="material-symbols-rounded">menu</span>
                 </button>
                 <div class="breadcrumbs">
-                    <span class="breadcrumb-item">커뮤니티</span>
+                    <span class="breadcrumb-item"><a href="/community/index.html">커뮤니티</a></span>
                     <span class="separator">/</span>
-                    <span class="breadcrumb-item current-page">게시글</span>
+                    <span class="breadcrumb-item current-page">게시글 보기</span>
                 </div>
-            </div>
+            </header>
 
             <div class="content-area">
-                <div class="view-container" id="post-container">
-                    <div style="text-align: center; padding: 100px 0;">
-                        <span class="material-symbols-rounded"
-                            style="animation: spin 1s linear infinite; color: var(--blind-accent);">refresh</span>
+                <div class="view-container" id="post-view">
+                    <!-- Loaded via JS -->
+                    <div style="padding: 100px 0; text-align: center;">
+                        <span class="material-symbols-rounded spin"
+                            style="font-size: 48px; color: var(--text-tertiary);">refresh</span>
                     </div>
                 </div>
+
+                <div class="action-row" style="max-width: 800px; margin: 0 auto;">
+                    <button class="btn" onclick="location.href='/community/index.html'">
+                        <span class="material-symbols-rounded" style="font-size: 18px; margin-right: 4px;">list</span>
+                        목록으로
+                    </button>
+                    <button class="btn" id="delete-btn" style="color: #ff5252; border-color: #ff525222;">
+                        <span class="material-symbols-rounded" style="font-size: 18px; margin-right: 4px;">delete</span>
+                        삭제하기
+                    </button>
+                </div>
             </div>
-        </div>
+        </main>
     </div>
 
+    <script src="../js/common.js"></script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, doc, getDoc, updateDoc, increment, collection, addDoc, query, orderBy, getDocs, serverTimestamp, deleteDoc, runTransaction } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        const firebaseConfig = {
+        const app = initializeApp({
             apiKey: "AIzaSyCbSmDuJNCSrIB7Fx9IzbePERD_2ka3rQE",
             authDomain: "utilsly.firebaseapp.com",
             projectId: "utilsly",
@@ -392,305 +290,140 @@
             messagingSenderId: "713000931988",
             appId: "1:713000931988:web:8891efe6d0ab2d61b61a81",
             measurementId: "G-WSRTSNGT8G"
-        };
-
-        const app = initializeApp(firebaseConfig);
+        });
         const db = getFirestore(app);
 
         const urlParams = new URLSearchParams(window.location.search);
         const postId = urlParams.get('id');
-
-        if (!postId) {
-            alert('잘못된 접근입니다.');
-            window.location.href = '/community/index.html';
-        }
-
         let currentUser = null;
 
-        // 인증 상태 체크 개선
-        function updateCurrentUser() {
-            if (window.UtilslyAuth && window.UtilslyAuth.currentUser) {
-                currentUser = window.UtilslyAuth.currentUser;
-                updateCommentFormUI();
-            }
+        if (!postId) location.href = '/community/index.html';
+
+        async function init() {
+            await loadPost();
+            loadComments();
         }
-
-        window.addEventListener('authStateChanged', (e) => {
-            currentUser = e.detail.user;
-            updateCommentFormUI();
-        });
-
-        setTimeout(updateCurrentUser, 500);
 
         async function loadPost() {
             const docRef = doc(db, "posts", postId);
+            await updateDoc(docRef, { views: increment(1) });
+            const snap = await getDoc(docRef);
 
-            try {
-                await updateDoc(docRef, { views: increment(1) });
-                const docSnap = await getDoc(docRef);
-
-                if (docSnap.exists()) {
-                    const post = docSnap.data();
-                    // 페이지 타이틀 설정
-                    document.title = `${post.title} - Utilsly`;
-                    renderPost(post);
-                    loadComments();
-                } else {
-                    alert('삭제되었거나 존재하지 않는 게시글입니다.');
-                    window.location.href = '/community/index.html';
-                }
-            } catch (error) {
-                console.error("Error:", error);
-                const container = document.getElementById('post-container');
-                if (container) container.innerHTML = '오류가 발생했습니다.';
+            if (!snap.exists()) {
+                alert('삭제되었거나 존재하지 않는 글입니다.');
+                location.href = '/community/index.html';
+                return;
             }
+
+            const post = snap.data();
+            renderPost(post);
         }
 
         function renderPost(post) {
-            const date = post.createdAt ? post.createdAt.toDate().toLocaleDateString() : '-';
-            const catMap = {
-                'free': '자유',
-                'bug': '버그',
-                'suggestion': '건의',
-                'notice': '공지',
-                'resolved': '해결',
-                'humor': '유머',
-                'dev': '개발',
-                'stock': '주식',
-                'game': '게임'
+            const container = document.getElementById('post-view');
+            const date = post.createdAt ? post.createdAt.toDate().toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' }) : '-';
+
+            const catNames = {
+                'free': '자유', 'stock': '주식/코인', 'dev': '개발',
+                'humor': '유머', 'suggestion': '건의사항', 'notice': '공지사항'
             };
-            const recommendCount = post.recommendCount || 0;
 
-            const html = `
-                <div class="post-header">
-                    <div class="post-header-top">
-                        <a href="/community/index.html?channel=${post.category}" class="channel-link">${catMap[post.category] || '자유'} 채널 <span class="material-symbols-rounded" style="font-size: 14px; vertical-align: middle;">chevron_right</span></a>
+            container.innerHTML = `
+                <div class="post-main">
+                    <div class="post-header">
+                        <span class="post-category-tag">${catNames[post.category] || '자유'} CHANNEL</span>
+                        <h1 class="post-title">${escapeHtml(post.title)}</h1>
+                        <div class="post-meta">
+                            <span class="author-badge">${escapeHtml(post.nickname)}</span>
+                            <span>${date}</span>
+                            <span style="display:flex; align-items:center; gap:4px;">
+                                <span class="material-symbols-rounded" style="font-size:16px;">visibility</span>
+                                ${post.views || 0}
+                            </span>
+                        </div>
                     </div>
-                    <div class="post-title">${post.title}</div>
-                    <div class="post-info">
-                        <span class="author">${post.nickname}</span>
-                        <div class="dot"></div>
-                        <span>${date}</span>
-                        <div class="dot"></div>
-                        <span>조회 ${post.views}</span>
-                    </div>
-                </div>
-
-                <div class="post-content">${post.content}</div>
-
-                <div class="post-recommend-section">
-                    <button class="recommend-btn" id="recommendBtn" onclick="handleRecommend()">
-                        <span class="material-symbols-rounded">thumb_up</span>
-                    </button>
-                    <div class="recommend-count">추천 <span id="recommend-count-num">${recommendCount}</span></div>
-                </div>
-
-                <div class="post-actions">
-                    <div class="action-left">
-                        <button class="btn" onclick="window.location.href='/community/index.html?channel=${post.category}'">목록</button>
-                    </div>
-                    <div class="action-right">
-                        <button class="btn" onclick="deletePost('${post.password}', '${post.userId || ''}')" style="color: var(--blind-text-sub); font-size:13px; border:none; background:none; cursor:pointer;">삭제</button>
+                    <div class="post-content">${post.content}</div>
+                    
+                    <div class="recommend-action">
+                        <button class="recommend-btn" id="recommend-btn">
+                            <span class="material-symbols-rounded" style="font-size: 32px;">thumb_up</span>
+                        </button>
+                        <div class="recommend-count">추천 <span id="recommend-num">${post.recommendCount || 0}</span></div>
                     </div>
                 </div>
 
                 <div class="comments-section">
-                    <div class="comments-header">댓글 <span id="comment-count" style="color:var(--blind-accent);">${post.commentCount || 0}</span></div>
-                    <div class="comment-list" id="comment-list"></div>
+                    <div class="comments-header">
+                        <span class="material-symbols-rounded">comment</span>
+                        댓글 <span style="color:var(--text-primary); margin-left:4px;" id="comment-count-display">${post.commentCount || 0}</span>
+                    </div>
+                    <div id="comment-list"></div>
                     
                     <form class="comment-form" id="comment-form">
-                        <div id="guestCommentInputs" class="comment-inputs">
+                        <div class="comment-inputs">
                             <input type="text" id="c-nickname" placeholder="닉네임" required>
                             <input type="password" id="c-password" placeholder="비밀번호" required>
                         </div>
-                        <div id="loggedInCommentInfo" class="logged-in-info" style="display: none;">
-                            <div class="user-avatar-sm" id="commentUserAvatar">U</div>
-                            <span id="commentUserName" style="font-weight: 700; font-size:13px;"></span>
-                        </div>
-                        <div style="display:flex; flex-direction:column; gap:8px;">
-                            <textarea id="c-content" placeholder="댓글 내용을 입력하세요" required></textarea>
-                            <div style="display:flex; justify-content:flex-end;">
-                                <button type="submit" class="btn btn-primary" style="padding: 8px 24px; cursor:pointer;">등록</button>
-                            </div>
+                        <textarea id="c-content" placeholder="건강한 커뮤니티를 위해 배려하는 마음을 담아 댓글을 작성해주세요." required></textarea>
+                        <div style="display:flex; justify-content:flex-end;">
+                            <button type="submit" class="btn btn-primary">댓글 등록</button>
                         </div>
                     </form>
                 </div>
             `;
-            document.getElementById('post-container').innerHTML = html;
 
-            updateCommentFormUI();
-
-            // 추천 기능
-            window.handleRecommend = async () => {
-                const btn = document.getElementById('recommendBtn');
-                if (btn.disabled) return;
-                btn.disabled = true;
-
-                try {
-                    const postRef = doc(db, "posts", postId);
-                    await runTransaction(db, async (transaction) => {
-                        const pDoc = await transaction.get(postRef);
-                        if (!pDoc.exists()) throw "Post does not exist";
-
-                        const newCount = (pDoc.data().recommendCount || 0) + 1;
-                        transaction.update(postRef, { recommendCount: newCount });
-                        document.getElementById('recommend-count-num').textContent = newCount;
-                    });
-                    btn.classList.add('active');
-                } catch (e) {
-                    console.error(e);
-                    alert('추천 처리 중 오류가 발생했습니다.');
-                    btn.disabled = false;
-                }
-            };
-
-            // 게시글 삭제
-            window.deletePost = async (correctPassword, postUserId) => {
-                const isOwner = currentUser && postUserId && currentUser.uid === postUserId;
-                const isAdmin = localStorage.getItem('utilsly_admin_auth') === 'true';
-
-                if (isOwner || isAdmin) {
-                    if (confirm(isAdmin ? '[관리자] 게시글을 삭제하시겠습니까?' : '게시글을 삭제하시겠습니까?')) {
-                        await deleteDoc(doc(db, "posts", postId));
-                        alert('삭제되었습니다.');
-                        window.location.href = '/community/index.html';
-                    }
-                } else {
-                    const input = prompt("게시글 비밀번호를 입력하세요:");
-                    if (input === correctPassword) {
-                        if (confirm('정말 삭제하시겠습니까?')) {
-                            await deleteDoc(doc(db, "posts", postId));
-                            alert('삭제되었습니다.');
-                            window.location.href = '/community/index.html';
-                        }
-                    } else if (input !== null) {
-                        alert('비밀번호가 일치하지 않습니다.');
-                    }
-                }
-            };
-
-            document.getElementById('comment-form').addEventListener('submit', handleCommentSubmit);
-        }
-
-        // 로그인 상태에 따른 댓글창 UI 업데이트 함수 분리
-        function updateCommentFormUI() {
-            const guestInputs = document.getElementById('guestCommentInputs');
-            const loggedInInfo = document.getElementById('loggedInCommentInfo');
-            if (!guestInputs || !loggedInInfo) return;
-
-            if (currentUser) {
-                const nickname = currentUser.displayName || (currentUser.email ? currentUser.email.split('@')[0] : '사용자');
-                guestInputs.style.display = 'none';
-                // 로그인 시 input 필수 속성 해제 (hidden 상태이므로)
-                document.getElementById('c-nickname').required = false;
-                document.getElementById('c-password').required = false;
-
-                loggedInInfo.style.display = 'flex';
-                document.getElementById('commentUserName').textContent = nickname;
-                document.getElementById('commentUserAvatar').textContent = nickname[0].toUpperCase();
-            } else {
-                guestInputs.style.display = 'flex';
-                document.getElementById('c-nickname').required = true;
-                document.getElementById('c-password').required = true;
-                loggedInInfo.style.display = 'none';
-            }
+            document.getElementById('recommend-btn').onclick = handleRecommend;
+            document.getElementById('comment-form').onsubmit = handleCommentSubmit;
+            document.getElementById('delete-btn').onclick = () => deletePost(post.password, post.userId);
         }
 
         async function loadComments() {
             const q = query(collection(db, `posts/${postId}/comments`), orderBy("createdAt", "asc"));
-            const snapshot = await getDocs(q);
+            const snap = await getDocs(q);
             const list = document.getElementById('comment-list');
-            const count = document.getElementById('comment-count');
-            if (count) count.textContent = snapshot.size;
 
-            let html = '';
-            snapshot.forEach(docSnap => {
+            document.getElementById('comment-count-display').textContent = snap.size;
+
+            list.innerHTML = snap.docs.map(docSnap => {
                 const c = docSnap.data();
-                const d = c.createdAt ? c.createdAt.toDate().toLocaleString('ko-KR') : '';
-
-                let contentHtml = c.content;
-                const mentionRegex = /^(@[^\s]+)\s/;
-                const match = contentHtml.match(mentionRegex);
-                if (match) {
-                    contentHtml = contentHtml.replace(match[1], `<span class="mention-tag">${match[1]}</span>`);
-                }
-
-                html += `
+                const d = c.createdAt ? c.createdAt.toDate().toLocaleString('ko-KR', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
+                return `
                     <div class="comment-item">
                         <div class="comment-meta">
-                            <span class="comment-writer">${c.nickname}</span>
-                            <div style="display:flex; gap:10px; align-items:center;">
-                                <button class="reply-btn" onclick="mentionUser('${c.nickname}')">
-                                    <span class="material-symbols-rounded" style="font-size:14px;">reply</span> 답글
-                                </button>
+                            <span class="comment-author">${escapeHtml(c.nickname)}</span>
+                            <div style="display:flex; align-items:center; gap:12px;">
                                 <span class="comment-date">${d}</span>
-                                <button onclick="deleteComment('${docSnap.id}', '${c.password}', '${c.userId || ''}')" style="background:none; border:none; cursor:pointer; color:var(--blind-text-sub); opacity: 0.5;">
+                                <button class="btn-ghost" onclick="deleteComment('${docSnap.id}', '${c.password}', '${c.userId}')">
                                     <span class="material-symbols-rounded" style="font-size:14px;">close</span>
                                 </button>
                             </div>
                         </div>
-                        <div class="comment-content">${contentHtml}</div>
+                        <div class="comment-content">${escapeHtml(c.content)}</div>
                     </div>
                 `;
-            });
-            if (list) list.innerHTML = html || `<div style="color:var(--blind-text-sub); font-size:13px; text-align:center; padding:20px;">첫 댓글을 남겨보세요.</div>`;
-
-            window.mentionUser = (nickname) => {
-                const textarea = document.getElementById('c-content');
-                textarea.value = `@${nickname} ${textarea.value}`;
-                textarea.focus();
-                textarea.setSelectionRange(textarea.value.length, textarea.value.length);
-            };
-
-            // 댓글 삭제 로직 수정 (댓삭 권한 체크)
-            window.deleteComment = async (commentId, correctPassword, commentUserId) => {
-                const isOwner = currentUser && commentUserId && currentUser.uid === commentUserId;
-                const isAdmin = localStorage.getItem('utilsly_admin_auth') === 'true';
-
-                // 주인이나 관리자가 아닐 때만 비밀번호 체크
-                if (!isOwner && !isAdmin) {
-                    const input = prompt("비밀번호 입력:");
-                    if (input === null) return; // 취소 시 중단
-                    if (input !== correctPassword) {
-                        alert('비밀번호가 일치하지 않습니다.');
-                        return;
-                    }
-                }
-
-                if (confirm('댓글을 삭제하시겠습니까?')) {
-                    try {
-                        await deleteDoc(doc(db, `posts/${postId}/comments`, commentId));
-                        await updateDoc(doc(db, "posts", postId), { commentCount: increment(-1) });
-                        loadComments();
-                    } catch (e) {
-                        console.error(e);
-                        alert('삭제 실패');
-                    }
-                }
-            };
+            }).join('') || `<div style="text-align:center; padding:40px; color:var(--text-tertiary); font-size:14px;">첫 댓글을 남겨주세요.</div>`;
         }
+
+        window.deleteComment = async (cid, correctPass, cuid) => {
+            const pass = prompt('댓글 비밀번호를 입력해주세요:');
+            if (pass === correctPass) {
+                if (confirm('정말 삭제하시겠습니까?')) {
+                    await deleteDoc(doc(db, `posts/${postId}/comments`, cid));
+                    await updateDoc(doc(db, "posts", postId), { commentCount: increment(-1) });
+                    loadComments();
+                }
+            } else if (pass !== null) alert('비밀번호가 틀렸습니다.');
+        };
 
         async function handleCommentSubmit(e) {
             e.preventDefault();
-            let nick, pass;
-            if (currentUser) {
-                nick = currentUser.displayName || (currentUser.email ? currentUser.email.split('@')[0] : '사용자');
-                pass = 'user_' + currentUser.uid.substring(0, 8);
-            } else {
-                nick = document.getElementById('c-nickname').value;
-                pass = document.getElementById('c-password').value;
-            }
-
+            const nick = document.getElementById('c-nickname').value;
+            const pass = document.getElementById('c-password').value;
             const content = document.getElementById('c-content').value;
-            if (!content.trim()) return alert('댓글 내용을 입력하세요.');
 
             try {
                 await addDoc(collection(db, `posts/${postId}/comments`), {
-                    nickname: nick,
-                    password: pass,
-                    content: content,
-                    userId: currentUser ? currentUser.uid : null,
-                    createdAt: serverTimestamp()
+                    nickname: nick, password: pass, content: content, createdAt: serverTimestamp()
                 });
                 await updateDoc(doc(db, "posts", postId), { commentCount: increment(1) });
                 document.getElementById('c-content').value = '';
@@ -698,7 +431,34 @@
             } catch (err) { alert('등록 실패'); }
         }
 
-        loadPost();
+        async function handleRecommend() {
+            const btn = document.getElementById('recommend-btn');
+            if (btn.classList.contains('active')) return;
+
+            try {
+                await updateDoc(doc(db, "posts", postId), { recommendCount: increment(1) });
+                btn.classList.add('active');
+                const num = document.getElementById('recommend-num');
+                num.textContent = parseInt(num.textContent) + 1;
+            } catch (e) { console.error(e); }
+        }
+
+        async function deletePost(correctPass, uid) {
+            const pass = prompt('게시글 비밀번호를 입력해주세요:');
+            if (pass === correctPass) {
+                if (confirm('게시글을 영구적으로 삭제하시겠습니까?')) {
+                    await deleteDoc(doc(db, "posts", postId));
+                    alert('삭제되었습니다.');
+                    location.href = '/community/index.html';
+                }
+            } else if (pass !== null) alert('비밀번호가 틀렸습니다.');
+        }
+
+        function escapeHtml(t) {
+            return t?.replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m])) || '';
+        }
+
+        init();
     </script>
 </body>
 
