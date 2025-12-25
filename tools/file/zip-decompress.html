@@ -34,18 +34,17 @@
                     <h1>ZIP 압축 해제</h1>
                     <p class="description">ZIP 파일의 압축을 해제하고 파일을 다운로드하세요.</p>
                 </div>
-                <div class="tool-container">
-                    <div class="drop-zone" id="dropZone"
-                        style="border: 2px dashed var(--border-color); padding: 40px; text-align: center; cursor: pointer; margin-bottom: 24px;">
-                        <span class="material-symbols-rounded"
-                            style="font-size: 48px; color: var(--text-tertiary);">cloud_upload</span>
-                        <p style="margin-top: 16px;">ZIP 파일을 업로드하세요</p>
-                        <input type="file" id="fileInput" accept=".zip,application/zip" style="display: none;">
+                <div class="tool-container" data-tool-id="zip-decompress">
+                    <div class="drop-zone" id="drop-zone">
+                        <span class="material-symbols-rounded upload-icon">cloud_upload</span>
+                        <p class="upload-text">ZIP 파일을 드래그하거나 클릭하여 업로드</p>
+                        <p class="upload-hint">압축을 해제할 파일을 선택하세요</p>
+                        <input type="file" id="file-input" accept=".zip,application/zip" style="display: none;">
                     </div>
-                    <div id="fileList" style="margin-bottom: 24px;"></div>
+                    <div id="file-list" style="margin-bottom: 24px;"></div>
                     <div id="controls" style="display: none;">
-                        <button class="btn btn-primary" onclick="downloadAll()"
-                            style="width: 100%; margin-bottom: 12px;">모든 파일 다운로드</button>
+                        <button class="btn btn-primary" id="btn-download-all"
+                            style="width: 100%; margin-bottom: 12px; padding: 12px;">모든 파일 다운로드</button>
                     </div>
                 </div>
             </div>
@@ -54,76 +53,104 @@
     <script src="../../js/common.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script>
-        const dropZone = document.getElementById('dropZone');
-        const fileInput = document.getElementById('fileInput');
-        const fileList = document.getElementById('fileList');
-        const controls = document.getElementById('controls');
+        Utilsly.registerTool('zip-decompress', {
+            extractedFiles: [],
 
-        let extractedFiles = [];
+            init() {
+                this.elements = {
+                    dropZone: document.getElementById('drop-zone'),
+                    fileInput: document.getElementById('file-input'),
+                    fileList: document.getElementById('file-list'),
+                    controls: document.getElementById('controls'),
+                    btnDownloadAll: document.getElementById('btn-download-all')
+                };
 
-        dropZone.addEventListener('click', () => fileInput.click());
-        fileInput.addEventListener('change', handleFile);
+                this.bindEvents();
+            },
 
-        async function handleFile(e) {
-            const file = e.target.files[0];
-            if (!file) return;
+            cleanup() { this.elements = {}; this.extractedFiles = []; },
 
-            try {
-                const zip = new JSZip();
-                const contents = await zip.loadAsync(file);
-                extractedFiles = [];
+            bindEvents() {
+                this.elements.dropZone.addEventListener('click', () => this.elements.fileInput.click());
+                this.elements.fileInput.addEventListener('change', (e) => this.handleFile(e.target.files[0]));
 
-                for (const [filename, fileData] of Object.entries(contents.files)) {
-                    if (!fileData.dir) {
-                        const blob = await fileData.async('blob');
-                        extractedFiles.push({ name: filename, blob: blob });
+                this.elements.dropZone.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    this.elements.dropZone.classList.add('dragover');
+                });
+                this.elements.dropZone.addEventListener('dragleave', () => {
+                    this.elements.dropZone.classList.remove('dragover');
+                });
+                this.elements.dropZone.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    this.elements.dropZone.classList.remove('dragover');
+                    this.handleFile(e.dataTransfer.files[0]);
+                });
+
+                this.elements.btnDownloadAll.addEventListener('click', () => this.downloadAll());
+            },
+
+            async handleFile(file) {
+                if (!file) return;
+
+                try {
+                    const zip = new JSZip();
+                    const contents = await zip.loadAsync(file);
+                    this.extractedFiles = [];
+
+                    for (const [filename, fileData] of Object.entries(contents.files)) {
+                        if (!fileData.dir) {
+                            const blob = await fileData.async('blob');
+                            this.extractedFiles.push({ name: filename, blob: blob });
+                        }
                     }
+
+                    this.renderFileList();
+                    this.elements.dropZone.style.display = 'none';
+                    this.elements.controls.style.display = 'block';
+                } catch (error) {
+                    console.error(error);
+                    Utilsly.showAlert('ZIP 파일을 읽는 중 오류가 발생했습니다.');
                 }
+            },
 
-                renderFileList();
-                dropZone.style.display = 'none';
-                controls.style.display = 'block';
-            } catch (error) {
-                alert('ZIP 파일을 읽는 중 오류가 발생했습니다.');
+            renderFileList() {
+                this.elements.fileList.innerHTML = '<div style="font-weight: 600; margin-bottom: 12px;">압축 해제된 파일 (' + this.extractedFiles.length + '개)</div>';
+                this.extractedFiles.forEach((file, index) => {
+                    const item = document.createElement('div');
+                    item.style.cssText = 'display: flex; justify-content: space-between; align-items: center; padding: 12px; background: var(--bg-sidebar); border-radius: 8px; margin-bottom: 8px;';
+                    item.innerHTML = `
+                        <span style="font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 70%;">${file.name} (${this.formatFileSize(file.blob.size)})</span>
+                        <button class="btn btn-primary" onclick="Utilsly.tools['zip-decompress'].downloadFile(${index})" style="padding: 8px 16px;">
+                            <span class="material-symbols-rounded" style="font-size: 18px;">download</span>
+                        </button>
+                    `;
+                    this.elements.fileList.appendChild(item);
+                });
+            },
+
+            formatFileSize(bytes) {
+                if (bytes < 1024) return bytes + ' B';
+                if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+                return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+            },
+
+            downloadFile(index) {
+                const file = this.extractedFiles[index];
+                const url = URL.createObjectURL(file.blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = file.name;
+                link.click();
+                URL.revokeObjectURL(url);
+            },
+
+            downloadAll() {
+                this.extractedFiles.forEach((file, index) => {
+                    setTimeout(() => this.downloadFile(index), index * 100);
+                });
             }
-        }
-
-        function renderFileList() {
-            fileList.innerHTML = '<div style="font-weight: 600; margin-bottom: 12px;">압축 해제된 파일 (' + extractedFiles.length + '개)</div>';
-            extractedFiles.forEach((file, index) => {
-                const item = document.createElement('div');
-                item.style.cssText = 'display: flex; justify-content: space-between; align-items: center; padding: 12px; background: var(--bg-sidebar); border-radius: 8px; margin-bottom: 8px;';
-                item.innerHTML = `
-                    <span>${file.name} (${formatFileSize(file.blob.size)})</span>
-                    <button class="btn btn-primary" onclick="downloadFile(${index})" style="padding: 8px 16px;">
-                        <span class="material-symbols-rounded" style="font-size: 18px;">download</span>
-                    </button>
-                `;
-                fileList.appendChild(item);
-            });
-        }
-
-        function formatFileSize(bytes) {
-            if (bytes < 1024) return bytes + ' B';
-            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
-            return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
-        }
-
-        function downloadFile(index) {
-            const file = extractedFiles[index];
-            const url = URL.createObjectURL(file.blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = file.name;
-            link.click();
-            URL.revokeObjectURL(url);
-        }
-
-        function downloadAll() {
-            extractedFiles.forEach((file, index) => {
-                setTimeout(() => downloadFile(index), index * 100);
-            });
-        }
+        });
     </script>
 </body>
 

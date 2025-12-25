@@ -34,22 +34,20 @@
                     <h1>ZIP 압축</h1>
                     <p class="description">여러 파일을 ZIP으로 압축하세요.</p>
                 </div>
-                <div class="tool-container">
-                    <div class="drop-zone" id="dropZone"
-                        style="border: 2px dashed var(--border-color); padding: 40px; text-align: center; cursor: pointer; margin-bottom: 24px;">
-                        <span class="material-symbols-rounded"
-                            style="font-size: 48px; color: var(--text-tertiary);">cloud_upload</span>
-                        <p style="margin-top: 16px;">파일들을 업로드하세요 (여러 개 선택 가능)</p>
-                        <input type="file" id="fileInput" multiple style="display: none;">
+                <div class="tool-container" data-tool-id="zip-compress">
+                    <div class="drop-zone" id="drop-zone">
+                        <span class="material-symbols-rounded upload-icon">cloud_upload</span>
+                        <p class="upload-text">파일을 드래그하거나 클릭하여 업로드</p>
+                        <p class="upload-hint">여러 파일 선택 가능 • ZIP으로 압축됩니다</p>
+                        <input type="file" id="file-input" multiple style="display: none;">
                     </div>
-                    <div id="fileList" style="margin-bottom: 24px;"></div>
+                    <div id="file-list" style="margin-bottom: 24px;"></div>
                     <div id="controls" style="display: none;">
                         <div style="margin-bottom: 16px;">
                             <label style="font-weight: 600; display: block; margin-bottom: 8px;">ZIP 파일명</label>
-                            <input type="text" id="zipName" value="archive"
-                                style="width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px;">
+                            <input type="text" id="zip-name" value="archive">
                         </div>
-                        <button class="btn btn-primary" onclick="compress()" style="width: 100%;">ZIP으로 압축 및
+                        <button class="btn btn-primary" id="btn-compress" style="width: 100%; padding: 12px;">ZIP으로 압축 및
                             다운로드</button>
                     </div>
                 </div>
@@ -59,72 +57,111 @@
     <script src="../../js/common.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script>
-        const dropZone = document.getElementById('dropZone');
-        const fileInput = document.getElementById('fileInput');
-        const fileList = document.getElementById('fileList');
-        const controls = document.getElementById('controls');
+        Utilsly.registerTool('zip-compress', {
+            files: [],
 
-        let files = [];
+            init() {
+                this.elements = {
+                    dropZone: document.getElementById('drop-zone'),
+                    fileInput: document.getElementById('file-input'),
+                    fileList: document.getElementById('file-list'),
+                    controls: document.getElementById('controls'),
+                    zipNameInput: document.getElementById('zip-name'),
+                    btnCompress: document.getElementById('btn-compress')
+                };
 
-        dropZone.addEventListener('click', () => fileInput.click());
-        fileInput.addEventListener('change', handleFiles);
+                this.bindEvents();
+            },
 
-        function handleFiles(e) {
-            files = Array.from(e.target.files);
-            if (files.length > 0) {
-                renderFileList();
-                controls.style.display = 'block';
+            cleanup() { this.elements = {}; this.files = []; },
+
+            bindEvents() {
+                this.elements.dropZone.addEventListener('click', () => this.elements.fileInput.click());
+                this.elements.fileInput.addEventListener('change', (e) => this.handleFiles(e.target.files));
+
+                this.elements.dropZone.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    this.elements.dropZone.classList.add('dragover');
+                });
+                this.elements.dropZone.addEventListener('dragleave', () => {
+                    this.elements.dropZone.classList.remove('dragover');
+                });
+                this.elements.dropZone.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    this.elements.dropZone.classList.remove('dragover');
+                    this.handleFiles(e.dataTransfer.files);
+                });
+
+                this.elements.btnCompress.addEventListener('click', () => this.compress());
+            },
+
+            handleFiles(fileList) {
+                this.files = Array.from(fileList);
+                if (this.files.length > 0) {
+                    this.renderFileList();
+                    this.elements.controls.style.display = 'block';
+                }
+            },
+
+            renderFileList() {
+                this.elements.fileList.innerHTML = '<div style="font-weight: 600; margin-bottom: 12px;">선택된 파일 (' + this.files.length + '개)</div>';
+                this.files.forEach((file, index) => {
+                    const item = document.createElement('div');
+                    item.style.cssText = 'display: flex; justify-content: space-between; align-items: center; padding: 12px; background: var(--bg-sidebar); border-radius: 8px; margin-bottom: 8px;';
+                    item.innerHTML = `
+                        <span style="font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 80%;">${file.name} (${this.formatFileSize(file.size)})</span>
+                        <button class="btn" onclick="Utilsly.tools['zip-compress'].removeFile(${index})" style="padding: 4px 8px; border:none; background:none;">
+                            <span class="material-symbols-rounded" style="font-size: 18px;">close</span>
+                        </button>
+                    `;
+                    this.elements.fileList.appendChild(item);
+                });
+            },
+
+            removeFile(index) {
+                this.files.splice(index, 1);
+                if (this.files.length === 0) {
+                    this.elements.fileList.innerHTML = '';
+                    this.elements.controls.style.display = 'none';
+                } else {
+                    this.renderFileList();
+                }
+            },
+
+            formatFileSize(bytes) {
+                if (bytes < 1024) return bytes + ' B';
+                if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+                return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+            },
+
+            async compress() {
+                if (this.files.length === 0) return;
+
+                this.elements.btnCompress.disabled = true;
+                this.elements.btnCompress.textContent = '압축 중...';
+
+                try {
+                    const zip = new JSZip();
+                    for (const file of this.files) {
+                        zip.file(file.name, file);
+                    }
+
+                    const content = await zip.generateAsync({ type: 'blob' });
+                    const url = URL.createObjectURL(content);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = (this.elements.zipNameInput.value || 'archive') + '.zip';
+                    link.click();
+                    URL.revokeObjectURL(url);
+                } catch (e) {
+                    console.error(e);
+                    Utilsly.showAlert('압축 중 오류가 발생했습니다.');
+                } finally {
+                    this.elements.btnCompress.disabled = false;
+                    this.elements.btnCompress.textContent = 'ZIP으로 압축 및 다운로드';
+                }
             }
-        }
-
-        function renderFileList() {
-            fileList.innerHTML = '<div style="font-weight: 600; margin-bottom: 12px;">선택된 파일 (' + files.length + '개)</div>';
-            files.forEach((file, index) => {
-                const item = document.createElement('div');
-                item.style.cssText = 'display: flex; justify-content: space-between; align-items: center; padding: 12px; background: var(--bg-sidebar); border-radius: 8px; margin-bottom: 8px;';
-                item.innerHTML = `
-                    <span>${file.name} (${formatFileSize(file.size)})</span>
-                    <button class="btn" onclick="removeFile(${index})" style="padding: 4px 8px;">
-                        <span class="material-symbols-rounded" style="font-size: 18px;">close</span>
-                    </button>
-                `;
-                fileList.appendChild(item);
-            });
-        }
-
-        function removeFile(index) {
-            files.splice(index, 1);
-            if (files.length === 0) {
-                fileList.innerHTML = '';
-                controls.style.display = 'none';
-            } else {
-                renderFileList();
-            }
-        }
-
-        function formatFileSize(bytes) {
-            if (bytes < 1024) return bytes + ' B';
-            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
-            return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
-        }
-
-        async function compress() {
-            if (files.length === 0) return;
-
-            const zip = new JSZip();
-
-            for (const file of files) {
-                zip.file(file.name, file);
-            }
-
-            const content = await zip.generateAsync({ type: 'blob' });
-            const url = URL.createObjectURL(content);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = document.getElementById('zipName').value + '.zip';
-            link.click();
-            URL.revokeObjectURL(url);
-        }
+        });
     </script>
 </body>
 
