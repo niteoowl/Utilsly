@@ -111,96 +111,115 @@
             color: var(--text-tertiary);
         }
 
-        /* Premium Post List */
-        .post-card {
-            background: var(--bg-primary);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 12px;
+        /* GnuBoard-style List */
+        .bbs-list {
+            width: 100%;
+            border-top: 2px solid var(--text-primary);
+            margin-top: 12px;
+        }
+
+        .bbs-row {
+            display: grid;
+            grid-template-columns: 60px 1fr 120px 80px 60px;
+            align-items: center;
+            padding: 14px 8px;
+            border-bottom: 1px solid var(--border-color);
             text-decoration: none;
             color: var(--text-primary);
-            transition: all 0.15s;
-            display: block;
+            transition: background 0.1s;
+            font-size: 14px;
         }
 
-        .post-card:hover {
-            border-color: var(--text-primary);
-            background: var(--bg-hover);
-            transform: translateX(4px);
-        }
-
-        .post-card .post-title-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 12px;
-        }
-
-        .post-card .post-title {
-            font-size: 17px;
+        .bbs-header {
+            background: var(--bg-secondary);
             font-weight: 700;
-            line-height: 1.4;
-            flex: 1;
-            margin-right: 12px;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--border-dark);
         }
 
-        .post-card .comment-count {
-            color: #ff5252;
-            font-size: 13px;
+        .bbs-row:hover:not(.bbs-header) {
+            background: var(--bg-hover);
+        }
+
+        .bbs-row.notice {
+            background: rgba(0, 0, 0, 0.02);
             font-weight: 600;
-            margin-left: 4px;
         }
 
-        .post-card .post-meta {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            font-size: 13px;
+        [data-theme="dark"] .bbs-row.notice {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .bbs-col {
+            padding: 0 8px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .col-num {
+            text-align: center;
+            color: var(--text-tertiary);
+            font-family: var(--font-mono);
+        }
+
+        .col-title {
+            white-space: normal;
+        }
+
+        .col-author {
+            text-align: left;
+        }
+
+        .col-date {
+            text-align: center;
             color: var(--text-secondary);
         }
 
-        .post-card .meta-item {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .post-card .author-badge {
-            background: var(--bg-secondary);
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-
-        /* Empty State */
-        .empty-state {
-            padding: 80px 20px;
+        .col-views {
             text-align: center;
             color: var(--text-tertiary);
-            background: var(--bg-secondary);
-            border-radius: 16px;
-            border: 1px dashed var(--border-color);
+        }
+
+        .notice-badge {
+            background: var(--text-primary);
+            color: var(--bg-primary);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 11px;
+            margin-right: 6px;
+            font-weight: 800;
+        }
+
+        .comment-count {
+            color: #ff5252;
+            font-size: 12px;
+            font-weight: 700;
+            margin-left: 4px;
         }
 
         @media (max-width: 768px) {
-            .list-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 16px;
+            .bbs-row {
+                grid-template-columns: 1fr 80px;
+                padding: 12px 10px;
             }
 
-            .search-wrapper {
-                max-width: 100%;
+            .bbs-col:not(.col-title):not(.col-author) {
+                display: none;
             }
 
-            .post-card {
-                padding: 16px;
+            .bbs-header {
+                display: none;
             }
 
-            .post-card .post-title {
+            .col-title {
                 font-size: 15px;
+            }
+
+            .col-author {
+                font-size: 12px;
+                text-align: right;
+                color: var(--text-tertiary);
             }
         }
 
@@ -276,10 +295,21 @@
                         </div>
 
                         <div id="post-list-container">
-                            <div class="empty-state">
-                                <span class="material-symbols-rounded"
-                                    style="font-size: 48px; margin-bottom: 16px;">pending</span>
-                                <div>채널을 선택하여 게시글을 확인하세요.</div>
+                            <div class="bbs-list">
+                                <div class="bbs-row bbs-header">
+                                    <div class="bbs-col col-num">번호</div>
+                                    <div class="bbs-col col-title">제목</div>
+                                    <div class="bbs-col col-author">글쓴이</div>
+                                    <div class="bbs-col col-date">날짜</div>
+                                    <div class="bbs-col col-views">조회</div>
+                                </div>
+                                <div id="bbs-content">
+                                    <div class="empty-state">
+                                        <span class="material-symbols-rounded"
+                                            style="font-size: 48px; margin-bottom: 16px;">pending</span>
+                                        <div>채널을 선택하여 게시글을 확인하세요.</div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -363,7 +393,7 @@
         }
 
         async function loadPosts(channelId) {
-            const container = document.getElementById('post-list-container');
+            const container = document.getElementById('bbs-content');
             container.innerHTML = `
                 <div class="empty-state">
                     <span class="material-symbols-rounded spin" style="font-size: 32px; margin-bottom: 12px;">refresh</span>
@@ -393,34 +423,28 @@
         }
 
         function renderPosts(posts) {
-            const container = document.getElementById('post-list-container');
+            const container = document.getElementById('bbs-content');
             if (posts.length === 0) {
                 container.innerHTML = `<div class="empty-state">게시글이 없습니다. 첫 글을 작성해보세요!</div>`;
                 return;
             }
 
-            container.innerHTML = posts.map(post => {
+            container.innerHTML = posts.map((post, idx) => {
                 const date = formatDate(post.createdAt);
+                const isNotice = post.category === 'notice';
                 return `
-                    <a href="/community/view.html?id=${post.id}" class="post-card">
-                        <div class="post-title-row">
-                            <div class="post-title">
-                                ${escapeHtml(post.title)}
-                                ${post.commentCount ? `<span class="comment-count">[${post.commentCount}]</span>` : ''}
-                            </div>
-                            ${post.thumbnail ? `<img src="${post.thumbnail}" style="width:50px; height:50px; border-radius:4px; object-fit:cover;">` : ''}
+                    <a href="/community/view.html?id=${post.id}" class="bbs-row ${isNotice ? 'notice' : ''}">
+                        <div class="bbs-col col-num">
+                            ${isNotice ? '<span class="notice-badge">공지</span>' : posts.length - idx}
                         </div>
-                        <div class="post-meta">
-                            <span class="author-badge">${escapeHtml(post.nickname)}</span>
-                            <span class="meta-item">
-                                <span class="material-symbols-rounded" style="font-size:16px;">schedule</span>
-                                ${date}
-                            </span>
-                            <span class="meta-item">
-                                <span class="material-symbols-rounded" style="font-size:16px;">visibility</span>
-                                ${post.views || 0}
-                            </span>
+                        <div class="bbs-col col-title">
+                            ${escapeHtml(post.title)}
+                            ${post.commentCount ? `<span class="comment-count">[${post.commentCount}]</span>` : ''}
+                            ${post.thumbnail ? '<span class="material-symbols-rounded" style="font-size:14px; vertical-align:middle; margin-left:4px; opacity:0.5;">image</span>' : ''}
                         </div>
+                        <div class="bbs-col col-author">${escapeHtml(post.nickname)}</div>
+                        <div class="bbs-col col-date">${date}</div>
+                        <div class="bbs-col col-views">${post.views || 0}</div>
                     </a>
                 `;
             }).join('');
@@ -431,10 +455,18 @@
             const date = ts.toDate();
             const now = new Date();
             const diff = (now - date) / 1000;
-            if (diff < 60) return '방금 전';
-            if (diff < 3600) return Math.floor(diff / 60) + '분 전';
-            if (diff < 86400) return Math.floor(diff / 3600) + '시간 전';
-            return date.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' });
+
+            // Format for BBS: if today, show HH:MM, if before today, show MM-DD
+            const isToday = now.toDateString() === date.toDateString();
+            if (isToday) {
+                const h = date.getHours().toString().padStart(2, '0');
+                const m = date.getMinutes().toString().padStart(2, '0');
+                return `${h}:${m}`;
+            } else {
+                const m = (date.getMonth() + 1).toString().padStart(2, '0');
+                const d = date.getDate().toString().padStart(2, '0');
+                return `${m}-${d}`;
+            }
         }
 
         function escapeHtml(text) {

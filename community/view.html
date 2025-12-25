@@ -25,43 +25,41 @@
 
         .post-header {
             margin-bottom: 24px;
-            padding-bottom: 24px;
+            padding: 24px 0;
+            border-top: 2px solid var(--text-primary);
             border-bottom: 1px solid var(--border-color);
         }
 
-        .post-category-tag {
-            font-size: 13px;
-            font-weight: 700;
-            color: var(--text-tertiary);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin-bottom: 12px;
-            display: block;
-        }
-
         .post-title {
-            font-size: 32px;
-            font-weight: 800;
-            line-height: 1.3;
+            font-size: 24px;
+            font-weight: 700;
+            line-height: 1.4;
             color: var(--text-primary);
             margin-bottom: 16px;
-            letter-spacing: -0.02em;
         }
 
         .post-meta {
             display: flex;
-            align-items: center;
+            flex-wrap: wrap;
             gap: 16px;
-            font-size: 14px;
+            font-size: 13px;
             color: var(--text-secondary);
         }
 
-        .post-meta .author-badge {
-            background: var(--bg-secondary);
-            padding: 4px 12px;
-            border-radius: 6px;
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .meta-label {
+            color: var(--text-tertiary);
             font-weight: 600;
+        }
+
+        .meta-value {
             color: var(--text-primary);
+            font-weight: 600;
         }
 
         .post-content {
@@ -331,15 +329,24 @@
             container.innerHTML = `
                 <div class="post-main">
                     <div class="post-header">
-                        <span class="post-category-tag">${catNames[post.category] || '자유'} CHANNEL</span>
                         <h1 class="post-title">${escapeHtml(post.title)}</h1>
                         <div class="post-meta">
-                            <span class="author-badge">${escapeHtml(post.nickname)}</span>
-                            <span>${date}</span>
-                            <span style="display:flex; align-items:center; gap:4px;">
-                                <span class="material-symbols-rounded" style="font-size:16px;">visibility</span>
-                                ${post.views || 0}
-                            </span>
+                            <div class="meta-item">
+                                <span class="meta-label">글쓴이</span>
+                                <span class="meta-value">${escapeHtml(post.nickname)}</span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="meta-label">날짜</span>
+                                <span class="meta-value">${date}</span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="meta-label">조회</span>
+                                <span class="meta-value">${post.views || 0}</span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="meta-label">추천</span>
+                                <span class="meta-value">${post.recommendCount || 0}</span>
+                            </div>
                         </div>
                     </div>
                     <div class="post-content">${post.content}</div>
