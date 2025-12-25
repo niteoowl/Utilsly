@@ -16,98 +16,96 @@
             margin: 0 auto;
         }
 
-        .community-top-actions {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 24px;
+        /* Channel List View */
+        .channel-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
             gap: 16px;
+            margin-bottom: 24px;
         }
 
-        .category-tabs {
+        .channel-card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            text-decoration: none;
+            color: var(--text-primary);
+            transition: all 0.2s;
             display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .channel-card:hover {
+            border-color: var(--accent-blue);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .channel-card .icon {
+            font-size: 32px;
+            color: var(--accent-blue);
+        }
+
+        .channel-card .name {
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        /* Channel Detail View */
+        .channel-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .channel-title {
+            font-size: 20px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
             gap: 8px;
-            overflow-x: auto;
-            padding-bottom: 4px;
-            -ms-overflow-style: none;
-            scrollbar-width: none;
+        }
+
+        .search-bar-wrapper {
             flex: 1;
-        }
-
-        .category-tabs::-webkit-scrollbar {
-            display: none;
-        }
-
-        .category-tab {
-            padding: 8px 16px;
-            border-radius: 50px;
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--text-secondary);
-            background: var(--bg-sidebar);
-            border: 1px solid var(--border-color);
-            cursor: pointer;
-            text-decoration: none;
-            white-space: nowrap;
-            transition: all 0.2s;
-        }
-
-        .category-tab:hover {
-            background: var(--bg-hover);
-        }
-
-        .category-tab.active {
-            background: var(--text-primary);
-            color: var(--bg-primary);
-            border-color: var(--text-primary);
-        }
-
-        .user-actions {
             display: flex;
-            align-items: center;
+            justify-content: flex-end;
             gap: 8px;
-            flex-shrink: 0;
         }
 
-        .write-btn {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            padding: 8px 16px;
-            background: var(--text-primary);
-            color: var(--bg-primary);
-            border: none;
+        .search-input-group {
+            position: relative;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        .search-input-group input {
+            width: 100%;
+            padding: 8px 12px;
+            padding-right: 36px;
             border-radius: 8px;
-            font-weight: 600;
-            font-size: 14px;
-            cursor: pointer;
-            text-decoration: none;
-            transition: all 0.2s;
-        }
-
-        .write-btn:hover {
-            opacity: 0.9;
-        }
-
-        .logout-btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 36px;
-            height: 36px;
-            background: var(--bg-sidebar);
             border: 1px solid var(--border-color);
-            border-radius: 8px;
-            cursor: pointer;
-            color: var(--text-secondary);
-            transition: all 0.2s;
-        }
-
-        .logout-btn:hover {
-            background: var(--bg-hover);
+            background: var(--bg-primary);
             color: var(--text-primary);
         }
 
+        .search-input-group .search-icon {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-tertiary);
+            cursor: pointer;
+        }
+
+        /* Post List */
         .post-list-container {
             background: var(--bg-primary);
             border: 1px solid var(--border-color);
@@ -134,41 +132,12 @@
             border-bottom: none;
         }
 
-        .post-badge {
-            padding: 4px 10px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: 600;
-            flex-shrink: 0;
-        }
-
-        .badge-notice {
-            color: #d32f2f;
-            background: rgba(211, 47, 47, 0.1);
-        }
-
-        .badge-bug {
-            color: #ff9800;
-            background: rgba(255, 152, 0, 0.1);
-        }
-
-        .badge-suggestion {
-            color: #2196f3;
-            background: rgba(33, 150, 243, 0.1);
-        }
-
-        .badge-free {
-            color: #9c27b0;
-            background: rgba(156, 39, 176, 0.1);
-        }
-
-        .badge-resolved {
-            color: #4caf50;
-            background: rgba(76, 175, 80, 0.1);
+        .post-title-area {
+            flex: 1;
+            min-width: 0;
         }
 
         .post-title {
-            flex: 1;
             font-weight: 500;
             font-size: 15px;
             overflow: hidden;
@@ -179,25 +148,9 @@
         .post-meta {
             display: flex;
             align-items: center;
-            gap: 16px;
+            gap: 12px;
             color: var(--text-tertiary);
             font-size: 13px;
-            flex-shrink: 0;
-        }
-
-        .post-meta-item {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .notice-item {
-            background: rgba(255, 82, 82, 0.03);
-        }
-
-        .notice-item .post-title {
-            color: #d32f2f;
-            font-weight: 600;
         }
 
         .empty-state {
@@ -210,51 +163,30 @@
             display: none;
         }
 
-        /* Mobile styles */
         @media (max-width: 768px) {
-            .community-top-actions {
+            .channel-header {
                 flex-direction: column;
-                align-items: stretch;
+                align-items: flex-start;
+                gap: 16px;
             }
 
-            .category-tabs {
-                order: 2;
+            .search-bar-wrapper {
+                width: 100%;
             }
 
-            .user-actions {
-                order: 1;
-                justify-content: flex-end;
-            }
-
-            .write-btn span:not(.material-symbols-rounded) {
-                display: none;
-            }
-
-            .write-btn {
-                padding: 8px 12px;
+            .search-input-group {
+                max-width: 100%;
             }
 
             .list-item {
                 flex-direction: column;
                 align-items: flex-start;
                 gap: 8px;
-                padding: 14px 16px;
             }
 
             .post-meta {
                 width: 100%;
-                justify-content: flex-start;
-                gap: 12px;
-            }
-
-            .post-meta-item {
-                font-size: 12px;
-            }
-
-            .post-title {
-                white-space: normal;
-                line-height: 1.4;
-                width: 100%;
+                justify-content: space-between;
             }
 
             .write-fab {
@@ -273,6 +205,10 @@
                 align-items: center;
                 justify-content: center;
                 z-index: 50;
+            }
+
+            .desktop-write-btn {
+                display: none;
             }
         }
     </style>
@@ -294,40 +230,62 @@
                 <button class="menu-toggle-btn" onclick="Utilsly.toggleSidebar(true)">
                     <span class="material-symbols-rounded">menu</span>
                 </button>
-                <div class="breadcrumbs"><span class="breadcrumb-item">커뮤니티</span></div>
+                <div class="breadcrumbs">
+                    <span class="breadcrumb-item"><a href="/community/index.html"
+                            style="color:inherit; text-decoration:none;">커뮤니티</a></span>
+                    <span class="breadcrumb-separator" id="bc-sep" style="display:none;">/</span>
+                    <span class="breadcrumb-item" id="bc-channel" style="display:none;"></span>
+                </div>
             </div>
             <div class="content-area">
                 <div class="community-container">
-                    <div class="community-top-actions">
-                        <div class="category-tabs">
-                            <a href="?category=all" class="category-tab active" data-cat="all">전체</a>
-                            <a href="?category=notice" class="category-tab" data-cat="notice">공지</a>
-                            <a href="?category=bug" class="category-tab" data-cat="bug">버그</a>
-                            <a href="?category=suggestion" class="category-tab" data-cat="suggestion">건의</a>
-                            <a href="?category=free" class="category-tab" data-cat="free">자유</a>
-                            <a href="?category=resolved" class="category-tab" data-cat="resolved">해결</a>
-                        </div>
-                        <div class="user-actions" id="userActions">
-                            <a href="/community/write.html" class="write-btn">
-                                <span class="material-symbols-rounded" style="font-size: 18px;">edit</span>
-                                <span>글쓰기</span>
-                            </a>
-                            <a href="/login.html" class="btn btn-primary"
-                                style="padding: 8px 16px; text-decoration: none;">로그인</a>
+
+                    <!-- Channel List View -->
+                    <div id="channel-list-view">
+                        <h2 style="margin-bottom:16px;">채널 목록</h2>
+                        <div class="channel-grid" id="channel-grid">
+                            <!-- Populated by JS -->
                         </div>
                     </div>
 
-                    <div class="post-list-container" id="postList">
-                        <div class="empty-state">
-                            <span class="material-symbols-rounded"
-                                style="font-size: 32px; animation: spin 1s linear infinite;">refresh</span>
-                            <div style="margin-top: 12px;">게시글을 불러오는 중...</div>
+                    <!-- Post List View -->
+                    <div id="post-list-view" style="display:none;">
+                        <div class="channel-header">
+                            <div class="channel-title">
+                                <button onclick="location.href='/community/index.html'" class="btn-icon-sm"
+                                    style="margin-right:8px;">
+                                    <span class="material-symbols-rounded">arrow_back</span>
+                                </button>
+                                <span id="current-channel-name"></span>
+                            </div>
+
+                            <div class="search-bar-wrapper">
+                                <div class="search-input-group">
+                                    <input type="text" id="post-search" placeholder="검색 (제목, 내용)">
+                                    <span class="material-symbols-rounded search-icon"
+                                        onclick="filterPosts()">search</span>
+                                </div>
+                                <a href="#" id="write-btn" class="btn btn-primary desktop-write-btn"
+                                    style="flex-shrink:0;">
+                                    <span class="material-symbols-rounded"
+                                        style="font-size:18px; margin-right:4px;">edit</span> 글쓰기
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="post-list-container" id="postList">
+                            <div class="empty-state">
+                                <span class="material-symbols-rounded"
+                                    style="font-size: 32px; animation: spin 1s linear infinite;">refresh</span>
+                                <div style="margin-top: 12px;">게시글을 불러오는 중...</div>
+                            </div>
                         </div>
                     </div>
+
                 </div>
 
                 <!-- Mobile FAB -->
-                <button class="write-fab" onclick="handleWrite()">
+                <button class="write-fab" id="mobile-write-btn">
                     <span class="material-symbols-rounded" style="font-size: 24px;">edit</span>
                 </button>
             </div>
@@ -337,6 +295,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, query, where, orderBy, limit, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
+        // Init Firebase (Keep Config)
         const app = initializeApp({
             apiKey: "AIzaSyCbSmDuJNCSrIB7Fx9IzbePERD_2ka3rQE",
             authDomain: "utilsly.firebaseapp.com",
@@ -347,45 +306,129 @@
             measurementId: "G-WSRTSNGT8G"
         });
         const db = getFirestore(app);
+
+        const CHANNELS = [
+            { id: 'free', name: '자유 채널', icon: 'chat_bubble' },
+            { id: 'stock', name: '주식/투자', icon: 'candlestick_chart' },
+            { id: 'dev', name: '개발/코딩', icon: 'terminal' },
+            { id: 'humor', name: '유머/잡담', icon: 'mood' },
+            { id: 'suggestion', name: '건의사항', icon: 'lightbulb' },
+            { id: 'bug', name: '버그제보', icon: 'bug_report' },
+            { id: 'notice', name: '공지사항', icon: 'campaign' }
+        ];
+
         const urlParams = new URLSearchParams(window.location.search);
-        const currentCategory = urlParams.get('category') || 'all';
+        const currentChannel = urlParams.get('channel');
 
-        function setupUI() {
-            document.querySelectorAll('.category-tab').forEach(tab => {
-                tab.classList.remove('active');
-                if (tab.dataset.cat === currentCategory) tab.classList.add('active');
-            });
+        function init() {
+            if (currentChannel) {
+                showPostList(currentChannel);
+            } else {
+                showChannelList();
+            }
         }
 
-        function updateAuthSection(user) {
-            const userActions = document.getElementById('userActions');
-            if (user) {
-                const nickname = user.displayName || user.email.split('@')[0];
-                userActions.innerHTML = `
-                    <a href="/community/write.html" class="write-btn">
-                        <span class="material-symbols-rounded" style="font-size: 18px;">edit</span>
-                        <span>글쓰기</span>
+        function showChannelList() {
+            document.getElementById('channel-list-view').style.display = 'block';
+            document.getElementById('post-list-view').style.display = 'none';
+
+            const grid = document.getElementById('channel-grid');
+            grid.innerHTML = CHANNELS.map(ch => `
+                <a href="?channel=${ch.id}" class="channel-card">
+                    <span class="material-symbols-rounded icon">${ch.icon}</span>
+                    <span class="name">${ch.name}</span>
+                </a>
+            `).join('');
+        }
+
+        async function showPostList(channelId) {
+            document.getElementById('channel-list-view').style.display = 'none';
+            document.getElementById('post-list-view').style.display = 'block';
+
+            const channel = CHANNELS.find(c => c.id === channelId) || { name: '알 수 없는 채널', id: channelId };
+            document.getElementById('current-channel-name').textContent = channel.name;
+
+            // Breadcrumbs
+            document.getElementById('bc-sep').style.display = 'inline';
+            const bcEl = document.getElementById('bc-channel');
+            bcEl.style.display = 'inline';
+            bcEl.textContent = channel.name;
+
+            // Update Write Links
+            const writeUrl = `/community/write.html?channel=${channelId}`;
+            document.getElementById('write-btn').href = writeUrl;
+            document.getElementById('mobile-write-btn').onclick = () => location.href = writeUrl;
+
+            await loadPosts(channelId);
+        }
+
+        let currentPosts = [];
+
+        async function loadPosts(channelId) {
+            const listBody = document.getElementById('postList');
+            const postsRef = collection(db, "posts");
+            listBody.innerHTML = `<div class="empty-state"><span class="material-symbols-rounded spin">refresh</span> 불러오는 중...</div>`;
+
+            try {
+                // If notice, only notice. If other, include notices on top?
+                let q;
+                if (channelId === 'notice') {
+                    q = query(postsRef, where("category", "==", "notice"), orderBy("createdAt", "desc"), limit(50));
+                } else {
+                    // Fetch channel posts + notices?
+                    // For simplicity, just fetch channel posts. Notices are in notice channel.
+                    // Or global notices?
+                    // Let's just fetch channel posts for now.
+                    q = query(postsRef, where("category", "==", channelId), orderBy("createdAt", "desc"), limit(50));
+
+                    // IF channel is 'stock' but we don't have existing stock posts, it will be empty.
+                    // Migration: Old 'all' or 'free' posts won't show here. That's fine for "New Feature".
+                }
+
+                // Temporary: if channel is 'free', also fetch old 'free' posts? Yes.
+                if (channelId === 'free' || channelId === 'all') { // Handle 'all' legacy
+                    // q = query(postsRef, orderBy("createdAt", "desc"), limit(50)); // Just show all for free? No, separate.
+                }
+
+                const querySnapshot = await getDocs(q);
+                currentPosts = [];
+                querySnapshot.forEach(doc => {
+                    currentPosts.push({ id: doc.id, ...doc.data() });
+                });
+
+                renderPosts(currentPosts);
+
+            } catch (error) {
+                console.error(error);
+                listBody.innerHTML = `<div class="empty-state">오류 발생</div>`;
+            }
+        }
+
+        function renderPosts(posts) {
+            const listBody = document.getElementById('postList');
+            if (posts.length === 0) {
+                listBody.innerHTML = `<div class="empty-state">글이 없습니다. 첫 글을 남겨보세요!</div>`;
+                return;
+            }
+
+            let html = '';
+            posts.forEach(post => {
+                const dateStart = formatDate(post.createdAt);
+                html += `
+                    <a href="/community/view.html?id=${post.id}" class="list-item">
+                        <div class="post-title-area">
+                            <div class="post-title">${escapeHtml(post.title)} <span style="color:#ff5252; font-size:12px;">${post.commentCount ? '[' + post.commentCount + ']' : ''}</span></div>
+                        </div>
+                        <div class="post-meta">
+                            <span>${escapeHtml(post.nickname)}</span>
+                            <span>${dateStart}</span>
+                            <span><span class="material-symbols-rounded" style="font-size:14px; vertical-align:middle;">visibility</span> ${post.views || 0}</span>
+                        </div>
                     </a>
-                    <span style="font-size: 14px; font-weight: 600; color: var(--text-primary);">${nickname}</span>
-                    <button class="logout-btn" onclick="handleLogout()" title="로그아웃">
-                        <span class="material-symbols-rounded" style="font-size: 18px;">logout</span>
-                    </button>
                 `;
-            }
+            });
+            listBody.innerHTML = html;
         }
-
-        window.addEventListener('authStateChanged', (e) => updateAuthSection(e.detail.user));
-        setTimeout(() => {
-            if (window.UtilslyAuth && window.UtilslyAuth.currentUser) {
-                updateAuthSection(window.UtilslyAuth.currentUser);
-            }
-        }, 500);
-
-        window.handleWrite = () => {
-            const cat = currentCategory === 'all' || currentCategory === 'notice' || currentCategory === 'resolved' ? 'free' : currentCategory;
-            window.location.href = `/community/write.html?category=${cat}`;
-        };
-        window.handleLogout = () => { if (window.UtilslyAuth) window.UtilslyAuth.signOut(); };
 
         function formatDate(timestamp) {
             if (!timestamp) return '-';
@@ -394,67 +437,31 @@
             return isToday ? date.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false }) : date.toLocaleDateString('ko-KR', { month: '2-digit', day: '2-digit' });
         }
 
-        async function loadPosts() {
-            const listBody = document.getElementById('postList');
-            const postsRef = collection(db, "posts");
-            try {
-                let notices = [], posts = [];
-                const isNoticeTab = currentCategory === 'notice';
+        function escapeHtml(text) {
+            if (!text) return '';
+            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
 
-                if (!isNoticeTab) {
-                    const noticeSnapshot = await getDocs(query(postsRef, where("isNotice", "==", true)));
-                    noticeSnapshot.forEach(doc => notices.push({ id: doc.id, ...doc.data() }));
-                    notices.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
-                }
-
-                let q = currentCategory === 'all'
-                    ? query(postsRef, orderBy("createdAt", "desc"), limit(50))
-                    : currentCategory === 'notice'
-                        ? query(postsRef, where("isNotice", "==", true))
-                        : query(postsRef, where("category", "==", currentCategory), limit(50));
-
-                const querySnapshot = await getDocs(q);
-                querySnapshot.forEach(doc => {
-                    if (!notices.find(n => n.id === doc.id)) {
-                        posts.push({ id: doc.id, ...doc.data() });
-                    }
-                });
-                posts.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
-
-                if (notices.length === 0 && posts.length === 0) {
-                    listBody.innerHTML = `<div class="empty-state">아직 게시글이 없습니다.</div>`;
-                    return;
-                }
-
-                const catMap = { 'free': '자유', 'bug': '버그', 'suggestion': '건의', 'notice': '공지', 'resolved': '해결' };
-                let html = '';
-                notices.forEach(post => html += createPostItem(post, true, catMap));
-                posts.forEach(post => html += createPostItem(post, false, catMap));
-                listBody.innerHTML = html;
-            } catch (error) {
-                console.error(error);
-                listBody.innerHTML = `<div class="empty-state" style="color: #d32f2f;">게시글을 불러오는데 실패했습니다.</div>`;
+        // Search Filter (Client Side for now)
+        window.filterPosts = function () {
+            const keyword = document.getElementById('post-search').value.toLowerCase();
+            if (!keyword) {
+                renderPosts(currentPosts);
+                return;
             }
-        }
+            const filtered = currentPosts.filter(p =>
+                (p.title && p.title.toLowerCase().includes(keyword)) ||
+                (p.content && p.content.toLowerCase().includes(keyword)) ||
+                (p.nickname && p.nickname.toLowerCase().includes(keyword))
+            );
+            renderPosts(filtered);
+        };
 
-        function createPostItem(post, isNotice, catMap) {
-            const badge = post.category || 'free';
-            const commentCount = post.commentCount ? `<span style="color: #ff5252; font-weight: 700; margin-left: 6px;">[${post.commentCount}]</span>` : '';
-            return `
-                <a href="/community/view.html?id=${post.id}" class="list-item ${isNotice ? 'notice-item' : ''}">
-                    <span class="post-badge badge-${badge}">${catMap[badge] || '일반'}</span>
-                    <div class="post-title">${post.title}${commentCount}</div>
-                    <div class="post-meta">
-                        <span class="post-meta-item">${post.nickname}</span>
-                        <span class="post-meta-item">${formatDate(post.createdAt)}</span>
-                        <span class="post-meta-item"><span class="material-symbols-rounded" style="font-size:14px;">visibility</span>${post.views || 0}</span>
-                    </div>
-                </a>
-            `;
-        }
+        document.getElementById('post-search').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') filterPosts();
+        });
 
-        setupUI();
-        loadPosts();
+        init();
     </script>
 </body>
 

@@ -167,13 +167,12 @@
                         <div class="form-group">
                             <label>분류</label>
                             <select id="category" required>
-                                <option value="humor">유머</option>
-                                <option value="dev">개발</option>
-                                <option value="stock">주식</option>
-                                <option value="game">게임</option>
-                                <option value="free" selected>자유게시판</option>
-                                <option value="bug">버그 제보</option>
-                                <option value="suggestion">기능 건의</option>
+                                <option value="free" selected>자유 채널</option>
+                                <option value="stock">주식/투자</option>
+                                <option value="dev">개발/코딩</option>
+                                <option value="humor">유머/잡담</option>
+                                <option value="suggestion">건의사항</option>
+                                <option value="bug">버그제보</option>
                             </select>
                         </div>
 
@@ -345,9 +344,12 @@
 
         // URL 파라미터 처리
         const urlParams = new URLSearchParams(window.location.search);
-        const urlCat = urlParams.get('category');
-        if (urlCat && urlCat !== 'all' && urlCat !== 'notice' && urlCat !== 'resolved') {
-            document.getElementById('category').value = urlCat;
+        const urlChannel = urlParams.get('channel') || urlParams.get('category');
+        if (urlChannel && urlChannel !== 'all') {
+            const select = document.getElementById('category');
+            if (select.querySelector(`option[value="${urlChannel}"]`)) {
+                select.value = urlChannel;
+            }
         }
 
         // 로그인 체크
@@ -532,7 +534,7 @@
                     userId: currentUser ? currentUser.uid : null,
                     createdAt: serverTimestamp()
                 });
-                window.location.href = `/community/index.html?category=${category}`;
+                window.location.href = `/community/index.html?channel=${category}`;
             } catch (error) {
                 console.error("Error:", error);
                 alert("등록 실패");

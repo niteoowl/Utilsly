@@ -464,7 +464,7 @@
             const html = `
                 <div class="post-header">
                     <div class="post-header-top">
-                        <a href="/community/index.html?category=${post.category}" class="channel-link">${catMap[post.category] || '자유'} 갤러리 <span class="material-symbols-rounded" style="font-size: 14px; vertical-align: middle;">chevron_right</span></a>
+                        <a href="/community/index.html?channel=${post.category}" class="channel-link">${catMap[post.category] || '자유'} 채널 <span class="material-symbols-rounded" style="font-size: 14px; vertical-align: middle;">chevron_right</span></a>
                     </div>
                     <div class="post-title">${post.title}</div>
                     <div class="post-info">
@@ -487,7 +487,7 @@
 
                 <div class="post-actions">
                     <div class="action-left">
-                        <button class="btn" onclick="window.location.href='/community/index.html?category=${post.category}'">목록</button>
+                        <button class="btn" onclick="window.location.href='/community/index.html?channel=${post.category}'">목록</button>
                     </div>
                     <div class="action-right">
                         <button class="btn" onclick="deletePost('${post.password}', '${post.userId || ''}')" style="color: var(--blind-text-sub); font-size:13px; border:none; background:none; cursor:pointer;">삭제</button>

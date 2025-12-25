@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>목표 평단 계산기 - Utilsly</title>
+    <meta name="description" content="현재 평단가에서 목표 평단가를 맞추기 위해 얼마에 몇 주를 더 사야하는지 계산합니다.">
+    <link rel="stylesheet" href="../../css/style.css">
+    <style>
+        .calc-wrapper {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .section-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+        }
+
+        .input-wrapper {
+            margin-bottom: 20px;
+        }
+
+        .input-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+
+        .relative-input {
+            position: relative;
+        }
+
+        .relative-input input {
+            width: 100%;
+            padding-right: 32px;
+            text-align: right;
+            font-weight: 500;
+        }
+
+        .unit-label {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-tertiary);
+            font-size: 13px;
+            pointer-events: none;
+        }
+
+        .result-field {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+            text-align: right;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <nav class="sidebar"></nav>
+
+        <main class="main-content">
+            <header class="top-bar">
+                <div class="breadcrumbs">
+                    <span class="breadcrumb-item">목표 평단 계산기</span>
+                </div>
+            </header>
+
+            <div class="tool-header">
+                <div class="header-icon-wrapper">
+                    <span class="material-symbols-rounded">gps_fixed</span>
+                </div>
+                <h1>목표 평단 계산기</h1>
+                <p class="description">원하는 평단가를 만들기 위해 필요한 추가 매수 수량을 계산해보세요.</p>
+            </div>
+
+            <div class="tool-container" data-tool-id="target-price">
+                <div class="calc-wrapper">
+                    <div class="section-card" style="border-top: 3px solid #FF9F0A;">
+
+                        <div class="input-wrapper">
+                            <label class="input-label">현재 보유 수량</label>
+                            <div class="relative-input">
+                                <input type="number" id="curr-qty" class="search-input" placeholder="0">
+                                <span class="unit-label">주</span>
+                            </div>
+                        </div>
+                        <div class="input-wrapper">
+                            <label class="input-label">현재 평단가</label>
+                            <div class="relative-input">
+                                <input type="number" id="curr-price" class="search-input" placeholder="0">
+                                <span class="unit-label">원</span>
+                            </div>
+                        </div>
+
+                        <hr style="border:none; border-top:1px dashed var(--border-color); margin:24px 0;">
+
+                        <div class="input-wrapper">
+                            <label class="input-label">목표 평단가</label>
+                            <div class="relative-input">
+                                <input type="number" id="target-avg" class="search-input" placeholder="0">
+                                <span class="unit-label">원</span>
+                            </div>
+                        </div>
+                        <div class="input-wrapper">
+                            <label class="input-label">추가 매수 단가 (얼마에 살 예정인가요?)</label>
+                            <div class="relative-input">
+                                <input type="number" id="target-buy-price" class="search-input" placeholder="0">
+                                <span class="unit-label">원</span>
+                            </div>
+                        </div>
+
+                        <div class="input-wrapper"
+                            style="margin-top:24px; background:var(--bg-primary); padding:16px; border-radius:8px;">
+                            <label class="input-label">필요 매수 수량</label>
+                            <div class="result-field" id="target-needed-qty" style="color:#FF9F0A;">0주</div>
+                            <div style="font-size:13px; color:var(--text-tertiary); margin-top:8px; text-align:right;"
+                                id="target-needed-amt">예상 소요금액: 0원</div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="../../js/common.js"></script>
+    <script>
+        Utilsly.registerTool('target-price', {
+            init() {
+                this.elements = {
+                    currQty: document.getElementById('curr-qty'),
+                    currPrice: document.getElementById('curr-price'),
+                    targetAvg: document.getElementById('target-avg'),
+                    targetBuyPrice: document.getElementById('target-buy-price'),
+                    neededQty: document.getElementById('target-needed-qty'),
+                    neededAmt: document.getElementById('target-needed-amt')
+                };
+
+                const inputs = [this.elements.currQty, this.elements.currPrice, this.elements.targetAvg, this.elements.targetBuyPrice];
+                inputs.forEach(el => el.addEventListener('input', () => this.calculate()));
+            },
+
+            cleanup() { this.elements = {}; },
+
+            formatNum(num) {
+                return num.toLocaleString('ko-KR');
+            },
+
+            calculate() {
+                const cq = parseFloat(this.elements.currQty.value) || 0;
+                const cp = parseFloat(this.elements.currPrice.value) || 0;
+                const tAvg = parseFloat(this.elements.targetAvg.value) || 0;
+                const buyP = parseFloat(this.elements.targetBuyPrice.value) || 0;
+
+                if (cq <= 0 || cp <= 0 || tAvg <= 0 || buyP <= 0) {
+                    this.elements.neededQty.textContent = "0주";
+                    this.elements.neededAmt.textContent = "예상 소요금액: 0원";
+                    return;
+                }
+
+                // Check feasibility
+                // If we want lower avg (cp > tAvg), we must buy lower than tAvg (buyP < tAvg)
+                // If we want higher avg (cp < tAvg), we must buy higher than tAvg (buyP > tAvg)
+
+                if ((cp > tAvg && buyP >= tAvg) || (cp < tAvg && buyP <= tAvg)) {
+                    this.elements.neededQty.textContent = "불가능";
+                    this.elements.neededAmt.textContent = "목표 평단가 달성이 불가능한 매수 단가입니다.";
+                    return;
+                }
+
+                if (cp === tAvg) {
+                    this.elements.neededQty.textContent = "0주";
+                    this.elements.neededAmt.textContent = "이미 목표 평단입니다.";
+                    return;
+                }
+
+                // Formula:
+                // NewAvg = (OldTotal + Q * BuyP) / (OldQty + Q) = tAvg
+                // OldTotal + Q * BuyP = tAvg * OldQty + tAvg * Q
+                // Q * BuyP - tAvg * Q = tAvg * OldQty - OldTotal
+                // Q * (BuyP - tAvg) = tAvg * OldQty - (cp * OldQty)
+                // Q = (tAvg * OldQty - cp * OldQty) / (BuyP - tAvg)
+                // Q = OldQty * (tAvg - cp) / (BuyP - tAvg)
+
+                const numerator = cq * (tAvg - cp);
+                const denominator = buyP - tAvg;
+
+                let q = numerator / denominator;
+
+                if (q < 0) {
+                    // Should be covered by feasibility check, but just in case
+                    q = Math.abs(q);
+                }
+
+                q = Math.ceil(q);
+                const amt = q * buyP;
+
+                this.elements.neededQty.textContent = this.formatNum(q) + "주";
+                this.elements.neededAmt.textContent = "예상 소요금액: " + this.formatNum(amt) + "원";
+            }
+        });
+    </script>
+</body>
+
+</html>

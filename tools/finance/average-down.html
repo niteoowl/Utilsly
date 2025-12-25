@@ -310,38 +310,6 @@
                         </div>
                     </div>
 
-                    <!-- 4. Target Calculator (New) -->
-                    <div class="section-card" style="border-color: #FF9F0A;">
-                        <div class="section-title-bar">
-                            <span class="section-title-text" style="color: #FF9F0A;"><span
-                                    class="material-symbols-rounded">gps_fixed</span>목표 평단 계산기</span>
-                        </div>
-                        <p class="section-note">현재가(혹은 매수희망가)에서 몇 주를 더 사야 목표 평단이 될까요?</p>
-
-                        <div class="input-wrapper" style="margin-bottom: 12px;">
-                            <label class="input-label">목표 평단가</label>
-                            <div class="relative-input">
-                                <input type="number" id="target-avg" class="search-input" placeholder="0">
-                                <span class="unit-label">원</span>
-                            </div>
-                        </div>
-                        <div class="input-wrapper" style="margin-bottom: 12px;">
-                            <label class="input-label">추가 매수 단가</label>
-                            <div class="relative-input">
-                                <input type="number" id="target-buy-price" class="search-input" placeholder="0">
-                                <span class="unit-label">원</span>
-                            </div>
-                        </div>
-
-                        <div class="input-wrapper"
-                            style="margin-top:20px; background:var(--bg-primary); padding:12px; border-radius:8px;">
-                            <label class="input-label">필요 수량</label>
-                            <div class="result-field" id="target-needed-qty" style="color:#FF9F0A; font-size:18px;">0주
-                            </div>
-                            <div style="font-size:12px; color:var(--text-tertiary); margin-top:4px; text-align:right;"
-                                id="target-needed-amt">예상 소요금액: 0원</div>
-                        </div>
-                    </div>
                 </div>
 
                 <!-- History -->
@@ -405,12 +373,7 @@
 
                     applyBtn: document.getElementById('apply-btn'),
                     historyBody: document.getElementById('history-body'),
-                    noHistory: document.getElementById('no-history'),
-
-                    targetAvg: document.getElementById('target-avg'),
-                    targetBuyPrice: document.getElementById('target-buy-price'),
-                    targetNeededQty: document.getElementById('target-needed-qty'),
-                    targetNeededAmt: document.getElementById('target-needed-amt')
+                    noHistory: document.getElementById('no-history')
                 };
 
                 // Bind events
@@ -420,10 +383,6 @@
                 this.elements.addPrice.addEventListener('input', () => this.calcAdd('price'));
                 this.elements.addQty.addEventListener('input', () => this.calcAdd('qty'));
                 this.elements.addAmount.addEventListener('input', () => this.calcAdd('amount'));
-
-                this.elements.targetAvg.addEventListener('input', () => this.calcTarget());
-                this.elements.targetBuyPrice.addEventListener('input', () => this.calcTarget());
-
 
                 this.elements.applyBtn.addEventListener('click', () => this.applyToCurrent());
 
@@ -447,11 +406,6 @@
                 this.calcCurrent();
                 this.calcAdd('price');
                 this.clearHistory();
-
-                // Clear Target
-                this.elements.targetAvg.value = '';
-                this.elements.targetBuyPrice.value = '';
-                this.calcTarget();
             },
 
             formatNum(num) {
@@ -574,65 +528,6 @@
                 this.state.round = 1;
             },
 
-            calcTarget() {
-                const cp = parseFloat(this.elements.currPrice.value) || 0;
-                const cq = parseFloat(this.elements.currQty.value) || 0;
-                const tAvg = parseFloat(this.elements.targetAvg.value) || 0;
-                const buyP = parseFloat(this.elements.targetBuyPrice.value) || 0;
-
-                if (cp <= 0 || cq <= 0 || tAvg <= 0 || buyP <= 0) {
-                    this.elements.targetNeededQty.textContent = "0주";
-                    this.elements.targetNeededAmt.textContent = "예상 소요금액: 0원";
-                    return;
-                }
-
-                if (buyP >= tAvg && tAvg <= cp) {
-                    // Impossible case: Buying higher than target to lower average? (Assuming avg down)
-                    // If cp > tAvg (we want to lower), but buyP > tAvg... we can never reach it?
-                    // Wait, if tAvg is between cp and buyP, it's possible.
-                    // But if we are averaging DOWN (cp > tAvg), we must buy BELOW tAvg.
-                    this.elements.targetNeededQty.textContent = "불가능";
-                    this.elements.targetNeededAmt.textContent = "평단가보다 낮은 가격에 매수해야 합니다.";
-                    if (buyP === tAvg) {
-                        // Infinite?
-                    }
-                    return;
-                }
-
-                // Formula: Qty = (tAvg * cq - cp * cq) / (buyP - tAvg)
-                // Qty * (buyP - tAvg) = tAvg * cq - TotalCurr
-                // Qty = (TargetTotal - currTotal) / (buyP - tAvg) -- No.
-
-                // New Avg = (TotalCurr + Q * BuyP) / (Cq + Q) = tAvg
-                // TotalCurr + Q*BuyP = tAvg*Cq + tAvg*Q
-                // Q*BuyP - tAvg*Q = tAvg*Cq - TotalCurr
-                // Q * (BuyP - tAvg) = tAvg*Cq - TotalCurr
-                // Q = (tAvg * cq - TotalCurr) / (BuyP - tAvg)
-
-                const totalCurr = cp * cq;
-                const numerator = (tAvg * cq) - totalCurr;
-                const denominator = buyP - tAvg;
-
-                if (denominator === 0) {
-                    this.elements.targetNeededQty.textContent = "계산 불가";
-                    return;
-                }
-
-                let q = numerator / denominator;
-
-                // If q is negative, it means impossible (e.g. need to sell, or wrong direction)
-                if (q < 0) {
-                    this.elements.targetNeededQty.textContent = "불가능"; // Logic error in user input likely
-                    this.elements.targetNeededAmt.textContent = "목표가 설정이 잘못되었습니다.";
-                    return;
-                }
-
-                q = Math.ceil(q); // Stocks distinct.
-                const neededAmt = q * buyP;
-
-                this.elements.targetNeededQty.textContent = this.formatNum(q) + "주";
-                this.elements.targetNeededAmt.textContent = "예상 소요금액: " + this.formatNum(neededAmt) + "원";
-            }
         });
     </script>
 </body>

@@ -304,6 +304,7 @@ const Utilsly = {
             items: [
                 { name: "복리 이자 계산기", icon: "monetization_on", path: "/tools/finance/compound-interest" },
                 { name: "물타기 계산기", icon: "water_drop", path: "/tools/finance/average-down" },
+                { name: "목표 평단 계산기", icon: "gps_fixed", path: "/tools/finance/target-price" },
                 { name: "수익률 계산기", icon: "trending_up", path: "/tools/finance/profit-calculator" },
             ]
         },
