@@ -271,8 +271,9 @@ const Utilsly = {
         },
         {
             category: "파일 (File)",
+            // File
             items: [
-                { name: "P2P 파일 전송", icon: "swap_calls", path: "/tools/file/p2p-transfer" },
+                { name: "실시간 파일 공유", icon: "share_windows", path: "/tools/file/p2p-transfer", desc: "서버 저장 없이 즉시 파일 공유", category: "file" }
             ]
         },
         {

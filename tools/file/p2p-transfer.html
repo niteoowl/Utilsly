@@ -4,22 +4,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>P2P 파일 전송 - Utilsly</title>
-    <meta name="description" content="서버를 거치지 않고 브라우저 간에 직접 파일을 안전하게 전송합니다.">
+    <title>실시간 파일 공유 - Utilsly</title>
+    <meta name="description" content="서버 저장 없이 기기 간에 파일을 직접 안전하게 전송합니다.">
     <script>
         !function () { const e = localStorage.getItem("theme"), t = window.matchMedia("(prefers-color-scheme: dark)").matches; "dark" !== e && (e || !t) || document.documentElement.setAttribute("data-theme", "dark") }();
     </script>
     <link rel="stylesheet" href="../../css/style.css">
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <style>
-        .p2p-container {
+        .sharing-container {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 24px;
+            margin-bottom: 32px;
         }
 
-        @media (max-width: 768px) {
-            .p2p-container {
+        @media (max-width: 900px) {
+            .sharing-container {
                 grid-template-columns: 1fr;
             }
         }
@@ -35,30 +36,48 @@
             transition: all 0.2s;
         }
 
-        .id-display {
+        .id-display-wrapper {
             background: var(--bg-primary);
-            border: 1px solid var(--border-color);
-            padding: 16px;
-            border-radius: 12px;
+            border: 2px solid var(--accent-blue);
+            padding: 24px;
+            border-radius: 16px;
             text-align: center;
-            font-size: 24px;
+            position: relative;
+        }
+
+        .id-display {
+            font-size: 48px;
             font-weight: 800;
-            letter-spacing: 2px;
+            letter-spacing: 8px;
             color: var(--accent-blue);
             font-family: 'Consolas', monospace;
+            line-height: 1;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 600;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            margin-top: 12px;
         }
 
         .status-dot {
-            width: 10px;
-            height: 10px;
+            width: 8px;
+            height: 8px;
             border-radius: 50%;
-            display: inline-block;
-            margin-right: 8px;
             background: #ccc;
         }
 
         .status-dot.online {
             background: #4caf50;
+            box-shadow: 0 0 8px rgba(76, 175, 80, 0.5);
         }
 
         .status-dot.connecting {
@@ -72,7 +91,7 @@
             }
 
             50% {
-                opacity: 0.5;
+                opacity: 0.4;
             }
 
             100% {
@@ -80,22 +99,91 @@
             }
         }
 
-        .drop-zone {
+        .file-drop-zone {
             border: 2px dashed var(--border-color);
-            border-radius: 12px;
-            padding: 40px;
+            border-radius: 16px;
+            padding: 48px 24px;
             text-align: center;
             cursor: pointer;
             transition: all 0.2s;
+            background: var(--bg-primary);
         }
 
-        .drop-zone:hover {
+        .file-drop-zone:hover {
             border-color: var(--accent-blue);
             background: var(--bg-hover);
         }
 
-        .progress-bar {
+        .tutorial-steps {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        @media (max-width: 600px) {
+            .tutorial-steps {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .step-item {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .step-icon {
+            width: 56px;
+            height: 56px;
+            background: rgba(49, 130, 246, 0.1);
+            color: var(--accent-blue);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            font-size: 28px;
+        }
+
+        .step-title {
+            font-weight: 700;
+            margin-bottom: 8px;
+            font-size: 15px;
+        }
+
+        .step-desc {
+            font-size: 13px;
+            color: var(--text-tertiary);
+            line-height: 1.5;
+        }
+
+        .form-input-large {
             width: 100%;
+            padding: 16px 20px;
+            font-size: 24px;
+            text-align: center;
+            letter-spacing: 4px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: 'Consolas', monospace;
+        }
+
+        .form-input-large:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+        }
+
+        .progress-container {
+            margin-top: 20px;
+            padding: 16px;
+            background: var(--bg-primary);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        .progress-bar {
             height: 8px;
             background: var(--border-color);
             border-radius: 4px;
@@ -107,7 +195,7 @@
             height: 100%;
             background: var(--accent-blue);
             width: 0%;
-            transition: width 0.1s;
+            transition: width 0.2s;
         }
     </style>
 </head>
@@ -130,46 +218,75 @@
                     <span class="material-symbols-rounded">menu</span>
                 </button>
                 <div class="breadcrumbs">
-                    <span class="breadcrumb-item current-page">P2P 파일 전송</span>
+                    <span class="breadcrumb-item current-page">실시간 파일 공유</span>
                 </div>
             </header>
 
             <div class="content-area">
                 <div class="page-header">
                     <div class="header-icon-wrapper">
-                        <span class="material-symbols-rounded">swap_calls</span>
+                        <span class="material-symbols-rounded">share_windows</span>
                     </div>
-                    <h1>P2P 파일 전송</h1>
-                    <p class="description">WebRTC 기술을 사용하여 서버를 거치지 않고 브라우저 간에 파일을 직접 전송합니다.</p>
+                    <h1>실시간 파일 공유</h1>
+                    <p class="description">서버를 거치지 않고 기기 간에 파일을 직접 주고받으세요. 보안이 강력하고 속도가 빠릅니다.</p>
                 </div>
 
                 <div class="tool-container" data-tool-id="p2p-transfer">
-                    <div class="p2p-container">
-                        <!-- 전송하기 섹션 -->
+
+                    <div class="tutorial-steps">
+                        <div class="step-item">
+                            <div class="step-icon"><span
+                                    class="material-symbols-rounded">nest_remote_comfort_sensor</span></div>
+                            <div class="step-title">1. 번호 확인</div>
+                            <div class="step-desc">파일을 보낼 기기에서 '내 접속 번호' 6자리를 확인하세요.</div>
+                        </div>
+                        <div class="step-item">
+                            <div class="step-icon"><span class="material-symbols-rounded">dialpad</span></div>
+                            <div class="step-title">2. 번호 입력</div>
+                            <div class="step-desc">파일을 받을 기기에서 해당 번호를 입력하고 연결하세요.</div>
+                        </div>
+                        <div class="step-item">
+                            <div class="step-icon"><span class="material-symbols-rounded">upload_file</span></div>
+                            <div class="step-title">3. 파일 전송</div>
+                            <div class="step-desc">연결 후 파일을 선택하면 서버 저장 없이 즉시 전송됩니다.</div>
+                        </div>
+                    </div>
+
+                    <div class="sharing-container">
+                        <!-- 보내기/내 정보 -->
                         <div class="transfer-card">
-                            <h2 style="font-size: 20px;">내 연결 ID</h2>
-                            <p style="color: var(--text-secondary); font-size: 14px;">상대방에게 이 ID를 알려주세요.</p>
-                            <div class="id-display" id="my-id">---</div>
-                            <div
-                                style="font-size: 13px; color: var(--text-tertiary); display: flex; align-items: center;">
-                                <span id="status-dot" class="status-dot"></span>
-                                <span id="status-text">연결 중...</span>
+                            <h2 style="font-size: 18px; font-weight: 700;">내 접속 번호</h2>
+                            <div class="id-display-wrapper">
+                                <div class="id-display" id="my-id">------</div>
+                                <div class="status-badge">
+                                    <span id="status-dot" class="status-dot"></span>
+                                    <span id="status-text">준비 중...</span>
+                                </div>
                             </div>
 
                             <hr style="border: none; border-top: 1px solid var(--border-color); margin: 8px 0;">
 
                             <div id="send-section" style="opacity: 0.5; pointer-events: none;">
-                                <h3 style="font-size: 16px; margin-bottom: 12px;">파일 보내기</h3>
-                                <div class="drop-zone" id="drop-zone">
+                                <h3
+                                    style="font-size: 15px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
                                     <span class="material-symbols-rounded"
-                                        style="font-size: 40px; color: var(--accent-blue);">upload_file</span>
-                                    <p style="margin-top: 8px; font-size: 14px;">파일을 드래그하거나 클릭</p>
+                                        style="color: var(--accent-blue);">send</span>
+                                    파일 보내기
+                                </h3>
+                                <div class="file-drop-zone" id="drop-zone">
+                                    <span class="material-symbols-rounded"
+                                        style="font-size: 48px; color: var(--accent-blue); margin-bottom: 12px;">cloud_upload</span>
+                                    <div style="font-weight: 600; margin-bottom: 4px;">클릭하여 파일 선택</div>
+                                    <div style="font-size: 13px; color: var(--text-tertiary);">또는 이곳에 파일을 끌어다 놓으세요</div>
                                     <input type="file" id="file-input" style="display: none;">
                                 </div>
-                                <div id="send-progress-container" style="display: none; margin-top: 16px;">
-                                    <div style="display: flex; justify-content: space-between; font-size: 12px;">
-                                        <span id="send-filename">파일 전송 중...</span>
-                                        <span id="send-percent">0%</span>
+                                <div id="send-progress-container" class="progress-container" style="display: none;">
+                                    <div
+                                        style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px;">
+                                        <span id="send-filename"
+                                            style="font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 70%;">파일명</span>
+                                        <span id="send-percent"
+                                            style="color: var(--accent-blue); font-weight: 700;">0%</span>
                                     </div>
                                     <div class="progress-bar">
                                         <div id="send-progress" class="progress-fill"></div>
@@ -178,46 +295,58 @@
                             </div>
                         </div>
 
-                        <!-- 받기 섹션 -->
+                        <!-- 받기 연결 -->
                         <div class="transfer-card">
-                            <h2 style="font-size: 20px;">파일 받기</h2>
-                            <p style="color: var(--text-secondary); font-size: 14px;">상대방의 연결 ID를 입력하고 연결하세요.</p>
-                            <div style="display: flex; gap: 8px;">
-                                <input type="text" id="peer-id-input" class="form-input" placeholder="ID 입력"
-                                    style="flex: 1; letter-spacing: 2px; text-transform: uppercase;">
-                                <button class="btn btn-primary" id="btn-connect">연결</button>
+                            <h2 style="font-size: 18px; font-weight: 700;">상대방과 연결</h2>
+                            <p style="color: var(--text-secondary); font-size: 14px;">보내는 기기의 화면에 표시된 6자리 번호를 입력하세요.</p>
+                            <div style="display: flex; flex-direction: column; gap: 12px;">
+                                <input type="text" id="peer-id-input" class="form-input-large" placeholder="000000"
+                                    maxlength="6" inputmode="numeric">
+                                <button class="btn btn-primary" id="btn-connect"
+                                    style="padding: 16px; font-size: 16px;">번호로 연결하기</button>
                             </div>
 
                             <hr style="border: none; border-top: 1px solid var(--border-color); margin: 8px 0;">
 
                             <div id="receive-section" style="display: none;">
-                                <h3 style="font-size: 16px; margin-bottom: 12px;">받는 중...</h3>
-                                <div class="section-card" id="receive-info">
-                                    <div style="display: flex; align-items: center; gap: 12px;">
-                                        <span class="material-symbols-rounded"
-                                            style="color: var(--accent-blue);">cloud_download</span>
-                                        <div style="flex: 1;">
-                                            <div id="receive-filename" style="font-weight: 600;">심사 중...</div>
-                                            <div class="progress-bar">
-                                                <div id="receive-progress" class="progress-fill"></div>
-                                            </div>
-                                        </div>
-                                        <div id="receive-percent" style="font-size: 12px; font-weight: 600;">0%</div>
+                                <h3
+                                    style="font-size: 15px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                                    <span class="material-symbols-rounded"
+                                        style="color: var(--accent-blue);">downloading</span>
+                                    파일 받는 중...
+                                </h3>
+                                <div class="progress-container">
+                                    <div
+                                        style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px;">
+                                        <span id="receive-filename"
+                                            style="font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 70%;">파일명</span>
+                                        <span id="receive-percent"
+                                            style="color: var(--accent-blue); font-weight: 700;">0%</span>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div id="receive-progress" class="progress-fill"></div>
                                     </div>
                                 </div>
+                            </div>
+
+                            <div id="empty-receive"
+                                style="text-align: center; padding: 40px 20px; color: var(--text-tertiary);">
+                                <span class="material-symbols-rounded"
+                                    style="font-size: 40px; margin-bottom: 12px; opacity: 0.5;">sensors</span>
+                                <div style="font-size: 14px;">연결된 기기가 없습니다.</div>
                             </div>
                         </div>
                     </div>
 
                     <div class="section-card"
-                        style="margin-top: 32px; background: rgba(49, 130, 246, 0.05); border-color: var(--accent-blue);">
+                        style="background: rgba(49, 130, 246, 0.05); border-color: rgba(49, 130, 246, 0.2);">
                         <h3
-                            style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px; color: var(--accent-blue);">
-                            <span class="material-symbols-rounded">shield</span> 보안 & 개인정보 보호
+                            style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px; color: var(--accent-blue); font-size: 16px;">
+                            <span class="material-symbols-rounded">shield_person</span> 보안 및 프라이버시 알림
                         </h3>
                         <p style="color: var(--text-secondary); line-height: 1.6; font-size: 14px;">
-                            본 도구는 <strong>WebRTC (Peer-to-Peer)</strong> 기술을 사용하여 브라우저 간에 데이터를 직접 교환합니다.<br>
-                            파일은 어떤 서버에도 저장되지 않으며, 전송이 완료되면 브라우저 메모리에서 즉시 해제됩니다. 데이터 통로가 암호화되어 안전합니다.
+                            이 도구는 <strong>WebRTC</strong> 기술을 사용하여 기기 간 데이터를 직접 암호화하여 전송합니다. 파일은 당사의 서버를 절대 거치지 않으며, 전송이
+                            완료되면 흔적이 남지 않습니다. 개인 사진이나 중요한 문서도 안심하고 보내세요.
                         </p>
                     </div>
                 </div>
@@ -252,7 +381,8 @@
                     receiveSection: document.getElementById('receive-section'),
                     receiveProgress: document.getElementById('receive-progress'),
                     receivePercent: document.getElementById('receive-percent'),
-                    receiveFilename: document.getElementById('receive-filename')
+                    receiveFilename: document.getElementById('receive-filename'),
+                    emptyReceive: document.getElementById('empty-receive')
                 };
 
                 this.initPeer();
@@ -261,12 +391,19 @@
                 this.elements.dropZone.addEventListener('click', () => this.elements.fileInput.click());
                 this.elements.fileInput.addEventListener('change', (e) => this.handleFile(e.target.files[0]));
 
-                // Drag & Drop
-                this.elements.dropZone.addEventListener('dragover', (e) => { e.preventDefault(); this.elements.dropZone.style.background = 'var(--bg-hover)'; });
-                this.elements.dropZone.addEventListener('dragleave', () => { this.elements.dropZone.style.background = 'none'; });
+                this.elements.dropZone.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    this.elements.dropZone.style.borderColor = 'var(--accent-blue)';
+                    this.elements.dropZone.style.background = 'var(--bg-hover)';
+                });
+                this.elements.dropZone.addEventListener('dragleave', () => {
+                    this.elements.dropZone.style.borderColor = 'var(--border-color)';
+                    this.elements.dropZone.style.background = 'var(--bg-primary)';
+                });
                 this.elements.dropZone.addEventListener('drop', (e) => {
                     e.preventDefault();
-                    this.elements.dropZone.style.background = 'none';
+                    this.elements.dropZone.style.borderColor = 'var(--border-color)';
+                    this.elements.dropZone.style.background = 'var(--bg-primary)';
                     this.handleFile(e.dataTransfer.files[0]);
                 });
             },
@@ -276,44 +413,48 @@
                 this.elements = {};
             },
 
-            initPeer() {
-                const randomId = 'UTIL-' + Math.random().toString(36).substr(2, 6).toUpperCase();
-                this.peer = new Peer(randomId, {
-                    debug: 2 // Show errors and warnings
-                });
+            initPeer(retryCount = 0) {
+                // Generate a 6-digit number ID
+                const randomId = Math.floor(100000 + Math.random() * 900000).toString();
+
+                // Using a prefix to minimize collisions on the public PeerJS server while showing only digits to the user
+                const internalId = 'UTL-' + randomId;
+
+                this.peer = new Peer(internalId, { debug: 1 });
 
                 this.peer.on('open', (id) => {
-                    console.log('Peer open with ID:', id);
-                    this.elements.myId.textContent = id;
+                    // Show only the 6 digits to the user
+                    this.elements.myId.textContent = randomId;
                     this.elements.statusDot.className = 'status-dot online';
-                    this.elements.statusText.textContent = '대기 중 (온라인)';
+                    this.elements.statusText.textContent = '온라인 (연결 대기 중)';
                 });
 
-                this.peer.on('connection', (conn) => {
-                    console.log('Incoming connection from:', conn.peer);
-                    this.setupConnection(conn);
-                });
+                this.peer.on('connection', (conn) => this.setupConnection(conn));
 
                 this.peer.on('error', (err) => {
                     console.error('Peer error:', err);
-                    Utilsly.showAlert('연결 오류: ' + (err.type || '알 수 없는 오류'));
-                    this.elements.statusText.textContent = '오류 발생';
-                    this.elements.statusDot.className = 'status-dot';
+                    if (err.type === 'unavailable-id' && retryCount < 5) {
+                        this.initPeer(retryCount + 1);
+                    } else {
+                        Utilsly.showAlert('서버 연결 오류가 발생했습니다.');
+                        this.elements.statusText.textContent = '오류 발생';
+                        this.elements.statusDot.className = 'status-dot';
+                    }
                 });
             },
 
             connectToPeer() {
-                const targetId = this.elements.peerInput.value.trim().toUpperCase();
-                if (!targetId) {
-                    Utilsly.showAlert('상대방 ID를 입력해주세요.');
+                let targetId = this.elements.peerInput.value.trim();
+                if (targetId.length !== 6 || isNaN(targetId)) {
+                    Utilsly.showAlert('6자리 번호를 정확히 입력해주세요.');
                     return;
                 }
 
-                console.log('Attempting to connect to:', targetId);
+                console.log('Connecting to:', targetId);
                 this.elements.statusText.textContent = '연결 시도 중...';
                 this.elements.statusDot.className = 'status-dot connecting';
 
-                const conn = this.peer.connect(targetId, { reliable: true });
+                const conn = this.peer.connect('UTL-' + targetId, { reliable: true });
                 this.setupConnection(conn);
             },
 
@@ -321,16 +462,16 @@
                 this.conn = conn;
 
                 conn.on('open', () => {
-                    console.log('Connection established with:', conn.peer);
-                    this.elements.statusText.textContent = '연결됨: ' + conn.peer;
+                    console.log('Connected to:', conn.peer);
+                    this.elements.statusText.textContent = '기기 연결됨';
                     this.elements.statusDot.className = 'status-dot online';
                     this.elements.sendSection.style.opacity = '1';
                     this.elements.sendSection.style.pointerEvents = 'auto';
-                    Utilsly.showAlert('상대방과 연결되었습니다.');
+                    this.elements.emptyReceive.style.display = 'none';
+                    Utilsly.showAlert('기기 간 연결에 성공했습니다.');
                 });
 
                 conn.on('data', (data) => {
-                    // console.log('Data received:', data.type);
                     if (data.type === 'metadata') {
                         this.expectedSize = data.size;
                         this.expectedName = data.name;
@@ -341,96 +482,53 @@
                         this.updateProgress('receive', 0);
                     } else if (data.type === 'chunk') {
                         this.receivedChunks.push(data.chunk);
-                        this.receivedSize += data.chunk.byteLength || data.chunk.size || 0;
+                        this.receivedSize += data.chunk.byteLength || 0;
                         const percent = Math.floor((this.receivedSize / this.expectedSize) * 100);
                         this.updateProgress('receive', percent);
-
-                        if (this.receivedSize >= this.expectedSize) {
-                            this.finishDownload();
-                        }
+                        if (this.receivedSize >= this.expectedSize) this.finishDownload();
                     }
                 });
 
-                conn.on('error', (err) => {
-                    console.error('Connection error:', err);
-                    Utilsly.showAlert('통신 오류가 발생했습니다.');
-                });
-
                 conn.on('close', () => {
-                    console.log('Connection closed');
                     this.elements.statusText.textContent = '연결 끊김';
                     this.elements.sendSection.style.opacity = '0.5';
                     this.elements.sendSection.style.pointerEvents = 'none';
-                    Utilsly.showAlert('연결이 종료되었습니다.');
+                    this.elements.receiveSection.style.display = 'none';
+                    this.elements.emptyReceive.style.display = 'block';
+                    Utilsly.showAlert('연결이 해제되었습니다.');
                 });
             },
 
             handleFile(file) {
-                if (!file) return;
-                if (!this.conn) {
-                    Utilsly.showAlert('상대방과 먼저 연결해야 합니다.');
-                    return;
-                }
+                if (!file || !this.conn) return;
 
-                console.log('Preparing to send file:', file.name, file.size, 'bytes');
                 this.elements.sendContainer.style.display = 'block';
                 this.elements.sendFilename.textContent = file.name;
                 this.updateProgress('send', 0);
 
-                // Send metadata
-                this.conn.send({
-                    type: 'metadata',
-                    name: file.name,
-                    size: file.size
-                });
+                this.conn.send({ type: 'metadata', name: file.name, size: file.size });
 
-                const chunkSize = 16384 * 4; // 64KB for better performance
+                const chunkSize = 16384 * 4;
                 let offset = 0;
 
                 const readChunk = () => {
-                    if (!this.conn || this.conn.open === false) {
-                        console.error('Connection lost during transfer');
-                        return;
-                    }
-
+                    if (!this.conn || !this.conn.open) return;
                     const reader = new FileReader();
                     const blob = file.slice(offset, offset + chunkSize);
-
                     reader.onload = (e) => {
                         const buffer = e.target.result;
-                        // Use Uint8Array as it is often more reliable for WebRTC serialization across browsers
-                        const uint8 = new Uint8Array(buffer);
-
-                        this.conn.send({
-                            type: 'chunk',
-                            chunk: uint8
-                        });
-
+                        this.conn.send({ type: 'chunk', chunk: new Uint8Array(buffer) });
                         offset += buffer.byteLength;
                         const percent = Math.floor((offset / file.size) * 100);
                         this.updateProgress('send', Math.min(percent, 100));
-
-                        if (offset < file.size) {
-                            // Use setTimeout(0) to prevent call stack issues and allow UI to breathe
-                            setTimeout(readChunk, 0);
-                        } else {
-                            console.log('File send complete');
-                            Utilsly.showAlert('파일 전송이 완료되었습니다.');
-                            setTimeout(() => {
-                                this.elements.sendContainer.style.display = 'none';
-                                this.updateProgress('send', 0);
-                            }, 3000);
+                        if (offset < file.size) setTimeout(readChunk, 0);
+                        else {
+                            Utilsly.showAlert('파일 전송 완료!');
+                            setTimeout(() => { this.elements.sendContainer.style.display = 'none'; }, 2000);
                         }
                     };
-
-                    reader.onerror = (err) => {
-                        console.error('FileReader error:', err);
-                        Utilsly.showAlert('파일을 읽는 중 오류가 발생했습니다.');
-                    };
-
                     reader.readAsArrayBuffer(blob);
                 };
-
                 readChunk();
             },
 
@@ -442,7 +540,6 @@
             },
 
             finishDownload() {
-                console.log('Finished receiving all chunks. Total size:', this.receivedSize);
                 const blob = new Blob(this.receivedChunks);
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
@@ -452,14 +549,17 @@
                 a.click();
                 document.body.removeChild(a);
                 URL.revokeObjectURL(url);
-
-                Utilsly.showAlert('파일 수신 및 다운로드 완료!');
+                Utilsly.showAlert('파일 받기 완료!');
                 this.elements.receiveSection.style.display = 'none';
                 this.receivedChunks = [];
-                this.receivedSize = 0;
             }
         });
     </script>
+</body>
+
+</html>
+
+</script>
 </body>
 
 </html>
