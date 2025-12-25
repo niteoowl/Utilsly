@@ -1,127 +1,86 @@
 ﻿<!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" data-theme="light">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>뽀모도로 타이머 - Utilsly</title>
-    <meta name="description" content="집중력을 높여주는 뽀모도로 타이머입니다.">
-    <script>
-        !function () { const e = localStorage.getItem("theme"), t = window.matchMedia("(prefers-color-scheme: dark)").matches; "dark" !== e && (e || !t) || document.documentElement.setAttribute("data-theme", "dark") }();
-    </script>
-
-    <link rel="preload" href="../../css/style.css" as="style">
+    <meta name="description" content="집중력 향상을 위한 뽀모도로 타이머입니다. 25분 집중, 5분 휴식을 반복하세요.">
     <link rel="stylesheet" href="../../css/style.css">
     <style>
         .timer-display {
-            font-size: 120px;
+            font-size: 80px;
             font-weight: 800;
             font-variant-numeric: tabular-nums;
-            letter-spacing: -4px;
-            color: var(--text-primary);
-            line-height: 1;
+            letter-spacing: -2px;
+            text-align: center;
             margin: 40px 0;
+            color: var(--text-primary);
         }
 
-        .mode-tabs {
-            display: inline-flex;
-            background: var(--bg-secondary);
-            padding: 6px;
-            border-radius: 16px;
-            gap: 4px;
+        .mode-indicator {
+            text-align: center;
+            margin-bottom: 20px;
         }
 
-        .mode-tab {
-            padding: 12px 24px;
-            border-radius: 12px;
-            cursor: pointer;
+        .mode-badge {
+            display: inline-block;
+            padding: 6px 16px;
+            border-radius: 20px;
             font-weight: 600;
-            font-size: 16px;
-            color: var(--text-tertiary);
-            transition: all 0.2s;
+            font-size: 14px;
+            background: var(--bg-hover);
+            color: var(--text-secondary);
         }
 
-        .mode-tab:hover {
-            color: var(--text-primary);
-            background: rgba(0, 0, 0, 0.05);
+        .mode-badge.active {
+            background: #FF3B30;
+            /* Red for Work */
+            color: white;
         }
 
-        .mode-tab.active {
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        .mode-badge.break {
+            background: #30D158;
+            /* Green for Break */
+            color: white;
         }
 
         .controls {
             display: flex;
-            gap: 24px;
+            justify-content: center;
+            gap: 16px;
         }
 
-        .btn-control {
+        .btn-large {
             width: 64px;
             height: 64px;
-            border-radius: 20px;
-            border: 2px solid var(--border-color);
-            background: transparent;
-            color: var(--text-primary);
-            font-size: 28px;
-            cursor: pointer;
+            border-radius: 50%;
             display: flex;
+            align-items: center;
             justify-content: center;
-            transition: all 0.2s;
+            padding: 0;
         }
 
-        .btn-control:hover {
-            background: var(--bg-hover);
-            border-color: var(--text-primary);
+        .btn-large span {
+            font-size: 32px;
         }
 
-        .btn-main {
-            width: 96px;
-            height: 96px;
-            background: var(--text-primary);
-            color: var(--bg-primary);
-            border: none;
-            font-size: 40px;
-            border-radius: 32px;
-        }
-
-        .btn-main:hover {
-            transform: scale(1.05);
-            background: var(--accent-blue);
-            color: white;
-        }
-
-        /* Dark Mode Overrides */
-        [data-theme="dark"] .mode-tabs {
-            background: rgba(255, 255, 255, 0.05);
-        }
-
-        [data-theme="dark"] .mode-tab.active {
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        [data-theme="dark"] .btn-main {
-            background: var(--bg-primary);
-            color: black;
+        /* Settings Panel */
+        .settings-panel {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 40px;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
         }
     </style>
 </head>
 
 <body>
     <div class="app-container">
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <div class="user-profile">
-                    <div style="font-size: 24px; font-weight: 800; color: var(--text-primary); letter-spacing: -0.5px;">
-                        Utilsly.</div>
-                </div>
-            </div>
-            <nav class="sidebar-nav">
-                <!-- Sidebar content generated by js/common.js -->
-            </nav>
-        </aside>
+        <nav class="sidebar"></nav>
 
         <main class="main-content">
             <header class="top-bar">
@@ -130,151 +89,215 @@
                 </div>
             </header>
 
-            <div class="content-area">
-                <div class="page-header">
-                    <div class="header-icon-wrapper">
-                        <span class="material-symbols-rounded">check_circle</span>
-                    </div>
-                    <h1>뽀모도로 타이머</h1>
-                    <p class="description">25분 집중, 5분 휴식으로 생산성을 높여보세요.</p>
+            <div class="tool-header">
+                <div class="header-icon-wrapper">
+                    <span class="material-symbols-rounded">check_circle</span>
                 </div>
+                <h1>뽀모도로 타이머</h1>
+                <p class="description">강력한 집중을 위한 최고의 도구. 25분 집중하고 5분 쉬세요.</p>
+            </div>
 
-                <div class="tool-container" data-tool-id="pomodoro"
-                    style="display: flex; flex-direction: column; align-items: center; gap: 32px;">
-                    <div class="mode-tabs">
-                        <div class="mode-tab active" data-mode="pomodoro">집중 (25분)</div>
-                        <div class="mode-tab" data-mode="short">짧은 휴식 (5분)</div>
-                        <div class="mode-tab" data-mode="long">긴 휴식 (15분)</div>
+            <div class="tool-container" data-tool-id="pomodoro">
+
+                <div class="calc-wrapper" style="max-width: 500px; margin: 0 auto;">
+
+                    <div class="mode-indicator">
+                        <span class="mode-badge active" id="mode-badge">집중 시간 (Work)</span>
                     </div>
 
-                    <div class="timer-display" id="timer">25:00</div>
+                    <div class="timer-display" id="timer-display">25:00</div>
 
                     <div class="controls">
-                        <button class="btn-control" id="resetBtn">
+                        <button class="btn btn-secondary btn-large" id="btn-reset" title="리셋">
                             <span class="material-symbols-rounded">refresh</span>
                         </button>
-                        <button class="btn-control btn-main" id="toggleBtn">
-                            <span class="material-symbols-rounded" id="toggleIcon">play_arrow</span>
+                        <button class="btn btn-primary btn-large" id="btn-toggle" title="시작/일시정지"
+                            style="background: #FF3B30; border-color: #FF3B30;">
+                            <span class="material-symbols-rounded" id="icon-toggle">play_arrow</span>
                         </button>
-                        <button class="btn-control" id="skipBtn">
+                        <button class="btn btn-secondary btn-large" id="btn-skip" title="스킵">
                             <span class="material-symbols-rounded">skip_next</span>
                         </button>
                     </div>
+
+                    <div class="settings-panel">
+                        <h3 style="font-size:14px; margin-bottom:12px; color:var(--text-secondary);">설정</h3>
+                        <div class="input-group">
+                            <label class="input-label" style="display:flex; justify-content:space-between;">
+                                <span>집중 시간 (분)</span>
+                                <input type="number" id="inp-work" value="25"
+                                    style="width:60px; text-align:right; border:none; background:transparent; font-weight:700;">
+                            </label>
+                            <input type="range" id="range-work" min="5" max="60" step="1" value="25"
+                                style="width:100%;">
+                        </div>
+                        <div class="input-group" style="margin-top:16px;">
+                            <label class="input-label" style="display:flex; justify-content:space-between;">
+                                <span>휴식 시간 (분)</span>
+                                <input type="number" id="inp-break" value="5"
+                                    style="width:60px; text-align:right; border:none; background:transparent; font-weight:700;">
+                            </label>
+                            <input type="range" id="range-break" min="1" max="30" step="1" value="5"
+                                style="width:100%;">
+                        </div>
+                    </div>
+
                 </div>
+
+            </div>
         </main>
     </div>
+
     <script src="../../js/common.js"></script>
     <script>
         Utilsly.registerTool('pomodoro', {
-            timeLeft: 25 * 60,
-            timerId: null,
-            isRunning: false,
-            currentMode: 'pomodoro',
-            modes: {
-                pomodoro: 25 * 60,
-                short: 5 * 60,
-                long: 15 * 60
+            state: {
+                mode: 'work', // 'work' or 'break'
+                timeLeft: 25 * 60,
+                isRunning: false,
+                workTime: 25,
+                breakTime: 5
             },
-            elements: {},
+            timerId: null,
 
             init() {
                 this.elements = {
-                    display: document.getElementById('timer'),
-                    toggleIcon: document.getElementById('toggleIcon'),
-                    tabs: document.querySelectorAll('.mode-tab'),
-                    toggleBtn: document.getElementById('toggleBtn'),
-                    resetBtn: document.getElementById('resetBtn'),
-                    skipBtn: document.getElementById('skipBtn')
+                    display: document.getElementById('timer-display'),
+                    badge: document.getElementById('mode-badge'),
+                    btnToggle: document.getElementById('btn-toggle'),
+                    iconToggle: document.getElementById('icon-toggle'),
+                    btnReset: document.getElementById('btn-reset'),
+                    btnSkip: document.getElementById('btn-skip'),
+
+                    inpWork: document.getElementById('inp-work'),
+                    rangeWork: document.getElementById('range-work'),
+                    inpBreak: document.getElementById('inp-break'),
+                    rangeBreak: document.getElementById('range-break')
                 };
 
-                this.handleToggle = this.toggleTimer.bind(this);
-                this.handleReset = () => this.resetTimer(true);
-                this.handleSkip = this.skipTimer.bind(this);
-                this.handleModeClick = (e) => {
-                    const mode = e.target.dataset.mode;
-                    if (mode) this.setMode(mode);
-                };
-
-                this.elements.toggleBtn.addEventListener('click', this.handleToggle);
-                this.elements.resetBtn.addEventListener('click', this.handleReset);
-                this.elements.skipBtn.addEventListener('click', this.handleSkip);
-                this.elements.tabs.forEach(tab => tab.addEventListener('click', this.handleModeClick));
-
-                console.log('Pomodoro initialized');
+                this.bindEvents();
+                this.updateDisplay();
             },
 
             cleanup() {
-                if (this.timerId) clearInterval(this.timerId);
+                this.pause();
+                this.elements = {};
+            },
 
-                if (this.elements.toggleBtn) {
-                    this.elements.toggleBtn.removeEventListener('click', this.handleToggle);
-                    this.elements.resetBtn.removeEventListener('click', this.handleReset);
-                    this.elements.skipBtn.removeEventListener('click', this.handleSkip);
-                    this.elements.tabs.forEach(tab => tab.removeEventListener('click', this.handleModeClick));
+            bindEvents() {
+                this.elements.btnToggle.addEventListener('click', () => this.toggle());
+                this.elements.btnReset.addEventListener('click', () => this.reset());
+                this.elements.btnSkip.addEventListener('click', () => this.skip());
+
+                // Settings Sync
+                const sync = (range, inp, key) => {
+                    range.addEventListener('input', (e) => {
+                        inp.value = e.target.value;
+                        this.state[key] = parseInt(e.target.value);
+                        if (!this.state.isRunning && this.state.mode === (key === 'workTime' ? 'work' : 'break')) {
+                            this.reset();
+                        }
+                    });
+                    inp.addEventListener('change', (e) => {
+                        let val = parseInt(e.target.value);
+                        if (val < 1) val = 1;
+                        range.value = val;
+                        this.state[key] = val;
+                        if (!this.state.isRunning && this.state.mode === (key === 'workTime' ? 'work' : 'break')) {
+                            this.reset();
+                        }
+                    });
+                };
+
+                sync(this.elements.rangeWork, this.elements.inpWork, 'workTime');
+                sync(this.elements.rangeBreak, this.elements.inpBreak, 'breakTime');
+            },
+
+            toggle() {
+                if (this.state.isRunning) {
+                    this.pause();
+                } else {
+                    this.start();
+                }
+            },
+
+            start() {
+                if (this.state.isRunning) return;
+                this.state.isRunning = true;
+                this.updateControls();
+
+                this.timerId = setInterval(() => {
+                    if (this.state.timeLeft > 0) {
+                        this.state.timeLeft--;
+                        this.updateDisplay();
+                    } else {
+                        // Time's up
+                        this.finish();
+                    }
+                }, 1000);
+            },
+
+            pause() {
+                this.state.isRunning = false;
+                clearInterval(this.timerId);
+                this.updateControls();
+            },
+
+            reset() {
+                this.pause();
+                const duration = this.state.mode === 'work' ? this.state.workTime : this.state.breakTime;
+                this.state.timeLeft = duration * 60;
+                this.updateDisplay();
+            },
+
+            skip() {
+                this.finish();
+            },
+
+            finish() {
+                this.pause();
+                // Play Sound?
+                const beep = new Audio('data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU'); // dummy default
+                // Using browser notification
+                if (Notification.permission === "granted") {
+                    new Notification(this.state.mode === 'work' ? "집중 시간 종료!" : "휴식 시간 종료!");
+                } else if (Notification.permission !== "denied") {
+                    Notification.requestPermission();
                 }
 
-                this.elements = {};
-                console.log('Pomodoro cleanup done');
+                // Switch Mode
+                if (this.state.mode === 'work') {
+                    this.state.mode = 'break';
+                    this.state.timeLeft = this.state.breakTime * 60;
+                } else {
+                    this.state.mode = 'work';
+                    this.state.timeLeft = this.state.workTime * 60;
+                }
+                this.updateUIForMode();
+                this.updateDisplay();
+                // Auto start optional? Let's manual start for now.
             },
 
             updateDisplay() {
-                const m = Math.floor(this.timeLeft / 60).toString().padStart(2, '0');
-                const s = (this.timeLeft % 60).toString().padStart(2, '0');
-                if (this.elements.display) this.elements.display.textContent = `${m}:${s}`;
-                document.title = this.isRunning ? `${m}:${s} - 집중` : '뽀모도로 타이머';
+                const m = Math.floor(this.state.timeLeft / 60);
+                const s = this.state.timeLeft % 60;
+                this.elements.display.textContent = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+
+                // Update Badge
             },
 
-            setMode(mode) {
-                this.currentMode = mode;
-                this.timeLeft = this.modes[mode];
-                this.resetTimer(false);
-
-                this.elements.tabs.forEach(tab => {
-                    if (tab.dataset.mode === mode) {
-                        tab.classList.add('active');
-                    } else {
-                        tab.classList.remove('active');
-                    }
-                });
+            updateControls() {
+                this.elements.iconToggle.textContent = this.state.isRunning ? 'pause' : 'play_arrow';
             },
 
-            toggleTimer() {
-                if (this.isRunning) {
-                    clearInterval(this.timerId);
-                    this.elements.toggleIcon.textContent = 'play_arrow';
-                } else {
-                    this.timerId = setInterval(() => {
-                        this.timeLeft--;
-                        this.updateDisplay();
-                        if (this.timeLeft <= 0) {
-                            clearInterval(this.timerId);
-                            this.isRunning = false;
-                            this.elements.toggleIcon.textContent = 'play_arrow';
-                            new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg').play();
-                            alert('시간이 종료되었습니다!');
-                            this.setMode(this.currentMode);
-                        }
-                    }, 1000);
-                    this.elements.toggleIcon.textContent = 'pause';
-                }
-                this.isRunning = !this.isRunning;
-                this.updateDisplay();
-            },
+            updateUIForMode() {
+                const isWork = this.state.mode === 'work';
+                this.elements.badge.className = `mode-badge ${isWork ? 'active' : 'break'}`;
+                this.elements.badge.textContent = isWork ? '집중 시간 (Work)' : '휴식 시간 (Break)';
 
-            resetTimer(autoUpdate = true) {
-                clearInterval(this.timerId);
-                this.isRunning = false;
-                if (this.elements.toggleIcon) this.elements.toggleIcon.textContent = 'play_arrow';
-                if (autoUpdate) this.timeLeft = this.modes[this.currentMode];
-                this.updateDisplay();
-            },
-
-            skipTimer() {
-                clearInterval(this.timerId);
-                this.isRunning = false;
-                if (this.elements.toggleIcon) this.elements.toggleIcon.textContent = 'play_arrow';
-                this.timeLeft = 0;
-                this.updateDisplay();
+                const color = isWork ? '#FF3B30' : '#30D158';
+                this.elements.btnToggle.style.backgroundColor = color;
+                this.elements.btnToggle.style.borderColor = color;
             }
         });
     </script>

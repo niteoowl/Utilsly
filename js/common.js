@@ -234,6 +234,7 @@ const Utilsly = {
                 { name: "음성 녹음기", icon: "mic", path: "/tools/audio/voice-recorder" },
                 { name: "주파수 생성기", icon: "graphic_eq", path: "/tools/audio/tone-generator" },
                 { name: "백색 소음", icon: "waves", path: "/tools/audio/white-noise" },
+                { name: "오디오 합치기", icon: "library_music", path: "/tools/audio/audio-merger" },
             ]
         },
         {
@@ -263,7 +264,6 @@ const Utilsly = {
                 { name: "URL 인코더", icon: "link", path: "/tools/dev/url-encoder" },
                 { name: "Base64 인코더", icon: "package_2", path: "/tools/dev/base64-encoder" },
                 { name: "UUID 생성기", icon: "fingerprint", path: "/tools/dev/uuid-generator" },
-                { name: "인터넷 속도 테스트", icon: "speed", path: "/tools/dev/speed-test" },
             ]
         },
         {

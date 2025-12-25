@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>오디오 합치기 - Utilsly</title>
+    <meta name="description" content="여러 오디오 파일을 하나로 합칩니다. MP3, WAV 등을 지원합니다.">
+    <link rel="stylesheet" href="../../css/style.css">
+    <style>
+        .file-drop-zone {
+            border: 2px dashed var(--border-color);
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: var(--bg-secondary);
+        }
+
+        .file-drop-zone:hover {
+            border-color: var(--accent-blue);
+            background: var(--bg-hover);
+        }
+
+        .file-list {
+            margin-top: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .file-item {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .drag-handle {
+            cursor: grab;
+            color: var(--text-tertiary);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <nav class="sidebar"></nav>
+
+        <main class="main-content">
+            <header class="top-bar">
+                <div class="breadcrumbs">
+                    <span class="breadcrumb-item">오디오 합치기</span>
+                </div>
+            </header>
+
+            <div class="tool-header">
+                <div class="header-icon-wrapper">
+                    <span class="material-symbols-rounded">library_music</span>
+                </div>
+                <h1>오디오 합치기</h1>
+                <p class="description">여러 음악/음성 파일을 순서대로 연결하여 하나의 파일로 만듭니다.</p>
+            </div>
+
+            <div class="tool-container" data-tool-id="audio-merger">
+
+                <div class="file-drop-zone" id="drop-zone">
+                    <span class="material-symbols-rounded"
+                        style="font-size:48px; color:var(--text-tertiary); margin-bottom:12px;">upload_file</span>
+                    <h3 style="margin-bottom:8px;">오디오 파일 드래그 & 드롭</h3>
+                    <p style="color:var(--text-tertiary); font-size:14px;">또는 클릭하여 파일 선택 (MP3, WAV)</p>
+                    <input type="file" id="file-input" multiple accept="audio/*" style="display:none;">
+                </div>
+
+                <div class="file-list" id="file-list">
+                    <!-- Items go here -->
+                </div>
+
+                <div class="action-bar" style="margin-top:24px; text-align:right;">
+                    <div id="status-text"
+                        style="display:inline-block; margin-right:12px; font-size:14px; color:var(--text-secondary);">
+                    </div>
+                    <button class="btn btn-primary" id="btn-merge" disabled>
+                        <span class="material-symbols-rounded">merge</span> 합치기 & 다운로드
+                    </button>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script src="../../js/common.js"></script>
+    <script>
+        Utilsly.registerTool('audio-merger', {
+            files: [],
+
+            init() {
+                this.elements = {
+                    dropZone: document.getElementById('drop-zone'),
+                    fileInput: document.getElementById('file-input'),
+                    fileList: document.getElementById('file-list'),
+                    btnMerge: document.getElementById('btn-merge'),
+                    statusText: document.getElementById('status-text')
+                };
+
+                this.bindEvents();
+            },
+
+            cleanup() { this.elements = {}; },
+
+            bindEvents() {
+                this.elements.dropZone.addEventListener('click', () => this.elements.fileInput.click());
+
+                this.elements.dropZone.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    this.elements.dropZone.style.borderColor = 'var(--accent-blue)';
+                });
+                this.elements.dropZone.addEventListener('dragleave', (e) => {
+                    e.preventDefault();
+                    this.elements.dropZone.style.borderColor = 'var(--border-color)';
+                });
+                this.elements.dropZone.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    this.elements.dropZone.style.borderColor = 'var(--border-color)';
+                    this.addFiles(e.dataTransfer.files);
+                });
+
+                this.elements.fileInput.addEventListener('change', (e) => {
+                    this.addFiles(e.target.files);
+                });
+
+                this.elements.btnMerge.addEventListener('click', () => this.mergeFiles());
+            },
+
+            addFiles(fileList) {
+                Array.from(fileList).forEach(file => {
+                    if (file.type.startsWith('audio/')) {
+                        this.files.push(file);
+                    }
+                });
+                this.renderList();
+            },
+
+            renderList() {
+                this.elements.fileList.innerHTML = '';
+                this.files.forEach((file, index) => {
+                    const el = document.createElement('div');
+                    el.className = 'file-item';
+                    el.innerHTML = `
+                        <span class="material-symbols-rounded" style="color:var(--accent-blue);">audiotrack</span>
+                        <div style="flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+                            ${file.name}
+                        </div>
+                        <div style="font-size:12px; color:var(--text-tertiary);">
+                            ${(file.size / 1024 / 1024).toFixed(2)} MB
+                        </div>
+                        <button class="btn-icon-sm" onclick="Utilsly.tools['audio-merger'].removeFile(${index})" style="background:none; border:none; cursor:pointer; color:var(--text-tertiary);">
+                            <span class="material-symbols-rounded">close</span>
+                        </button>
+                    `;
+                    this.elements.fileList.appendChild(el);
+                });
+
+                this.elements.btnMerge.disabled = this.files.length < 2;
+                if (this.files.length === 0) {
+                    this.elements.statusText.textContent = '';
+                } else {
+                    this.elements.statusText.textContent = `${this.files.length}개 파일 선택됨`;
+                }
+            },
+
+            removeFile(index) {
+                this.files.splice(index, 1);
+                this.renderList();
+            },
+
+            async mergeFiles() {
+                if (this.files.length < 2) return;
+
+                this.elements.btnMerge.disabled = true;
+                this.elements.statusText.textContent = '합치는 중... (잠시만 기다려주세요)';
+
+                try {
+                    // Use Web Audio API
+                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    const buffers = [];
+
+                    // Decode all files
+                    for (const file of this.files) {
+                        const arrayBuffer = await file.arrayBuffer();
+                        const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+                        buffers.push(audioBuffer);
+                    }
+
+                    // Calculate total length
+                    const totalLength = buffers.reduce((acc, b) => acc + b.length, 0);
+                    const outputBuffer = audioContext.createBuffer(
+                        buffers[0].numberOfChannels,
+                        totalLength,
+                        buffers[0].sampleRate
+                    );
+
+                    // Merge
+                    let offset = 0;
+                    for (const b of buffers) {
+                        for (let channel = 0; channel < b.numberOfChannels; channel++) {
+                            outputBuffer.getChannelData(channel).set(b.getChannelData(channel), offset);
+                        }
+                        offset += b.length;
+                    }
+
+                    // Encode to WAV (Simple helper)
+                    const wavBlob = this.bufferToWave(outputBuffer, outputBuffer.length);
+                    const url = URL.createObjectURL(wavBlob);
+
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `merged_audio_${new Date().getTime()}.wav`;
+                    a.click();
+
+                    this.elements.statusText.textContent = '완료!';
+
+                } catch (e) {
+                    console.error(e);
+                    this.elements.statusText.textContent = '오류 발생: ' + e.message;
+                    Utilsly.showAlert('오디오 처리 중 오류가 발생했습니다. 파일 형식을 확인해주세요.');
+                } finally {
+                    this.elements.btnMerge.disabled = false;
+                }
+            },
+
+            bufferToWave(abuffer, len) {
+                let numOfChan = abuffer.numberOfChannels,
+                    length = len * numOfChan * 2 + 44,
+                    buffer = new ArrayBuffer(length),
+                    view = new DataView(buffer),
+                    channels = [], i, sample,
+                    offset = 0,
+                    pos = 0;
+
+                // write WAVE header
+                setUint32(0x46464952);                         // "RIFF"
+                setUint32(length - 8);                         // file length - 8
+                setUint32(0x45564157);                         // "WAVE"
+
+                setUint32(0x20746d66);                         // "fmt " chunk
+                setUint32(16);                                 // length = 16
+                setUint16(1);                                  // PCM (uncompressed)
+                setUint16(numOfChan);
+                setUint32(abuffer.sampleRate);
+                setUint32(abuffer.sampleRate * 2 * numOfChan); // avg. bytes/sec
+                setUint16(numOfChan * 2);                      // block-align
+                setUint16(16);                                 // 16-bit (hardcoded in this example)
+
+                setUint32(0x61746164);                         // "data" - chunk
+                setUint32(length - pos - 4);                   // chunk length
+
+                // write interleaved data
+                for (i = 0; i < abuffer.numberOfChannels; i++)
+                    channels.push(abuffer.getChannelData(i));
+
+                while (pos < length) {
+                    for (i = 0; i < numOfChan; i++) {             // interleave channels
+                        sample = Math.max(-1, Math.min(1, channels[i][offset])); // clamp
+                        sample = (0.5 + sample < 0 ? sample * 32768 : sample * 32767) | 0; // scale to 16-bit signed int
+                        view.setInt16(pos, sample, true);          // write 16-bit sample
+                        pos += 2;
+                    }
+                    offset++
+                }
+
+                // create Blob
+                return new Blob([buffer], { type: "audio/wav" });
+
+                function setUint16(data) {
+                    view.setUint16(pos, data, true);
+                    pos += 2;
+                }
+
+                function setUint32(data) {
+                    view.setUint32(pos, data, true);
+                    pos += 4;
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>
