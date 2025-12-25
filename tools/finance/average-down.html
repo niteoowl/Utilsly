@@ -377,8 +377,8 @@
                 };
 
                 // Bind events
-                this.elements.currPrice.addEventListener('input', () => { this.calcCurrent(); this.calcTarget(); });
-                this.elements.currQty.addEventListener('input', () => { this.calcCurrent(); this.calcTarget(); });
+                this.elements.currPrice.addEventListener('input', () => { this.calcCurrent(); });
+                this.elements.currQty.addEventListener('input', () => { this.calcCurrent(); });
 
                 this.elements.addPrice.addEventListener('input', () => this.calcAdd('price'));
                 this.elements.addQty.addEventListener('input', () => this.calcAdd('qty'));

@@ -317,151 +317,6 @@
                 grid-template-columns: 1fr 1fr !important;
             }
         }
-
-        /* Community Dashboard Styles */
-        .community-dashboard {
-            margin-bottom: 48px;
-            display: grid;
-            grid-template-columns: 1fr 300px;
-            gap: 24px;
-        }
-
-        .dashboard-section {
-            background: var(--bg-primary);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 24px;
-        }
-
-        .dashboard-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .dashboard-title {
-            font-size: 16px;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .popular-list {
-            list-style: none;
-        }
-
-        .popular-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 0;
-            border-bottom: 1px solid var(--border-color);
-            text-decoration: none;
-            color: var(--text-primary);
-            transition: transform 0.2s;
-        }
-
-        .popular-item:last-child {
-            border-bottom: none;
-        }
-
-        .popular-item:hover {
-            transform: translateX(4px);
-        }
-
-        .rank-badge {
-            width: 24px;
-            height: 24px;
-            background: var(--bg-secondary);
-            border-radius: 4px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-            font-weight: 700;
-            color: var(--text-secondary);
-        }
-
-        .rank-1 .rank-badge {
-            background: #FFD700;
-            color: #000;
-        }
-
-        .rank-2 .rank-badge {
-            background: #C0C0C0;
-            color: #000;
-        }
-
-        .rank-3 .rank-badge {
-            background: #CD7F32;
-            color: #000;
-        }
-
-        .popular-info {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .popular-title {
-            font-size: 14px;
-            font-weight: 600;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            margin-bottom: 2px;
-        }
-
-        .popular-meta {
-            font-size: 12px;
-            color: var(--text-tertiary);
-            display: flex;
-            gap: 8px;
-        }
-
-        .home-channel-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 8px;
-        }
-
-        .home-channel-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 12px;
-            background: var(--bg-secondary);
-            border-radius: 12px;
-            text-decoration: none;
-            color: var(--text-primary);
-            transition: all 0.2s;
-            border: 1px solid transparent;
-        }
-
-        .home-channel-item:hover {
-            background: var(--bg-primary);
-            border-color: var(--border-color);
-            transform: translateY(-2px);
-        }
-
-        .home-channel-item .material-symbols-rounded {
-            font-size: 24px;
-            margin-bottom: 4px;
-            color: var(--text-secondary);
-        }
-
-        .home-channel-item span:not(.material-symbols-rounded) {
-            font-size: 11px;
-            font-weight: 600;
-        }
-
-        @media (max-width: 900px) {
-            .community-dashboard {
-                grid-template-columns: 1fr;
-            }
-        }
     </style>
 </head>
 
@@ -521,38 +376,6 @@
                     </div>
                 </div>
 
-                <!-- Live Community Dashboard -->
-                <div class="community-dashboard" id="communityDashboard">
-                    <div class="dashboard-section">
-                        <div class="dashboard-header">
-                            <h3 class="dashboard-title">
-                                <span class="material-symbols-rounded"
-                                    style="color:#FF9F0A;">local_fire_department</span>
-                                지금 인기 있는 글
-                            </h3>
-                            <a href="/community/index.html" class="btn"
-                                style="padding: 4px 8px; font-size: 12px;">더보기</a>
-                        </div>
-                        <div id="popularPostsList" class="popular-list">
-                            <!-- Populated by JS -->
-                            <div style="text-align:center; padding:20px; color:var(--text-tertiary); font-size:13px;">
-                                불러오는 중...</div>
-                        </div>
-                    </div>
-
-                    <div class="dashboard-section">
-                        <div class="dashboard-header">
-                            <h3 class="dashboard-title">
-                                <span class="material-symbols-rounded" style="color:var(--accent-blue);">forum</span>
-                                채널 바로가기
-                            </h3>
-                        </div>
-                        <div class="home-channel-grid" id="homeChannelGrid">
-                            <!-- Populated by JS -->
-                        </div>
-                    </div>
-                </div>
-
                 <!-- Default Home View -->
                 <div id="homeDefaultView">
                     <div class="category-nav" id="categoryNav">
@@ -566,6 +389,7 @@
                         <button class="category-btn" data-category="date">⏰ 시간</button>
                         <button class="category-btn" data-category="health">💪 건강</button>
                         <button class="category-btn" data-category="color">🎨 색상</button>
+                        <button class="category-btn" data-category="finance">💰 금융</button>
                     </div>
 
                     <div class="tools-section" id="toolsSection">
@@ -662,6 +486,12 @@
             { name: "단위 변환기", icon: "scale", path: "/tools/math/unit-converter", desc: "길이, 무게, 넓이 변환", category: "math" },
             { name: "퍼센트 계산기", icon: "percent", path: "/tools/math/percentage-calculator", desc: "백분율 계산", category: "math" },
 
+            // Finance
+            { name: "복리 이자 계산기", icon: "monetization_on", path: "/tools/finance/compound-interest", desc: "복리 이자 및 수익률 계산", category: "finance" },
+            { name: "물타기 계산기", icon: "water_drop", path: "/tools/finance/average-down", desc: "주식/코인 추가 매수 평단 계산", category: "finance" },
+            { name: "목표 평단 계산기", icon: "gps_fixed", path: "/tools/finance/target-price", desc: "원하는 평단 도달을 위한 매수량", category: "finance" },
+            { name: "수익률 계산기", icon: "trending_up", path: "/tools/finance/profit-calculator", desc: "매수/매도 수익 및 수익률", category: "finance" },
+
             // Date
             { name: "타이머", icon: "timer", path: "/tools/date/timer", desc: "간편한 카운트다운", category: "date" },
             { name: "뽀모도로 타이머", icon: "check_circle", path: "/tools/date/pomodoro", desc: "집중력 향상 타이머", category: "date" },
@@ -728,7 +558,8 @@
                 'math': '🔢 계산 도구',
                 'date': '⏰ 시간 도구',
                 'health': '💪 건강 도구',
-                'color': '🎨 색상 도구'
+                'color': '🎨 색상 도구',
+                'finance': '💰 금융 도구'
             };
             document.getElementById('currentCategoryTitle').textContent = titles[category] || '전체 도구';
 
@@ -782,75 +613,6 @@
                 searchResultsView.style.display = 'none';
             }
         });
-
-        // Community Dashboard Logic
-        (async () => {
-            const CHANNELS = [
-                { id: 'free', name: '자유', icon: 'chat_bubble' },
-                { id: 'stock', name: '주식/코인', icon: 'candlestick_chart' },
-                { id: 'dev', name: '개발', icon: 'terminal' },
-                { id: 'humor', name: '유머', icon: 'mood' },
-                { id: 'suggestion', name: '건의', icon: 'lightbulb' },
-                { id: 'notice', name: '공지', icon: 'campaign' }
-            ];
-
-            const grid = document.getElementById('homeChannelGrid');
-            grid.innerHTML = CHANNELS.map(ch => `
-                <a href="/community/index.html?channel=${ch.id}" class="home-channel-item">
-                    <span class="material-symbols-rounded">${ch.icon}</span>
-                    <span>${ch.name}</span>
-                </a>
-            `).join('');
-
-            // Dynamic Import Firebase for popular posts
-            try {
-                const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js");
-                const { getFirestore, collection, query, orderBy, limit, getDocs } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js");
-
-                const app = initializeApp({
-                    apiKey: "AIzaSyCbSmDuJNCSrIB7Fx9IzbePERD_2ka3rQE",
-                    authDomain: "utilsly.firebaseapp.com",
-                    projectId: "utilsly",
-                    storageBucket: "utilsly.firebasestorage.app",
-                    messagingSenderId: "713000931988",
-                    appId: "1:713000931988:web:8891efe6d0ab2d61b61a81",
-                    measurementId: "G-WSRTSNGT8G"
-                });
-                const db = getFirestore(app);
-
-                const q = query(collection(db, "posts"), orderBy("recommendCount", "desc"), orderBy("createdAt", "desc"), limit(5));
-                const snap = await getDocs(q);
-
-                const popularList = document.getElementById('popularPostsList');
-                if (snap.empty) {
-                    popularList.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-tertiary); font-size:13px;">게시글이 없습니다.</div>';
-                } else {
-                    let html = '';
-                    let rank = 1;
-                    snap.forEach(doc => {
-                        const post = doc.data();
-                        html += `
-                            <a href="/community/view.html?id=${doc.id}" class="popular-item rank-${rank}">
-                                <div class="rank-badge">${rank}</div>
-                                <div class="popular-info">
-                                    <div class="popular-title">${post.title}</div>
-                                    <div class="popular-meta">
-                                        <span>${post.nickname}</span>
-                                        <span>추천 ${post.recommendCount || 0}</span>
-                                        <span>조회 ${post.views || 0}</span>
-                                    </div>
-                                </div>
-                            </a>
-                        `;
-                        rank++;
-                    });
-                    popularList.innerHTML = html;
-                }
-            } catch (err) {
-                console.error(err);
-                document.getElementById('popularPostsList').innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-tertiary); font-size:13px;">데이터를 불러올 수 없습니다.</div>';
-            }
-        })();
     </script>
 </body>
 

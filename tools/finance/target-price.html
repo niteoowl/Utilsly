@@ -6,15 +6,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>목표 평단 계산기 - Utilsly</title>
-    <meta name="description" content="현재 평단가에서 목표 평단가를 맞추기 위해 얼마에 몇 주를 더 사야하는지 계산합니다.">
-    <script>
-        !function () { const e = localStorage.getItem("theme"), t = window.matchMedia("(prefers-color-scheme: dark)").matches; "dark" !== e && (e || !t) || document.documentElement.setAttribute("data-theme", "dark") }();
-    </script>
+    <meta name="description" content="원하는 평단가에 도달하기 위해 필요한 매수 수량과 금액을 계산합니다.">
+
+    <link rel="preload" href="../../css/style.css" as="style">
     <link rel="stylesheet" href="../../css/style.css">
     <style>
-        .calc-wrapper {
-            max-width: 600px;
-            margin: 0 auto;
+        .calc-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        @media (max-width: 900px) {
+            .calc-grid {
+                grid-template-columns: 1fr;
+            }
         }
 
         .section-card {
@@ -22,18 +29,50 @@
             border: 1px solid var(--border-color);
             border-radius: 12px;
             padding: 24px;
+            height: fit-content;
         }
 
-        .input-wrapper {
+        .section-title {
+            font-size: 16px;
+            font-weight: 700;
             margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-primary);
+        }
+
+        .result-box {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: right;
+            margin-top: 24px;
+        }
+
+        .result-label {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .result-value {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--accent-blue);
+        }
+
+        .input-group {
+            margin-bottom: 16px;
         }
 
         .input-label {
             display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-            color: var(--text-secondary);
             font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
         }
 
         .relative-input {
@@ -42,41 +81,34 @@
 
         .relative-input input {
             width: 100%;
-            padding-right: 36px;
+            padding: 12px 16px;
+            padding-right: 40px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
             text-align: right;
-            font-weight: 500;
+            font-weight: 600;
         }
 
-        .unit-label {
+        .unit {
             position: absolute;
-            right: 12px;
+            right: 16px;
             top: 50%;
             transform: translateY(-50%);
             color: var(--text-tertiary);
             font-size: 13px;
-            pointer-events: none;
-        }
-
-        .result-field {
-            background: var(--bg-primary);
-            border: 1px solid var(--border-color);
-            padding: 16px;
-            border-radius: 8px;
-            font-size: 24px;
-            font-weight: 700;
-            color: var(--text-primary);
-            text-align: right;
-            margin-top: 8px;
         }
 
         .disclaimer {
-            margin-top: 24px;
-            padding: 16px;
-            background: rgba(255, 59, 48, 0.05);
-            border-radius: 8px;
+            margin-top: 40px;
+            padding: 20px;
+            background: var(--bg-secondary);
+            border-radius: 12px;
             font-size: 12px;
-            color: var(--text-secondary);
-            border: 1px solid rgba(255, 59, 48, 0.1);
+            color: var(--text-tertiary);
+            line-height: 1.6;
+            border: 1px solid var(--border-color);
         }
     </style>
 </head>
@@ -109,60 +141,86 @@
                         <span class="material-symbols-rounded">gps_fixed</span>
                     </div>
                     <h1>목표 평단 계산기</h1>
-                    <p class="description">원하는 평단가를 만들기 위해 필요한 추가 매수 수량을 계산해보세요.</p>
+                    <p class="description">원하는 평단가에 도달하기 위해 필요한 추가 매수량을 계산합니다.</p>
                 </div>
 
                 <div class="tool-container" data-tool-id="target-price">
-                    <div class="calc-wrapper">
-                        <div class="section-card" style="border-top: 3px solid #FF9F0A;">
-
-                            <div class="input-wrapper">
-                                <label class="input-label">현재 보유 수량</label>
-                                <div class="relative-input">
-                                    <input type="number" id="curr-qty" class="search-input" placeholder="0">
-                                    <span class="unit-label">주</span>
-                                </div>
+                    <div class="calc-grid">
+                        <!-- Current State -->
+                        <div class="section-card">
+                            <div class="section-title">
+                                <span class="material-symbols-rounded">inventory_2</span>
+                                현재 보유 상태
                             </div>
-                            <div class="input-wrapper">
+                            <div class="input-group">
                                 <label class="input-label">현재 평단가</label>
                                 <div class="relative-input">
-                                    <input type="number" id="curr-price" class="search-input" placeholder="0">
-                                    <span class="unit-label">원</span>
+                                    <input type="number" id="curr-price" placeholder="0">
+                                    <span class="unit">원</span>
                                 </div>
                             </div>
+                            <div class="input-group">
+                                <label class="input-label">현재 보유수량</label>
+                                <div class="relative-input">
+                                    <input type="number" id="curr-qty" placeholder="0">
+                                    <span class="unit">주</span>
+                                </div>
+                            </div>
+                        </div>
 
-                            <hr style="border:none; border-top:1px dashed var(--border-color); margin:24px 0;">
-
-                            <div class="input-wrapper">
+                        <!-- Target State -->
+                        <div class="section-card">
+                            <div class="section-title">
+                                <span class="material-symbols-rounded">track_changes</span>
+                                목표 설정
+                            </div>
+                            <div class="input-group">
                                 <label class="input-label">목표 평단가</label>
                                 <div class="relative-input">
-                                    <input type="number" id="target-avg" class="search-input" placeholder="0">
-                                    <span class="unit-label">원</span>
+                                    <input type="number" id="target-avg" placeholder="0">
+                                    <span class="unit">원</span>
                                 </div>
                             </div>
-                            <div class="input-wrapper">
-                                <label class="input-label">추가 매수 단가 (얼마에 살 예정인가요?)</label>
+                            <div class="input-group">
+                                <label class="input-label">추가 매수 가격</label>
                                 <div class="relative-input">
-                                    <input type="number" id="target-buy-price" class="search-input" placeholder="0">
-                                    <span class="unit-label">원</span>
+                                    <input type="number" id="buy-price" placeholder="0">
+                                    <span class="unit">원</span>
                                 </div>
                             </div>
+                        </div>
+                    </div>
 
-                            <div class="input-wrapper" style="margin-top:24px;">
-                                <label class="input-label">필요 매수 수량</label>
-                                <div class="result-field" id="target-needed-qty" style="color:#FF9F0A;">0주</div>
-                                <div style="font-size:13px; color:var(--text-tertiary); margin-top:8px; text-align:right;"
-                                    id="target-needed-amt">예상 소요금액: 0원</div>
+                    <!-- Result Area -->
+                    <div class="section-card" style="border-color: var(--accent-blue);">
+                        <div class="section-title" style="color: var(--accent-blue);">
+                            <span class="material-symbols-rounded">analytics</span>
+                            계산 결과
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                            <div class="result-box">
+                                <div class="result-label">필요 매수 수량</div>
+                                <div class="result-value" id="needed-qty">0주</div>
                             </div>
-
+                            <div class="result-box">
+                                <div class="result-label">필요 매수 금액</div>
+                                <div class="result-value" id="needed-amount">0원</div>
+                            </div>
                         </div>
+                        <p style="font-size: 13px; color: var(--text-tertiary); margin-top: 16px; text-align: center;">
+                            * 목표 평단가가 현재 평단가보다 낮을 경우, 추가 매수 가격은 목표가보다 낮아야 합니다.
+                        </p>
+                    </div>
 
-                        <div class="disclaimer">
+                    <div class="disclaimer">
+                        <div
+                            style="font-weight: 700; margin-bottom: 8px; color: var(--text-primary); display: flex; align-items: center; gap: 4px;">
                             <span class="material-symbols-rounded"
-                                style="font-size: 16px; vertical-align: text-bottom; margin-right: 4px; color: #ff3b30;">warning</span>
-                            본 계산기의 결과는 단순 참고용이며, 실제 매매 비용(수수료, 세금 등)은 포함되지 않을 수 있습니다.
-                            <strong>본 결과는 투자 판단의 근거가 되지 않으며, 투자 결과에 대한 책임은 본인에게 있습니다.</strong>
+                                style="font-size: 18px; color: var(--accent-orange);">warning</span>
+                            이용 시 유의사항
                         </div>
+                        본 계산기는 수학적 수식을 기반으로 한 시뮬레이션 도구입니다. 거래소별 수수료, 세금, 호가 공백 등 실제 거래 환경의 변수는 반영되지 않습니다. 최종 투자 결정의 책임은
+                        본인에게 있습니다.
                     </div>
                 </div>
             </div>
@@ -172,64 +230,70 @@
     <script src="../../js/common.js"></script>
     <script>
         Utilsly.registerTool('target-price', {
+            elements: {},
             init() {
                 this.elements = {
-                    currQty: document.getElementById('curr-qty'),
                     currPrice: document.getElementById('curr-price'),
+                    currQty: document.getElementById('curr-qty'),
                     targetAvg: document.getElementById('target-avg'),
-                    targetBuyPrice: document.getElementById('target-buy-price'),
-                    neededQty: document.getElementById('target-needed-qty'),
-                    neededAmt: document.getElementById('target-needed-amt')
+                    buyPrice: document.getElementById('buy-price'),
+                    neededQty: document.getElementById('needed-qty'),
+                    neededAmount: document.getElementById('needed-amount')
                 };
 
-                const inputs = [this.elements.currQty, this.elements.currPrice, this.elements.targetAvg, this.elements.targetBuyPrice];
-                inputs.forEach(el => el.addEventListener('input', () => this.calculate()));
-            },
-
-            cleanup() { this.elements = {}; },
-
-            formatNum(num) {
-                return num.toLocaleString('ko-KR');
+                const inputs = [this.elements.currPrice, this.elements.currQty, this.elements.targetAvg, this.elements.buyPrice];
+                inputs.forEach(input => {
+                    input.addEventListener('input', () => this.calculate());
+                });
             },
 
             calculate() {
-                const cq = parseFloat(this.elements.currQty.value) || 0;
                 const cp = parseFloat(this.elements.currPrice.value) || 0;
-                const tAvg = parseFloat(this.elements.targetAvg.value) || 0;
-                const buyP = parseFloat(this.elements.targetBuyPrice.value) || 0;
+                const cq = parseFloat(this.elements.currQty.value) || 0;
+                const ta = parseFloat(this.elements.targetAvg.value) || 0;
+                const bp = parseFloat(this.elements.buyPrice.value) || 0;
 
-                if (cq <= 0 || cp <= 0 || tAvg <= 0 || buyP <= 0) {
-                    this.elements.neededQty.textContent = "0주";
-                    this.elements.neededAmt.textContent = "예상 소요금액: 0원";
+                if (cp <= 0 || cq <= 0 || ta <= 0 || bp <= 0) {
+                    this.updateDisplay(0, 0);
                     return;
                 }
 
-                if ((cp > tAvg && buyP >= tAvg) || (cp < tAvg && buyP <= tAvg)) {
-                    this.elements.neededQty.textContent = "불가능";
-                    this.elements.neededAmt.textContent = "목표 평단가 달성이 불가능한 매수 단가입니다.";
+                // New Avg = (TotalCurr + Q * BP) / (CQ + Q) = TA
+                // TotalCurr + Q*BP = TA*CQ + TA*Q
+                // Q*BP - TA*Q = TA*CQ - TotalCurr
+                // Q * (BP - TA) = TA*CQ - TotalCurr
+                // Q = (TA * CQ - TotalCurr) / (BP - TA)
+
+                const totalCurr = cp * cq;
+                const numerator = (ta * cq) - totalCurr;
+                const denominator = bp - ta;
+
+                if (denominator === 0) {
+                    this.updateDisplay('계산 불가', '-');
                     return;
                 }
-
-                if (cp === tAvg) {
-                    this.elements.neededQty.textContent = "0주";
-                    this.elements.neededAmt.textContent = "이미 목표 평단입니다.";
-                    return;
-                }
-
-                const numerator = cq * (tAvg - cp);
-                const denominator = buyP - tAvg;
 
                 let q = numerator / denominator;
 
                 if (q < 0) {
-                    q = Math.abs(q);
+                    this.updateDisplay('불가능', '설정값을 확인하세요');
+                    return;
                 }
 
                 q = Math.ceil(q);
-                const amt = q * buyP;
+                const amount = q * bp;
 
-                this.elements.neededQty.textContent = this.formatNum(q) + "주";
-                this.elements.neededAmt.textContent = "예상 소요금액: " + this.formatNum(amt) + "원";
+                this.updateDisplay(q, amount);
+            },
+
+            updateDisplay(qty, amount) {
+                if (typeof qty === 'string') {
+                    this.elements.neededQty.textContent = qty;
+                    this.elements.neededAmount.textContent = amount;
+                    return;
+                }
+                this.elements.neededQty.textContent = qty.toLocaleString() + '주';
+                this.elements.neededAmount.textContent = Math.floor(amount).toLocaleString() + '원';
             }
         });
     </script>
