@@ -285,7 +285,7 @@ const Utilsly = {
             ]
         },
         {
-            category: "색상 (Color)",
+            category: "색상 도구 (Color)",
             items: [
                 { name: "컬러 피커", icon: "palette", path: "/tools/color/color-picker" },
                 { name: "그라데이션 생성", icon: "gradient", path: "/tools/color/gradient-generator" },

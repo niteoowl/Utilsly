@@ -388,6 +388,7 @@
                         <button class="category-btn" data-category="math">🔢 계산</button>
                         <button class="category-btn" data-category="date">⏰ 시간</button>
                         <button class="category-btn" data-category="health">💪 건강</button>
+                        <button class="category-btn" data-category="color">🎨 색상</button>
                     </div>
 
                     <div class="tools-section" id="toolsSection">
@@ -493,6 +494,7 @@
 
             // Color
             { name: "컬러 피커", icon: "palette", path: "/tools/color/color-picker", desc: "색상 코드 추출", category: "color" },
+            { name: "그라데이션 생성", icon: "gradient", path: "/tools/color/gradient-generator", desc: "CSS 그라데이션 만들기", category: "color" },
 
             // Health
             { name: "BMI 계산기", icon: "monitor_weight", path: "/tools/health/bmi-calculator", desc: "나의 비만도 확인", category: "health" },
@@ -548,7 +550,8 @@
                 'dev': '💻 개발 도구',
                 'math': '🔢 계산 도구',
                 'date': '⏰ 시간 도구',
-                'health': '💪 건강 도구'
+                'health': '💪 건강 도구',
+                'color': '🎨 색상 도구'
             };
             document.getElementById('currentCategoryTitle').textContent = titles[category] || '전체 도구';
 
