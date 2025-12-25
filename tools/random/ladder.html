@@ -213,8 +213,6 @@
         <main class="main-content">
             <header class="top-bar">
                 <div class="breadcrumbs">
-                    <span class="breadcrumb-item">랜덤/추첨</span>
-                    <span class="separator">/</span>
                     <span class="breadcrumb-item">사다리 타기</span>
                 </div>
             </header>
@@ -290,7 +288,15 @@
                                 <button class="btn btn-primary btn-sm" id="runAllBtn">
                                     <span class="material-symbols-rounded"
                                         style="font-size:18px; margin-right:4px;">play_circle</span>
-                                    전체 결과 보기
+                                    전체 결과
+                                </button>
+                                <div style="width: 1px; height: 20px; background: var(--border-color); margin: 0 8px;">
+                                </div>
+                                <button class="btn btn-sm" id="downloadBtn" title="이미지로 저장">
+                                    <span class="material-symbols-rounded">image</span>
+                                </button>
+                                <button class="btn btn-sm" id="copyBtn" title="결과 텍스트 복사">
+                                    <span class="material-symbols-rounded">content_copy</span>
                                 </button>
                             </div>
 
@@ -351,7 +357,9 @@
                     canvas: document.getElementById('ladderCanvas'),
                     canvasContainer: document.getElementById('canvasContainer'),
                     resultToast: document.getElementById('resultToast'),
-                    toastMessage: document.getElementById('toastMessage')
+                    toastMessage: document.getElementById('toastMessage'),
+                    downloadBtn: document.getElementById('downloadBtn'),
+                    copyBtn: document.getElementById('copyBtn')
                 };
 
                 this.ctx = this.elements.canvas.getContext('2d');
@@ -370,6 +378,8 @@
 
                 this.elements.runAllBtn.addEventListener('click', () => this.runAll());
                 this.elements.speedRange.addEventListener('input', (e) => this.animationSpeed = parseInt(e.target.value));
+                this.elements.downloadBtn.addEventListener('click', () => this.downloadImage());
+                this.elements.copyBtn.addEventListener('click', () => this.copyResults());
 
                 this.elements.canvas.addEventListener('click', (e) => this.handleCanvasClick(e));
 
@@ -577,17 +587,12 @@
                 if (this.isAnimating) return;
                 this.isAnimating = true;
 
-                // Draw base but KEEP existing finished paths?
-                // Simplest: Re-draw base, then re-draw all completed paths instantly?
-                // For now, just redraw base.
-                // Wait, user said "Why only one works?". They want to see multiple results stack up?
-                // Or standard ladder game: Lines persist.
-
+                this.clearAllPaths(); // Clear previous paths before drawing new ones
                 this.drawLadderBase();
                 // Draw all *previously* done paths?
                 // Let's implement persistence.
                 for (let i = 0; i < this.players.length; i++) {
-                    if (this.players[i].done && i !== playerIdx) {
+                    if (this.players[i].done) {
                         const path = this.calculatePath(i);
                         this.drawStaticPath(path, this.players[i].color);
                     }
@@ -719,6 +724,36 @@
                 this.toastTimer = setTimeout(() => {
                     toast.classList.remove('show');
                 }, duration);
+            },
+
+            downloadImage() {
+                const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+                const tempCanvas = document.createElement('canvas');
+                tempCanvas.width = this.elements.canvas.width;
+                tempCanvas.height = this.elements.canvas.height;
+                const tCtx = tempCanvas.getContext('2d');
+                tCtx.fillStyle = isDark ? '#1e1e1e' : '#ffffff';
+                tCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+                tCtx.drawImage(this.elements.canvas, 0, 0);
+                const link = document.createElement('a');
+                link.download = `ladder-result-${new Date().getTime()}.png`;
+                link.href = tempCanvas.toDataURL();
+                link.click();
+            },
+
+            copyResults() {
+                let text = "🪜 사다리 타기 결과 🪜\n\n";
+                this.players.forEach((p, i) => {
+                    const path = this.calculatePath(i);
+                    const finalCol = path[path.length - 1].col;
+                    const result = this.results[finalCol];
+                    text += `${p.name} -> ${result}\n`;
+                });
+                navigator.clipboard.writeText(text).then(() => {
+                    this.showToast("결과가 복사되었습니다!");
+                }).catch(err => {
+                    this.showToast("복사 실패");
+                });
             }
         });
     </script>
