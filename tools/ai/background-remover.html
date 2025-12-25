@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>스마트 배경 제거 (AI) - Utilsly</title>
+    <meta name="description" content="AI 기술로 이미지의 배경을 브라우저에서 즉시 제거하세요. 서버 전송 없이 안전합니다.">
+    <script>
+        !function () { const e = localStorage.getItem("theme"), t = window.matchMedia("(prefers-color-scheme: dark)").matches; "dark" !== e && (e || !t) || document.documentElement.setAttribute("data-theme", "dark") }();
+    </script>
+    <link rel="preload" href="../../css/style.css" as="style">
+    <link rel="stylesheet" href="../../css/style.css">
+    <style>
+        .tool-layout {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .result-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-top: 24px;
+        }
+
+        .image-card {
+            background: var(--bg-sidebar);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .image-card h3 {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .canvas-wrapper {
+            width: 100%;
+            aspect-ratio: 4/3;
+            background: #eee;
+            background-image: linear-gradient(45deg, #ccc 25%, transparent 25%),
+                linear-gradient(-45deg, #ccc 25%, transparent 25%),
+                linear-gradient(45deg, transparent 75%, #ccc 75%),
+                linear-gradient(-45deg, transparent 75%, #ccc 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+            border-radius: 8px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        [data-theme="dark"] .canvas-wrapper {
+            background-image: linear-gradient(45deg, #333 25%, transparent 25%),
+                linear-gradient(-45deg, #333 25%, transparent 25%),
+                linear-gradient(45deg, transparent 75%, #333 75%),
+                linear-gradient(-45deg, transparent 75%, #333 75%);
+        }
+
+        .preview-img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .loading-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            z-index: 10;
+            border-radius: 8px;
+            backdrop-filter: blur(4px);
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-bottom: 16px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .progress-text {
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .progress-bar-container {
+            width: 80%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: white;
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        .action-bar {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        @media (max-width: 768px) {
+            .result-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="user-profile">
+                    <div style="font-size: 24px; font-weight: 800; color: var(--text-primary); letter-spacing: -0.5px;">
+                        Utilsly.</div>
+                </div>
+            </div>
+            <nav class="sidebar-nav"></nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="top-bar">
+                <button class="menu-toggle-btn" onclick="Utilsly.toggleSidebar(true)">
+                    <span class="material-symbols-rounded">menu</span>
+                </button>
+                <div class="breadcrumbs">
+                    <span class="breadcrumb-item current-page">스마트 배경 제거</span>
+                </div>
+            </header>
+
+            <div class="content-area">
+                <div class="page-header">
+                    <div class="header-icon-wrapper">
+                        <span class="material-symbols-rounded">auto_fix_high</span>
+                    </div>
+                    <h1>스마트 배경 제거</h1>
+                    <p class="description">강력한 AI 기술로 이미지의 배경을 자동으로 제거합니다. 모든 처리는 사용자의 브라우저 내에서 직접 이루어져 보안상 안전합니다.</p>
+                </div>
+
+                <div class="tool-container" data-tool-id="background-remover">
+                    <div class="tool-layout">
+                        <!-- 초기 업로드 화면 -->
+                        <div id="upload-view">
+                            <div class="drop-zone" id="drop-zone">
+                                <span class="material-symbols-rounded upload-icon">cloud_upload</span>
+                                <p class="upload-text">이미지를 드래그하거나 클릭하여 업로드</p>
+                                <p class="upload-hint">PNG, JPG 지원 • AI 기반 자동 누끼 제거</p>
+                                <input type="file" id="file-input" accept="image/*" style="display: none;">
+                            </div>
+                        </div>
+
+                        <!-- 처리 및 결과 화면 -->
+                        <div id="result-view" style="display: none;">
+                            <div class="result-container">
+                                <div class="image-card">
+                                    <h3>원본 이미지</h3>
+                                    <div class="canvas-wrapper">
+                                        <img id="original-preview" class="preview-img" alt="Original">
+                                    </div>
+                                </div>
+                                <div class="image-card">
+                                    <h3>배경 제거 결과</h3>
+                                    <div class="canvas-wrapper">
+                                        <div id="model-loading" class="loading-overlay" style="display: none;">
+                                            <div class="loading-spinner"></div>
+                                            <div class="progress-text">AI 모델 로딩 중...</div>
+                                            <div class="progress-bar-container">
+                                                <div id="model-progress" class="progress-bar-fill"></div>
+                                            </div>
+                                        </div>
+                                        <div id="processing-overlay" class="loading-overlay" style="display: none;">
+                                            <div class="loading-spinner"></div>
+                                            <div class="progress-text">배경을 지우는 중...</div>
+                                        </div>
+                                        <canvas id="output-canvas"
+                                            style="max-width: 100%; max-height: 100%; object-fit: contain;"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="action-bar">
+                                <button class="btn" id="btn-reset">다시 하기</button>
+                                <button class="btn btn-primary" id="btn-download" disabled>
+                                    <span class="material-symbols-rounded"
+                                        style="font-size: 18px; margin-right: 8px;">download</span>
+                                    결과 다운로드 (PNG)
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Transformers.js via ESM -->
+    <script type="module">
+        import { pipeline, env } from 'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2';
+
+        // Configure environment
+        env.allowLocalModels = false;
+        env.useBrowserCache = true;
+
+        Utilsly.registerTool('background-remover', {
+            segmenter: null,
+            elements: {},
+            originalImage: null,
+
+            async init() {
+                this.elements = {
+                    dropZone: document.getElementById('drop-zone'),
+                    fileInput: document.getElementById('file-input'),
+                    uploadView: document.getElementById('upload-view'),
+                    resultView: document.getElementById('result-view'),
+                    originalPreview: document.getElementById('original-preview'),
+                    outputCanvas: document.getElementById('output-canvas'),
+                    modelLoading: document.getElementById('model-loading'),
+                    modelProgress: document.getElementById('model-progress'),
+                    processingOverlay: document.getElementById('processing-overlay'),
+                    btnDownload: document.getElementById('btn-download'),
+                    btnReset: document.getElementById('btn-reset')
+                };
+
+                this.bindEvents();
+            },
+
+            bindEvents() {
+                this.elements.dropZone.addEventListener('click', () => this.elements.fileInput.click());
+                this.elements.fileInput.addEventListener('change', (e) => this.handleImage(e.target.files[0]));
+
+                this.elements.dropZone.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    this.elements.dropZone.classList.add('dragover');
+                });
+                this.elements.dropZone.addEventListener('dragleave', () => {
+                    this.elements.dropZone.classList.remove('dragover');
+                });
+                this.elements.dropZone.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    this.elements.dropZone.classList.remove('dragover');
+                    this.handleImage(e.dataTransfer.files[0]);
+                });
+
+                this.elements.btnReset.addEventListener('click', () => this.reset());
+                this.elements.btnDownload.addEventListener('click', () => this.download());
+            },
+
+            async handleImage(file) {
+                if (!file || !file.type.startsWith('image/')) return;
+
+                // Show result view and original preview
+                this.elements.uploadView.style.display = 'none';
+                this.elements.resultView.style.display = 'block';
+
+                const url = URL.createObjectURL(file);
+                this.elements.originalPreview.src = url;
+                this.originalImage = url;
+
+                await this.processImage(url);
+            },
+
+            async loadModel() {
+                if (this.segmenter) return;
+
+                this.elements.modelLoading.style.display = 'flex';
+
+                try {
+                    this.segmenter = await pipeline('image-segmentation', 'Xenova/modnet-public', {
+                        progress_callback: (p) => {
+                            if (p.status === 'progress') {
+                                this.elements.modelProgress.style.width = p.progress + '%';
+                            }
+                        }
+                    });
+                } catch (e) {
+                    console.error('Model load error:', e);
+                    Utilsly.showAlert('모델 로드 중 오류가 발생했습니다.');
+                } finally {
+                    this.elements.modelLoading.style.display = 'none';
+                }
+            },
+
+            async processImage(imgSource) {
+                await this.loadModel();
+
+                this.elements.processingOverlay.style.display = 'flex';
+                this.elements.btnDownload.disabled = true;
+
+                try {
+                    // Extract alpha mask
+                    const result = await this.segmenter(imgSource);
+
+                    // Render to canvas
+                    const img = new Image();
+                    img.onload = () => {
+                        const canvas = this.elements.outputCanvas;
+                        canvas.width = img.width;
+                        canvas.height = img.height;
+                        const ctx = canvas.getContext('2d');
+
+                        // Draw raw result (mask) to a temporary canvas to get pixel data
+                        const tempCanvas = document.createElement('canvas');
+                        tempCanvas.width = result.width;
+                        tempCanvas.height = result.height;
+                        const tempCtx = tempCanvas.getContext('2d');
+                        tempCtx.putImageData(result.mask, 0, 0);
+
+                        // Draw original image
+                        ctx.drawImage(img, 0, 0);
+
+                        // Apply mask
+                        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                        const pixels = imageData.data;
+
+                        // If mask size differs, we need to rescale
+                        // For simplicity, we assume MODNet output is scaled, but we'll use drawImage for robustness
+                        const maskCanvas = document.createElement('canvas');
+                        maskCanvas.width = canvas.width;
+                        maskCanvas.height = canvas.height;
+                        const maskCtx = maskCanvas.getContext('2d');
+                        maskCtx.drawImage(tempCanvas, 0, 0, canvas.width, canvas.height);
+                        const maskData = maskCtx.getImageData(0, 0, canvas.width, canvas.height).data;
+
+                        for (let i = 0; i < pixels.length; i += 4) {
+                            // Mask grayscale value used for alpha
+                            pixels[i + 3] = maskData[i];
+                        }
+
+                        ctx.putImageData(imageData, 0, 0);
+                        this.elements.btnDownload.disabled = false;
+                        this.elements.processingOverlay.style.display = 'none';
+                    };
+                    img.src = imgSource;
+
+                } catch (e) {
+                    console.error('Processing error:', e);
+                    Utilsly.showAlert('이미지 처리 중 오류가 발생했습니다.');
+                    this.elements.processingOverlay.style.display = 'none';
+                }
+            },
+
+            download() {
+                const link = document.createElement('a');
+                link.download = 'background-removed.png';
+                link.href = this.elements.outputCanvas.toDataURL('image/png');
+                link.click();
+            },
+
+            reset() {
+                this.elements.uploadView.style.display = 'block';
+                this.elements.resultView.style.display = 'none';
+                this.elements.fileInput.value = '';
+                this.elements.btnDownload.disabled = true;
+                const ctx = this.elements.outputCanvas.getContext('2d');
+                ctx.clearRect(0, 0, this.elements.outputCanvas.width, this.elements.outputCanvas.height);
+            },
+
+            cleanup() {
+                this.segmenter = null;
+                this.elements = {};
+            }
+        });
+    </script>
+    <script src="../../js/common.js"></script>
+</body>
+
+</html>

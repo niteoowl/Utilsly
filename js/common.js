@@ -332,8 +332,10 @@ const Utilsly = {
         {
             category: "AI 도구 (Beta)",
             items: [
-                { name: "AI 글쓰기 도우미", icon: "edit_note", path: "/tools/ai/writing-assistant" },
-                { name: "AI 번역기", icon: "translate", path: "/tools/ai/translator" },
+                { name: "AI 글쓰기 도우미", icon: "edit_note", path: "/tools/ai/writing-assistant", desc: "글 작성 보조 및 교정", category: "ai" },
+                { name: "AI 번역기", icon: "translate", path: "/tools/ai/translator", desc: "자연스러운 AI 번역", category: "ai" },
+                { name: "스마트 배경 제거", icon: "auto_fix_high", path: "/tools/ai/background-remover", desc: "브라우저에서 직접 배경(누끼) 제거", category: "ai" },
+                { name: "AI 챗봇", icon: "smart_toy", path: "/tools/ai/ai-chat", desc: "AI와 대화하기", category: "ai" },
             ]
         }
     ],
