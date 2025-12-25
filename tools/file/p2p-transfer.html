@@ -277,34 +277,43 @@
             },
 
             initPeer() {
-                // Generate a consistent ID style
                 const randomId = 'UTIL-' + Math.random().toString(36).substr(2, 6).toUpperCase();
-                this.peer = new Peer(randomId);
+                this.peer = new Peer(randomId, {
+                    debug: 2 // Show errors and warnings
+                });
 
                 this.peer.on('open', (id) => {
+                    console.log('Peer open with ID:', id);
                     this.elements.myId.textContent = id;
                     this.elements.statusDot.className = 'status-dot online';
-                    this.elements.statusText.textContent = '대기 중';
+                    this.elements.statusText.textContent = '대기 중 (온라인)';
                 });
 
                 this.peer.on('connection', (conn) => {
+                    console.log('Incoming connection from:', conn.peer);
                     this.setupConnection(conn);
                 });
 
                 this.peer.on('error', (err) => {
-                    Utilsly.showAlert('연결 오류: ' + err.type);
-                    console.error(err);
+                    console.error('Peer error:', err);
+                    Utilsly.showAlert('연결 오류: ' + (err.type || '알 수 없는 오류'));
+                    this.elements.statusText.textContent = '오류 발생';
+                    this.elements.statusDot.className = 'status-dot';
                 });
             },
 
             connectToPeer() {
                 const targetId = this.elements.peerInput.value.trim().toUpperCase();
-                if (!targetId) return;
+                if (!targetId) {
+                    Utilsly.showAlert('상대방 ID를 입력해주세요.');
+                    return;
+                }
 
+                console.log('Attempting to connect to:', targetId);
                 this.elements.statusText.textContent = '연결 시도 중...';
                 this.elements.statusDot.className = 'status-dot connecting';
 
-                const conn = this.peer.connect(targetId);
+                const conn = this.peer.connect(targetId, { reliable: true });
                 this.setupConnection(conn);
             },
 
@@ -312,6 +321,7 @@
                 this.conn = conn;
 
                 conn.on('open', () => {
+                    console.log('Connection established with:', conn.peer);
                     this.elements.statusText.textContent = '연결됨: ' + conn.peer;
                     this.elements.statusDot.className = 'status-dot online';
                     this.elements.sendSection.style.opacity = '1';
@@ -320,6 +330,7 @@
                 });
 
                 conn.on('data', (data) => {
+                    // console.log('Data received:', data.type);
                     if (data.type === 'metadata') {
                         this.expectedSize = data.size;
                         this.expectedName = data.name;
@@ -330,7 +341,7 @@
                         this.updateProgress('receive', 0);
                     } else if (data.type === 'chunk') {
                         this.receivedChunks.push(data.chunk);
-                        this.receivedSize += data.chunk.byteLength;
+                        this.receivedSize += data.chunk.byteLength || data.chunk.size || 0;
                         const percent = Math.floor((this.receivedSize / this.expectedSize) * 100);
                         this.updateProgress('receive', percent);
 
@@ -340,8 +351,14 @@
                     }
                 });
 
+                conn.on('error', (err) => {
+                    console.error('Connection error:', err);
+                    Utilsly.showAlert('통신 오류가 발생했습니다.');
+                });
+
                 conn.on('close', () => {
-                    this.elements.statusText.textContent = '대기 중';
+                    console.log('Connection closed');
+                    this.elements.statusText.textContent = '연결 끊김';
                     this.elements.sendSection.style.opacity = '0.5';
                     this.elements.sendSection.style.pointerEvents = 'none';
                     Utilsly.showAlert('연결이 종료되었습니다.');
@@ -349,8 +366,13 @@
             },
 
             handleFile(file) {
-                if (!file || !this.conn) return;
+                if (!file) return;
+                if (!this.conn) {
+                    Utilsly.showAlert('상대방과 먼저 연결해야 합니다.');
+                    return;
+                }
 
+                console.log('Preparing to send file:', file.name, file.size, 'bytes');
                 this.elements.sendContainer.style.display = 'block';
                 this.elements.sendFilename.textContent = file.name;
                 this.updateProgress('send', 0);
@@ -362,29 +384,50 @@
                     size: file.size
                 });
 
-                const chunkSize = 16384; // 16KB
+                const chunkSize = 16384 * 4; // 64KB for better performance
                 let offset = 0;
 
                 const readChunk = () => {
+                    if (!this.conn || this.conn.open === false) {
+                        console.error('Connection lost during transfer');
+                        return;
+                    }
+
                     const reader = new FileReader();
                     const blob = file.slice(offset, offset + chunkSize);
 
                     reader.onload = (e) => {
+                        const buffer = e.target.result;
+                        // Use Uint8Array as it is often more reliable for WebRTC serialization across browsers
+                        const uint8 = new Uint8Array(buffer);
+
                         this.conn.send({
                             type: 'chunk',
-                            chunk: e.target.result
+                            chunk: uint8
                         });
-                        offset += e.target.result.byteLength;
+
+                        offset += buffer.byteLength;
                         const percent = Math.floor((offset / file.size) * 100);
-                        this.updateProgress('send', percent);
+                        this.updateProgress('send', Math.min(percent, 100));
 
                         if (offset < file.size) {
-                            readChunk();
+                            // Use setTimeout(0) to prevent call stack issues and allow UI to breathe
+                            setTimeout(readChunk, 0);
                         } else {
+                            console.log('File send complete');
                             Utilsly.showAlert('파일 전송이 완료되었습니다.');
-                            setTimeout(() => { this.elements.sendContainer.style.display = 'none'; }, 2000);
+                            setTimeout(() => {
+                                this.elements.sendContainer.style.display = 'none';
+                                this.updateProgress('send', 0);
+                            }, 3000);
                         }
                     };
+
+                    reader.onerror = (err) => {
+                        console.error('FileReader error:', err);
+                        Utilsly.showAlert('파일을 읽는 중 오류가 발생했습니다.');
+                    };
+
                     reader.readAsArrayBuffer(blob);
                 };
 
@@ -394,20 +437,26 @@
             updateProgress(mode, percent) {
                 const fill = this.elements[mode + 'Progress'];
                 const text = this.elements[mode + 'Percent'];
-                fill.style.width = percent + '%';
-                text.textContent = percent + '%';
+                if (fill) fill.style.width = percent + '%';
+                if (text) text.textContent = percent + '%';
             },
 
             finishDownload() {
+                console.log('Finished receiving all chunks. Total size:', this.receivedSize);
                 const blob = new Blob(this.receivedChunks);
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
                 a.download = this.expectedName;
+                document.body.appendChild(a);
                 a.click();
+                document.body.removeChild(a);
                 URL.revokeObjectURL(url);
+
                 Utilsly.showAlert('파일 수신 및 다운로드 완료!');
                 this.elements.receiveSection.style.display = 'none';
+                this.receivedChunks = [];
+                this.receivedSize = 0;
             }
         });
     </script>
