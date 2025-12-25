@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YAML ↔ JSON 변환기 - Utilsly</title>
+    <meta name="description" content="YAML 설정 파일과 JSON 형식을 상호 변환합니다. 모든 처리는 브라우저 내에서 안전하게 수행됩니다.">
+    <script>
+        !function () { const e = localStorage.getItem("theme"), t = window.matchMedia("(prefers-color-scheme: dark)").matches; "dark" !== e && (e || !t) || document.documentElement.setAttribute("data-theme", "dark") }();
+    </script>
+    <link rel="stylesheet" href="../../css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
+    <style>
+        .converter-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            height: 500px;
+            margin-bottom: 24px;
+        }
+
+        @media (max-width: 768px) {
+            .converter-grid {
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+
+            .converter-grid>div {
+                height: 300px;
+            }
+        }
+
+        .editor-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            height: 100%;
+        }
+
+        .code-area {
+            flex: 1;
+            width: 100%;
+            padding: 16px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-family: 'Consolas', monospace;
+            font-size: 13px;
+            resize: none;
+            line-height: 1.5;
+        }
+
+        .code-area:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+            background: var(--bg-primary);
+        }
+
+        .action-btns {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="user-profile">
+                    <div style="font-size: 24px; font-weight: 800; color: var(--text-primary); letter-spacing: -0.5px;">
+                        Utilsly.</div>
+                </div>
+            </div>
+            <nav class="sidebar-nav"></nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="top-bar">
+                <button class="menu-toggle-btn" onclick="Utilsly.toggleSidebar(true)">
+                    <span class="material-symbols-rounded">menu</span>
+                </button>
+                <div class="breadcrumbs">
+                    <span class="breadcrumb-item current-page">YAML ↔ JSON 변환기</span>
+                </div>
+            </header>
+
+            <div class="content-area">
+                <div class="page-header">
+                    <div class="header-icon-wrapper">
+                        <span class="material-symbols-rounded">integration_instructions</span>
+                    </div>
+                    <h1>YAML ↔ JSON 변환기</h1>
+                    <p class="description">YAML과 JSON 데이터 형식을 서로 변환합니다. 설정 파일을 다룰 때 유용하게 사용할 수 있습니다.</p>
+                </div>
+
+                <div class="tool-container" data-tool-id="yaml-json-converter">
+                    <div class="action-btns">
+                        <button class="btn btn-primary" id="btnYamlToJson">
+                            <span class="material-symbols-rounded">arrow_forward</span> YAML → JSON
+                        </button>
+                        <button class="btn btn-primary" id="btnJsonToYaml">
+                            <span class="material-symbols-rounded">arrow_back</span> JSON → YAML
+                        </button>
+                        <div style="flex:1;"></div>
+                        <button class="btn btn-secondary" id="btnClear">지우기</button>
+                        <button class="btn btn-secondary" id="btnSample">예제</button>
+                    </div>
+
+                    <div class="converter-grid">
+                        <div class="editor-wrapper">
+                            <label class="input-label">YAML Template</label>
+                            <textarea id="yamlInput" class="code-area" placeholder="YAML 데이터를 입력하세요..."></textarea>
+                        </div>
+                        <div class="editor-wrapper">
+                            <label class="input-label">JSON Output</label>
+                            <textarea id="jsonOutput" class="code-area" placeholder="JSON 데이터가 여기에 표시됩니다..."></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="../../js/common.js"></script>
+    <script>
+        Utilsly.registerTool('yaml-json-converter', {
+            init() {
+                this.elements = {
+                    yaml: document.getElementById('yamlInput'),
+                    json: document.getElementById('jsonOutput'),
+                    toBtn: document.getElementById('btnYamlToJson'),
+                    fromBtn: document.getElementById('btnJsonToYaml'),
+                    clearBtn: document.getElementById('btnClear'),
+                    sampleBtn: document.getElementById('btnSample')
+                };
+
+                this.elements.toBtn.addEventListener('click', () => this.yamlToJson());
+                this.elements.fromBtn.addEventListener('click', () => this.jsonToYaml());
+                this.elements.clearBtn.addEventListener('click', () => {
+                    this.elements.yaml.value = "";
+                    this.elements.json.value = "";
+                });
+                this.elements.sampleBtn.addEventListener('click', () => this.loadSample());
+            },
+
+            cleanup() { this.elements = {}; },
+
+            yamlToJson() {
+                const yaml = this.elements.yaml.value.trim();
+                if (!yaml) return;
+
+                try {
+                    const obj = jsyaml.load(yaml);
+                    this.elements.json.value = JSON.stringify(obj, null, 4);
+                } catch (e) {
+                    Utilsly.showAlert('YAML 변환 중 오류가 발생했습니다: ' + e.message);
+                }
+            },
+
+            jsonToYaml() {
+                const jsonStr = this.elements.json.value.trim();
+                if (!jsonStr) return;
+
+                try {
+                    const obj = JSON.parse(jsonStr);
+                    this.elements.yaml.value = jsyaml.dump(obj);
+                } catch (e) {
+                    Utilsly.showAlert('JSON 변환 중 오류가 발생했습니다: ' + e.message);
+                }
+            },
+
+            loadSample() {
+                this.elements.yaml.value = "server:\n  port: 8080\n  host: localhost\n  timeout: 30s\ndatabase:\n  adapter: postgresql\n  encoding: unicode\n  pool: 5\n";
+                this.yamlToJson();
+            }
+        });
+    </script>
+</body>
+
+</html>

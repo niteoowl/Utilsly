@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSV ↔ JSON 변환기 - Utilsly</title>
+    <meta name="description" content="CSV 데이터와 JSON 형식을 상호 변환합니다. 모든 처리는 브라우저 로컬에서 안전하게 수행됩니다.">
+    <script>
+        !function () { const e = localStorage.getItem("theme"), t = window.matchMedia("(prefers-color-scheme: dark)").matches; "dark" !== e && (e || !t) || document.documentElement.setAttribute("data-theme", "dark") }();
+    </script>
+    <link rel="stylesheet" href="../../css/style.css">
+    <style>
+        .converter-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            height: 500px;
+            margin-bottom: 24px;
+        }
+
+        @media (max-width: 768px) {
+            .converter-grid {
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+
+            .converter-grid>div {
+                height: 300px;
+            }
+        }
+
+        .editor-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            height: 100%;
+        }
+
+        .code-area {
+            flex: 1;
+            width: 100%;
+            padding: 16px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-family: 'Consolas', monospace;
+            font-size: 13px;
+            resize: none;
+            line-height: 1.5;
+        }
+
+        .code-area:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+            background: var(--bg-primary);
+        }
+
+        .action-btns {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="user-profile">
+                    <div style="font-size: 24px; font-weight: 800; color: var(--text-primary); letter-spacing: -0.5px;">
+                        Utilsly.</div>
+                </div>
+            </div>
+            <nav class="sidebar-nav"></nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="top-bar">
+                <button class="menu-toggle-btn" onclick="Utilsly.toggleSidebar(true)">
+                    <span class="material-symbols-rounded">menu</span>
+                </button>
+                <div class="breadcrumbs">
+                    <span class="breadcrumb-item current-page">CSV ↔ JSON 변환기</span>
+                </div>
+            </header>
+
+            <div class="content-area">
+                <div class="page-header">
+                    <div class="header-icon-wrapper">
+                        <span class="material-symbols-rounded">data_thresholding</span>
+                    </div>
+                    <h1>CSV ↔ JSON 변환기</h1>
+                    <p class="description">엑셀 데이터(CSV)와 JSON 형식을 서로 변환합니다. 모든 처리는 클라이언트 사이드에서 즉시 이루어집니다.</p>
+                </div>
+
+                <div class="tool-container" data-tool-id="csv-json-converter">
+                    <div class="action-btns">
+                        <button class="btn btn-primary" id="btnCsvToJson">
+                            <span class="material-symbols-rounded">arrow_forward</span> CSV → JSON
+                        </button>
+                        <button class="btn btn-primary" id="btnJsonToCsv">
+                            <span class="material-symbols-rounded">arrow_back</span> JSON → CSV
+                        </button>
+                        <div style="flex:1;"></div>
+                        <button class="btn btn-secondary" id="btnClear">지우기</button>
+                        <button class="btn btn-secondary" id="btnSample">예제</button>
+                    </div>
+
+                    <div class="converter-grid">
+                        <div class="editor-wrapper">
+                            <label class="input-label">CSV (Comma Separated Values)</label>
+                            <textarea id="csvInput" class="code-area" placeholder="CSV 데이터를 입력하세요..."></textarea>
+                        </div>
+                        <div class="editor-wrapper">
+                            <label class="input-label">JSON (JavaScript Object Notation)</label>
+                            <textarea id="jsonOutput" class="code-area" placeholder="JSON 데이터가 여기에 표시됩니다..."></textarea>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                        <button class="btn btn-secondary" id="btnDownloadCsv">CSV 다운로드</button>
+                        <button class="btn btn-secondary" id="btnDownloadJson">JSON 다운로드</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="../../js/common.js"></script>
+    <script>
+        Utilsly.registerTool('csv-json-converter', {
+            init() {
+                this.elements = {
+                    csv: document.getElementById('csvInput'),
+                    json: document.getElementById('jsonOutput'),
+                    toBtn: document.getElementById('btnCsvToJson'),
+                    fromBtn: document.getElementById('btnJsonToCsv'),
+                    clearBtn: document.getElementById('btnClear'),
+                    sampleBtn: document.getElementById('btnSample'),
+                    dlCsv: document.getElementById('btnDownloadCsv'),
+                    dlJson: document.getElementById('btnDownloadJson')
+                };
+
+                this.elements.toBtn.addEventListener('click', () => this.csvToJson());
+                this.elements.fromBtn.addEventListener('click', () => this.jsonToCsv());
+                this.elements.clearBtn.addEventListener('click', () => this.clear());
+                this.elements.sampleBtn.addEventListener('click', () => this.loadSample());
+
+                this.elements.dlCsv.addEventListener('click', () => this.download(this.elements.csv.value, 'data.csv', 'text/csv'));
+                this.elements.dlJson.addEventListener('click', () => this.download(this.elements.json.value, 'data.json', 'application/json'));
+            },
+
+            cleanup() { this.elements = {}; },
+
+            csvToJson() {
+                const csv = this.elements.csv.value.trim();
+                if (!csv) return;
+
+                try {
+                    const lines = csv.split('\n');
+                    const headers = lines[0].split(',').map(h => h.trim());
+                    const result = [];
+
+                    for (let i = 1; i < lines.length; i++) {
+                        if (!lines[i].trim()) continue;
+                        const obj = {};
+                        const currentline = lines[i].split(',');
+
+                        for (let j = 0; j < headers.length; j++) {
+                            let val = currentline[j]?.trim();
+                            // Attempt to parse number or boolean
+                            if (!isNaN(val) && val !== '') val = Number(val);
+                            if (val === 'true') val = true;
+                            if (val === 'false') val = false;
+
+                            obj[headers[j]] = val;
+                        }
+                        result.push(obj);
+                    }
+                    this.elements.json.value = JSON.stringify(result, null, 4);
+                } catch (e) {
+                    Utilsly.showAlert('CSV 변환 중 오류가 발생했습니다: ' + e.message);
+                }
+            },
+
+            jsonToCsv() {
+                const jsonStr = this.elements.json.value.trim();
+                if (!jsonStr) return;
+
+                try {
+                    const array = JSON.parse(jsonStr);
+                    if (!Array.isArray(array)) {
+                        Utilsly.showAlert('배열 형태의 JSON이 필요합니다.');
+                        return;
+                    }
+                    if (array.length === 0) {
+                        this.elements.csv.value = "";
+                        return;
+                    }
+
+                    const headers = Object.keys(array[0]);
+                    const csvRows = [headers.join(',')];
+
+                    for (const obj of array) {
+                        const values = headers.map(header => {
+                            const val = obj[header];
+                            return typeof val === 'string' && val.includes(',') ? `"${val}"` : val;
+                        });
+                        csvRows.push(values.join(','));
+                    }
+
+                    this.elements.csv.value = csvRows.join('\n');
+                } catch (e) {
+                    Utilsly.showAlert('JSON 변환 중 오류가 발생했습니다: ' + e.message);
+                }
+            },
+
+            clear() {
+                this.elements.csv.value = "";
+                this.elements.json.value = "";
+            },
+
+            loadSample() {
+                this.elements.csv.value = "id,name,email,age\n1,홍길동,hong@example.com,20\n2,이순신,lee@example.com,45\n3,강감찬,kang@example.com,38";
+                this.csvToJson();
+            },
+
+            download(content, filename, contentType) {
+                if (!content) return;
+                const blob = new Blob([content], { type: contentType });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+            }
+        });
+    </script>
+</body>
+
+</html>

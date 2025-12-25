@@ -390,6 +390,8 @@
                         <button class="category-btn" data-category="health">💪 건강</button>
                         <button class="category-btn" data-category="color">🎨 색상</button>
                         <button class="category-btn" data-category="finance">💰 금융</button>
+                        <button class="category-btn" data-category="security">🛡️ 보안</button>
+                        <button class="category-btn" data-category="file">📁 파일</button>
                     </div>
 
                     <div class="tools-section" id="toolsSection">
@@ -480,6 +482,9 @@
             { name: "URL 인코더", icon: "link", path: "/tools/dev/url-encoder", desc: "URL 인코딩/디코딩", category: "dev" },
             { name: "Base64 인코더", icon: "package_2", path: "/tools/dev/base64-encoder", desc: "Base64 변환", category: "dev" },
             { name: "UUID 생성기", icon: "fingerprint", path: "/tools/dev/uuid-generator", desc: "고유 식별자 생성", category: "dev" },
+            { name: "CSV ↔ JSON 변환", icon: "data_thresholding", path: "/tools/dev/csv-json-converter", desc: "엑셀 데이터 형식 교차 변환", category: "dev" },
+            { name: "YAML ↔ JSON 변환", icon: "integration_instructions", path: "/tools/dev/yaml-json-converter", desc: "설정 파일 형식 즉시 변환", category: "dev" },
+            { name: "Crontab 생성기", icon: "schedule", path: "/tools/dev/crontab-generator", desc: "주기적 실행 구문 GUI 제작", category: "dev" },
 
             // Math
             { name: "공학용 계산기", icon: "calculate", path: "/tools/math/scientific-calculator", desc: "복잡한 수식 계산", category: "math" },
@@ -510,7 +515,13 @@
 
             // AI
             { name: "AI 글쓰기", icon: "edit_note", path: "/tools/ai/writing-assistant", desc: "글 작성 보조 및 교정", category: "ai" },
-            { name: "AI 번역기", icon: "translate", path: "/tools/ai/translator", desc: "자연스러운 AI 번역", category: "ai" }
+            { name: "AI 번역기", icon: "translate", path: "/tools/ai/translator", desc: "자연스러운 AI 번역", category: "ai" },
+
+            // Security
+            { name: "JWT 디코더", icon: "security", path: "/tools/security/jwt-decoder", desc: "JWT 즉시 디코딩 및 페이로드 확인", category: "security" },
+
+            // File
+            { name: "P2P 파일 전송", icon: "swap_calls", path: "/tools/file/p2p-transfer", desc: "서버 없이 직접 파일 주고받기", category: "file" }
         ];
 
         // Update tool count
@@ -559,7 +570,9 @@
                 'date': '⏰ 시간 도구',
                 'health': '💪 건강 도구',
                 'color': '🎨 색상 도구',
-                'finance': '💰 금융 도구'
+                'finance': '💰 금융 도구',
+                'security': '🛡️ 보안 도구',
+                'file': '📁 파일 도구'
             };
             document.getElementById('currentCategoryTitle').textContent = titles[category] || '전체 도구';
 

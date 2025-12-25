@@ -260,10 +260,26 @@ const Utilsly = {
                 { name: "코드 미니파이어", icon: "compress", path: "/tools/dev/code-minifier" },
                 { name: "정규식 테스터", icon: "regular_expression", path: "/tools/dev/regex-tester" },
                 { name: "JSON 포맷터", icon: "data_object", path: "/tools/dev/json-formatter" },
+                { name: "CSV ↔ JSON 변환", icon: "data_thresholding", path: "/tools/dev/csv-json-converter" },
+                { name: "YAML ↔ JSON 변환", icon: "integration_instructions", path: "/tools/dev/yaml-json-converter" },
+                { name: "Crontab 생성기", icon: "schedule", path: "/tools/dev/crontab-generator" },
                 { name: "SQL 포맷터", icon: "database", path: "/tools/dev/sql-formatter" },
                 { name: "URL 인코더", icon: "link", path: "/tools/dev/url-encoder" },
                 { name: "Base64 인코더", icon: "package_2", path: "/tools/dev/base64-encoder" },
                 { name: "UUID 생성기", icon: "fingerprint", path: "/tools/dev/uuid-generator" },
+            ]
+        },
+        {
+            category: "파일 (File)",
+            items: [
+                { name: "P2P 파일 전송", icon: "swap_calls", path: "/tools/file/p2p-transfer" },
+            ]
+        },
+        {
+            category: "보안 (Security)",
+            items: [
+                { name: "JWT 디코더", icon: "security", path: "/tools/security/jwt-decoder" },
+                { name: "비밀번호 생성기", icon: "password", path: "/tools/security/password-generator" },
             ]
         },
         {
