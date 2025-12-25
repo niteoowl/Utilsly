@@ -209,6 +209,9 @@ const Utilsly = {
                 { name: "이미지 블러", icon: "blur_on", path: "/tools/image/image-blur" },
                 { name: "이미지 색상 추출", icon: "colorize", path: "/tools/image/color-extractor" },
                 { name: "OCR 텍스트 추출", icon: "find_in_page", path: "/tools/image/ocr" },
+                { name: "이미지 정렬/분류", icon: "grid_view", path: "/tools/image/image-sorter" },
+                { name: "더미 이미지 생성", icon: "placeholder", path: "/tools/image/placeholder-generator" },
+                { name: "HEIC PNG 변환", icon: "transform", path: "/tools/image/heic-png-converter" },
                 { name: "ASCII 아트", icon: "grid_on", path: "/tools/image/ascii-art" },
             ]
         },
@@ -271,9 +274,10 @@ const Utilsly = {
         },
         {
             category: "파일 (File)",
-            // File
             items: [
-                { name: "실시간 파일 공유", icon: "share_windows", path: "/tools/file/p2p-transfer", desc: "서버 저장 없이 즉시 파일 공유", category: "file" }
+                { name: "실시간 파일 공유", icon: "share_windows", path: "/tools/file/p2p-transfer" },
+                { name: "Zip 파일 압축", icon: "folder_zip", path: "/tools/file/zip-compress" },
+                { name: "Zip 압축 해제", icon: "unarchive", path: "/tools/file/zip-decompress" },
             ]
         },
         {

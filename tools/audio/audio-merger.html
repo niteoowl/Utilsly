@@ -13,12 +13,12 @@
     <style>
         .file-drop-zone {
             border: 2px dashed var(--border-color);
-            border-radius: 12px;
-            padding: 48px;
+            border-radius: 16px;
+            padding: 48px 24px;
             text-align: center;
             cursor: pointer;
             transition: all 0.2s;
-            background: var(--bg-secondary);
+            background: var(--bg-primary);
             margin-bottom: 24px;
         }
 
@@ -95,9 +95,9 @@
                 <div class="tool-container" data-tool-id="audio-merger">
                     <div class="file-drop-zone" id="drop-zone">
                         <span class="material-symbols-rounded"
-                            style="font-size:48px; color:var(--accent-blue); margin-bottom:16px;">upload_file</span>
-                        <h3 style="margin-bottom:8px;">오디오 파일 업로드</h3>
-                        <p style="color:var(--text-tertiary); font-size:14px;">파일을 드래그하거나 클릭하여 선택 (MP3, WAV)</p>
+                            style="font-size: 48px; color: var(--accent-blue); margin-bottom: 12px;">cloud_upload</span>
+                        <div style="font-weight: 600; margin-bottom: 4px; font-size: 18px;">오디오 파일 업로드</div>
+                        <div style="font-size: 14px; color: var(--text-tertiary);">파일을 드래그하거나 클릭하여 선택 (MP3, WAV)</div>
                         <input type="file" id="file-input" multiple accept="audio/*" style="display:none;">
                     </div>
 
@@ -149,12 +149,12 @@
                 this.elements.dropZone.addEventListener('dragleave', (e) => {
                     e.preventDefault();
                     this.elements.dropZone.style.borderColor = 'var(--border-color)';
-                    this.elements.dropZone.style.background = 'var(--bg-secondary)';
+                    this.elements.dropZone.style.background = 'var(--bg-primary)';
                 });
                 this.elements.dropZone.addEventListener('drop', (e) => {
                     e.preventDefault();
                     this.elements.dropZone.style.borderColor = 'var(--border-color)';
-                    this.elements.dropZone.style.background = 'var(--bg-secondary)';
+                    this.elements.dropZone.style.background = 'var(--bg-primary)';
                     this.addFiles(e.dataTransfer.files);
                 });
 
