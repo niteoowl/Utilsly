@@ -4,62 +4,102 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Utilsly Community</title>
+    <title>게시글 보기 - CHANNELS</title>
     <script>
         !function () { const e = localStorage.getItem("theme"), t = window.matchMedia("(prefers-color-scheme: dark)").matches; "dark" !== e && (e || !t) || document.documentElement.setAttribute("data-theme", "dark") }();
     </script>
     <link rel="stylesheet" href="../css/style.css">
     <style>
-        .view-container {
-            max-width: 800px;
-            margin: 0 auto;
+        :root {
+            --point-blue: #2563eb;
         }
 
-        .post-main {
+        .main-content {
             background: var(--bg-primary);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 32px;
-            margin-bottom: 24px;
+            padding: 0;
+        }
+
+        /* Minimal Header */
+        .view-header {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: rgba(var(--bg-primary-rgb, 255, 255, 255), 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        [data-theme="dark"] .view-header {
+            background: rgba(25, 25, 25, 0.8);
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            cursor: pointer;
+            padding: 4px;
+            display: flex;
+            align-items: center;
+        }
+
+        .header-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-primary);
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Post Content Container */
+        .view-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 24px 20px 100px 20px;
         }
 
         .post-header {
-            margin-bottom: 24px;
-            padding: 24px 0;
-            border-top: 2px solid var(--text-primary);
-            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 32px;
+        }
+
+        .post-tag {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            background: rgba(37, 99, 235, 0.1);
+            color: var(--point-blue);
+            font-size: 12px;
+            font-weight: 700;
+            margin-bottom: 12px;
         }
 
         .post-title {
             font-size: 24px;
-            font-weight: 700;
+            font-weight: 800;
             line-height: 1.4;
             color: var(--text-primary);
             margin-bottom: 16px;
+            letter-spacing: -0.01em;
         }
 
         .post-meta {
             display: flex;
-            flex-wrap: wrap;
-            gap: 16px;
-            font-size: 13px;
-            color: var(--text-secondary);
-        }
-
-        .meta-item {
-            display: flex;
             align-items: center;
-            gap: 4px;
-        }
-
-        .meta-label {
+            gap: 12px;
+            font-size: 13px;
             color: var(--text-tertiary);
-            font-weight: 600;
         }
 
-        .meta-value {
+        .meta-author {
             color: var(--text-primary);
-            font-weight: 600;
+            font-weight: 700;
         }
 
         .post-content {
@@ -67,76 +107,68 @@
             line-height: 1.8;
             color: var(--text-primary);
             min-height: 200px;
-            margin-bottom: 40px;
+            margin-bottom: 48px;
+            word-break: break-word;
         }
 
         .post-content img {
             max-width: 100%;
             border-radius: 12px;
-            margin: 20px 0;
+            margin: 24px 0;
         }
 
-        /* Recommend Button */
-        .recommend-action {
+        /* Recommend/Action Button */
+        .post-actions {
             display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-top: 40px;
-            padding-top: 40px;
+            justify-content: center;
+            padding: 40px 0;
             border-top: 1px solid var(--border-color);
+            margin-bottom: 40px;
         }
 
         .recommend-btn {
-            width: 64px;
-            height: 64px;
-            border-radius: 50%;
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
             display: flex;
+            flex-direction: column;
             align-items: center;
-            justify-content: center;
+            gap: 8px;
+            background: none;
+            border: 1px solid var(--border-color);
+            padding: 12px 24px;
+            border-radius: 50px;
+            color: var(--text-secondary);
             cursor: pointer;
             transition: all 0.2s;
-            color: var(--text-secondary);
-        }
-
-        .recommend-btn:hover {
-            border-color: var(--text-primary);
-            color: var(--text-primary);
-            transform: scale(1.1);
         }
 
         .recommend-btn.active {
-            background: var(--text-primary);
-            border-color: var(--text-primary);
-            color: var(--bg-primary);
+            background: rgba(37, 99, 235, 0.05);
+            border-color: var(--point-blue);
+            color: var(--point-blue);
         }
 
-        .recommend-count {
-            margin-top: 12px;
+        .recommend-btn .material-symbols-rounded {
+            font-size: 24px;
+        }
+
+        .recommend-btn .count {
+            font-size: 14px;
             font-weight: 700;
-            font-size: 15px;
         }
 
         /* Comments Section */
         .comments-section {
-            background: var(--bg-primary);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 32px;
+            padding-top: 24px;
         }
 
         .comments-header {
-            font-size: 18px;
+            font-size: 15px;
             font-weight: 800;
             margin-bottom: 24px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            color: var(--text-primary);
         }
 
         .comment-item {
-            padding: 20px 0;
+            padding: 16px 0;
             border-bottom: 1px solid var(--border-color);
         }
 
@@ -147,18 +179,16 @@
         .comment-meta {
             display: flex;
             justify-content: space-between;
-            align-items: center;
             margin-bottom: 8px;
+            font-size: 13px;
         }
 
         .comment-author {
             font-weight: 700;
-            font-size: 14px;
             color: var(--text-primary);
         }
 
         .comment-date {
-            font-size: 12px;
             color: var(--text-tertiary);
         }
 
@@ -167,62 +197,56 @@
             line-height: 1.6;
             color: var(--text-primary);
             white-space: pre-wrap;
-            word-break: break-all;
+        }
+
+        /* Comment Form */
+        .comment-form-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: var(--bg-primary);
+            border-top: 1px solid var(--border-color);
+            padding: 12px 20px;
+            z-index: 1000;
         }
 
         .comment-form {
-            background: var(--bg-secondary);
-            border-radius: 12px;
-            padding: 20px;
-            margin-top: 32px;
-        }
-
-        .comment-inputs {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
+            max-width: 600px;
+            margin: 0 auto;
+            display: flex;
             gap: 12px;
-            margin-bottom: 12px;
+            align-items: flex-end;
         }
 
         .comment-form textarea {
-            min-height: 100px;
-            margin-bottom: 12px;
-            resize: none;
-        }
-
-        .action-row {
-            display: flex;
-            justify-content: flex-end;
-            margin-top: 24px;
-            gap: 12px;
-        }
-
-        .btn-ghost {
-            background: none;
-            border: none;
-            color: var(--text-tertiary);
-            font-size: 13px;
-            cursor: pointer;
-            padding: 4px 8px;
-        }
-
-        .btn-ghost:hover {
+            flex: 1;
+            padding: 10px 16px;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-secondary);
             color: var(--text-primary);
+            font-size: 14px;
+            resize: none;
+            max-height: 100px;
         }
 
-        @media (max-width: 768px) {
+        .comment-form button {
+            background: var(--point-blue);
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
 
-            .post-main,
-            .comments-section {
-                padding: 20px;
-            }
-
+        @media (max-width: 600px) {
             .post-title {
-                font-size: 24px;
-            }
-
-            .comment-inputs {
-                grid-template-columns: 1fr;
+                font-size: 22px;
             }
         }
     </style>
@@ -230,47 +254,31 @@
 
 <body>
     <div class="app-container">
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <div class="user-profile">
-                    <div style="font-size: 24px; font-weight: 800; color: var(--text-primary); letter-spacing: -0.5px;">
-                        Utilsly.</div>
-                </div>
-            </div>
-            <nav class="sidebar-nav"></nav>
-        </aside>
+        <aside class="sidebar" style="display:none;"></aside>
 
         <main class="main-content">
-            <header class="top-bar">
-                <button class="menu-toggle-btn" onclick="Utilsly.toggleSidebar(true)">
-                    <span class="material-symbols-rounded">menu</span>
+            <header class="view-header">
+                <button class="back-btn" onclick="location.href='/community/index.html'">
+                    <span class="material-symbols-rounded">arrow_back</span>
                 </button>
-                <div class="breadcrumbs">
-                    <span class="breadcrumb-item"><a href="/community/index.html">커뮤니티</a></span>
-                    <span class="separator">/</span>
-                    <span class="breadcrumb-item current-page">게시글 보기</span>
+                <div class="header-title" id="header-post-title">조회 중...</div>
+                <div class="header-actions">
+                    <span class="material-symbols-rounded" id="more-actions-btn"
+                        style="cursor:pointer;">more_vert</span>
                 </div>
             </header>
 
-            <div class="content-area">
-                <div class="view-container" id="post-view">
-                    <!-- Loaded via JS -->
-                    <div style="padding: 100px 0; text-align: center;">
-                        <span class="material-symbols-rounded spin"
-                            style="font-size: 48px; color: var(--text-tertiary);">refresh</span>
-                    </div>
-                </div>
+            <div class="view-container" id="post-view">
+                <!-- Loaded via JS -->
+            </div>
 
-                <div class="action-row" style="max-width: 800px; margin: 0 auto;">
-                    <button class="btn" onclick="location.href='/community/index.html'">
-                        <span class="material-symbols-rounded" style="font-size: 18px; margin-right: 4px;">list</span>
-                        목록으로
+            <div class="comment-form-container">
+                <form class="comment-form" id="comment-form">
+                    <textarea id="c-content" placeholder="댓글을 입력하세요..." required rows="1"></textarea>
+                    <button type="submit">
+                        <span class="material-symbols-rounded">send</span>
                     </button>
-                    <button class="btn" id="delete-btn" style="color: #ff5252; border-color: #ff525222;">
-                        <span class="material-symbols-rounded" style="font-size: 18px; margin-right: 4px;">delete</span>
-                        삭제하기
-                    </button>
-                </div>
+                </form>
             </div>
         </main>
     </div>
@@ -278,7 +286,7 @@
     <script src="../js/common.js"></script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, doc, getDoc, updateDoc, increment, collection, addDoc, query, orderBy, getDocs, serverTimestamp, deleteDoc, runTransaction } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, updateDoc, increment, collection, addDoc, query, orderBy, getDocs, serverTimestamp, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const app = initializeApp({
             apiKey: "AIzaSyCbSmDuJNCSrIB7Fx9IzbePERD_2ka3rQE",
@@ -293,13 +301,13 @@
 
         const urlParams = new URLSearchParams(window.location.search);
         const postId = urlParams.get('id');
-        let currentUser = null;
 
         if (!postId) location.href = '/community/index.html';
 
         async function init() {
             await loadPost();
-            loadComments();
+            await loadComments();
+            setupAutoResize();
         }
 
         async function loadPost() {
@@ -308,80 +316,58 @@
             const snap = await getDoc(docRef);
 
             if (!snap.exists()) {
-                alert('삭제되었거나 존재하지 않는 글입니다.');
+                alert('삭제된 글입니다.');
                 location.href = '/community/index.html';
                 return;
             }
 
             const post = snap.data();
+            document.getElementById('header-post-title').textContent = post.title;
             renderPost(post);
         }
 
         function renderPost(post) {
             const container = document.getElementById('post-view');
-            const date = post.createdAt ? post.createdAt.toDate().toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' }) : '-';
-
-            const catNames = {
-                'free': '자유', 'stock': '주식/코인', 'dev': '개발',
-                'humor': '유머', 'suggestion': '건의사항', 'notice': '공지사항'
-            };
+            const date = post.createdAt ? post.createdAt.toDate().toLocaleString('ko-KR', { month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-';
 
             container.innerHTML = `
-                <div class="post-main">
-                    <div class="post-header">
+                <article class="post-main">
+                    <header class="post-header">
+                        <span class="post-tag">${post.category || '자유'}</span>
                         <h1 class="post-title">${escapeHtml(post.title)}</h1>
                         <div class="post-meta">
-                            <div class="meta-item">
-                                <span class="meta-label">글쓴이</span>
-                                <span class="meta-value">${escapeHtml(post.nickname)}</span>
-                            </div>
-                            <div class="meta-item">
-                                <span class="meta-label">날짜</span>
-                                <span class="meta-value">${date}</span>
-                            </div>
-                            <div class="meta-item">
-                                <span class="meta-label">조회</span>
-                                <span class="meta-value">${post.views || 0}</span>
-                            </div>
-                            <div class="meta-item">
-                                <span class="meta-label">추천</span>
-                                <span class="meta-value">${post.recommendCount || 0}</span>
-                            </div>
+                            <span class="meta-author">${escapeHtml(post.nickname)}</span>
+                            <span>${date}</span>
+                            <span>조회 ${post.views || 0}</span>
                         </div>
-                    </div>
+                    </header>
                     <div class="post-content">${post.content}</div>
                     
-                    <div class="recommend-action">
+                    <div class="post-actions">
                         <button class="recommend-btn" id="recommend-btn">
-                            <span class="material-symbols-rounded" style="font-size: 32px;">thumb_up</span>
+                            <span class="material-symbols-rounded">thumb_up</span>
+                            <span class="count">${post.recommendCount || 0}</span>
                         </button>
-                        <div class="recommend-count">추천 <span id="recommend-num">${post.recommendCount || 0}</span></div>
                     </div>
-                </div>
 
-                <div class="comments-section">
-                    <div class="comments-header">
-                        <span class="material-symbols-rounded">comment</span>
-                        댓글 <span style="color:var(--text-primary); margin-left:4px;" id="comment-count-display">${post.commentCount || 0}</span>
-                    </div>
-                    <div id="comment-list"></div>
-                    
-                    <form class="comment-form" id="comment-form">
-                        <div class="comment-inputs">
-                            <input type="text" id="c-nickname" placeholder="닉네임" required>
-                            <input type="password" id="c-password" placeholder="비밀번호" required>
-                        </div>
-                        <textarea id="c-content" placeholder="건강한 커뮤니티를 위해 배려하는 마음을 담아 댓글을 작성해주세요." required></textarea>
-                        <div style="display:flex; justify-content:flex-end;">
-                            <button type="submit" class="btn btn-primary">댓글 등록</button>
-                        </div>
-                    </form>
-                </div>
+                    <section class="comments-section">
+                        <h2 class="comments-header">댓글 <span id="comment-count-display">${post.commentCount || 0}</span></h2>
+                        <div id="comment-list"></div>
+                    </section>
+                </article>
             `;
 
             document.getElementById('recommend-btn').onclick = handleRecommend;
             document.getElementById('comment-form').onsubmit = handleCommentSubmit;
-            document.getElementById('delete-btn').onclick = () => deletePost(post.password, post.userId);
+
+            document.getElementById('more-actions-btn').onclick = () => {
+                const pass = prompt('비밀번호를 입력하면 삭제할 수 있습니다.');
+                if (pass === post.password) {
+                    if (confirm('정말 삭제하시겠습니까?')) {
+                        deleteDoc(doc(db, "posts", postId)).then(() => location.href = '/community/index.html');
+                    }
+                } else if (pass) alert('비밀번호가 틀렸습니다.');
+            };
         }
 
         async function loadComments() {
@@ -393,49 +379,33 @@
 
             list.innerHTML = snap.docs.map(docSnap => {
                 const c = docSnap.data();
-                const d = c.createdAt ? c.createdAt.toDate().toLocaleString('ko-KR', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
+                const d = c.createdAt ? formatCommentTime(c.createdAt) : '';
                 return `
                     <div class="comment-item">
                         <div class="comment-meta">
                             <span class="comment-author">${escapeHtml(c.nickname)}</span>
-                            <div style="display:flex; align-items:center; gap:12px;">
-                                <span class="comment-date">${d}</span>
-                                <button class="btn-ghost" onclick="deleteComment('${docSnap.id}', '${c.password}', '${c.userId}')">
-                                    <span class="material-symbols-rounded" style="font-size:14px;">close</span>
-                                </button>
-                            </div>
+                            <span class="comment-date">${d}</span>
                         </div>
                         <div class="comment-content">${escapeHtml(c.content)}</div>
                     </div>
                 `;
-            }).join('') || `<div style="text-align:center; padding:40px; color:var(--text-tertiary); font-size:14px;">첫 댓글을 남겨주세요.</div>`;
+            }).join('') || '<div style="padding:40px; text-align:center; color:var(--text-tertiary); font-size:14px;">첫 댓글을 남겨보세요.</div>';
         }
-
-        window.deleteComment = async (cid, correctPass, cuid) => {
-            const pass = prompt('댓글 비밀번호를 입력해주세요:');
-            if (pass === correctPass) {
-                if (confirm('정말 삭제하시겠습니까?')) {
-                    await deleteDoc(doc(db, `posts/${postId}/comments`, cid));
-                    await updateDoc(doc(db, "posts", postId), { commentCount: increment(-1) });
-                    loadComments();
-                }
-            } else if (pass !== null) alert('비밀번호가 틀렸습니다.');
-        };
 
         async function handleCommentSubmit(e) {
             e.preventDefault();
-            const nick = document.getElementById('c-nickname').value;
-            const pass = document.getElementById('c-password').value;
-            const content = document.getElementById('c-content').value;
+            const content = document.getElementById('c-content').value.trim();
+            if (!content) return;
 
             try {
                 await addDoc(collection(db, `posts/${postId}/comments`), {
-                    nickname: nick, password: pass, content: content, createdAt: serverTimestamp()
+                    nickname: '익명', content, createdAt: serverTimestamp(), password: 'guest'
                 });
                 await updateDoc(doc(db, "posts", postId), { commentCount: increment(1) });
                 document.getElementById('c-content').value = '';
+                document.getElementById('c-content').rows = 1;
                 loadComments();
-            } catch (err) { alert('등록 실패'); }
+            } catch (err) { alert('댓글 등록 실패'); }
         }
 
         async function handleRecommend() {
@@ -445,20 +415,22 @@
             try {
                 await updateDoc(doc(db, "posts", postId), { recommendCount: increment(1) });
                 btn.classList.add('active');
-                const num = document.getElementById('recommend-num');
-                num.textContent = parseInt(num.textContent) + 1;
-            } catch (e) { console.error(e); }
+                const countSpan = btn.querySelector('.count');
+                countSpan.textContent = parseInt(countSpan.textContent) + 1;
+            } catch (e) { }
         }
 
-        async function deletePost(correctPass, uid) {
-            const pass = prompt('게시글 비밀번호를 입력해주세요:');
-            if (pass === correctPass) {
-                if (confirm('게시글을 영구적으로 삭제하시겠습니까?')) {
-                    await deleteDoc(doc(db, "posts", postId));
-                    alert('삭제되었습니다.');
-                    location.href = '/community/index.html';
-                }
-            } else if (pass !== null) alert('비밀번호가 틀렸습니다.');
+        function formatCommentTime(ts) {
+            const date = ts.toDate();
+            return date.toLocaleString('ko-KR', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+        }
+
+        function setupAutoResize() {
+            const textarea = document.getElementById('c-content');
+            textarea.addEventListener('input', function () {
+                this.style.height = 'auto';
+                this.style.height = (this.scrollHeight) + 'px';
+            });
         }
 
         function escapeHtml(t) {
