@@ -93,7 +93,8 @@
         <aside class="sidebar">
             <div class="sidebar-header">
                 <div class="user-profile">
-                    <div class="avatar">U</div>
+                    <div style="font-size: 24px; font-weight: 800; color: var(--text-primary); letter-spacing: -0.5px;">
+                        Utilsly.</div>
                 </div>
             </div>
             <nav class="sidebar-nav">
@@ -103,8 +104,11 @@
 
         <main class="main-content">
             <header class="top-bar">
+                <button class="menu-toggle-btn" onclick="Utilsly.toggleSidebar(true)">
+                    <span class="material-symbols-rounded">menu</span>
+                </button>
                 <div class="breadcrumbs">
-                    <span class="breadcrumb-item">주파수 생성기</span>
+                    <span class="breadcrumb-item current-page">주파수 생성기</span>
                 </div>
             </header>
 
