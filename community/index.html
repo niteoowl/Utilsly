@@ -4,298 +4,544 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>커뮤니티 - Utilsly</title>
+    <title>CHANNELS - Utilsly Community</title>
     <script>
         !function () { const e = localStorage.getItem("theme"), t = window.matchMedia("(prefers-color-scheme: dark)").matches; "dark" !== e && (e || !t) || document.documentElement.setAttribute("data-theme", "dark") }();
     </script>
     <link rel="stylesheet" href="../css/style.css">
-    <script src="../js/common.js"></script>
     <style>
-        .community-container {
-            max-width: 1000px;
-            margin: 0 auto;
+        :root {
+            --point-blue: #2563eb;
         }
 
-        /* Channel Card Design */
-        .channel-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        .main-content {
+            padding: 0;
+            background: var(--bg-primary);
+        }
+
+        /* [A] Header Styles */
+        .blind-header {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: rgba(var(--bg-primary-rgb, 255, 255, 255), 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        [data-theme="dark"] .blind-header {
+            background: rgba(25, 25, 25, 0.8);
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 20px;
+        }
+
+        .header-title {
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            color: var(--text-primary);
+        }
+
+        .header-actions {
+            display: flex;
             gap: 16px;
-            margin-bottom: 32px;
+        }
+
+        .header-actions .material-symbols-rounded {
+            font-size: 24px;
+            color: var(--text-primary);
+            cursor: pointer;
+        }
+
+        /* Channel Navigation (Tabs) */
+        .channel-tabs {
+            display: flex;
+            overflow-x: auto;
+            padding: 0 16px;
+            gap: 20px;
+            scrollbar-width: none;
+        }
+
+        .channel-tabs::-webkit-scrollbar {
+            display: none;
+        }
+
+        .tab-item {
+            padding: 12px 4px;
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            white-space: nowrap;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .tab-item.active {
+            color: var(--point-blue);
+            border-bottom-color: var(--point-blue);
+        }
+
+        /* [B] Main Feed Styles */
+        .feed-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 0 0 100px 0;
+        }
+
+        /* Channel Creation Banner */
+        .create-banner {
+            margin: 16px;
+            padding: 20px;
+            background: rgba(37, 99, 235, 0.05);
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            border: 1px solid rgba(37, 99, 235, 0.1);
+        }
+
+        .create-banner-text h4 {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--point-blue);
+            margin-bottom: 2px;
+        }
+
+        .create-banner-text p {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        /* Horizontal Grid for Active Channels */
+        .active-channels-row {
+            padding: 0 16px 20px 16px;
+            overflow-x: auto;
+            display: flex;
+            gap: 12px;
+            scrollbar-width: none;
+        }
+
+        .active-channels-row::-webkit-scrollbar {
+            display: none;
         }
 
         .channel-card {
+            min-width: 110px;
             background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 24px;
-            text-align: center;
-            text-decoration: none;
-            color: var(--text-primary);
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 16px;
+            border-radius: 12px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 12px;
+            gap: 8px;
+            text-decoration: none;
+            transition: all 0.2s;
         }
 
         .channel-card:hover {
-            border-color: var(--accent-blue);
-            transform: translateY(-4px);
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
             background: var(--bg-hover);
         }
 
-        .channel-card .icon-circle {
-            width: 56px;
-            height: 56px;
-            background: var(--bg-primary);
-            border-radius: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--accent-blue);
-            margin-bottom: 4px;
+        .channel-card .icon {
+            font-size: 28px;
+            color: var(--text-secondary);
         }
 
         .channel-card .name {
-            font-size: 16px;
+            font-size: 13px;
             font-weight: 700;
+            color: var(--text-primary);
         }
 
-        /* List Design */
-        .list-container {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            overflow: hidden;
+        /* Single Column Post List */
+        .post-list {
+            border-top: 1px solid var(--border-color);
         }
 
-        .list-item {
-            display: flex;
-            align-items: center;
-            padding: 18px 24px;
+        .post-item {
+            padding: 24px 20px;
             border-bottom: 1px solid var(--border-color);
+            display: block;
             text-decoration: none;
             color: var(--text-primary);
             transition: background 0.1s;
         }
 
-        .list-item:hover {
+        .post-item:hover {
             background: var(--bg-hover);
         }
 
-        .post-title {
-            flex: 1;
-            font-size: 15px;
-            font-weight: 500;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            padding-right: 20px;
+        .post-meta-top {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            font-size: 12px;
         }
 
-        .post-meta {
+        .tag-chip {
+            padding: 2px 8px;
+            border-radius: 4px;
+            background: rgba(37, 99, 235, 0.1);
+            color: var(--point-blue);
+            font-weight: 700;
+        }
+
+        .post-time {
+            color: var(--text-tertiary);
+        }
+
+        .post-title {
+            font-size: 18px;
+            font-weight: 800;
+            line-height: 1.4;
+            margin-bottom: 8px;
+            letter-spacing: -0.01em;
+        }
+
+        .post-summary {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+
+        .post-meta-bottom {
             display: flex;
             gap: 16px;
             color: var(--text-tertiary);
             font-size: 13px;
-            flex-shrink: 0;
         }
 
-        .search-wrapper {
+        .meta-stat {
             display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            width: 100%;
+            align-items: center;
+            gap: 4px;
         }
 
-        .search-box {
+        .meta-stat .material-symbols-rounded {
+            font-size: 16px;
+        }
+
+        /* FAB for Writing */
+        .write-fab {
+            position: fixed;
+            bottom: 32px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            background: var(--point-blue);
+            color: white;
+            border-radius: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+            z-index: 1001;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .write-fab:hover {
+            transform: scale(1.05);
+            background: #1d4ed8;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: var(--bg-primary);
+            width: 90%;
+            max-width: 400px;
+            border-radius: 20px;
+            padding: 32px;
             position: relative;
-            flex: 1;
         }
 
-        .search-box input {
+        .modal-title {
+            font-size: 20px;
+            font-weight: 800;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-tertiary);
+            margin-bottom: 8px;
+        }
+
+        .input-group input,
+        .input-group select {
             width: 100%;
-            padding: 12px 16px 12px 44px;
+            padding: 12px 16px;
             border-radius: 12px;
             border: 1px solid var(--border-color);
             background: var(--bg-secondary);
             color: var(--text-primary);
+            font-size: 15px;
         }
 
-        .search-box .material-symbols-rounded {
-            position: absolute;
-            left: 14px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--text-tertiary);
-        }
-
-        .write-btn {
-            background: var(--accent-blue);
-            color: white;
-            padding: 12px 24px;
-            border-radius: 12px;
-            text-decoration: none;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            transition: opacity 0.2s;
-        }
-
-        .write-btn:hover {
-            opacity: 0.9;
+        @media (max-width: 600px) {
+            .blind-header {
+                padding-top: 10px;
+            }
         }
     </style>
 </head>
 
 <body>
     <div class="app-container">
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <div class="user-profile">
-                    <div style="font-size: 24px; font-weight: 800; color: var(--text-primary); letter-spacing: -0.5px;">
-                        Utilsly.</div>
-                </div>
-            </div>
-            <nav class="sidebar-nav"></nav>
-        </aside>
+        <!-- Sidebar is hidden by default in this minimal design or adapted -->
+        <aside class="sidebar" style="display:none;"></aside>
 
         <main class="main-content">
-            <header class="top-bar">
-                <button class="menu-toggle-btn" onclick="Utilsly.toggleSidebar(true)">
-                    <span class="material-symbols-rounded">menu</span>
-                </button>
-                <div class="breadcrumbs">
-                    <span class="breadcrumb-item current-page">커뮤니티</span>
+            <header class="blind-header">
+                <div class="header-top">
+                    <h1 class="header-title">CHANNELS</h1>
+                    <div class="header-actions">
+                        <span class="material-symbols-rounded">search</span>
+                        <span class="material-symbols-rounded">account_circle</span>
+                    </div>
+                </div>
+                <div class="channel-tabs" id="tab-nav">
+                    <div class="tab-item active" data-tab="all">피드</div>
+                    <div class="tab-item" data-tab="discover">발견</div>
+                    <div class="tab-item" data-tab="popular">인기</div>
+                    <div class="tab-item" data-tab="my">내 채널</div>
                 </div>
             </header>
 
-            <div class="content-area">
-                <div class="community-container">
-                    <!-- Home View -->
-                    <div id="home-view">
-                        <div class="page-header">
-                            <div class="header-icon-wrapper"><span class="material-symbols-rounded">groups</span></div>
-                            <h1>채널 목록</h1>
-                            <p class="description">관심 있는 주제의 채널을 선택하세요.</p>
-                        </div>
-                        <div class="channel-grid">
-                            <a href="?channel=free" class="channel-card">
-                                <div class="icon-circle"><span class="material-symbols-rounded">chat_bubble</span></div>
-                                <span class="name">자유 채널</span>
-                            </a>
-                            <a href="?channel=stock" class="channel-card">
-                                <div class="icon-circle"><span class="material-symbols-rounded">candlestick_chart</span>
-                                </div>
-                                <span class="name">주식/투자</span>
-                            </a>
-                            <a href="?channel=dev" class="channel-card">
-                                <div class="icon-circle"><span class="material-symbols-rounded">terminal</span></div>
-                                <span class="name">개발/코딩</span>
-                            </a>
-                            <a href="?channel=humor" class="channel-card">
-                                <div class="icon-circle"><span class="material-symbols-rounded">mood</span></div>
-                                <span class="name">유머/잡담</span>
-                            </a>
-                        </div>
+            <div class="feed-container">
+                <!-- Create Channel Banner -->
+                <div class="create-banner" id="create-channel-btn">
+                    <div class="create-banner-text">
+                        <h4>원하는 주제가 없나요?</h4>
+                        <p>직접 새로운 채널을 만들어보세요.</p>
                     </div>
+                    <span class="material-symbols-rounded" style="color:var(--point-blue);">add_circle</span>
+                </div>
 
-                    <!-- Post List View -->
-                    <div id="list-view" style="display:none;">
-                        <div class="page-header">
-                            <div style="display:flex; align-items:center; gap:12px;">
-                                <button onclick="location.href='/community/index.html'" class="btn-icon-sm">
-                                    <span class="material-symbols-rounded">arrow_back</span>
-                                </button>
-                                <h1 id="channel-title">채널</h1>
-                            </div>
-                        </div>
+                <!-- Active Channels Row -->
+                <div class="active-channels-row" id="active-channels">
+                    <!-- Loaded via JS -->
+                </div>
 
-                        <div class="search-wrapper">
-                            <div class="search-box">
-                                <span class="material-symbols-rounded">search</span>
-                                <input type="text" id="searchInput" placeholder="검색어를 입력하세요...">
-                            </div>
-                            <a href="/community/write.html" id="writeBtn" class="write-btn">
-                                <span class="material-symbols-rounded" style="font-size:18px;">edit</span> 글쓰기
-                            </a>
-                        </div>
-
-                        <div class="list-container" id="postList">
-                            <div style="text-align:center; padding:50px; color:var(--text-tertiary);">불러오는 중...</div>
-                        </div>
-                    </div>
+                <!-- Post Feed -->
+                <div class="post-list" id="post-feed">
+                    <!-- Loaded via JS -->
                 </div>
             </div>
+
+            <a href="/community/write.html" class="write-fab">
+                <span class="material-symbols-rounded" style="font-size: 32px;">edit</span>
+            </a>
         </main>
     </div>
 
+    <!-- Create Channel Modal -->
+    <div class="modal" id="create-modal">
+        <div class="modal-content">
+            <h2 class="modal-title">새 채널 만들기</h2>
+            <div class="input-group">
+                <label>채널 이름</label>
+                <input type="text" id="new-channel-name" placeholder="예: 맛집탐방, 개발블로그">
+            </div>
+            <div class="input-group">
+                <label>대표 아이콘</label>
+                <select id="new-channel-icon">
+                    <option value="forum">💬 채팅</option>
+                    <option value="star">⭐ 스타</option>
+                    <option value="local_fire_department">🔥 핫</option>
+                    <option value="terminal">💻 개발</option>
+                    <option value="palette">🎨 디자인</option>
+                    <option value="restaurant">🍴 맛집</option>
+                    <option value="directions_run">🏃 운동</option>
+                </select>
+            </div>
+            <div style="display:flex; gap:12px; margin-top:32px;">
+                <button class="btn" style="flex:1;" id="modal-close">취소</button>
+                <button class="btn btn-primary" style="flex:1;" id="modal-submit">개설하기</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/common.js"></script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, query, where, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, query, where, orderBy, limit, getDocs, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        const firebaseConfig = {
+        const app = initializeApp({
             apiKey: "AIzaSyCbSmDuJNCSrIB7Fx9IzbePERD_2ka3rQE",
             authDomain: "utilsly.firebaseapp.com",
             projectId: "utilsly",
             storageBucket: "utilsly.firebasestorage.app",
             messagingSenderId: "713000931988",
-            appId: "1:713000931988:web:8891efe6d0ab2d61b61a81"
-        };
-
-        const app = initializeApp(firebaseConfig);
+            appId: "1:713000931988:web:8891efe6d0ab2d61b61a81",
+            measurementId: "G-WSRTSNGT8G"
+        });
         const db = getFirestore(app);
 
-        const params = new URLSearchParams(window.location.search);
-        const currentChannel = params.get('channel');
+        let activeTab = 'all';
+        let channels = [];
 
-        const channels = {
-            free: "자유 채널",
-            stock: "주식/투자",
-            dev: "개발/코딩",
-            humor: "유머/잡담"
-        };
-
-        if (currentChannel && channels[currentChannel]) {
-            document.getElementById('home-view').style.display = 'none';
-            document.getElementById('list-view').style.display = 'block';
-            document.getElementById('channel-title').textContent = channels[currentChannel];
-            document.getElementById('writeBtn').href = `/community/write.html?channel=${currentChannel}`;
-            loadPosts(currentChannel);
+        async function init() {
+            await loadChannels();
+            await loadPosts();
+            setupEvents();
         }
 
-        async function loadPosts(channel) {
-            const list = document.getElementById('postList');
+        async function loadChannels() {
+            const snap = await getDocs(collection(db, "channels"));
+            channels = [];
+            snap.forEach(doc => channels.push({ id: doc.id, ...doc.data() }));
+            renderChannels();
+        }
+
+        function renderChannels() {
+            const container = document.getElementById('active-channels');
+            const defaultChannels = [
+                { id: 'free', name: '자유', icon: 'chat_bubble' },
+                { id: 'stock', name: '주식/코인', icon: 'candlestick_chart' },
+                { id: 'dev', name: '개발', icon: 'terminal' }
+            ];
+            const allChannels = [...defaultChannels, ...channels];
+
+            container.innerHTML = allChannels.map(ch => `
+                <a href="?channel=${ch.id}" class="channel-card">
+                    <span class="material-symbols-rounded icon">${ch.icon}</span>
+                    <span class="name">${ch.name}</span>
+                </a>
+            `).join('');
+        }
+
+        async function loadPosts() {
+            const container = document.getElementById('post-feed');
+            container.innerHTML = '<div style="padding:40px; text-align:center; color:var(--text-tertiary);">피드를 불러오는 중...</div>';
+
             try {
-                const q = query(collection(db, "posts"), where("category", "==", channel), orderBy("createdAt", "desc"));
+                const q = query(collection(db, "posts"), orderBy("createdAt", "desc"), limit(20));
                 const snap = await getDocs(q);
+                let html = '';
 
                 if (snap.empty) {
-                    list.innerHTML = '<div style="text-align:center; padding:50px; color:var(--text-tertiary);">글이 없습니다.</div>';
-                    return;
+                    html = '<div style="padding:40px; text-align:center; color:var(--text-tertiary);">게시글이 없습니다.</div>';
+                } else {
+                    snap.forEach(doc => {
+                        const post = doc.data();
+                        const time = formatTime(post.createdAt);
+                        const cleanContent = post.content.replace(/<[^>]*>/g, '');
+                        html += `
+                            <a href="/community/view.html?id=${doc.id}" class="post-item">
+                                <div class="post-meta-top">
+                                    <span class="tag-chip">${post.category || '자유'}</span>
+                                    <span class="post-time">${time}</span>
+                                </div>
+                                <h3 class="post-title">${escapeHtml(post.title)}</h3>
+                                <div class="post-summary">${escapeHtml(cleanContent)}</div>
+                                <div class="post-meta-bottom">
+                                    <div class="meta-stat">
+                                        <span class="material-symbols-rounded" style="color:#ff5252;">favorite</span>
+                                        <span>${post.recommendCount || 0}</span>
+                                    </div>
+                                    <div class="meta-stat">
+                                        <span class="material-symbols-rounded">chat_bubble</span>
+                                        <span>${post.commentCount || 0}</span>
+                                    </div>
+                                    <div class="meta-stat">
+                                        <span>조회 ${post.views || 0}</span>
+                                    </div>
+                                </div>
+                            </a>
+                        `;
+                    });
                 }
-
-                list.innerHTML = snap.docs.map(doc => {
-                    const data = doc.data();
-                    const date = data.createdAt ? data.createdAt.toDate().toLocaleDateString() : '-';
-                    return `
-                        <a href="/community/view.html?id=${doc.id}" class="list-item">
-                            <span class="post-title">${data.title}</span>
-                            <div class="post-meta">
-                                <span>${data.nickname}</span>
-                                <span>${date}</span>
-                            </div>
-                        </a>
-                    `;
-                }).join('');
+                container.innerHTML = html;
             } catch (err) {
-                console.error(err);
-                list.innerHTML = '<div style="text-align:center; padding:50px; color:var(--text-tertiary);">로드 실패</div>';
+                container.innerHTML = '<div style="padding:40px; text-align:center; color:var(--text-tertiary);">데이터 로드 실패</div>';
             }
         }
+
+        function setupEvents() {
+            // Tab switch
+            document.getElementById('tab-nav').onclick = (e) => {
+                const item = e.target.closest('.tab-item');
+                if (item) {
+                    document.querySelectorAll('.tab-item').forEach(i => i.classList.remove('active'));
+                    item.classList.add('active');
+                    activeTab = item.dataset.tab;
+                    // Logic for tab filtering can be added here
+                }
+            };
+
+            // Modal
+            const modal = document.getElementById('create-modal');
+            document.getElementById('create-channel-btn').onclick = () => modal.style.display = 'flex';
+            document.getElementById('modal-close').onclick = () => modal.style.display = 'none';
+
+            document.getElementById('modal-submit').onclick = async () => {
+                const name = document.getElementById('new-channel-name').value.trim();
+                const icon = document.getElementById('new-channel-icon').value;
+                if (!name) return alert('채널 이름을 입력해주세요.');
+
+                try {
+                    await addDoc(collection(db, "channels"), {
+                        name, icon, createdAt: serverTimestamp()
+                    });
+                    modal.style.display = 'none';
+                    loadChannels();
+                    alert('새로운 채널이 생성되었습니다!');
+                } catch (err) {
+                    alert('채널 생성 실패');
+                }
+            };
+        }
+
+        function formatTime(ts) {
+            if (!ts) return '';
+            const date = ts.toDate();
+            const diff = (new Date() - date) / 1000;
+            if (diff < 60) return '방금 전';
+            if (diff < 3600) return Math.floor(diff / 60) + '분 전';
+            if (diff < 86400) return Math.floor(diff / 3600) + '시간 전';
+            return date.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' });
+        }
+
+        function escapeHtml(t) {
+            return t?.replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m])) || '';
+        }
+
+        init();
     </script>
 </body>
 
