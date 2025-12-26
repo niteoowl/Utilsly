@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>환율 변환기 - Utilsly</title>
+    <meta name="description" content="전 세계 160개 이상의 통화를 실시간 환율로 변환하세요. 쉽고 빠른 환율 계산기.">
+    <script>
+        (function () {
+            const savedTheme = localStorage.getItem('theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            }
+        })();
+    </script>
+    <link rel="preload" href="../../css/style.css" as="style">
+    <link rel="stylesheet" href="../../css/style.css">
+    <style>
+        .converter-card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 32px;
+            max-width: 600px;
+            margin: 0 auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        }
+
+        .input-group {
+            margin-bottom: 24px;
+        }
+
+        .input-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+        }
+
+        .currency-row {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .amount-input-wrapper {
+            position: relative;
+            flex: 1;
+        }
+
+        .amount-input {
+            width: 100%;
+            font-size: 24px;
+            font-weight: 700;
+            padding: 16px 20px;
+            border-radius: 16px;
+            border: 2px solid var(--border-color);
+            background: var(--bg-sidebar);
+            color: var(--text-primary);
+            transition: all 0.2s;
+        }
+
+        .amount-input:focus {
+            border-color: var(--accent-blue);
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(0, 102, 255, 0.1);
+        }
+
+        .currency-select-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0 20px;
+            height: 64px;
+            background: var(--bg-sidebar);
+            border: 2px solid var(--border-color);
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            min-width: 140px;
+        }
+
+        .currency-select-btn:hover {
+            border-color: var(--text-tertiary);
+            background: var(--bg-hover);
+        }
+
+        .currency-flag {
+            font-size: 24px;
+        }
+
+        .currency-code {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .swap-container {
+            display: flex;
+            justify-content: center;
+            margin: -12px 0 12px 0;
+            position: relative;
+            z-index: 2;
+        }
+
+        .swap-btn {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            color: var(--text-secondary);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .swap-btn:hover {
+            transform: rotate(180deg);
+            background: var(--accent-blue);
+            color: white;
+            border-color: var(--accent-blue);
+        }
+
+        .result-box {
+            margin-top: 32px;
+            padding: 24px;
+            background: rgba(0, 102, 255, 0.05);
+            border-radius: 20px;
+            border: 1px dashed rgba(0, 102, 255, 0.2);
+            text-align: center;
+        }
+
+        .result-main {
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--accent-blue);
+            margin-bottom: 8px;
+        }
+
+        .result-sub {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .update-info {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            margin-top: 16px;
+            text-align: center;
+        }
+
+        /* Currency Picker Modal */
+        .currency-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .currency-modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--bg-primary);
+            border-radius: 24px;
+            width: 100%;
+            max-width: 450px;
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-header {
+            padding: 24px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-secondary);
+        }
+
+        .search-wrapper {
+            padding: 16px 24px;
+        }
+
+        .currency-search {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-sidebar);
+            color: var(--text-primary);
+        }
+
+        .currency-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px;
+        }
+
+        .currency-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .currency-item:hover {
+            background: var(--bg-hover);
+        }
+
+        .currency-info {
+            flex: 1;
+        }
+
+        .currency-name {
+            font-weight: 600;
+            font-size: 15px;
+        }
+
+        .currency-subname {
+            font-size: 12px;
+            color: var(--text-tertiary);
+        }
+
+        @media (max-width: 600px) {
+            .converter-card {
+                padding: 24px;
+                border-radius: 0;
+                border: none;
+                box-shadow: none;
+                background: transparent;
+            }
+
+            .currency-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .currency-select-btn {
+                height: 54px;
+            }
+
+            .amount-input {
+                font-size: 20px;
+                padding: 14px;
+            }
+
+            .result-main {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="user-profile">
+                    <div style="font-size: 24px; font-weight: 800; color: var(--text-primary); letter-spacing: -0.5px;">
+                        Utilsly.</div>
+                </div>
+            </div>
+            <nav class="sidebar-nav"></nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="top-bar">
+                <div class="breadcrumbs">
+                    <span class="breadcrumb-item">금융/투자</span>
+                    <span class="separator">/</span>
+                    <span class="breadcrumb-item current-page">환율 변환기</span>
+                </div>
+            </header>
+
+            <div class="content-area">
+                <div class="page-header">
+                    <div class="header-icon-wrapper">
+                        <span class="material-symbols-rounded">currency_exchange</span>
+                    </div>
+                    <h1>환율 변환기</h1>
+                    <p class="description">전 세계 160개 이상의 통화를 실시간 환율로 간편하게 변환하세요.</p>
+                </div>
+
+                <div class="tool-container" data-tool-id="currency-converter">
+                    <div class="converter-card" id="currencyCard">
+                        <div class="input-group">
+                            <label class="input-label">바꾸실 금액</label>
+                            <div class="currency-row">
+                                <div class="amount-input-wrapper">
+                                    <input type="text" id="sourceAmount" class="amount-input" placeholder="0"
+                                        inputmode="decimal">
+                                </div>
+                                <button class="currency-select-btn" id="sourceCurrencyBtn">
+                                    <span class="currency-flag" id="sourceFlag">🇺🇸</span>
+                                    <span class="currency-code" id="sourceCode">USD</span>
+                                    <span class="material-symbols-rounded"
+                                        style="margin-left: auto; font-size: 18px; color: var(--text-tertiary);">expand_more</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="swap-container">
+                            <button class="swap-btn" id="swapBtn" title="통화 맞바꾸기">
+                                <span class="material-symbols-rounded">swap_vert</span>
+                            </button>
+                        </div>
+
+                        <div class="input-group">
+                            <label class="input-label">변환될 통화</label>
+                            <div class="currency-row">
+                                <div class="amount-input-wrapper">
+                                    <input type="text" id="targetAmount" class="amount-input" placeholder="0" readonly>
+                                </div>
+                                <button class="currency-select-btn" id="targetCurrencyBtn">
+                                    <span class="currency-flag" id="targetFlag">🇰🇷</span>
+                                    <span class="currency-code" id="targetCode">KRW</span>
+                                    <span class="material-symbols-rounded"
+                                        style="margin-left: auto; font-size: 18px; color: var(--text-tertiary);">expand_more</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="result-box">
+                            <div class="result-main" id="finalResult">1 USD = 0 KRW</div>
+                            <div class="result-sub" id="exchangeRateInfo">Loading exchange rate...</div>
+                        </div>
+
+                        <div class="update-info" id="lastUpdated">마지막 업데이트: --</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Currency Selector Modal -->
+    <div class="currency-modal" id="currencyModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">통화 선택</h3>
+                <button class="close-modal" id="closeModal">
+                    <span class="material-symbols-rounded">close</span>
+                </button>
+            </div>
+            <div class="search-wrapper">
+                <input type="text" class="currency-search" id="currencySearch" placeholder="통화 이름 또는 코드 검색...">
+            </div>
+            <div class="currency-list" id="currencyList">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+    </div>
+
+    <script src="../../js/common.js"></script>
+    <script>
+        Utilsly.registerTool('currency-converter', {
+            rates: {},
+            sourceCurrency: 'USD',
+            targetCurrency: 'KRW',
+            currencies: [
+                { code: 'KRW', name: '대한민국 원', flag: '🇰🇷' },
+                { code: 'USD', name: '미국 달러', flag: '🇺🇸' },
+                { code: 'JPY', name: '일본 엔', flag: '🇯🇵' },
+                { code: 'EUR', name: '유로', flag: '🇪🇺' },
+                { code: 'CNY', name: '중국 위안', flag: '🇨🇳' },
+                { code: 'GBP', name: '영국 파운드', flag: '🇬🇧' },
+                { code: 'AUD', name: '호주 달러', flag: '🇦🇺' },
+                { code: 'CAD', name: '캐나다 달러', flag: '🇨🇦' },
+                { code: 'CHF', name: '스위스 프랑', flag: '🇨🇭' },
+                { code: 'HKD', name: '홍콩 달러', flag: '🇭🇰' },
+                { code: 'SGD', name: '싱가포르 달러', flag: '🇸🇬' },
+                { code: 'THB', name: '태국 바트', flag: '🇹🇭' },
+                { code: 'TWD', name: '대만 달러', flag: '🇹🇼' },
+                { code: 'VND', name: '베트남 동', flag: '🇻🇳' },
+                { code: 'PHP', name: '필리핀 페소', flag: '🇵🇭' },
+                { code: 'IDR', name: '인도네시아 루피아', flag: '🇮🇩' }
+            ],
+            targetMode: 'source', // source or target
+
+            async init() {
+                this.els = {
+                    sourceAmount: document.getElementById('sourceAmount'),
+                    targetAmount: document.getElementById('targetAmount'),
+                    sourceBtn: document.getElementById('sourceCurrencyBtn'),
+                    targetBtn: document.getElementById('targetCurrencyBtn'),
+                    sourceCode: document.getElementById('sourceCode'),
+                    targetCode: document.getElementById('targetCode'),
+                    sourceFlag: document.getElementById('sourceFlag'),
+                    targetFlag: document.getElementById('targetFlag'),
+                    swapBtn: document.getElementById('swapBtn'),
+                    modal: document.getElementById('currencyModal'),
+                    closeModal: document.getElementById('closeModal'),
+                    search: document.getElementById('currencySearch'),
+                    list: document.getElementById('currencyList'),
+                    finalResult: document.getElementById('finalResult'),
+                    rateInfo: document.getElementById('exchangeRateInfo'),
+                    lastUpdated: document.getElementById('lastUpdated')
+                };
+
+                await this.fetchRates();
+                this.setupListeners();
+                this.renderCurrencyList();
+                this.calculate();
+            },
+
+            async fetchRates() {
+                try {
+                    const response = await fetch(`https://open.er-api.com/v6/latest/${this.sourceCurrency}`);
+                    const data = await response.json();
+                    if (data.result === 'success') {
+                        this.rates = data.rates;
+                        this.els.lastUpdated.textContent = `마지막 업데이트: ${new Date(data.time_last_update_utc).toLocaleString('ko-KR')}`;
+
+                        // Also update available currencies if not already populated with many
+                        if (this.currencies.length <= 16) {
+                            const allCodes = Object.keys(data.rates);
+                            // We don't have all names/flags easily, so we merge
+                            allCodes.forEach(code => {
+                                if (!this.currencies.find(c => c.code === code)) {
+                                    this.currencies.push({ code, name: code, flag: '🏳️' });
+                                }
+                            });
+                            this.renderCurrencyList();
+                        }
+                    }
+                } catch (error) {
+                    console.error('Failed to fetch rates:', error);
+                    Utilsly.showAlert('환율 정보를 가져오는데 실패했습니다.');
+                }
+            },
+
+            setupListeners() {
+                this.els.sourceAmount.addEventListener('input', (e) => {
+                    let value = e.target.value.replace(/[^0-9.]/g, '');
+                    const parts = value.split('.');
+                    if (parts.length > 2) value = parts[0] + '.' + parts.slice(1).join('');
+
+                    // Format with commas for display but keep value for calculation
+                    const num = parseFloat(value);
+                    if (!isNaN(num)) {
+                        // We don't want to format while typing as it messes up cursor
+                        // But we will format on blur or use a display-only field
+                    }
+                    this.calculate();
+                });
+
+                this.els.sourceBtn.addEventListener('click', () => this.openModal('source'));
+                this.els.targetBtn.addEventListener('click', () => this.openModal('target'));
+                this.els.closeModal.addEventListener('click', () => this.closeModal());
+                this.els.modal.addEventListener('click', (e) => {
+                    if (e.target === this.els.modal) this.closeModal();
+                });
+
+                this.els.swapBtn.addEventListener('click', () => {
+                    const temp = this.sourceCurrency;
+                    this.sourceCurrency = this.targetCurrency;
+                    this.targetCurrency = temp;
+                    this.updateUI();
+                    this.fetchRates().then(() => this.calculate());
+                });
+
+                this.els.search.addEventListener('input', (e) => {
+                    this.renderCurrencyList(e.target.value);
+                });
+            },
+
+            openModal(mode) {
+                this.targetMode = mode;
+                this.els.modal.classList.add('active');
+                this.els.search.value = '';
+                this.renderCurrencyList();
+                this.els.search.focus();
+            },
+
+            closeModal() {
+                this.els.modal.classList.remove('active');
+            },
+
+            selectCurrency(code) {
+                const currency = this.currencies.find(c => c.code === code);
+                if (this.targetMode === 'source') {
+                    this.sourceCurrency = code;
+                    this.fetchRates().then(() => this.calculate());
+                } else {
+                    this.targetCurrency = code;
+                    this.calculate();
+                }
+                this.updateUI();
+                this.closeModal();
+            },
+
+            updateUI() {
+                const s = this.currencies.find(c => c.code === this.sourceCurrency);
+                const t = this.currencies.find(c => c.code === this.targetCurrency);
+
+                if (s) {
+                    this.els.sourceCode.textContent = s.code;
+                    this.els.sourceFlag.textContent = s.flag;
+                }
+                if (t) {
+                    this.els.targetCode.textContent = t.code;
+                    this.els.targetFlag.textContent = t.flag;
+                }
+            },
+
+            renderCurrencyList(query = '') {
+                const q = query.toLowerCase();
+                const filtered = this.currencies.filter(c =>
+                    c.code.toLowerCase().includes(q) ||
+                    c.name.toLowerCase().includes(q)
+                ).sort((a, b) => {
+                    // Popular ones first
+                    const popular = ['KRW', 'USD', 'JPY', 'EUR', 'CNY'];
+                    const aIdx = popular.indexOf(a.code);
+                    const bIdx = popular.indexOf(b.code);
+                    if (aIdx !== -1 && bIdx !== -1) return aIdx - bIdx;
+                    if (aIdx !== -1) return -1;
+                    if (bIdx !== -1) return 1;
+                    return a.code.localeCompare(b.code);
+                });
+
+                this.els.list.innerHTML = filtered.map(c => `
+                    <div class="currency-item" onclick="Utilsly.tools['currency-converter'].selectCurrency('${c.code}')">
+                        <span class="currency-flag">${c.flag || '🏳️'}</span>
+                        <div class="currency-info">
+                            <div class="currency-name">${c.code}</div>
+                            <div class="currency-subname">${c.name}</div>
+                        </div>
+                    </div>
+                `).join('');
+            },
+
+            calculate() {
+                const amount = parseFloat(this.els.sourceAmount.value.replace(/,/g, '')) || 0;
+                const rate = this.rates[this.targetCurrency];
+
+                if (rate) {
+                    const result = amount * rate;
+                    this.els.targetAmount.value = result.toLocaleString('ko-KR', { maximumFractionDigits: 2 });
+
+                    const oneRate = (1 * rate).toLocaleString('ko-KR', { maximumFractionDigits: 4 });
+                    this.els.finalResult.textContent = `1 ${this.sourceCurrency} = ${oneRate} ${this.targetCurrency}`;
+
+                    const inverseRate = (1 / rate).toLocaleString('ko-KR', { maximumFractionDigits: 4 });
+                    this.els.rateInfo.textContent = `1 ${this.targetCurrency} = ${inverseRate} ${this.sourceCurrency}`;
+                }
+            },
+
+            cleanup() {
+                // Event listeners are automatically removed or don't leak much in this simple tool
+            }
+        });
+    </script>
+</body>
+
+</html>

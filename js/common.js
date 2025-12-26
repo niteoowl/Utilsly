@@ -327,6 +327,11 @@ const Utilsly = {
                 { name: "물타기 계산기", icon: "water_drop", path: "/tools/finance/average-down" },
                 { name: "목표 평단 계산기", icon: "gps_fixed", path: "/tools/finance/target-price" },
                 { name: "수익률 계산기", icon: "trending_up", path: "/tools/finance/profit-calculator" },
+                { name: "환율 변환기", icon: "currency_exchange", path: "/tools/finance/currency-converter" },
+                { name: "원달러 환율", icon: "attach_money", path: "/tools/finance/krw-usd" },
+                { name: "엔화 환율", icon: "currency_yen", path: "/tools/finance/krw-jpy" },
+                { name: "유로 환율", icon: "euro", path: "/tools/finance/krw-eur" },
+                { name: "위안화 환율", icon: "currency_yuan", path: "/tools/finance/krw-cny" },
             ]
         },
         {
