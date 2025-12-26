@@ -225,9 +225,9 @@
         </main>
     </div>
 
-    <!-- Transformers.js via ESM -->
+    <!-- Transformers.js v3 via ESM -->
     <script type="module">
-        import { pipeline, env } from 'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2';
+        import { pipeline, env } from 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.0.0';
 
         // Configure environment
         env.allowLocalModels = false;
@@ -254,6 +254,14 @@
                 };
 
                 this.bindEvents();
+                // Pre-warm model check
+                this.checkWebGPUSupport();
+            },
+
+            async checkWebGPUSupport() {
+                if (!navigator.gpu) {
+                    console.warn('WebGPU not supported, falling back to CPU/WASM');
+                }
             },
 
             bindEvents() {
@@ -297,7 +305,9 @@
                 this.elements.modelLoading.style.display = 'flex';
 
                 try {
-                    this.segmenter = await pipeline('image-segmentation', 'Xenova/modnet-public', {
+                    // Using RMBG-1.4 which is highly accurate and supported in Transformers.js v3
+                    this.segmenter = await pipeline('image-segmentation', 'briaai/RMBG-1.4', {
+                        device: navigator.gpu ? 'webgpu' : 'wasm',
                         progress_callback: (p) => {
                             if (p.status === 'progress') {
                                 this.elements.modelProgress.style.width = p.progress + '%';
@@ -306,7 +316,7 @@
                     });
                 } catch (e) {
                     console.error('Model load error:', e);
-                    Utilsly.showAlert('모델 로드 중 오류가 발생했습니다.');
+                    Utilsly.showAlert('모델 로드 중 오류가 발생했습니다. 브라우저가 WebGPU를 지원하는지 확인해주세요.');
                 } finally {
                     this.elements.modelLoading.style.display = 'none';
                 }
@@ -314,51 +324,63 @@
 
             async processImage(imgSource) {
                 await this.loadModel();
+                if (!this.segmenter) return;
 
                 this.elements.processingOverlay.style.display = 'flex';
                 this.elements.btnDownload.disabled = true;
 
                 try {
-                    // Extract alpha mask
-                    const result = await this.segmenter(imgSource);
+                    // Infer mask
+                    const output = await this.segmenter(imgSource);
 
-                    // Render to canvas
+                    // Create high resolution output
                     const img = new Image();
                     img.onload = () => {
                         const canvas = this.elements.outputCanvas;
-                        canvas.width = img.width;
-                        canvas.height = img.height;
                         const ctx = canvas.getContext('2d');
 
-                        // Draw raw result (mask) to a temporary canvas to get pixel data
-                        const tempCanvas = document.createElement('canvas');
-                        tempCanvas.width = result.width;
-                        tempCanvas.height = result.height;
-                        const tempCtx = tempCanvas.getContext('2d');
-                        tempCtx.putImageData(result.mask, 0, 0);
+                        canvas.width = img.width;
+                        canvas.height = img.height;
 
-                        // Draw original image
-                        ctx.drawImage(img, 0, 0);
-
-                        // Apply mask
-                        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                        const pixels = imageData.data;
-
-                        // If mask size differs, we need to rescale
-                        // For simplicity, we assume MODNet output is scaled, but we'll use drawImage for robustness
+                        // Create a temporary canvas for the mask to apply blur
                         const maskCanvas = document.createElement('canvas');
                         maskCanvas.width = canvas.width;
                         maskCanvas.height = canvas.height;
-                        const maskCtx = maskCanvas.getContext('2d');
-                        maskCtx.drawImage(tempCanvas, 0, 0, canvas.width, canvas.height);
-                        const maskData = maskCtx.getImageData(0, 0, canvas.width, canvas.height).data;
+                        const mctx = maskCanvas.getContext('2d');
 
-                        for (let i = 0; i < pixels.length; i += 4) {
-                            // Mask grayscale value used for alpha
-                            pixels[i + 3] = maskData[i];
-                        }
+                        // Draw the mask from the output
+                        // output.mask is a RawImage or similar depending on version, let's use the canvas rendering helper if available
+                        // or manual pixel manipulation
+                        const maskData = output.mask; // This is a RawImage in v3
 
-                        ctx.putImageData(imageData, 0, 0);
+                        // Create a bitmap from the mask data
+                        const maskImageData = new ImageData(
+                            new Uint8ClampedArray(maskData.data),
+                            maskData.width,
+                            maskData.height
+                        );
+
+                        // Draw mask to temp canvas (resized to original image size)
+                        const tempMask = document.createElement('canvas');
+                        tempMask.width = maskData.width;
+                        tempMask.height = maskData.height;
+                        tempMask.getContext('2d').putImageData(maskImageData, 0, 0);
+
+                        // Now draw to the full size mask canvas with blur
+                        mctx.filter = 'blur(2px)'; // Subtle Gaussian Blur for smooth edges
+                        mctx.drawImage(tempMask, 0, 0, canvas.width, canvas.height);
+
+                        // Final composition
+                        // 1. Draw original image
+                        ctx.drawImage(img, 0, 0);
+
+                        // 2. Use destination-in to keep only the parts covered by the mask
+                        ctx.globalCompositeOperation = 'destination-in';
+                        ctx.drawImage(maskCanvas, 0, 0);
+
+                        // Reset composite operation
+                        ctx.globalCompositeOperation = 'source-over';
+
                         this.elements.btnDownload.disabled = false;
                         this.elements.processingOverlay.style.display = 'none';
                     };
@@ -373,7 +395,7 @@
 
             download() {
                 const link = document.createElement('a');
-                link.download = 'background-removed.png';
+                link.download = `background-removed-${Date.now()}.png`;
                 link.href = this.elements.outputCanvas.toDataURL('image/png');
                 link.click();
             },
@@ -385,6 +407,10 @@
                 this.elements.btnDownload.disabled = true;
                 const ctx = this.elements.outputCanvas.getContext('2d');
                 ctx.clearRect(0, 0, this.elements.outputCanvas.width, this.elements.outputCanvas.height);
+                if (this.originalImage) {
+                    URL.revokeObjectURL(this.originalImage);
+                    this.originalImage = null;
+                }
             },
 
             cleanup() {
