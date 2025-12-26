@@ -334,15 +334,14 @@
         </main>
     </div>
 
-    <!-- Transformers.js v3 via ESM -->
-    <script type="module">
-        import { pipeline, env } from 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.0.0';
-
+    <!-- Transformers.js script -->
+    <script>
         Utilsly.registerTool('image-upscaler', {
             upscaler: null,
             elements: {},
             originalImage: null,
             isProcessing: false,
+            transformers: null,
 
             async init() {
                 this.elements = {
@@ -364,6 +363,13 @@
                 };
 
                 this.bindEvents();
+
+                // Dynamic import for Transformers.js
+                if (!this.transformers) {
+                    this.transformers = await import('https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.0.0');
+                    this.transformers.env.allowLocalModels = false;
+                    this.transformers.env.useBrowserCache = true;
+                }
             },
 
             bindEvents() {
@@ -420,8 +426,9 @@
                 this.updateStatus('AI 모델 로딩 중...', 0);
 
                 try {
-                    // Optimized lightweight models for browser
-                    const modelName = factor === 2 ? 'Xenova/swin2SR-classical-sr-x2' : 'Xenova/realesrgan-x4plus-tiny';
+                    const { pipeline } = this.transformers;
+                    // Optimized lightweight models for browser in v3
+                    const modelName = factor === 2 ? 'onnx-community/swin2SR-classical-sr-x2' : 'onnx-community/realesrgan-x4plus-tiny';
 
                     if (!this.upscaler || this.upscaler.modelId !== modelName) {
                         this.upscaler = await pipeline('image-to-image', modelName, {

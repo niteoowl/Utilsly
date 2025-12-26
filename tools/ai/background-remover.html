@@ -225,18 +225,13 @@
         </main>
     </div>
 
-    <!-- Transformers.js v3 via ESM -->
-    <script type="module">
-        import { pipeline, env } from 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.0.0';
-
-        // Configure environment
-        env.allowLocalModels = false;
-        env.useBrowserCache = true;
-
+    <!-- Transformers.js script -->
+    <script>
         Utilsly.registerTool('background-remover', {
             segmenter: null,
             elements: {},
             originalImage: null,
+            transformers: null,
 
             async init() {
                 this.elements = {
@@ -254,6 +249,13 @@
                 };
 
                 this.bindEvents();
+
+                // Dynamic import for Transformers.js
+                if (!this.transformers) {
+                    this.transformers = await import('https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.0.0');
+                    this.transformers.env.allowLocalModels = false;
+                    this.transformers.env.useBrowserCache = true;
+                }
                 // Pre-warm model check
                 this.checkWebGPUSupport();
             },
@@ -305,8 +307,9 @@
                 this.elements.modelLoading.style.display = 'flex';
 
                 try {
-                    // Using RMBG-1.4 which is highly accurate and supported in Transformers.js v3
-                    this.segmenter = await pipeline('image-segmentation', 'briaai/RMBG-1.4', {
+                    // Using onnx-community/RMBG-1.4 for better v3 compatibility
+                    const { pipeline } = this.transformers;
+                    this.segmenter = await pipeline('image-segmentation', 'onnx-community/RMBG-1.4', {
                         device: navigator.gpu ? 'webgpu' : 'wasm',
                         progress_callback: (p) => {
                             if (p.status === 'progress') {
