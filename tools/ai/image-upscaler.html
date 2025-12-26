@@ -368,11 +368,15 @@
                 if (!this.transformers) {
                     this.transformers = await import('https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.0.0');
 
-                    // Critical configurations suggested by user
-                    this.transformers.env.allowLocalModels = false;
-                    this.transformers.env.useBrowserCache = true;
-                    if (this.transformers.env.backends && this.transformers.env.backends.onnx) {
-                        this.transformers.env.backends.onnx.wasm.proxy = true;
+                    // Final standardized configurations
+                    const env = this.transformers.env;
+                    env.allowLocalModels = false;
+                    env.useBrowserCache = true;
+                    env.remoteHost = 'https://huggingface.co/';
+                    env.remotePathTemplate = '{model}/resolve/main/';
+
+                    if (env.backends && env.backends.onnx) {
+                        env.backends.onnx.wasm.proxy = true;
                     }
                 }
             },
@@ -432,9 +436,8 @@
 
                 try {
                     const { pipeline } = this.transformers;
-                    // Using suggested path: Xenova/swin2SR-classical-sr-x2
-                    // For x4, if not available in Xenova Swin2SR, we might need a fallback or stick to x2 for now if stability is priority.
-                    // But let's try the suggested path.
+                    // Standardized path for v3: Xenova/swin2SR-classical-sr-x2
+                    // Note: Swin2SR x4 might be extremely heavy for browser, recommending x2 for guaranteed stability.
                     const modelName = factor === 2 ? 'Xenova/swin2SR-classical-sr-x2' : 'Xenova/swin2SR-classical-sr-x4';
 
                     if (!this.upscaler || this.upscaler.modelId !== modelName) {
@@ -448,10 +451,9 @@
                                 }
                             });
                         } catch (err) {
-                            console.warn(`Model ${modelName} failed, falling back to x2 or different path`);
-                            // Fallback to x2 if x4 fails or try a known working path
+                            console.error(`WebGPU load failed for ${modelName}, trying WASM:`, err);
                             this.upscaler = await pipeline('image-to-image', 'Xenova/swin2SR-classical-sr-x2', {
-                                device: 'webgpu'
+                                device: 'wasm'
                             });
                         }
                         this.upscaler.modelId = modelName;
