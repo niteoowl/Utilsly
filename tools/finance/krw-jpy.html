@@ -5,204 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>엔화 환율 계산기 - 실시간 KRW to JPY - Utilsly</title>
-    <meta name="description" content="실시간 원엔 환율 정보를 확인하고 계산하세요. 100엔(JPY)이 현재 몇 원(KRW)인지, 정확하고 빠른 환율 변환 기능을 제공합니다.">
-    <script>
-        (function () {
-            const savedTheme = localStorage.getItem('theme');
-            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
-                document.documentElement.setAttribute('data-theme', 'dark');
-            }
-        })();
-    </script>
+    <title>엔화 환율 - Utilsly</title>
+    <meta name="description" content="실시간 원엔(JPY/KRW) 환율을 확인하고 변환하세요.">
     <link rel="preload" href="../../css/style.css" as="style">
     <link rel="stylesheet" href="../../css/style.css">
-    <style>
-        .converter-card {
-            background: var(--bg-primary);
-            border: 1px solid var(--border-color);
-            border-radius: 24px;
-            padding: 32px;
-            max-width: 600px;
-            margin: 0 auto;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-        }
-
-        .input-group {
-            margin-bottom: 24px;
-        }
-
-        .input-label {
-            display: block;
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--text-secondary);
-            margin-bottom: 12px;
-        }
-
-        .currency-row {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-        }
-
-        .amount-input-wrapper {
-            position: relative;
-            flex: 1;
-        }
-
-        .amount-input {
-            width: 100%;
-            font-size: 24px;
-            font-weight: 700;
-            padding: 16px 20px;
-            border-radius: 16px;
-            border: 2px solid var(--border-color);
-            background: var(--bg-sidebar);
-            color: var(--text-primary);
-            transition: all 0.2s;
-        }
-
-        .amount-input:focus {
-            border-color: var(--accent-blue);
-            outline: none;
-            box-shadow: 0 0 0 4px rgba(0, 102, 255, 0.1);
-        }
-
-        .currency-label-box {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 0 24px;
-            height: 64px;
-            background: var(--bg-hover);
-            border-radius: 16px;
-            min-width: 120px;
-        }
-
-        .currency-flag {
-            font-size: 24px;
-        }
-
-        .currency-code {
-            font-size: 16px;
-            font-weight: 700;
-            color: var(--text-primary);
-        }
-
-        .swap-container {
-            display: flex;
-            justify-content: center;
-            margin: -12px 0 12px 0;
-            position: relative;
-            z-index: 2;
-        }
-
-        .swap-btn {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            background: var(--bg-primary);
-            border: 1px solid var(--border-color);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            color: var(--text-secondary);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-        }
-
-        .swap-btn:hover {
-            transform: rotate(180deg);
-            background: var(--accent-blue);
-            color: white;
-            border-color: var(--accent-blue);
-        }
-
-        .result-box {
-            margin-top: 32px;
-            padding: 24px;
-            background: rgba(0, 102, 255, 0.05);
-            border-radius: 20px;
-            border: 1px dashed rgba(0, 102, 255, 0.2);
-            text-align: center;
-        }
-
-        .result-main {
-            font-size: 32px;
-            font-weight: 800;
-            color: var(--accent-blue);
-            margin-bottom: 8px;
-        }
-
-        .result-sub {
-            font-size: 14px;
-            color: var(--text-secondary);
-        }
-
-        .update-info {
-            font-size: 12px;
-            color: var(--text-tertiary);
-            margin-top: 16px;
-            text-align: center;
-        }
-
-        /* Info Section */
-        .info-section {
-            max-width: 600px;
-            margin: 48px auto 0 auto;
-            line-height: 1.8;
-            color: var(--text-secondary);
-        }
-
-        .info-section h2 {
-            font-size: 20px;
-            font-weight: 700;
-            color: var(--text-primary);
-            margin-bottom: 16px;
-            padding-bottom: 8px;
-            border-bottom: 2px solid var(--accent-blue);
-            display: inline-block;
-        }
-
-        .info-section p {
-            margin-bottom: 16px;
-        }
-
-        .info-card {
-            background: var(--bg-sidebar);
-            padding: 24px;
-            border-radius: 16px;
-            margin-bottom: 24px;
-        }
-
-        @media (max-width: 600px) {
-            .converter-card {
-                padding: 24px;
-                border-radius: 0;
-                border: none;
-                box-shadow: none;
-                background: transparent;
-            }
-
-            .currency-row {
-                flex-direction: column-reverse;
-                align-items: stretch;
-            }
-
-            .currency-label-box {
-                height: 48px;
-                margin-bottom: 8px;
-            }
-
-            .amount-input {
-                font-size: 20px;
-                padding: 14px;
-            }
-        }
-    </style>
 </head>
 
 <body>
@@ -231,65 +37,43 @@
                     <div class="header-icon-wrapper">
                         <span class="material-symbols-rounded">currency_yen</span>
                     </div>
-                    <h1>엔화 환율 계산기</h1>
-                    <p class="description">실시간 원엔 환율 정보를 확인하고 간편하게 계산하세요.</p>
+                    <h1>엔화 환율</h1>
+                    <p class="description">일본 엔과 대한민국 원 사이의 실시간 환율을 계산합니다.</p>
                 </div>
 
                 <div class="tool-container" data-tool-id="krw-jpy">
-                    <div class="converter-card">
+                    <div class="calc-wrapper" style="max-width:500px; margin:0 auto;">
+
                         <div class="input-group">
-                            <label class="input-label" id="sourceLabel">일본 엔 (JPY)</label>
-                            <div class="currency-row">
-                                <div class="amount-input-wrapper">
-                                    <input type="text" id="sourceAmount" class="amount-input" placeholder="0"
-                                        inputmode="decimal" value="100">
-                                </div>
-                                <div class="currency-label-box">
-                                    <span class="currency-flag" id="sourceFlag">🇯🇵</span>
-                                    <span class="currency-code" id="sourceCode">JPY</span>
-                                </div>
+                            <label class="input-label" id="from-label">일본 엔 (JPY)</label>
+                            <div style="display:flex; gap:12px; align-items:center;">
+                                <input type="number" id="from-amount" class="search-input" placeholder="0"
+                                    style="flex:1;" value="100">
+                                <span style="font-size:24px;">🇯🇵</span>
                             </div>
                         </div>
 
-                        <div class="swap-container">
-                            <button class="swap-btn" id="swapBtn" title="통화 맞바꾸기">
-                                <span class="material-symbols-rounded">swap_vert</span>
-                            </button>
+                        <div style="display:flex; justify-content:center; padding:16px 0; color:var(--text-tertiary);">
+                            <span class="material-symbols-rounded" id="swap-btn"
+                                style="cursor:pointer;">swap_vert</span>
                         </div>
 
                         <div class="input-group">
-                            <label class="input-label" id="targetLabel">대한민국 원 (KRW)</label>
-                            <div class="currency-row">
-                                <div class="amount-input-wrapper">
-                                    <input type="text" id="targetAmount" class="amount-input" placeholder="0" readonly>
-                                </div>
-                                <div class="currency-label-box">
-                                    <span class="currency-flag" id="targetFlag">🇰🇷</span>
-                                    <span class="currency-code" id="targetCode">KRW</span>
-                                </div>
+                            <label class="input-label" id="to-label">대한민국 원 (KRW)</label>
+                            <div style="display:flex; gap:12px; align-items:center;">
+                                <input type="text" id="to-amount" class="search-input" placeholder="0" style="flex:1;"
+                                    readonly>
+                                <span style="font-size:24px;">🇰🇷</span>
                             </div>
                         </div>
 
-                        <div class="result-box">
-                            <div class="result-main" id="finalResult">100 JPY = -- KRW</div>
-                            <div class="result-sub" id="exchangeRateInfo">Loading...</div>
+                        <div style="margin-top:32px; text-align:center;">
+                            <div id="rate-display"
+                                style="font-size:20px; font-weight:800; color:var(--accent-blue); margin-bottom:4px;">
+                                100 JPY = 0 KRW</div>
+                            <div id="update-time" style="font-size:12px; color:var(--text-tertiary);">정보 업데이트 중...</div>
                         </div>
 
-                        <div class="update-info" id="lastUpdated">마지막 업데이트: --</div>
-                    </div>
-
-                    <div class="info-section">
-                        <div class="info-card">
-                            <h2>실시간 엔화 환율 안내</h2>
-                            <p>일본 엔(JPY) 대비 대한민국 원(KRW) 환율 정보를 실시간으로 확인하세요. 일본 여행이나 직구 시 유용한 환율 계산 기능을 제공합니다. 환율은 시장 상황에
-                                따라 실시간으로 변동됩니다.</p>
-                        </div>
-
-                        <div class="info-card">
-                            <h2>엔화 계산 팁</h2>
-                            <p>우리나라에서는 보통 100엔을 기준으로 환율을 표시하는 경우가 많습니다. 본 계산기에서도 기본 100엔 단위로 초기값을 설정하였으며, 원하는 금액을 자유롭게
-                                입력하여 계산할 수 있습니다.</p>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -300,95 +84,81 @@
     <script>
         Utilsly.registerTool('krw-jpy', {
             rates: {},
-            mode: 'JPY_KRW',
+            mode: 'JPYToKRW',
 
             async init() {
-                this.els = {
-                    sourceAmount: document.getElementById('sourceAmount'),
-                    targetAmount: document.getElementById('targetAmount'),
-                    sourceCode: document.getElementById('sourceCode'),
-                    targetCode: document.getElementById('targetCode'),
-                    sourceFlag: document.getElementById('sourceFlag'),
-                    targetFlag: document.getElementById('targetFlag'),
-                    sourceLabel: document.getElementById('sourceLabel'),
-                    targetLabel: document.getElementById('targetLabel'),
-                    swapBtn: document.getElementById('swapBtn'),
-                    finalResult: document.getElementById('finalResult'),
-                    rateInfo: document.getElementById('exchangeRateInfo'),
-                    lastUpdated: document.getElementById('lastUpdated')
+                this.elements = {
+                    fromAmt: document.getElementById('from-amount'),
+                    toAmt: document.getElementById('to-amount'),
+                    fromLabel: document.getElementById('from-label'),
+                    toLabel: document.getElementById('to-label'),
+                    swapBtn: document.getElementById('swap-btn'),
+                    rateDisplay: document.getElementById('rate-display'),
+                    updateTime: document.getElementById('update-time'),
+                    fromFlag: document.querySelector('.input-group:nth-child(1) span'),
+                    toFlag: document.querySelector('.input-group:nth-child(3) span')
                 };
 
                 await this.fetchRates();
-                this.setupListeners();
+
+                this.elements.fromAmt.addEventListener('input', () => this.calculate());
+                this.elements.swapBtn.addEventListener('click', async () => {
+                    this.mode = this.mode === 'JPYToKRW' ? 'KRWToJPY' : 'JPYToKRW';
+                    this.updateUI();
+                    await this.fetchRates();
+                    this.calculate();
+                });
+
                 this.calculate();
             },
 
             async fetchRates() {
+                const base = this.mode === 'JPYToKRW' ? 'JPY' : 'KRW';
                 try {
-                    const base = this.mode === 'JPY_KRW' ? 'JPY' : 'KRW';
-                    const response = await fetch(`https://open.er-api.com/v6/latest/${base}`);
-                    const data = await response.json();
+                    const res = await fetch(`https://open.er-api.com/v6/latest/${base}`);
+                    const data = await res.json();
                     if (data.result === 'success') {
                         this.rates = data.rates;
-                        this.els.lastUpdated.textContent = `마지막 업데이트: ${new Date(data.time_last_update_utc).toLocaleString('ko-KR')}`;
+                        this.elements.updateTime.textContent = `최종 업데이트: ${new Date(data.time_last_update_utc).toLocaleString('ko-KR')}`;
                     }
-                } catch (error) {
-                    console.error('Failed to fetch rates:', error);
+                } catch (e) {
+                    this.elements.updateTime.textContent = '환율 정보를 불러오지 못했습니다.';
                 }
             },
 
-            setupListeners() {
-                this.els.sourceAmount.addEventListener('input', () => this.calculate());
-                this.els.swapBtn.addEventListener('click', () => {
-                    this.mode = this.mode === 'JPY_KRW' ? 'KRW_JPY' : 'JPY_KRW';
-                    this.updateUI();
-                    this.fetchRates().then(() => this.calculate());
-                });
-            },
-
             updateUI() {
-                if (this.mode === 'JPY_KRW') {
-                    this.els.sourceCode.textContent = 'JPY';
-                    this.els.sourceFlag.textContent = '🇯🇵';
-                    this.els.sourceLabel.textContent = '일본 엔 (JPY)';
-                    this.els.targetCode.textContent = 'KRW';
-                    this.els.targetFlag.textContent = '🇰🇷';
-                    this.els.targetLabel.textContent = '대한민국 원 (KRW)';
-                    this.els.sourceAmount.value = '100';
+                if (this.mode === 'JPYToKRW') {
+                    this.elements.fromLabel.textContent = '일본 엔 (JPY)';
+                    this.elements.fromFlag.textContent = '🇯🇵';
+                    this.elements.toLabel.textContent = '대한민국 원 (KRW)';
+                    this.elements.toFlag.textContent = '🇰🇷';
+                    this.elements.fromAmt.value = 100;
                 } else {
-                    this.els.sourceCode.textContent = 'KRW';
-                    this.els.sourceFlag.textContent = '🇰🇷';
-                    this.els.sourceLabel.textContent = '대한민국 원 (KRW)';
-                    this.els.targetCode.textContent = 'JPY';
-                    this.els.targetFlag.textContent = '🇯🇵';
-                    this.els.targetLabel.textContent = '일본 엔 (JPY)';
-                    this.els.sourceAmount.value = '1000';
+                    this.elements.fromLabel.textContent = '대한민국 원 (KRW)';
+                    this.elements.fromFlag.textContent = '🇰🇷';
+                    this.elements.toLabel.textContent = '일본 엔 (JPY)';
+                    this.elements.toFlag.textContent = '🇯🇵';
+                    this.elements.fromAmt.value = 1000;
                 }
             },
 
             calculate() {
-                const amount = parseFloat(this.els.sourceAmount.value.replace(/,/g, '')) || 0;
-                const sourceCode = this.mode === 'JPY_KRW' ? 'JPY' : 'KRW';
-                const targetCode = this.mode === 'JPY_KRW' ? 'KRW' : 'JPY';
-                const rate = this.rates[targetCode];
-
+                const val = parseFloat(this.elements.fromAmt.value) || 0;
+                const target = this.mode === 'JPYToKRW' ? 'KRW' : 'JPY';
+                const rate = this.rates[target];
                 if (rate) {
-                    const result = amount * rate;
-                    this.els.targetAmount.value = result.toLocaleString('ko-KR', { maximumFractionDigits: 2 });
+                    const result = val * rate;
+                    this.elements.toAmt.value = result.toLocaleString(undefined, { maximumFractionDigits: 2 });
 
-                    const oneRate = (1 * rate).toLocaleString('ko-KR', { maximumFractionDigits: 4 });
-                    const displayUnit = sourceCode === 'JPY' ? '1' : '1';
-
-                    if (sourceCode === 'JPY') {
-                        const hundredRate = (100 * rate).toLocaleString('ko-KR', { maximumFractionDigits: 2 });
-                        this.els.finalResult.textContent = `100 JPY = ${hundredRate} KRW`;
+                    if (this.mode === 'JPYToKRW') {
+                        this.elements.rateDisplay.textContent = `100 JPY = ${(rate * 100).toLocaleString(undefined, { maximumFractionDigits: 2 })} KRW`;
                     } else {
-                        this.els.finalResult.textContent = `1 ${sourceCode} = ${oneRate} ${targetCode}`;
+                        this.elements.rateDisplay.textContent = `1 KRW = ${rate.toLocaleString(undefined, { maximumFractionDigits: 4 })} JPY`;
                     }
-
-                    this.els.rateInfo.textContent = `실시간 고시 환율 적용`;
                 }
-            }
+            },
+
+            cleanup() { this.elements = {}; }
         });
     </script>
 </body>
