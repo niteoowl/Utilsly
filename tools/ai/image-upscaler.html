@@ -367,8 +367,13 @@
                 // Dynamic import for Transformers.js
                 if (!this.transformers) {
                     this.transformers = await import('https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.0.0');
+
+                    // Critical configurations suggested by user
                     this.transformers.env.allowLocalModels = false;
                     this.transformers.env.useBrowserCache = true;
+                    if (this.transformers.env.backends && this.transformers.env.backends.onnx) {
+                        this.transformers.env.backends.onnx.wasm.proxy = true;
+                    }
                 }
             },
 
@@ -427,18 +432,28 @@
 
                 try {
                     const { pipeline } = this.transformers;
-                    // Optimized lightweight models for browser in v3
-                    const modelName = factor === 2 ? 'onnx-community/swin2SR-classical-sr-x2' : 'onnx-community/realesrgan-x4plus-tiny';
+                    // Using suggested path: Xenova/swin2SR-classical-sr-x2
+                    // For x4, if not available in Xenova Swin2SR, we might need a fallback or stick to x2 for now if stability is priority.
+                    // But let's try the suggested path.
+                    const modelName = factor === 2 ? 'Xenova/swin2SR-classical-sr-x2' : 'Xenova/swin2SR-classical-sr-x4';
 
                     if (!this.upscaler || this.upscaler.modelId !== modelName) {
-                        this.upscaler = await pipeline('image-to-image', modelName, {
-                            device: navigator.gpu ? 'webgpu' : 'wasm',
-                            progress_callback: (p) => {
-                                if (p.status === 'progress') {
-                                    this.updateStatus('모델 다운로드 중...', p.progress / 2);
+                        try {
+                            this.upscaler = await pipeline('image-to-image', modelName, {
+                                device: 'webgpu',
+                                progress_callback: (p) => {
+                                    if (p.status === 'progress') {
+                                        this.updateStatus('모델 다운로드 중...', p.progress / 2);
+                                    }
                                 }
-                            }
-                        });
+                            });
+                        } catch (err) {
+                            console.warn(`Model ${modelName} failed, falling back to x2 or different path`);
+                            // Fallback to x2 if x4 fails or try a known working path
+                            this.upscaler = await pipeline('image-to-image', 'Xenova/swin2SR-classical-sr-x2', {
+                                device: 'webgpu'
+                            });
+                        }
                         this.upscaler.modelId = modelName;
                     }
 

@@ -253,11 +253,14 @@
                 // Dynamic import for Transformers.js
                 if (!this.transformers) {
                     this.transformers = await import('https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.0.0');
+
+                    // Critical configurations suggested by user
                     this.transformers.env.allowLocalModels = false;
                     this.transformers.env.useBrowserCache = true;
+                    if (this.transformers.env.backends && this.transformers.env.backends.onnx) {
+                        this.transformers.env.backends.onnx.wasm.proxy = true;
+                    }
                 }
-                // Pre-warm model check
-                this.checkWebGPUSupport();
             },
 
             async checkWebGPUSupport() {
@@ -307,16 +310,23 @@
                 this.elements.modelLoading.style.display = 'flex';
 
                 try {
-                    // Using onnx-community/RMBG-1.4 for better v3 compatibility
                     const { pipeline } = this.transformers;
-                    this.segmenter = await pipeline('image-segmentation', 'onnx-community/RMBG-1.4', {
-                        device: navigator.gpu ? 'webgpu' : 'wasm',
-                        progress_callback: (p) => {
-                            if (p.status === 'progress') {
-                                this.elements.modelProgress.style.width = p.progress + '%';
+                    // Primary: briaai/RMBG-1.4, Fallback: Xenova/rmbg-1.4
+                    try {
+                        this.segmenter = await pipeline('image-segmentation', 'briaai/RMBG-1.4', {
+                            device: 'webgpu',
+                            progress_callback: (p) => {
+                                if (p.status === 'progress') {
+                                    this.elements.modelProgress.style.width = p.progress + '%';
+                                }
                             }
-                        }
-                    });
+                        });
+                    } catch (err) {
+                        console.warn('Falling back to Xenova/rmbg-1.4');
+                        this.segmenter = await pipeline('image-segmentation', 'Xenova/rmbg-1.4', {
+                            device: 'webgpu'
+                        });
+                    }
                 } catch (e) {
                     console.error('Model load error:', e);
                     Utilsly.showAlert('모델 로드 중 오류가 발생했습니다. 브라우저가 WebGPU를 지원하는지 확인해주세요.');
