@@ -334,6 +334,8 @@
         </main>
     </div>
 
+    <script src="../../js/common.js"></script>
+
     <!-- Transformers.js script -->
     <script>
         Utilsly.registerTool('image-upscaler', {
@@ -372,8 +374,11 @@
                     const env = this.transformers.env;
                     env.allowLocalModels = false;
                     env.useBrowserCache = true;
-                    env.remoteHost = 'https://huggingface.co/';
-                    env.remotePathTemplate = '{model}/resolve/main/';
+
+                    // Force credentials to 'omit' to avoid 401 Unauthorized errors on Hugging Face
+                    env.fetch_options = {
+                        credentials: 'omit'
+                    };
 
                     if (env.backends && env.backends.onnx) {
                         env.backends.onnx.wasm.proxy = true;
@@ -526,7 +531,6 @@
             }
         });
     </script>
-    <script src="../../js/common.js"></script>
 </body>
 
 </html>
