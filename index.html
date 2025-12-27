@@ -7,7 +7,6 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>Utilsly - 웹 도구 모음</title>
     <meta name="description" content="모두를 위한 유용한 웹툴! Utilsly입니다.">
-    <script src="js/i18n.js"></script>
     <script>
         (function () {
             const savedTheme = localStorage.getItem('theme');
@@ -548,28 +547,19 @@
             if (!container) return;
 
             if (tools.length === 0) {
-                const emptyMsg = Utilsly.i18n ? Utilsly.i18n.translate('해당 카테고리에 도구가 없습니다.') : '해당 카테고리에 도구가 없습니다.';
-                container.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-tertiary);">${emptyMsg}</div>`;
+                container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-tertiary);">해당 카테고리에 도구가 없습니다.</div>';
                 return;
             }
 
-            const isEn = Utilsly.i18n && Utilsly.i18n.currentLang === 'en';
-
-            container.innerHTML = tools.map(tool => {
-                const name = Utilsly.i18n ? Utilsly.i18n.translate(tool.name) : tool.name;
-                const desc = Utilsly.i18n ? Utilsly.i18n.translate(tool.desc) : tool.desc;
-                const path = (isEn ? '/en' : '') + tool.path;
-
-                return `
-                    <a href="${path}" class="tool-card">
-                        <div class="card-icon">
-                            <span class="material-symbols-rounded">${tool.icon}</span>
-                        </div>
-                        <div class="card-title">${name}</div>
-                        <div class="card-desc">${desc}</div>
-                    </a>
-                `;
-            }).join('');
+            container.innerHTML = tools.map(tool => `
+                <a href="${tool.path}" class="tool-card">
+                    <div class="card-icon">
+                        <span class="material-symbols-rounded">${tool.icon}</span>
+                    </div>
+                    <div class="card-title">${tool.name}</div>
+                    <div class="card-desc">${tool.desc}</div>
+                </a>
+            `).join('');
         }
 
         function filterByCategory(category) {
@@ -598,8 +588,7 @@
                 'file': '📁 파일 도구',
                 'ai': '🤖 AI 도구'
             };
-            const titleKey = titles[category] || '전체 도구';
-            document.getElementById('currentCategoryTitle').textContent = Utilsly.i18n ? Utilsly.i18n.translate(titleKey) : titleKey;
+            document.getElementById('currentCategoryTitle').textContent = titles[category] || '전체 도구';
 
             // Filter and render
             const filtered = category === 'all'
@@ -633,15 +622,10 @@
                 homeDefaultView.style.display = 'none';
                 searchResultsView.style.display = 'block';
 
-                const filtered = allTools.filter(tool => {
-                    const nameKo = tool.name.toLowerCase();
-                    const descKo = tool.desc.toLowerCase();
-                    const nameEn = Utilsly.i18n ? Utilsly.i18n.translate(tool.name).toLowerCase() : "";
-                    const descEn = Utilsly.i18n ? Utilsly.i18n.translate(tool.desc).toLowerCase() : "";
-
-                    return nameKo.includes(query) || descKo.includes(query) ||
-                        nameEn.includes(query) || descEn.includes(query);
-                });
+                const filtered = allTools.filter(tool =>
+                    tool.name.toLowerCase().includes(query) ||
+                    tool.desc.toLowerCase().includes(query)
+                );
 
                 if (filtered.length > 0) {
                     renderCards('searchResults', filtered);

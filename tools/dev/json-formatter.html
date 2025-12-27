@@ -86,19 +86,14 @@
                     <button class="btn btn-secondary" id="btn-clear">지우기</button>
                 </div>
 
-                <div class="editor-container"
-                    style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; min-height: 500px;">
-                    <div class="panel" style="display: flex; flex-direction: column; gap: 8px;">
+                <div class="editor-container">
+                    <div class="panel">
                         <label class="input-label">원본 데이터 (Input)</label>
-                        <textarea id="json-input" class="code-area"
-                            style="flex: 1; min-height: 400px; padding: 16px; font-family: monospace; border: 1px solid var(--border-color); border-radius: 8px; background: var(--bg-primary); color: var(--text-primary); resize: vertical;"
-                            placeholder="여기에 JSON을 붙여넣으세요..."></textarea>
+                        <textarea id="json-input" class="code-area" placeholder="여기에 JSON을 붙여넣으세요..."></textarea>
                     </div>
-                    <div class="panel" style="display: flex; flex-direction: column; gap: 8px;">
+                    <div class="panel">
                         <label class="input-label">결과 (Output)</label>
-                        <textarea id="json-output" class="code-area" readonly
-                            style="flex: 1; min-height: 400px; padding: 16px; font-family: monospace; border: 1px solid var(--border-color); border-radius: 8px; background: var(--bg-secondary); color: var(--text-primary); resize: vertical;"
-                            placeholder="결과가 여기에 표시됩니다."></textarea>
+                        <textarea id="json-output" class="code-area" readonly placeholder="결과가 여기에 표시됩니다."></textarea>
                     </div>
                 </div>
 
