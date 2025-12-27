@@ -17,7 +17,7 @@
             text-align: center;
             cursor: pointer;
             transition: all 0.2s;
-            background: var(--bg-hover);
+            background: transparent;
         }
 
         .drop-zone:hover {
@@ -103,7 +103,7 @@
     </div>
     <script src="../../js/common.js"></script>
     <script>
-        const MetadataRemoverTool = {
+        var MetadataRemoverTool = {
             currentFile: null,
 
             init() {
@@ -113,17 +113,45 @@
                 this.processBtn = document.getElementById('processBtn');
                 this.statusMsg = document.getElementById('statusMessage');
 
-                this.dropZone.addEventListener('click', () => this.fileInput.click());
-                this.fileInput.addEventListener('change', (e) => this.handleFile(e.target.files[0]));
+                if (!this.dropZone) return;
 
-                this.processBtn.addEventListener('click', () => this.process());
+                const newFileInput = this.fileInput.cloneNode(true);
+                this.fileInput.parentNode.replaceChild(newFileInput, this.fileInput);
+                this.fileInput = newFileInput;
+
+                const newBtn = this.processBtn.cloneNode(true);
+                this.processBtn.parentNode.replaceChild(newBtn, this.processBtn);
+                this.processBtn = newBtn;
+
+                this.dropZone.onclick = () => this.fileInput.click();
+                this.fileInput.onchange = (e) => this.handleFile(e.target.files[0]);
+
+                this.dropZone.ondragover = (e) => {
+                    e.preventDefault();
+                    this.dropZone.style.borderColor = 'var(--accent-color)';
+                    this.dropZone.style.background = 'rgba(var(--accent-rgb), 0.05)';
+                };
+
+                this.dropZone.ondragleave = () => {
+                    this.dropZone.style.borderColor = 'var(--border-color)';
+                    this.dropZone.style.background = 'transparent';
+                };
+
+                this.dropZone.ondrop = (e) => {
+                    e.preventDefault();
+                    this.handleFile(e.dataTransfer.files[0]);
+                };
+
+                this.processBtn.onclick = () => this.process();
             },
 
             handleFile(file) {
                 if (!file) return;
                 this.currentFile = file;
                 this.fileNameDisplay.textContent = file.name;
-                this.processBtn.style.display = 'block';
+                document.getElementById('fileInfo').style.display = 'flex';
+                this.actionSection = document.getElementById('actionSection');
+                this.actionSection.style.display = 'block';
                 this.statusMsg.textContent = '준비되었습니다.';
             },
 
@@ -172,9 +200,15 @@
 
         Utilsly.registerTool('metadata-remover', MetadataRemoverTool);
         if (document.readyState === 'complete' || document.readyState === 'interactive') {
-            MetadataRemoverTool.init();
+            if (!window.MetadataRemoverToolInitialized) {
+                MetadataRemoverTool.init();
+                window.MetadataRemoverToolInitialized = true;
+            }
         } else {
-            document.addEventListener('DOMContentLoaded', () => MetadataRemoverTool.init());
+            document.addEventListener('DOMContentLoaded', () => {
+                MetadataRemoverTool.init();
+                window.MetadataRemoverToolInitialized = true;
+            });
         }
     </script>
 </body>

@@ -80,8 +80,8 @@
 
                 <div class="tool-container" data-tool-id="savings-maturity">
                     <div class="tab-menu">
-                        <div class="tab-btn active" data-tab="deposit">정기예금</div>
-                        <div class="tab-btn" data-tab="savings">정기적금</div>
+                        <div class="tab-btn active" data-type="deposit">정기예금</div>
+                        <div class="tab-btn" data-type="savings">정기적금</div>
                     </div>
 
                     <div class="finance-grid">
@@ -96,9 +96,9 @@
                             </div>
 
                             <div class="input-group" style="margin-bottom: 24px;">
-                                <label for="amount"
-                                    style="display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px;">예치/저축
-                                    금액 (원)</label>
+                                <label for="amount" id="amountLabel"
+                                    style="display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px;">예치 금액
+                                    (원)</label>
                                 <input type="number" id="amount" class="input-field"
                                     style="font-size: 1.125rem; padding: 12px;" placeholder="예: 10000000">
                             </div>
@@ -155,7 +155,7 @@
                                 </div>
                                 <div style="display: flex; justify-content: space-between; font-size: 16px;">
                                     <span style="color: var(--text-secondary);">세전 이자</span>
-                                    <span id="resPreTax" style="font-weight: 600;">0원</span>
+                                    <span id="resInterestBefore" style="font-weight: 600;">0원</span>
                                 </div>
                                 <div
                                     style="display: flex; justify-content: space-between; font-size: 16px; color: #ef4444;">
@@ -177,7 +177,7 @@
     </div>
     <script src="../../js/common.js"></script>
     <script>
-        const SavingsMaturityTool = {
+        var SavingsMaturityTool = {
             currentType: 'deposit', // deposit or savings
 
             init() {
@@ -187,6 +187,8 @@
                 this.calculateBtn = document.getElementById('calculateBtn');
                 this.tabBtns = document.querySelectorAll('.tab-btn');
                 this.amountLabel = document.getElementById('amountLabel');
+
+                if (!this.calculateBtn) return; // Prevent double init errors if elements aren't ready
 
                 this.tabBtns.forEach(btn => {
                     btn.addEventListener('click', () => {
@@ -199,9 +201,16 @@
                         btn.style.background = 'var(--card-bg)';
                         btn.style.color = 'var(--text-primary)';
                         this.currentType = btn.dataset.type;
-                        this.amountLabel.textContent = this.currentType === 'deposit' ? '예치 금액 (원)' : '월 적립액 (원)';
+                        if (this.amountLabel) {
+                            this.amountLabel.textContent = this.currentType === 'deposit' ? '예치 금액 (원)' : '월 적립액 (원)';
+                        }
                     });
                 });
+
+                // Remove old listeners if any (simple approach)
+                const newBtn = this.calculateBtn.cloneNode(true);
+                this.calculateBtn.parentNode.replaceChild(newBtn, this.calculateBtn);
+                this.calculateBtn = newBtn;
 
                 this.calculateBtn.addEventListener('click', () => this.calculate());
             },
@@ -211,10 +220,20 @@
             },
 
             calculate() {
+                // Always re-query result IDs to be safe
+                const resPrincipal = document.getElementById('resPrincipal');
+                const resInterestBefore = document.getElementById('resInterestBefore');
+                const resTax = document.getElementById('resTax');
+                const resTotal = document.getElementById('resTotal');
+                const resultArea = document.getElementById('resultArea');
+
+                if (!resPrincipal || !this.amountInput) return;
+
                 const amount = parseFloat(this.amountInput.value);
                 const months = parseInt(this.periodInput.value);
                 const rate = parseFloat(this.rateInput.value) / 100;
-                const taxRate = parseFloat(document.querySelector('input[name="tax"]:checked').value) / 100;
+                const taxRadio = document.querySelector('input[name="tax"]:checked');
+                const taxRate = taxRadio ? parseFloat(taxRadio.value) / 100 : 0.154;
 
                 if (!amount || !months || !rate) {
                     Utilsly.showAlert('모든 값을 올바르게 입력해주세요.');
@@ -225,14 +244,10 @@
                 let interestBefore = 0;
 
                 if (this.currentType === 'deposit') {
-                    // Fixed Deposit: principal * rate * (months/12)
                     principal = amount;
                     interestBefore = principal * rate * (months / 12);
                 } else {
-                    // Monthly Savings: Simple interest calculation
-                    // Sum of (Monthly deposit * rate * (months_remaining / 12))
                     principal = amount * months;
-                    // Formula: amount * rate * (months * (months + 1) / 2) / 12
                     interestBefore = amount * rate * (months * (months + 1) / 2) / 12;
                 }
 
@@ -240,13 +255,13 @@
                 const interestAfter = interestBefore - taxAmount;
                 const total = principal + interestAfter;
 
-                document.getElementById('resPrincipal').textContent = this.formatKRW(principal);
-                document.getElementById('resInterestBefore').textContent = this.formatKRW(interestBefore);
-                document.getElementById('resTax').textContent = '-' + this.formatKRW(taxAmount);
-                document.getElementById('resTotal').textContent = this.formatKRW(total);
+                resPrincipal.textContent = this.formatKRW(principal);
+                resInterestBefore.textContent = this.formatKRW(interestBefore);
+                resTax.textContent = '-' + this.formatKRW(taxAmount);
+                resTotal.textContent = this.formatKRW(total);
 
-                document.getElementById('resultArea').style.display = 'block';
-                document.getElementById('resultArea').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                resultArea.style.display = 'block';
+                resultArea.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
             },
 
             cleanup() { }
@@ -254,9 +269,15 @@
 
         Utilsly.registerTool('savings-maturity', SavingsMaturityTool);
         if (document.readyState === 'complete' || document.readyState === 'interactive') {
-            SavingsMaturityTool.init();
+            if (!window.SavingsMaturityToolInitialized) {
+                SavingsMaturityTool.init();
+                window.SavingsMaturityToolInitialized = true;
+            }
         } else {
-            document.addEventListener('DOMContentLoaded', () => SavingsMaturityTool.init());
+            document.addEventListener('DOMContentLoaded', () => {
+                SavingsMaturityTool.init();
+                window.SavingsMaturityToolInitialized = true;
+            });
         }
     </script>
 </body>

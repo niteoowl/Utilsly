@@ -18,7 +18,7 @@
             text-align: center;
             cursor: pointer;
             transition: all 0.2s;
-            background: var(--bg-hover);
+            background: transparent;
             margin-bottom: 32px;
         }
 
@@ -136,7 +136,7 @@
     </div>
     <script src="../../js/common.js"></script>
     <script>
-        const FaviconGeneratorTool = {
+        var FaviconGeneratorTool = {
             sizes: [16, 32, 48, 64, 128, 180, 192, 512],
             originalImage: null,
 
@@ -147,9 +147,35 @@
                 this.previewSection = document.getElementById('previewSection');
                 this.downloadBtn = document.getElementById('downloadBtn');
 
-                this.dropZone.addEventListener('click', () => this.fileInput.click());
-                this.fileInput.addEventListener('change', (e) => this.handleFile(e.target.files[0]));
-                this.downloadBtn.addEventListener('click', () => this.generateZip());
+                if (!this.dropZone) return;
+
+                const newFileInput = this.fileInput.cloneNode(true);
+                this.fileInput.parentNode.replaceChild(newFileInput, this.fileInput);
+                this.fileInput = newFileInput;
+
+                const newBtn = this.downloadBtn.cloneNode(true);
+                this.downloadBtn.parentNode.replaceChild(newBtn, this.downloadBtn);
+                this.downloadBtn = newBtn;
+
+                this.dropZone.onclick = () => this.fileInput.click();
+                this.fileInput.onchange = (e) => this.handleFile(e.target.files[0]);
+                this.downloadBtn.onclick = () => this.generateZip();
+
+                this.dropZone.ondragover = (e) => {
+                    e.preventDefault();
+                    this.dropZone.style.borderColor = 'var(--accent-color)';
+                    this.dropZone.style.background = 'rgba(var(--accent-rgb), 0.05)';
+                };
+
+                this.dropZone.ondragleave = () => {
+                    this.dropZone.style.borderColor = 'var(--border-color)';
+                    this.dropZone.style.background = 'transparent';
+                };
+
+                this.dropZone.ondrop = (e) => {
+                    e.preventDefault();
+                    this.handleFile(e.dataTransfer.files[0]);
+                };
             },
 
             async handleFile(file) {
@@ -159,7 +185,8 @@
 
                 const url = URL.createObjectURL(file);
                 ['p16', 'p32', 'p64', 'p180'].forEach(id => {
-                    document.getElementById(id).src = url;
+                    const el = document.getElementById(id);
+                    if (el) el.src = url;
                 });
 
                 this.previewSection.style.display = 'block';
@@ -208,9 +235,15 @@
 
         Utilsly.registerTool('favicon-generator', FaviconGeneratorTool);
         if (document.readyState === 'complete' || document.readyState === 'interactive') {
-            FaviconGeneratorTool.init();
+            if (!window.FaviconGeneratorToolInitialized) {
+                FaviconGeneratorTool.init();
+                window.FaviconGeneratorToolInitialized = true;
+            }
         } else {
-            document.addEventListener('DOMContentLoaded', () => FaviconGeneratorTool.init());
+            document.addEventListener('DOMContentLoaded', () => {
+                FaviconGeneratorTool.init();
+                window.FaviconGeneratorToolInitialized = true;
+            });
         }
     </script>
 </body>

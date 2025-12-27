@@ -99,13 +99,14 @@
                                 style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 12px; color: var(--text-tertiary);">자주
                                 쓰이는 패턴</label>
                             <div id="presets" style="display: flex; flex-wrap: wrap;">
-                                <span class="regex-badge" data-regex="\d+" data-flags="g">숫자</span>
-                                <span class="regex-badge" data-regex="[가-힣]+" data-flags="g">한글</span>
-                                <span class="regex-badge" data-regex="[a-zA-Z]+" data-flags="g">영문</span>
-                                <span class="regex-badge" data-regex="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"
+                                <span class="regex-badge" data-pattern="\d+" data-flags="g">숫자</span>
+                                <span class="regex-badge" data-pattern="[가-힣]+" data-flags="g">한글</span>
+                                <span class="regex-badge" data-pattern="[a-zA-Z]+" data-flags="g">영문</span>
+                                <span class="regex-badge" data-pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"
                                     data-flags="g">이메일</span>
-                                <span class="regex-badge" data-regex="01[0-9]-\d{3,4}-\d{4}" data-flags="g">전화번호</span>
-                                <span class="regex-badge" data-regex="https?:\/\/[^\s]+" data-flags="g">URL</span>
+                                <span class="regex-badge" data-pattern="01[0-9]-\d{3,4}-\d{4}"
+                                    data-flags="g">전화번호</span>
+                                <span class="regex-badge" data-pattern="https?:\/\/[^\s]+" data-flags="g">URL</span>
                             </div>
                         </div>
                     </div>
@@ -125,7 +126,7 @@
                         <label
                             style="display: block; font-size: 14px; font-weight: 600; margin-bottom: 16px; color: var(--text-secondary);">매칭
                             결과</label>
-                        <div id="matchedOutput"
+                        <div id="highlightedOutput"
                             style="background: var(--bg-secondary); padding: 24px; border-radius: 12px; font-family: monospace; line-height: 1.6; white-space: pre-wrap; font-size: 1.125rem;">
                         </div>
                         <div id="matchCount"
@@ -138,35 +139,42 @@
     </div>
     <script src="../../js/common.js"></script>
     <script>
-        const RegexBuilderTool = {
+        var RegexBuilderTool = {
             init() {
-                this.regexInput = document.getElementById('regexInput');
-                this.flagsInput = document.getElementById('flagsInput');
-                this.testString = document.getElementById('testString');
-                this.matchCount = document.getElementById('matchCount');
+                this.patternInput = document.getElementById('regexInput'); // Changed from regexPattern to regexInput
+                this.testInput = document.getElementById('testString');
                 this.highlightedOutput = document.getElementById('highlightedOutput');
+                this.flagsInput = document.getElementById('flagsInput'); // Changed from flagsInputs to flagsInput
+                this.matchSection = document.getElementById('matchSection');
+                this.matchCount = document.getElementById('matchCount'); // Added matchCount
 
-                const update = () => this.updateMatches();
-                this.regexInput.addEventListener('input', update);
-                this.flagsInput.addEventListener('input', update);
-                this.testString.addEventListener('input', update);
+                if (!this.patternInput) return;
 
-                document.querySelectorAll('.regex-badge').forEach(badge => {
-                    badge.addEventListener('click', () => {
-                        this.regexInput.value += badge.dataset.pattern;
+                const updateHandler = () => this.updateMatches();
+                this.patternInput.oninput = updateHandler;
+                this.testInput.oninput = updateHandler;
+                this.flagsInput.oninput = updateHandler; // Changed from flagsInputs.forEach to single flagsInput
+
+                document.querySelectorAll('.regex-badge').forEach(btn => { // Changed from .regex-preset to .regex-badge
+                    btn.onclick = () => {
+                        this.patternInput.value = btn.dataset.pattern;
+                        this.flagsInput.value = btn.dataset.flags || ''; // Set flags from badge
                         this.updateMatches();
-                    });
+                    };
                 });
+                this.updateMatches(); // Initial update
             },
 
             updateMatches() {
-                const pattern = this.regexInput.value;
+                const pattern = this.patternInput.value;
+                const text = this.testInput.value;
                 const flags = this.flagsInput.value;
-                const text = this.testString.value;
 
                 if (!pattern) {
                     this.highlightedOutput.textContent = text || '문구를 입력하세요.';
                     this.matchCount.textContent = '0개 매치';
+                    this.matchSection.style.display = 'block'; // Show section even if no pattern, to display text
+                    this.patternInput.style.borderColor = 'var(--border-color)';
                     return;
                 }
 
@@ -200,10 +208,15 @@
                     html += this.escapeHtml(text.substring(lastIndex));
                     this.highlightedOutput.innerHTML = html || ' ';
                     this.matchCount.textContent = `${count}개 매치`;
-                    this.regexInput.style.borderColor = 'var(--border-color)';
+
+                    const matchSec = document.getElementById('matchSection');
+                    if (text && pattern) matchSec.style.display = 'block';
+                    else matchSec.style.display = 'none';
+
+                    this.patternInput.style.borderColor = 'var(--border-color)';
 
                 } catch (e) {
-                    this.regexInput.style.borderColor = '#ef4444';
+                    this.patternInput.style.borderColor = '#ef4444';
                     this.matchCount.textContent = '잘못된 표현식';
                 }
             },

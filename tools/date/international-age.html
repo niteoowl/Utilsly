@@ -99,21 +99,24 @@
     </div>
     <script src="../../js/common.js"></script>
     <script>
-        const InternationalAgeTool = {
+        var InternationalAgeTool = {
             init() {
                 this.birthDateInput = document.getElementById('birthDate');
                 this.targetDateInput = document.getElementById('targetDate');
                 this.calculateBtn = document.getElementById('calculateBtn');
                 this.resultArea = document.getElementById('resultArea');
 
+                if (!this.birthDateInput) return;
+
                 // Set default target date to today
                 const today = new Date().toISOString().split('T')[0];
                 this.targetDateInput.value = today;
 
-                this.calculateBtn.addEventListener('click', () => this.calculate());
+                const newBtn = this.calculateBtn.cloneNode(true);
+                this.calculateBtn.parentNode.replaceChild(newBtn, this.calculateBtn);
+                this.calculateBtn = newBtn;
 
-                // Prevent multiple init calls in SPA
-                this.isInitialized = true;
+                this.calculateBtn.onclick = () => this.calculate();
             },
 
             calculate() {
@@ -133,24 +136,18 @@
                     return;
                 }
 
-                // 1. Man Age (International Age)
+                // Man Age
                 let age = targetDate.getFullYear() - birthDate.getFullYear();
                 const m = targetDate.getMonth() - birthDate.getMonth();
                 if (m < 0 || (m === 0 && targetDate.getDate() < birthDate.getDate())) {
                     age--;
                 }
 
-                // 2. Year Age
                 const yearAge = targetDate.getFullYear() - birthDate.getFullYear();
-
-                // 3. Zodiac (띠) - Based on Lunar year usually, but simplified to Solar year for general tool
                 const zodiacs = ["원숭이", "닭", "개", "돼지", "쥐", "소", "호랑이", "토끼", "용", "뱀", "말", "양"];
                 const zodiac = zodiacs[birthDate.getFullYear() % 12];
-
-                // 4. Constellation (별자리)
                 const constellation = this.getConstellation(birthDate.getMonth() + 1, birthDate.getDate());
 
-                // Update UI
                 document.getElementById('ageResult').textContent = age + '세';
                 document.getElementById('yearAgeResult').textContent = yearAge + '세';
                 document.getElementById('zodiacResult').textContent = zodiac + '띠';
@@ -179,19 +176,20 @@
                 return day >= dates[month - 1] ? names[month % 12] : names[month - 1];
             },
 
-            cleanup() {
-                // Remove listeners if needed, though they go with the DOM in SPA
-            }
+            cleanup() { }
         };
 
-        // Register for SPA
         Utilsly.registerTool('international-age', InternationalAgeTool);
-
-        // Initial load if not SPA
         if (document.readyState === 'complete' || document.readyState === 'interactive') {
-            InternationalAgeTool.init();
+            if (!window.InternationalAgeToolInitialized) {
+                InternationalAgeTool.init();
+                window.InternationalAgeToolInitialized = true;
+            }
         } else {
-            document.addEventListener('DOMContentLoaded', () => InternationalAgeTool.init());
+            document.addEventListener('DOMContentLoaded', () => {
+                InternationalAgeTool.init();
+                window.InternationalAgeToolInitialized = true;
+            });
         }
     </script>
 </body>
