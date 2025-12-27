@@ -9,6 +9,21 @@
     <meta name="description" content="깨진 텍스트의 인코딩을 분석하고 정상적으로 복구해 보세요 (EUC-KR, UTF-8 등).">
     <link rel="preload" href="../../css/style.css" as="style">
     <link rel="stylesheet" href="../../css/style.css">
+    <style>
+        .card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .tool-layout {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+    </style>
 </head>
 
 <body>
@@ -26,11 +41,7 @@
         <main class="main-content">
             <header class="top-bar">
                 <div class="breadcrumbs">
-                    <span class="breadcrumb-item">Utilsly</span>
-                    <span class="separator">/</span>
-                    <span class="breadcrumb-item">텍스트/메모</span>
-                    <span class="separator">/</span>
-                    <span class="breadcrumb-item current-page">글자 깨짐 복구</span>
+                    <span class="breadcrumb-item">글자 깨짐 복구</span>
                 </div>
             </header>
 
@@ -44,49 +55,21 @@
                 </div>
 
                 <div class="tool-container" data-tool-id="encoding-fixer">
-                    <div class="card">
-                        <div class="input-group">
-                            <label for="brokenText">깨진 텍스트 입력</label>
-                            <textarea id="brokenText" class="input-field" style="height: 150px; font-family: monospace;"
-                                placeholder="예: 븞뀞븯꽭슂"></textarea>
-                        </div>
-
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px;">
-                            <button id="repairAutoBtn" class="btn btn-primary">자동 복구</button>
-                            <button id="clearBtn" class="btn">지우기</button>
-                        </div>
-                    </div>
-
-                    <div id="resultArea" class="card" style="display: none; margin-top: 24px;">
-                        <div
-                            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                            <h2 style="font-size: 1.125rem;">복구 결과</h2>
-                            <button id="copyBtn" class="btn btn-sm"
-                                style="padding: 4px 12px; font-size: 12px;">복사</button>
-                        </div>
-                        <div id="encodingInfo"
-                            style="font-size: 0.825rem; color: var(--text-tertiary); margin-bottom: 8px;"></div>
-                        <textarea id="fixedText" class="input-field"
-                            style="height: 150px; background: var(--bg-secondary); border: none;" readonly></textarea>
-                    </div>
-
-                    <div class="card" style="margin-top: 24px;">
-                        <h3 style="font-size: 1rem; margin-bottom: 12px;">수동 변환 도구</h3>
-                        <div
-                            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 8px;">
-                            <button class="btn btn-outline manual-btn" data-from="UTF-8" data-to="EUC-KR">UTF-8 →
-                                EUC-KR</button>
-                            <button class="btn btn-outline manual-btn" data-from="EUC-KR" data-to="UTF-8">EUC-KR →
-                                UTF-8</button>
-                            <button class="btn btn-outline manual-btn" data-from="UTF-8" data-to="CP949">UTF-8 →
-                                CP949</button>
-                            <button class="btn btn-outline manual-btn" data-from="ISO-8859-1" data-to="UTF-8">Latin1 →
-                                UTF-8</button>
-                        </div>
+                    <h3 style="font-size: 1rem; margin-bottom: 12px;">수동 변환 도구</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 8px;">
+                        <button class="btn btn-outline manual-btn" data-from="UTF-8" data-to="EUC-KR">UTF-8 →
+                            EUC-KR</button>
+                        <button class="btn btn-outline manual-btn" data-from="EUC-KR" data-to="UTF-8">EUC-KR →
+                            UTF-8</button>
+                        <button class="btn btn-outline manual-btn" data-from="UTF-8" data-to="CP949">UTF-8 →
+                            CP949</button>
+                        <button class="btn btn-outline manual-btn" data-from="ISO-8859-1" data-to="UTF-8">Latin1 →
+                            UTF-8</button>
                     </div>
                 </div>
             </div>
-        </main>
+    </div>
+    </main>
     </div>
     <script src="../../js/common.js"></script>
     <script>

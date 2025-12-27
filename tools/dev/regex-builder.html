@@ -10,26 +10,40 @@
     <link rel="preload" href="../../css/style.css" as="style">
     <link rel="stylesheet" href="../../css/style.css">
     <style>
+        .card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
         .regex-badge {
             display: inline-block;
-            padding: 4px 12px;
+            padding: 6px 14px;
             background: var(--bg-secondary);
             border-radius: 20px;
             font-size: 0.825rem;
             cursor: pointer;
             transition: all 0.2s;
             border: 1px solid var(--border-color);
+            margin-right: 4px;
+            margin-bottom: 8px;
         }
 
         .regex-badge:hover {
-            background: var(--accent-color);
+            background: var(--accent-blue);
             color: white;
-            border-color: var(--accent-color);
+            border-color: var(--accent-blue);
+        }
+
+        [data-theme="dark"] .regex-badge:hover {
+            color: black;
         }
 
         .match-highlight {
             background: rgba(var(--accent-rgb), 0.2);
-            border-bottom: 2px solid var(--accent-color);
+            border-bottom: 2px solid var(--accent-blue);
             border-radius: 2px;
         }
     </style>
@@ -50,11 +64,7 @@
         <main class="main-content">
             <header class="top-bar">
                 <div class="breadcrumbs">
-                    <span class="breadcrumb-item">Utilsly</span>
-                    <span class="separator">/</span>
-                    <span class="breadcrumb-item">개발</span>
-                    <span class="separator">/</span>
-                    <span class="breadcrumb-item current-page">Regex 빌더</span>
+                    <span class="breadcrumb-item">Regex 빌더</span>
                 </div>
             </header>
 
