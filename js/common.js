@@ -3,7 +3,7 @@
  * Handles Sidebar generation and common UI interactions.
  */
 
-const Utilsly = {
+var Utilsly = {
     init() {
         this.loadIcons();
         this.loadHeader(); // NEW: Load Common Header (Favicon)
@@ -20,6 +20,11 @@ const Utilsly = {
         // Mark page as loaded to enable transitions and show content
         requestAnimationFrame(() => {
             document.documentElement.classList.add('loaded');
+
+            // Auto-translate initial page content if in English mode
+            if (this.i18n && this.i18n.currentLang === 'en') {
+                this.i18n.translatePage();
+            }
         });
     },
 
@@ -366,21 +371,34 @@ const Utilsly = {
             <div class="sidebar-search-container" style="position: sticky; top: 0; background: var(--bg-sidebar); z-index: 10; padding-bottom: 8px;">
                 <div style="position: relative;">
                     <span class="material-symbols-rounded" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 18px; color: var(--text-tertiary);">search</span>
-                    <input type="text" id="sidebarSearch" placeholder="검색..." style="padding-left: 36px; background: rgba(0,0,0,0.03); border: none; width: 100%;">
+                    <input type="text" id="sidebarSearch" placeholder="${this.i18n ? this.i18n.translate('검색...') : '검색...'}" style="padding-left: 36px; background: rgba(0,0,0,0.03); border: none; width: 100%;">
                 </div>
             </div>
         `;
 
-        // Home Link (수정됨: /index.html -> /)
+        // Language Switcher
+        const isEn = this.i18n && this.i18n.currentLang === 'en';
+        const koPath = window.location.pathname.replace('/en/', '/') || '/';
+        const enPath = window.location.pathname.includes('/en/') ? window.location.pathname : ('/en' + window.location.pathname).replace('//', '/');
+
+        html += `
+            <div class="language-switcher" style="padding: 0 8px 16px 8px; display: flex; gap: 8px; font-size: 12px; font-weight: 600;">
+                <a href="${koPath}" style="color: ${!isEn ? 'var(--text-primary)' : 'var(--text-tertiary)'}; text-decoration: none;">KR</a>
+                <span style="color: var(--border-color);">|</span>
+                <a href="${enPath}" style="color: ${isEn ? 'var(--text-primary)' : 'var(--text-tertiary)'}; text-decoration: none;">EN</a>
+            </div>
+        `;
+
+        // Home Link
         html += `
             <div class="nav-section">
-                <a href="/" class="nav-item" id="nav-home">
+                <a href="${isEn ? '/en/' : '/'}" class="nav-item" id="nav-home">
                     <span class="material-symbols-rounded icon">home</span>
-                    <span class="label">홈</span>
+                    <span class="label">${this.i18n ? this.i18n.translate('홈') : '홈'}</span>
                 </a>
                 <a href="/settings" class="nav-item" id="nav-settings">
                     <span class="material-symbols-rounded icon">settings</span>
-                    <span class="label">설정</span>
+                    <span class="label">${this.i18n ? this.i18n.translate('설정') : '설정'}</span>
                 </a>
             </div>
         `;
@@ -394,18 +412,22 @@ const Utilsly = {
 
             if (visibleItems.length === 0) return;
 
+            const categoryName = this.i18n ? this.i18n.translate(section.category) : section.category;
+
             html += `
                 <div class="nav-section tool-section" data-category="${section.category}">
-                    <div class="section-title">${section.category}</div>
+                    <div class="section-title">${categoryName}</div>
                     ${visibleItems.map(item => {
                 const isHidden = this.hiddenTools.has(item.name);
                 const opacity = isHidden ? '0.5' : '1';
                 const icon = isHidden ? 'visibility_off' : 'visibility';
+                const displayName = this.i18n ? this.i18n.translate(item.name) : item.name;
+                const toolUrl = (isEn ? '/en' : '') + item.path;
 
                 let itemHtml = `
-                            <a href="${item.path}" class="nav-item tool-item" data-name="${item.name}" style="opacity: ${opacity}">
+                            <a href="${toolUrl}" class="nav-item tool-item" data-name="${item.name}" style="opacity: ${opacity}">
                                 <span class="material-symbols-rounded icon">${item.icon}</span>
-                                <span class="label">${item.name}</span>
+                                <span class="label">${displayName}</span>
                         `;
 
                 if (this.isEditingSidebar) {
@@ -434,6 +456,11 @@ const Utilsly = {
         `;
 
         sidebarNav.innerHTML = html;
+
+        // Apply translations to the whole sidebar just in case
+        if (this.i18n && this.i18n.currentLang === 'en') {
+            this.i18n.translatePage(sidebarNav);
+        }
 
         // Search Logic
         const searchInput = document.getElementById('sidebarSearch');
@@ -748,6 +775,14 @@ const Utilsly = {
                 // Re-run scripts (Seqential Loading for dependencies)
                 const scripts = Array.from(doc.querySelectorAll('script'));
 
+                // Move translation here, BEFORE tool init to ensure LCP optimization
+                if (this.i18n && this.i18n.currentLang === 'en') {
+                    this.i18n.translatePage(currentMain);
+                    // Also translate top-bar breadcrumbs
+                    const breadcrumbs = document.querySelector('.breadcrumbs');
+                    if (breadcrumbs) this.i18n.translatePage(breadcrumbs);
+                }
+
                 // Use a Promise to wait for all scripts to load
                 await new Promise((resolve) => {
                     const loadScript = (index) => {
@@ -811,8 +846,14 @@ const Utilsly = {
                 } else {
                     console.warn(`[SPA] Tool ID '${toolId}' found but no matching controller registered.`);
                 }
-            } else {
-                // console.log("[SPA] No data-tool-id found in new content.");
+            }
+
+            // --- 6. SEO & Meta Updates ---
+            if (this.i18n && this.i18n.currentLang === 'en') {
+                const toolName = toolContainer ? toolContainer.querySelector('.section-title')?.textContent : null;
+                const toolDesc = toolContainer ? doc.querySelector('meta[name="description"]')?.content : null;
+                this.i18n.updateMetaTags(toolName, toolDesc);
+                this.i18n.injectSEOTags();
             }
 
             // Scroll to top
@@ -820,12 +861,37 @@ const Utilsly = {
 
         } catch (e) {
             console.error("[SPA] Navigation Failed:", e);
-            window.location.href = url;
+            if (this.i18n && (e.message.includes('404') || e.message.includes('not ok'))) {
+                this.showNotFoundError();
+            } else {
+                window.location.href = url;
+            }
         } finally {
             this.highlightActivePage();
             this.initMobileMenu();
             this.hideLoadingBar();
         }
+    },
+
+    showNotFoundError() {
+        const isEn = this.i18n && this.i18n.currentLang === 'en';
+        const currentMain = document.querySelector('.main-content');
+        if (!currentMain) return;
+
+        const title = isEn ? "404 - Page Not Found" : "404 - 페이지를 찾을 수 없습니다";
+        const message = isEn ? "The page you are looking for does not exist or has been moved." : "찾으시는 페이지가 존재하지 않거나 이동되었습니다.";
+        const btnText = isEn ? "Back to Home" : "홈으로 돌아가기";
+        const homePath = isEn ? "/en/" : "/";
+
+        currentMain.innerHTML = `
+            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 60vh; text-align: center;">
+                <span class="material-symbols-rounded" style="font-size: 80px; color: var(--text-tertiary); margin-bottom: 24px;">error</span>
+                <h1 style="font-size: 32px; margin-bottom: 16px;">${title}</h1>
+                <p style="color: var(--text-secondary); margin-bottom: 32px;">${message}</p>
+                <a href="${homePath}" class="btn btn-primary" style="text-decoration: none;">${btnText}</a>
+            </div>
+        `;
+        document.title = title + " - Utilsly";
     },
 
     showLoadingBar() {

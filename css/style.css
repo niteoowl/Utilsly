@@ -120,7 +120,7 @@ a {
     width: 240px;
     /* Slightly narrower like Notion */
     background: var(--bg-sidebar);
-    border-right: 1px solid var(--border-color);
+    border-right: none;
     display: flex;
     flex-direction: column;
     padding: 12px 8px;
@@ -818,7 +818,7 @@ input[type="range"]::-webkit-slider-thumb:hover {
     .sidebar {
         transform: translateX(-100%);
         box-shadow: none;
-        border-right: 1px solid var(--border-color);
+        border-right: none;
     }
 
     .sidebar.active {
