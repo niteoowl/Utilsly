@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>깨진 PDF 복구 - Utilsly</title>
+    <meta name="description" content="열리지 않거나 손상된 PDF 파일을 분석하여 가능한 범위 내에서 복구해 보세요.">
+    <link rel="preload" href="../../css/style.css" as="style">
+    <link rel="stylesheet" href="../../css/style.css">
+    <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+</head>
+
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="user-profile">
+                    <div style="font-size: 24px; font-weight: 800; color: var(--text-primary); letter-spacing: -0.5px;">
+                        Utilsly.</div>
+                </div>
+            </div>
+            <nav class="sidebar-nav"></nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="top-bar">
+                <div class="breadcrumbs">
+                    <span class="breadcrumb-item">Utilsly</span>
+                    <span class="separator">/</span>
+                    <span class="breadcrumb-item">PDF</span>
+                    <span class="separator">/</span>
+                    <span class="breadcrumb-item current-page">깨진 PDF 복구</span>
+                </div>
+            </header>
+
+            <div class="content-area">
+                <div class="page-header">
+                    <div class="header-icon-wrapper">
+                        <span class="material-symbols-rounded">medical_services</span>
+                    </div>
+                    <h1>깨진 PDF 복구</h1>
+                    <p class="description">구조가 손상되어 열리지 않는 PDF 파일을 다시 작성하여 복구 시도를 합니다.</p>
+                </div>
+
+                <div class="tool-container" data-tool-id="repair-pdf">
+                    <div class="card">
+                        <div class="file-upload-area" id="dropZone"
+                            style="border: 2px dashed var(--border-color); border-radius: 12px; padding: 40px; text-align: center; cursor: pointer;">
+                            <input type="file" id="fileInput" accept="application/pdf" style="display: none;">
+                            <span class="material-symbols-rounded"
+                                style="font-size: 48px; color: var(--text-tertiary); margin-bottom: 16px;">file_present</span>
+                            <p style="color: var(--text-secondary);">손상된 PDF 파일을 업로드하세요</p>
+                            <p id="fileName" style="font-weight: 600; color: var(--accent-color); margin-top: 8px;"></p>
+                        </div>
+
+                        <button id="processBtn" class="btn btn-primary"
+                            style="width: 100%; margin-top: 24px; display: none;">복구 시도 및 다운로드</button>
+                    </div>
+
+                    <div id="statusMessage"
+                        style="margin-top: 16px; text-align: center; font-size: 0.875rem; color: var(--text-tertiary);">
+                    </div>
+                    <div class="alert alert-info"
+                        style="margin-top: 24px; background: rgba(var(--accent-rgb), 0.1); padding: 16px; border-radius: 8px;">
+                        <p style="font-size: 0.875rem; color: var(--text-secondary);">
+                            ⚠️ 복구는 파일의 데이터가 남아있는 경우에만 가능하며, 모든 손상된 파일을 100% 복구할 수 있는 것은 아닙니다.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="../../js/common.js"></script>
+    <script>
+        const RepairPdfTool = {
+            currentFile: null,
+
+            init() {
+                this.dropZone = document.getElementById('dropZone');
+                this.fileInput = document.getElementById('fileInput');
+                this.fileNameDisplay = document.getElementById('fileName');
+                this.processBtn = document.getElementById('processBtn');
+                this.statusMsg = document.getElementById('statusMessage');
+
+                this.dropZone.addEventListener('click', () => this.fileInput.click());
+                this.fileInput.addEventListener('change', (e) => this.handleFile(e.target.files[0]));
+
+                this.processBtn.addEventListener('click', () => this.process());
+            },
+
+            handleFile(file) {
+                if (!file || file.type !== 'application/pdf') return;
+                this.currentFile = file;
+                this.fileNameDisplay.textContent = file.name;
+                this.processBtn.style.display = 'block';
+                this.statusMsg.textContent = '복구 준비 완료.';
+            },
+
+            async process() {
+                if (!this.currentFile) return;
+                this.statusMsg.textContent = '문서 구조 분석 중...';
+
+                try {
+                    const arrayBuffer = await this.currentFile.arrayBuffer();
+
+                    // PDF-LIB repair mechanism: 
+                    // By loading with ignoreEncryption and then saving, 
+                    // pdf-lib reconstructs the Cross-Reference Table (XREF) and Trailer.
+                    const pdfDoc = await PDFLib.PDFDocument.load(arrayBuffer, {
+                        ignoreEncryption: true,
+                        throwOnInvalidObject: false // Try to be lenient
+                    });
+
+                    const pdfBytes = await pdfDoc.save();
+                    const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = `[Repaired]_${this.currentFile.name}`;
+                    link.click();
+
+                    this.statusMsg.textContent = '복구가 완료되었습니다!';
+                    Utilsly.showAlert('복구 시도가 완료되었습니다. 결과물을 확인해 보세요.');
+                } catch (e) {
+                    console.error(e);
+                    Utilsly.showAlert('복구에 실패했습니다. 파일 손상이 너무 심하거나 암호화되어 있을 수 있습니다.');
+                    this.statusMsg.textContent = '실패.';
+                }
+            }
+        };
+
+        Utilsly.registerTool('repair-pdf', RepairPdfTool);
+        if (document.readyState === 'complete' || document.readyState === 'interactive') {
+            RepairPdfTool.init();
+        } else {
+            document.addEventListener('DOMContentLoaded', () => RepairPdfTool.init());
+        }
+    </script>
+</body>
+
+</html>

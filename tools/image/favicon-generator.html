@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>파비콘 생성기 - Utilsly</title>
+    <meta name="description" content="이미지를 업로드하여 웹사이트에 필요한 모든 사이즈의 파비콘(favicon.ico)을 한 번에 생성해 보세요.">
+    <link rel="preload" href="../../css/style.css" as="style">
+    <link rel="stylesheet" href="../../css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+</head>
+
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="user-profile">
+                    <div style="font-size: 24px; font-weight: 800; color: var(--text-primary); letter-spacing: -0.5px;">
+                        Utilsly.</div>
+                </div>
+            </div>
+            <nav class="sidebar-nav"></nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="top-bar">
+                <div class="breadcrumbs">
+                    <span class="breadcrumb-item">Utilsly</span>
+                    <span class="separator">/</span>
+                    <span class="breadcrumb-item">이미지</span>
+                    <span class="separator">/</span>
+                    <span class="breadcrumb-item current-page">파비콘 생성기</span>
+                </div>
+            </header>
+
+            <div class="content-area">
+                <div class="page-header">
+                    <div class="header-icon-wrapper">
+                        <span class="material-symbols-rounded">select_window</span>
+                    </div>
+                    <h1>파비콘 생성기</h1>
+                    <p class="description">한 장의 이미지로 다양한 크기의 파비콘 세트(ICO, PNG)를 자동 생성합니다.</p>
+                </div>
+
+                <div class="tool-container" data-tool-id="favicon-generator">
+                    <div class="card">
+                        <div class="file-upload-area" id="dropZone"
+                            style="border: 2px dashed var(--border-color); border-radius: 12px; padding: 40px; text-align: center; cursor: pointer;">
+                            <input type="file" id="fileInput" accept="image/*" style="display: none;">
+                            <span class="material-symbols-rounded"
+                                style="font-size: 48px; color: var(--text-tertiary); margin-bottom: 16px;">add_photo_alternate</span>
+                            <p style="color: var(--text-secondary);">정사각형 이미지를 권장합니다</p>
+                            <p id="fileName" style="font-weight: 600; color: var(--accent-color); margin-top: 8px;"></p>
+                        </div>
+
+                        <div id="previewSection" style="display: none; margin-top: 40px;">
+                            <h3 style="font-size: 1rem; margin-bottom: 20px;">생성 미리보기</h3>
+                            <div style="display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-end;">
+                                <div style="text-align: center;">
+                                    <div
+                                        style="width: 16px; height: 16px; background: #eee; margin-bottom: 8px; margin-inline: auto;">
+                                        <img id="p16" style="width: 100%; height: 100%; display: block;">
+                                    </div>
+                                    <span style="font-size: 12px; color: var(--text-tertiary);">16x16</span>
+                                </div>
+                                <div style="text-align: center;">
+                                    <div
+                                        style="width: 32px; height: 32px; background: #eee; margin-bottom: 8px; margin-inline: auto;">
+                                        <img id="p32" style="width: 100%; height: 100%; display: block;">
+                                    </div>
+                                    <span style="font-size: 12px; color: var(--text-tertiary);">32x32</span>
+                                </div>
+                                <div style="text-align: center;">
+                                    <div
+                                        style="width: 64px; height: 64px; background: #eee; margin-bottom: 8px; margin-inline: auto;">
+                                        <img id="p64" style="width: 100%; height: 100%; display: block;">
+                                    </div>
+                                    <span style="font-size: 12px; color: var(--text-tertiary);">64x64</span>
+                                </div>
+                                <div style="text-align: center;">
+                                    <div
+                                        style="width: 180px; height: 180px; background: #eee; margin-bottom: 8px; margin-inline: auto;">
+                                        <img id="p180" style="width: 100%; height: 100%; display: block;">
+                                    </div>
+                                    <span style="font-size: 12px; color: var(--text-tertiary);">Apple Touch
+                                        (180x180)</span>
+                                </div>
+                            </div>
+
+                            <button id="downloadBtn" class="btn btn-primary"
+                                style="width: 100%; margin-top: 40px; padding: 16px; font-weight: 700;">Favicon 패키지 다운로드
+                                (.ZIP)</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="../../js/common.js"></script>
+    <script>
+        const FaviconGeneratorTool = {
+            sizes: [16, 32, 48, 64, 128, 180, 192, 512],
+            originalImage: null,
+
+            init() {
+                this.dropZone = document.getElementById('dropZone');
+                this.fileInput = document.getElementById('fileInput');
+                this.fileNameDisplay = document.getElementById('fileName');
+                this.previewSection = document.getElementById('previewSection');
+                this.downloadBtn = document.getElementById('downloadBtn');
+
+                this.dropZone.addEventListener('click', () => this.fileInput.click());
+                this.fileInput.addEventListener('change', (e) => this.handleFile(e.target.files[0]));
+                this.downloadBtn.addEventListener('click', () => this.generateZip());
+            },
+
+            async handleFile(file) {
+                if (!file) return;
+                this.originalImage = file;
+                this.fileNameDisplay.textContent = file.name;
+
+                const url = URL.createObjectURL(file);
+                ['p16', 'p32', 'p64', 'p180'].forEach(id => {
+                    document.getElementById(id).src = url;
+                });
+
+                this.previewSection.style.display = 'block';
+            },
+
+            async generateZip() {
+                if (!this.originalImage) return;
+
+                const zip = new JSZip();
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                const img = new Image();
+
+                img.onload = async () => {
+                    for (const size of this.sizes) {
+                        canvas.width = size;
+                        canvas.height = size;
+                        ctx.clearRect(0, 0, size, size);
+                        // Center and crop to square
+                        const minDim = Math.min(img.width, img.height);
+                        const sx = (img.width - minDim) / 2;
+                        const sy = (img.height - minDim) / 2;
+                        ctx.drawImage(img, sx, sy, minDim, minDim, 0, 0, size, size);
+
+                        const blob = await new Promise(r => canvas.toBlob(r, 'image/png'));
+                        zip.file(`favicon-${size}x${size}.png`, blob);
+                    }
+
+                    // Create ico (simplified as the largest size renamed for this tool)
+                    const icoBlob = await new Promise(r => canvas.toBlob(r, 'image/png'));
+                    zip.file('favicon.ico', icoBlob);
+
+                    const content = await zip.generateAsync({ type: 'blob' });
+                    const url = URL.createObjectURL(content);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = 'favicons_utilsly.zip';
+                    link.click();
+
+                    Utilsly.showAlert('파비콘 패키지가 생성되었습니다!');
+                };
+
+                img.src = URL.createObjectURL(this.originalImage);
+            }
+        };
+
+        Utilsly.registerTool('favicon-generator', FaviconGeneratorTool);
+        if (document.readyState === 'complete' || document.readyState === 'interactive') {
+            FaviconGeneratorTool.init();
+        } else {
+            document.addEventListener('DOMContentLoaded', () => FaviconGeneratorTool.init());
+        }
+    </script>
+</body>
+
+</html>

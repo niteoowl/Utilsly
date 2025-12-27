@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>예적금 만기 계산기 - Utilsly</title>
+    <meta name="description" content="정기예금, 정기적금의 만기 수령액을 세금(15.4%)을 제외한 실수령액 기준으로 간편하게 계산해 보세요.">
+    <link rel="preload" href="../../css/style.css" as="style">
+    <link rel="stylesheet" href="../../css/style.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="user-profile">
+                    <div style="font-size: 24px; font-weight: 800; color: var(--text-primary); letter-spacing: -0.5px;">
+                        Utilsly.</div>
+                </div>
+            </div>
+            <nav class="sidebar-nav"></nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="top-bar">
+                <div class="breadcrumbs">
+                    <span class="breadcrumb-item">Utilsly</span>
+                    <span class="separator">/</span>
+                    <span class="breadcrumb-item">금융/투자</span>
+                    <span class="separator">/</span>
+                    <span class="breadcrumb-item current-page">예적금 만기 계산기</span>
+                </div>
+            </header>
+
+            <div class="content-area">
+                <div class="page-header">
+                    <div class="header-icon-wrapper">
+                        <span class="material-symbols-rounded">savings</span>
+                    </div>
+                    <h1>예적금 만기 계산기</h1>
+                    <p class="description">예금 또는 적금 상품의 만기 시 이자와 실수령액을 계산합니다.</p>
+                </div>
+
+                <div class="tool-container" data-tool-id="savings-maturity">
+                    <div class="card">
+                        <div class="tab-container"
+                            style="display: flex; gap: 8px; margin-bottom: 24px; background: var(--bg-secondary); padding: 4px; border-radius: 8px;">
+                            <button class="tab-btn active" data-type="deposit"
+                                style="flex: 1; padding: 10px; border: none; border-radius: 6px; cursor: pointer; background: var(--card-bg); font-weight: 600;">정기예금</button>
+                            <button class="tab-btn" data-type="savings"
+                                style="flex: 1; padding: 10px; border: none; border-radius: 6px; cursor: pointer; background: transparent; color: var(--text-secondary);">정기적금</button>
+                        </div>
+
+                        <div class="input-group">
+                            <label id="amountLabel" for="amount">예치 금액 (원)</label>
+                            <input type="number" id="amount" class="input-field" placeholder="예: 10000000">
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                            <div class="input-group">
+                                <label for="period">기간 (개월)</label>
+                                <input type="number" id="period" class="input-field" value="12">
+                            </div>
+                            <div class="input-group">
+                                <label for="rate">연 이자율 (%)</label>
+                                <input type="number" id="rate" class="input-field" step="0.1" value="3.5">
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label>과세 구분</label>
+                            <div style="display: flex; gap: 16px; margin-top: 8px;">
+                                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                    <input type="radio" name="tax" value="15.4" checked> 일반과세 (15.4%)
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                    <input type="radio" name="tax" value="9.5"> 세금우대 (9.5%)
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                    <input type="radio" name="tax" value="0"> 비과세 (0%)
+                                </label>
+                            </div>
+                        </div>
+
+                        <button id="calculateBtn" class="btn btn-primary" style="width: 100%; margin-top: 16px;">만기 금액
+                            계산</button>
+                    </div>
+
+                    <div id="resultArea" class="card" style="display: none; margin-top: 24px;">
+                        <h2 style="font-size: 1.125rem; margin-bottom: 20px;">계산 결과</h2>
+                        <div style="display: flex; flex-direction: column; gap: 16px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span style="color: var(--text-secondary);">원금 합계</span>
+                                <span id="resPrincipal" style="font-weight: 600;">0원</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span style="color: var(--text-secondary);">세전 이자</span>
+                                <span id="resInterestBefore" style="font-weight: 600;">0원</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span style="color: var(--text-secondary);">이자 소득세</span>
+                                <span id="resTax" style="color: #ef4444;">-0원</span>
+                            </div>
+                            <div
+                                style="margin-top: 12px; padding-top: 16px; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
+                                <span style="font-weight: 700; font-size: 1.125rem;">최종 실수령액</span>
+                                <span id="resTotal"
+                                    style="font-weight: 800; font-size: 1.5rem; color: var(--accent-color);">0원</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="../../js/common.js"></script>
+    <script>
+        const SavingsMaturityTool = {
+            currentType: 'deposit', // deposit or savings
+
+            init() {
+                this.amountInput = document.getElementById('amount');
+                this.periodInput = document.getElementById('period');
+                this.rateInput = document.getElementById('rate');
+                this.calculateBtn = document.getElementById('calculateBtn');
+                this.tabBtns = document.querySelectorAll('.tab-btn');
+                this.amountLabel = document.getElementById('amountLabel');
+
+                this.tabBtns.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        this.tabBtns.forEach(b => {
+                            b.classList.remove('active');
+                            b.style.background = 'transparent';
+                            b.style.color = 'var(--text-secondary)';
+                        });
+                        btn.classList.add('active');
+                        btn.style.background = 'var(--card-bg)';
+                        btn.style.color = 'var(--text-primary)';
+                        this.currentType = btn.dataset.type;
+                        this.amountLabel.textContent = this.currentType === 'deposit' ? '예치 금액 (원)' : '월 적립액 (원)';
+                    });
+                });
+
+                this.calculateBtn.addEventListener('click', () => this.calculate());
+            },
+
+            formatKRW(val) {
+                return new Intl.NumberFormat('ko-KR').format(Math.floor(val)) + '원';
+            },
+
+            calculate() {
+                const amount = parseFloat(this.amountInput.value);
+                const months = parseInt(this.periodInput.value);
+                const rate = parseFloat(this.rateInput.value) / 100;
+                const taxRate = parseFloat(document.querySelector('input[name="tax"]:checked').value) / 100;
+
+                if (!amount || !months || !rate) {
+                    Utilsly.showAlert('모든 값을 올바르게 입력해주세요.');
+                    return;
+                }
+
+                let principal = 0;
+                let interestBefore = 0;
+
+                if (this.currentType === 'deposit') {
+                    // Fixed Deposit: principal * rate * (months/12)
+                    principal = amount;
+                    interestBefore = principal * rate * (months / 12);
+                } else {
+                    // Monthly Savings: Simple interest calculation
+                    // Sum of (Monthly deposit * rate * (months_remaining / 12))
+                    principal = amount * months;
+                    // Formula: amount * rate * (months * (months + 1) / 2) / 12
+                    interestBefore = amount * rate * (months * (months + 1) / 2) / 12;
+                }
+
+                const taxAmount = interestBefore * taxRate;
+                const interestAfter = interestBefore - taxAmount;
+                const total = principal + interestAfter;
+
+                document.getElementById('resPrincipal').textContent = this.formatKRW(principal);
+                document.getElementById('resInterestBefore').textContent = this.formatKRW(interestBefore);
+                document.getElementById('resTax').textContent = '-' + this.formatKRW(taxAmount);
+                document.getElementById('resTotal').textContent = this.formatKRW(total);
+
+                document.getElementById('resultArea').style.display = 'block';
+                document.getElementById('resultArea').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            },
+
+            cleanup() { }
+        };
+
+        Utilsly.registerTool('savings-maturity', SavingsMaturityTool);
+        if (document.readyState === 'complete' || document.readyState === 'interactive') {
+            SavingsMaturityTool.init();
+        } else {
+            document.addEventListener('DOMContentLoaded', () => SavingsMaturityTool.init());
+        }
+    </script>
+</body>
+
+</html>

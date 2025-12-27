@@ -213,6 +213,7 @@ const Utilsly = {
                 { name: "더미 이미지 생성", icon: "placeholder", path: "/tools/image/placeholder-generator" },
                 { name: "HEIC PNG 변환", icon: "transform", path: "/tools/image/heic-png-converter" },
                 { name: "ASCII 아트", icon: "grid_on", path: "/tools/image/ascii-art" },
+                { name: "파비콘 생성기", icon: "select_window", path: "/tools/image/favicon-generator" },
             ]
         },
         {
@@ -229,6 +230,8 @@ const Utilsly = {
                 { name: "PDF 합치기", icon: "picture_as_pdf", path: "/tools/pdf/pdf-merge" },
                 { name: "PDF 분할", icon: "cut", path: "/tools/pdf/pdf-split" },
                 { name: "PDF → 이미지", icon: "image_search", path: "/tools/pdf/pdf-to-image" },
+                { name: "PDF 암호 제거", icon: "no_encryption", path: "/tools/pdf/remove-password" },
+                { name: "깨진 PDF 복구", icon: "medical_services", path: "/tools/pdf/repair-pdf" },
             ]
         },
         {
@@ -253,6 +256,7 @@ const Utilsly = {
                 { name: "줄바꿈 제거", icon: "format_align_left", path: "/tools/text/remove-line-breaks" },
                 { name: "마크다운 미리보기", icon: "markdown", path: "/tools/text/markdown-preview" },
                 { name: "특수문자 폰트", icon: "text_fields", path: "/tools/text/fancy-text" },
+                { name: "글자 깨짐 복구", icon: "history_edu", path: "/tools/text/encoding-fixer" },
             ]
         },
         {
@@ -270,6 +274,7 @@ const Utilsly = {
                 { name: "URL 인코더", icon: "link", path: "/tools/dev/url-encoder" },
                 { name: "Base64 인코더", icon: "package_2", path: "/tools/dev/base64-encoder" },
                 { name: "UUID 생성기", icon: "fingerprint", path: "/tools/dev/uuid-generator" },
+                { name: "Regex 빌더", icon: "regular_expression", path: "/tools/dev/regex-builder" },
             ]
         },
         {
@@ -278,6 +283,7 @@ const Utilsly = {
                 { name: "실시간 파일 공유", icon: "share_windows", path: "/tools/file/p2p-transfer" },
                 { name: "Zip 파일 압축", icon: "folder_zip", path: "/tools/file/zip-compress" },
                 { name: "Zip 압축 해제", icon: "unarchive", path: "/tools/file/zip-decompress" },
+                { name: "메타데이터 지우기", icon: "cleaning_services", path: "/tools/file/metadata-remover" },
             ]
         },
         {
@@ -285,6 +291,7 @@ const Utilsly = {
             items: [
                 { name: "JWT 디코더", icon: "security", path: "/tools/security/jwt-decoder" },
                 { name: "비밀번호 생성기", icon: "password", path: "/tools/security/password-generator" },
+                { name: "PPT 암호 제거", icon: "key_off", path: "/tools/security/ppt-password" },
             ]
         },
         {
@@ -303,6 +310,7 @@ const Utilsly = {
                 { name: "스톱워치", icon: "timer_off", path: "/tools/date/stopwatch" },
                 { name: "D-Day 계산기", icon: "event_upcoming", path: "/tools/date/d-day-counter" },
                 { name: "세계 시간", icon: "public", path: "/tools/date/world-time" },
+                { name: "만 나이 계산기", icon: "calendar_today", path: "/tools/date/international-age" },
             ]
         },
         {
@@ -332,6 +340,7 @@ const Utilsly = {
                 { name: "엔화 환율", icon: "currency_yen", path: "/tools/finance/krw-jpy" },
                 { name: "유로 환율", icon: "euro", path: "/tools/finance/krw-eur" },
                 { name: "위안화 환율", icon: "currency_yuan", path: "/tools/finance/krw-cny" },
+                { name: "예적금 만기 계산기", icon: "savings", path: "/tools/finance/savings-maturity" },
             ]
         },
         {

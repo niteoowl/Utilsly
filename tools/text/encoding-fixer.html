@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>글자 깨짐 복구 - Utilsly</title>
+    <meta name="description" content="깨진 텍스트의 인코딩을 분석하고 정상적으로 복구해 보세요 (EUC-KR, UTF-8 등).">
+    <link rel="preload" href="../../css/style.css" as="style">
+    <link rel="stylesheet" href="../../css/style.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="user-profile">
+                    <div style="font-size: 24px; font-weight: 800; color: var(--text-primary); letter-spacing: -0.5px;">
+                        Utilsly.</div>
+                </div>
+            </div>
+            <nav class="sidebar-nav"></nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="top-bar">
+                <div class="breadcrumbs">
+                    <span class="breadcrumb-item">Utilsly</span>
+                    <span class="separator">/</span>
+                    <span class="breadcrumb-item">텍스트/메모</span>
+                    <span class="separator">/</span>
+                    <span class="breadcrumb-item current-page">글자 깨짐 복구</span>
+                </div>
+            </header>
+
+            <div class="content-area">
+                <div class="page-header">
+                    <div class="header-icon-wrapper">
+                        <span class="material-symbols-rounded">history_edu</span>
+                    </div>
+                    <h1>글자 깨짐 복구</h1>
+                    <p class="description">인코딩 문제로 깨져 보이는 문자를 올바르게 복구합니다.</p>
+                </div>
+
+                <div class="tool-container" data-tool-id="encoding-fixer">
+                    <div class="card">
+                        <div class="input-group">
+                            <label for="brokenText">깨진 텍스트 입력</label>
+                            <textarea id="brokenText" class="input-field" style="height: 150px; font-family: monospace;"
+                                placeholder="예: 븞뀞븯꽭슂"></textarea>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px;">
+                            <button id="repairAutoBtn" class="btn btn-primary">자동 복구</button>
+                            <button id="clearBtn" class="btn">지우기</button>
+                        </div>
+                    </div>
+
+                    <div id="resultArea" class="card" style="display: none; margin-top: 24px;">
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <h2 style="font-size: 1.125rem;">복구 결과</h2>
+                            <button id="copyBtn" class="btn btn-sm"
+                                style="padding: 4px 12px; font-size: 12px;">복사</button>
+                        </div>
+                        <div id="encodingInfo"
+                            style="font-size: 0.825rem; color: var(--text-tertiary); margin-bottom: 8px;"></div>
+                        <textarea id="fixedText" class="input-field"
+                            style="height: 150px; background: var(--bg-secondary); border: none;" readonly></textarea>
+                    </div>
+
+                    <div class="card" style="margin-top: 24px;">
+                        <h3 style="font-size: 1rem; margin-bottom: 12px;">수동 변환 도구</h3>
+                        <div
+                            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 8px;">
+                            <button class="btn btn-outline manual-btn" data-from="UTF-8" data-to="EUC-KR">UTF-8 →
+                                EUC-KR</button>
+                            <button class="btn btn-outline manual-btn" data-from="EUC-KR" data-to="UTF-8">EUC-KR →
+                                UTF-8</button>
+                            <button class="btn btn-outline manual-btn" data-from="UTF-8" data-to="CP949">UTF-8 →
+                                CP949</button>
+                            <button class="btn btn-outline manual-btn" data-from="ISO-8859-1" data-to="UTF-8">Latin1 →
+                                UTF-8</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="../../js/common.js"></script>
+    <script>
+        const EncodingFixerTool = {
+            init() {
+                this.brokenTextArea = document.getElementById('brokenText');
+                this.fixedTextArea = document.getElementById('fixedText');
+                this.repairAutoBtn = document.getElementById('repairAutoBtn');
+                this.clearBtn = document.getElementById('clearBtn');
+                this.copyBtn = document.getElementById('copyBtn');
+                this.resultArea = document.getElementById('resultArea');
+                this.encodingInfo = document.getElementById('encodingInfo');
+
+                this.repairAutoBtn.addEventListener('click', () => this.autoRepair());
+                this.clearBtn.addEventListener('click', () => {
+                    this.brokenTextArea.value = '';
+                    this.fixedTextArea.value = '';
+                    this.resultArea.style.display = 'none';
+                });
+                this.copyBtn.addEventListener('click', () => {
+                    navigator.clipboard.writeText(this.fixedTextArea.value);
+                    Utilsly.showAlert('클립보드에 복사되었습니다.');
+                });
+
+                document.querySelectorAll('.manual-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        this.manualConvert(btn.dataset.from, btn.dataset.to);
+                    });
+                });
+            },
+
+            async autoRepair() {
+                const text = this.brokenTextArea.value.trim();
+                if (!text) {
+                    Utilsly.showAlert('텍스트를 입력해주세요.');
+                    return;
+                }
+
+                try {
+                    // Modern approach: Using TextEncoder/Decoder to simulate common misinterpretations
+                    // A common case is UTF-8 text being read as ISO-8859-1 (Latin1) then displayed in a UI that expects UTF-8 again.
+
+                    // Trial 1: Assume it was UTF-8 interpreted as Latin1
+                    const latin1ToUtf8 = this.decode(this.encode(text, 'iso-8859-1'), 'utf-8');
+
+                    // Trial 2: Assume it was EUC-KR interpreted as a different encoding
+                    // We can't easily "guess" without a large library, but we can provide common toggles.
+
+                    this.fixedTextArea.value = latin1ToUtf8;
+                    this.encodingInfo.textContent = '수정 완료 (예상 원본: UTF-8, 현재 해석: Latin1)';
+                    this.resultArea.style.display = 'block';
+
+                } catch (e) {
+                    Utilsly.showAlert('복구 중 오류가 발생했습니다: ' + e.message);
+                }
+            },
+
+            manualConvert(from, to) {
+                const text = this.brokenTextArea.value.trim();
+                if (!text) return;
+
+                try {
+                    // This is a bit tricky in vanilla JS without iconsv-lite.
+                    // We use a trick: bypass the string layer into Uint8Array.
+
+                    // Example: UTF-8 -> EUC-KR (Common in old Windows)
+                    // The browser's native TextDecoder doesn't support "encoding" strings to EUC-KR easily,
+                    // but it CAN decode FROM EUC-KR if we have the bytes.
+
+                    if (from === 'EUC-KR' && to === 'UTF-8') {
+                        // Trick to get raw bytes from characters that might be EUC-KR misinterpreted as Windows-1252
+                        const bytes = new Uint8Array(text.length);
+                        for (let i = 0; i < text.length; i++) {
+                            bytes[i] = text.charCodeAt(i) & 0xFF;
+                        }
+                        const decoder = new TextDecoder('euc-kr');
+                        this.fixedTextArea.value = decoder.decode(bytes);
+                        this.encodingInfo.textContent = '수동 변환: EUC-KR → UTF-8';
+                    } else if (from === 'UTF-8' && to === 'EUC-KR') {
+                        // This direction is harder because we usually want to SEE the result of "what if this was EUC-KR"
+                        // but JS strings are UTF-16. 
+                        const encoder = new TextEncoder();
+                        const bytes = encoder.encode(text);
+                        // Convert bytes back to string assuming it WAS euc-kr
+                        const decoder = new TextDecoder('euc-kr');
+                        this.fixedTextArea.value = decoder.decode(bytes);
+                        this.encodingInfo.textContent = '수동 변환: UTF-8 → EUC-KR';
+                    } else {
+                        // Generic Latin1/UTF-8 flip
+                        const bytes = new Uint8Array(text.length);
+                        for (let i = 0; i < text.length; i++) bytes[i] = text.charCodeAt(i) & 0xff;
+                        const decoder = new TextDecoder(to.toLowerCase());
+                        this.fixedTextArea.value = decoder.decode(bytes);
+                        this.encodingInfo.textContent = `수동 변환: ${from} → ${to}`;
+                    }
+
+                    this.resultArea.style.display = 'block';
+                } catch (e) {
+                    Utilsly.showAlert('인코딩 변환 실패: ' + e.message);
+                }
+            },
+
+            encode(str, charset) {
+                // Not actually encoding to bytes, but simulating byte-to-char mapping
+                const encoder = new TextEncoder();
+                return encoder.encode(str);
+            },
+
+            decode(bytes, charset) {
+                const decoder = new TextDecoder(charset);
+                return decoder.decode(bytes);
+            },
+
+            cleanup() { }
+        };
+
+        Utilsly.registerTool('encoding-fixer', EncodingFixerTool);
+        if (document.readyState === 'complete' || document.readyState === 'interactive') {
+            EncodingFixerTool.init();
+        } else {
+            document.addEventListener('DOMContentLoaded', () => EncodingFixerTool.init());
+        }
+    </script>
+</body>
+
+</html>

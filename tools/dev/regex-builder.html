@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>정규표현식(Regex) 빌더 - Utilsly</title>
+    <meta name="description" content="시각적인 인터페이스로 누구나 쉽게 정규표현식을 만들고 테스트해 보세요.">
+    <link rel="preload" href="../../css/style.css" as="style">
+    <link rel="stylesheet" href="../../css/style.css">
+    <style>
+        .regex-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: var(--bg-secondary);
+            border-radius: 20px;
+            font-size: 0.825rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid var(--border-color);
+        }
+
+        .regex-badge:hover {
+            background: var(--accent-color);
+            color: white;
+            border-color: var(--accent-color);
+        }
+
+        .match-highlight {
+            background: rgba(var(--accent-rgb), 0.2);
+            border-bottom: 2px solid var(--accent-color);
+            border-radius: 2px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="user-profile">
+                    <div style="font-size: 24px; font-weight: 800; color: var(--text-primary); letter-spacing: -0.5px;">
+                        Utilsly.</div>
+                </div>
+            </div>
+            <nav class="sidebar-nav"></nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="top-bar">
+                <div class="breadcrumbs">
+                    <span class="breadcrumb-item">Utilsly</span>
+                    <span class="separator">/</span>
+                    <span class="breadcrumb-item">개발</span>
+                    <span class="separator">/</span>
+                    <span class="breadcrumb-item current-page">Regex 빌더</span>
+                </div>
+            </header>
+
+            <div class="content-area">
+                <div class="page-header">
+                    <div class="header-icon-wrapper">
+                        <span class="material-symbols-rounded">regular_expression</span>
+                    </div>
+                    <h1>정규표현식(Regex) 빌더</h1>
+                    <p class="description">복잡한 정규표현식을 쉽고 빠르게 작성하고 실시간으로 테스트하세요.</p>
+                </div>
+
+                <div class="tool-container" data-tool-id="regex-builder">
+                    <div class="card">
+                        <div class="input-group">
+                            <label>자주 쓰는 패턴 (클릭하여 추가)</label>
+                            <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px;">
+                                <span class="regex-badge" data-pattern="\d+">숫자</span>
+                                <span class="regex-badge" data-pattern="[a-zA-Z]+">영문자</span>
+                                <span class="regex-badge" data-pattern="[가-힣]+">한글</span>
+                                <span class="regex-badge" data-pattern="\s+">공백</span>
+                                <span class="regex-badge" data-pattern="^http[s]?://">URL 시작</span>
+                                <span class="regex-badge"
+                                    data-pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}">이메일</span>
+                                <span class="regex-badge" data-pattern="\d{2,3}-\d{3,4}-\d{4}">전화번호</span>
+                            </div>
+                        </div>
+
+                        <div class="input-group" style="margin-top: 24px;">
+                            <label for="regexInput">정규표현식</label>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <span
+                                    style="color: var(--text-tertiary); font-family: monospace; font-size: 1.25rem;">/</span>
+                                <input type="text" id="regexInput" class="input-field"
+                                    style="font-family: monospace; font-size: 1.125rem;" placeholder="여기에 패턴 작성...">
+                                <span
+                                    style="color: var(--text-tertiary); font-family: monospace; font-size: 1.25rem;">/</span>
+                                <input type="text" id="flagsInput" class="input-field"
+                                    style="width: 60px; font-family: monospace;" value="g">
+                            </div>
+                        </div>
+
+                        <div class="input-group" style="margin-top: 24px;">
+                            <label for="testString">테스트 문자열</label>
+                            <textarea id="testString" class="input-field" style="height: 120px; font-family: monospace;"
+                                placeholder="테스트할 텍스트를 입력하세요..."></textarea>
+                        </div>
+                    </div>
+
+                    <div id="resultArea" class="card" style="margin-top: 24px;">
+                        <h2
+                            style="font-size: 1rem; margin-bottom: 12px; display: flex; justify-content: space-between;">
+                            매칭 결과 <span id="matchCount" style="color: var(--accent-color); font-weight: 700;">0개
+                                매치</span>
+                        </h2>
+                        <div id="highlightedOutput"
+                            style="min-height: 100px; padding: 16px; background: var(--bg-secondary); border-radius: 8px; white-space: pre-wrap; word-break: break-all; font-family: monospace; line-height: 1.6;">
+                            패턴을 입력하면 여기에 매칭 결과가 표시됩니다.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="../../js/common.js"></script>
+    <script>
+        const RegexBuilderTool = {
+            init() {
+                this.regexInput = document.getElementById('regexInput');
+                this.flagsInput = document.getElementById('flagsInput');
+                this.testString = document.getElementById('testString');
+                this.matchCount = document.getElementById('matchCount');
+                this.highlightedOutput = document.getElementById('highlightedOutput');
+
+                const update = () => this.updateMatches();
+                this.regexInput.addEventListener('input', update);
+                this.flagsInput.addEventListener('input', update);
+                this.testString.addEventListener('input', update);
+
+                document.querySelectorAll('.regex-badge').forEach(badge => {
+                    badge.addEventListener('click', () => {
+                        this.regexInput.value += badge.dataset.pattern;
+                        this.updateMatches();
+                    });
+                });
+            },
+
+            updateMatches() {
+                const pattern = this.regexInput.value;
+                const flags = this.flagsInput.value;
+                const text = this.testString.value;
+
+                if (!pattern) {
+                    this.highlightedOutput.textContent = text || '문구를 입력하세요.';
+                    this.matchCount.textContent = '0개 매치';
+                    return;
+                }
+
+                try {
+                    const regex = new RegExp(pattern, flags);
+                    let match;
+                    let lastIndex = 0;
+                    let html = '';
+                    let count = 0;
+
+                    // Safety for infinite loops with g flag and empty matches
+                    if (flags.includes('g')) {
+                        while ((match = regex.exec(text)) !== null) {
+                            if (match.index === regex.lastIndex) regex.lastIndex++; // empty match support
+
+                            html += this.escapeHtml(text.substring(lastIndex, match.index));
+                            html += `<span class="match-highlight">${this.escapeHtml(match[0])}</span>`;
+                            lastIndex = regex.lastIndex;
+                            count++;
+                        }
+                    } else {
+                        match = regex.exec(text);
+                        if (match) {
+                            html += this.escapeHtml(text.substring(0, match.index));
+                            html += `<span class="match-highlight">${this.escapeHtml(match[0])}</span>`;
+                            lastIndex = match.index + match[0].length;
+                            count = 1;
+                        }
+                    }
+
+                    html += this.escapeHtml(text.substring(lastIndex));
+                    this.highlightedOutput.innerHTML = html || ' ';
+                    this.matchCount.textContent = `${count}개 매치`;
+                    this.regexInput.style.borderColor = 'var(--border-color)';
+
+                } catch (e) {
+                    this.regexInput.style.borderColor = '#ef4444';
+                    this.matchCount.textContent = '잘못된 표현식';
+                }
+            },
+
+            escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            },
+
+            cleanup() { }
+        };
+
+        Utilsly.registerTool('regex-builder', RegexBuilderTool);
+        if (document.readyState === 'complete' || document.readyState === 'interactive') {
+            RegexBuilderTool.init();
+        } else {
+            document.addEventListener('DOMContentLoaded', () => RegexBuilderTool.init());
+        }
+    </script>
+</body>
+
+</html>

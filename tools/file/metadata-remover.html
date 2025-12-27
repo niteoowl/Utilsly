@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>메타데이터 지우기 - Utilsly</title>
+    <meta name="description" content="이미지와 PDF 파일에서 개인정보가 포함된 메타데이터(EXIF, 위치 정보 등)를 제거합니다.">
+    <link rel="preload" href="../../css/style.css" as="style">
+    <link rel="stylesheet" href="../../css/style.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="user-profile">
+                    <div style="font-size: 24px; font-weight: 800; color: var(--text-primary); letter-spacing: -0.5px;">
+                        Utilsly.</div>
+                </div>
+            </div>
+            <nav class="sidebar-nav"></nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="top-bar">
+                <div class="breadcrumbs">
+                    <span class="breadcrumb-item">Utilsly</span>
+                    <span class="separator">/</span>
+                    <span class="breadcrumb-item">파일</span>
+                    <span class="separator">/</span>
+                    <span class="breadcrumb-item current-page">메타데이터 지우기</span>
+                </div>
+            </header>
+
+            <div class="content-area">
+                <div class="page-header">
+                    <div class="header-icon-wrapper">
+                        <span class="material-symbols-rounded">cleaning_services</span>
+                    </div>
+                    <h1>메타데이터 지우기</h1>
+                    <p class="description">사진의 촬영 대기, 위치 정보 또는 문서의 속성을 제거하여 개인정보를 보호하세요.</p>
+                </div>
+
+                <div class="tool-container" data-tool-id="metadata-remover">
+                    <div class="card">
+                        <div class="file-upload-area" id="dropZone"
+                            style="border: 2px dashed var(--border-color); border-radius: 12px; padding: 40px; text-align: center; cursor: pointer;">
+                            <input type="file" id="fileInput" accept="image/*,application/pdf" style="display: none;">
+                            <span class="material-symbols-rounded"
+                                style="font-size: 48px; color: var(--text-tertiary); margin-bottom: 16px;">privacy_tip</span>
+                            <p style="color: var(--text-secondary);">이미지(JPG, PNG) 또는 PDF 파일을 업로드하세요</p>
+                            <p id="fileName" style="font-weight: 600; color: var(--accent-color); margin-top: 8px;"></p>
+                        </div>
+
+                        <button id="processBtn" class="btn btn-primary"
+                            style="width: 100%; margin-top: 24px; display: none;">메타데이터 제거 및 다운로드</button>
+                    </div>
+
+                    <div id="statusMessage"
+                        style="margin-top: 16px; text-align: center; font-size: 0.875rem; color: var(--text-tertiary);">
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="../../js/common.js"></script>
+    <script>
+        const MetadataRemoverTool = {
+            currentFile: null,
+
+            init() {
+                this.dropZone = document.getElementById('dropZone');
+                this.fileInput = document.getElementById('fileInput');
+                this.fileNameDisplay = document.getElementById('fileName');
+                this.processBtn = document.getElementById('processBtn');
+                this.statusMsg = document.getElementById('statusMessage');
+
+                this.dropZone.addEventListener('click', () => this.fileInput.click());
+                this.fileInput.addEventListener('change', (e) => this.handleFile(e.target.files[0]));
+
+                this.processBtn.addEventListener('click', () => this.process());
+            },
+
+            handleFile(file) {
+                if (!file) return;
+                this.currentFile = file;
+                this.fileNameDisplay.textContent = file.name;
+                this.processBtn.style.display = 'block';
+                this.statusMsg.textContent = '준비되었습니다.';
+            },
+
+            async process() {
+                if (!this.currentFile) return;
+                this.statusMsg.textContent = '처리 중...';
+
+                try {
+                    let blob;
+                    if (this.currentFile.type.startsWith('image/')) {
+                        blob = await this.stripImageMetadata(this.currentFile);
+                    } else if (this.currentFile.type === 'application/pdf') {
+                        // For PDF, we'd need pdf-lib again. Let's assume its loaded if needed or use a basic approach.
+                        // For now, focus on Image (most common request for metadata removal).
+                        Utilsly.showAlert('PDF 메타데이터 제거는 현재 준비 중입니다. 이미지만 이용 가능합니다.');
+                        return;
+                    }
+
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = `[Cleaned]_${this.currentFile.name}`;
+                    link.click();
+                    this.statusMsg.textContent = '완료되었습니다!';
+                } catch (e) {
+                    Utilsly.showAlert('오류 발생: ' + e.message);
+                }
+            },
+
+            stripImageMetadata(file) {
+                return new Promise((resolve) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        canvas.width = img.width;
+                        canvas.height = img.height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0);
+                        // canvas.toBlob strips EXIF because it recreates the image from raw pixels
+                        canvas.toBlob((blob) => resolve(blob), 'image/jpeg', 0.95);
+                    };
+                    img.src = URL.createObjectURL(file);
+                });
+            }
+        };
+
+        Utilsly.registerTool('metadata-remover', MetadataRemoverTool);
+        if (document.readyState === 'complete' || document.readyState === 'interactive') {
+            MetadataRemoverTool.init();
+        } else {
+            document.addEventListener('DOMContentLoaded', () => MetadataRemoverTool.init());
+        }
+    </script>
+</body>
+
+</html>
