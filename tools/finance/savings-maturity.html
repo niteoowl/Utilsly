@@ -10,30 +10,16 @@
     <link rel="preload" href="../../css/style.css" as="style">
     <link rel="stylesheet" href="../../css/style.css">
     <style>
-        .card {
-            background: var(--bg-primary);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 24px;
-            margin-bottom: 24px;
-        }
-
         .finance-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 24px;
-        }
-
-        @media (max-width: 768px) {
-            .finance-grid {
-                grid-template-columns: 1fr;
-            }
+            display: flex;
+            flex-direction: column;
+            gap: 48px;
         }
 
         .tab-menu {
             display: flex;
-            gap: 8px;
-            margin-bottom: 24px;
+            gap: 12px;
+            margin-bottom: 32px;
             border-bottom: 1px solid var(--border-color);
             padding-bottom: 12px;
         }
@@ -48,12 +34,18 @@
         }
 
         .tab-btn.active {
-            background: var(--accent-blue);
-            color: white;
+            color: var(--accent-blue);
+            position: relative;
         }
 
-        [data-theme="dark"] .tab-btn.active {
-            color: black;
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -13px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--accent-blue);
         }
     </style>
 </head>
@@ -87,95 +79,100 @@
                 </div>
 
                 <div class="tool-container" data-tool-id="savings-maturity">
-                    <div class="card">
-                        <div class="tab-menu">
-                            <div class="tab-btn active" data-tab="deposit">정기예금</div>
-                            <div class="tab-btn" data-tab="savings">정기적금</div>
-                        </div>
+                    <div class="tab-menu">
+                        <div class="tab-btn active" data-tab="deposit">정기예금</div>
+                        <div class="tab-btn" data-tab="savings">정기적금</div>
+                    </div>
 
-                        <div class="finance-grid">
-                            <div class="card">
-                                <div class="input-group" style="margin-bottom: 16px;">
-                                    <label
-                                        style="display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px;">상품
-                                        종류</label>
-                                    <div id="tabTitle"
-                                        style="font-size: 1.125rem; font-weight: 700; color: var(--accent-blue);">정기예금
-                                        (목돈 굴리기)</div>
-                                </div>
+                    <div class="finance-grid">
+                        <div>
+                            <div class="input-group" style="margin-bottom: 24px;">
+                                <label
+                                    style="display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px; color: var(--text-secondary);">상품
+                                    정보</label>
+                                <div id="tabTitle"
+                                    style="font-size: 1.25rem; font-weight: 700; color: var(--text-primary);">정기예금 (목돈
+                                    굴리기)</div>
+                            </div>
 
-                                <div class="input-group" style="margin-bottom: 16px;">
-                                    <label for="amount"
-                                        style="display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px;">예치/저축
-                                        금액 (원)</label>
-                                    <input type="number" id="amount" class="input-field" placeholder="예: 10000000">
-                                </div>
+                            <div class="input-group" style="margin-bottom: 24px;">
+                                <label for="amount"
+                                    style="display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px;">예치/저축
+                                    금액 (원)</label>
+                                <input type="number" id="amount" class="input-field"
+                                    style="font-size: 1.125rem; padding: 12px;" placeholder="예: 10000000">
+                            </div>
 
-                                <div class="input-group" style="margin-bottom: 16px;">
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px;">
+                                <div class="input-group">
                                     <label for="period"
                                         style="display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px;">기간
                                         (개월)</label>
-                                    <input type="number" id="period" class="input-field" placeholder="예: 12">
+                                    <input type="number" id="period" class="input-field" style="padding: 12px;"
+                                        placeholder="12">
                                 </div>
-
-                                <div class="input-group" style="margin-bottom: 16px;">
+                                <div class="input-group">
                                     <label for="rate"
                                         style="display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px;">연
                                         이자율 (%)</label>
-                                    <input type="number" id="rate" class="input-field" placeholder="예: 4.5" step="0.1">
+                                    <input type="number" id="rate" class="input-field" style="padding: 12px;"
+                                        placeholder="4.5" step="0.1">
                                 </div>
-
-                                <div class="input-group" style="margin-bottom: 24px;">
-                                    <label
-                                        style="display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px;">세부
-                                        옵션 (세금)</label>
-                                    <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-                                        <label
-                                            style="display: flex; align-items: center; gap: 4px; font-size: 14px; cursor: pointer;">
-                                            <input type="radio" name="tax" value="15.4" checked> 일반 (15.4%)
-                                        </label>
-                                        <label
-                                            style="display: flex; align-items: center; gap: 4px; font-size: 14px; cursor: pointer;">
-                                            <input type="radio" name="tax" value="9.5"> 세금우대 (9.5%)
-                                        </label>
-                                        <label
-                                            style="display: flex; align-items: center; gap: 4px; font-size: 14px; cursor: pointer;">
-                                            <input type="radio" name="tax" value="0"> 비과세 (0%)
-                                        </label>
-                                    </div>
-                                </div>
-
-                                <button id="calculateBtn" class="btn btn-primary"
-                                    style="width: 100%; padding: 12px; font-weight: 700;">계산하기</button>
                             </div>
 
-                            <div class="card" id="resultCard" style="background: var(--bg-hover);">
-                                <h3 style="font-size: 1rem; margin-bottom: 20px; font-weight: 700;">계산 결과</h3>
-                                <div style="display: flex; flex-direction: column; gap: 12px;">
-                                    <div style="display: flex; justify-content: space-between; font-size: 14px;">
-                                        <span>원금 합계</span>
-                                        <span id="resPrincipal" style="font-weight: 600;">0원</span>
-                                    </div>
-                                    <div style="display: flex; justify-content: space-between; font-size: 14px;">
-                                        <span>세전 이자</span>
-                                        <span id="resPreTax" style="font-weight: 600;">0원</span>
-                                    </div>
-                                    <div
-                                        style="display: flex; justify-content: space-between; font-size: 14px; color: #ef4444;">
-                                        <span>이자소득세</span>
-                                        <span id="resTax" style="font-weight: 600;">0원</span>
-                                    </div>
-                                    <div
-                                        style="margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
-                                        <span style="font-weight: 700; font-size: 1rem;">만기 수령액</span>
-                                        <span id="resTotal"
-                                            style="font-size: 1.25rem; font-weight: 800; color: var(--accent-blue);">0원</span>
-                                    </div>
+                            <div class="input-group" style="margin-bottom: 32px;">
+                                <label
+                                    style="display: block; font-size: 14px; font-weight: 600; margin-bottom: 12px;">과세
+                                    설정</label>
+                                <div style="display: flex; gap: 24px; flex-wrap: wrap;">
+                                    <label
+                                        style="display: flex; align-items: center; gap: 8px; font-size: 15px; cursor: pointer;">
+                                        <input type="radio" name="tax" value="15.4" checked> 일반과세 (15.4%)
+                                    </label>
+                                    <label
+                                        style="display: flex; align-items: center; gap: 8px; font-size: 15px; cursor: pointer;">
+                                        <input type="radio" name="tax" value="9.5"> 세금우대 (9.5%)
+                                    </label>
+                                    <label
+                                        style="display: flex; align-items: center; gap: 8px; font-size: 15px; cursor: pointer;">
+                                        <input type="radio" name="tax" value="0"> 비과세 (0%)
+                                    </label>
+                                </div>
+                            </div>
+
+                            <button id="calculateBtn" class="btn btn-primary"
+                                style="width: 100%; padding: 16px; font-weight: 700; font-size: 1.125rem;">수령액
+                                계산하기</button>
+                        </div>
+
+                        <div id="resultArea"
+                            style="border-top: 1px solid var(--border-color); padding-top: 40px; display: none;">
+                            <h3 style="font-size: 1.25rem; margin-bottom: 24px; font-weight: 700;">상세 계산 결과</h3>
+                            <div style="display: flex; flex-direction: column; gap: 20px; max-width: 500px;">
+                                <div style="display: flex; justify-content: space-between; font-size: 16px;">
+                                    <span style="color: var(--text-secondary);">원금 합계</span>
+                                    <span id="resPrincipal" style="font-weight: 600;">0원</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; font-size: 16px;">
+                                    <span style="color: var(--text-secondary);">세전 이자</span>
+                                    <span id="resPreTax" style="font-weight: 600;">0원</span>
+                                </div>
+                                <div
+                                    style="display: flex; justify-content: space-between; font-size: 16px; color: #ef4444;">
+                                    <span style="color: var(--text-secondary);">이자소득세</span>
+                                    <span id="resTax" style="font-weight: 600;">-0원</span>
+                                </div>
+                                <div
+                                    style="margin-top: 12px; padding: 24px; background: var(--bg-hover); border-radius: 12px; display: flex; justify-content: space-between; align-items: center;">
+                                    <span style="font-weight: 700; font-size: 1.125rem;">최종 만기 수령액</span>
+                                    <span id="resTotal"
+                                        style="font-size: 1.75rem; font-weight: 900; color: var(--accent-blue);">0원</span>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+            </div>
         </main>
     </div>
     <script src="../../js/common.js"></script>

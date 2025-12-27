@@ -10,18 +10,10 @@
     <link rel="preload" href="../../css/style.css" as="style">
     <link rel="stylesheet" href="../../css/style.css">
     <style>
-        .card {
-            background: var(--bg-primary);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 24px;
-            margin-bottom: 24px;
-        }
-
         .tool-layout {
             display: flex;
             flex-direction: column;
-            gap: 24px;
+            gap: 32px;
         }
     </style>
 </head>
@@ -55,19 +47,16 @@
                 </div>
 
                 <div class="tool-container" data-tool-id="encoding-fixer">
-                    <h3 style="font-size: 1rem; margin-bottom: 12px;">수동 변환 도구</h3>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 8px;">
-                        <button class="btn btn-outline manual-btn" data-from="UTF-8" data-to="EUC-KR">UTF-8 →
-                            EUC-KR</button>
-                        <button class="btn btn-outline manual-btn" data-from="EUC-KR" data-to="UTF-8">EUC-KR →
-                            UTF-8</button>
-                        <button class="btn btn-outline manual-btn" data-from="UTF-8" data-to="CP949">UTF-8 →
-                            CP949</button>
-                        <button class="btn btn-outline manual-btn" data-from="ISO-8859-1" data-to="UTF-8">Latin1 →
-                            UTF-8</button>
-                    </div>
+                    EUC-KR</button>
+                    <button class="btn btn-outline manual-btn" data-from="EUC-KR" data-to="UTF-8">EUC-KR →
+                        UTF-8</button>
+                    <button class="btn btn-outline manual-btn" data-from="UTF-8" data-to="CP949">UTF-8 →
+                        CP949</button>
+                    <button class="btn btn-outline manual-btn" data-from="ISO-8859-1" data-to="UTF-8">Latin1 →
+                        UTF-8</button>
                 </div>
             </div>
+    </div>
     </div>
     </main>
     </div>

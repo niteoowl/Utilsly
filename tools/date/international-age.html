@@ -10,16 +10,8 @@
     <link rel="preload" href="../../css/style.css" as="style">
     <link rel="stylesheet" href="../../css/style.css">
     <style>
-        .card {
-            background: var(--bg-primary);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 24px;
-            margin-bottom: 24px;
-        }
-
         .input-group {
-            margin-bottom: 16px;
+            margin-bottom: 24px;
         }
 
         .input-group label {
@@ -61,51 +53,44 @@
                 </div>
 
                 <div class="tool-container" data-tool-id="international-age">
-                    <div class="card">
-                        <div class="input-group">
-                            <label for="birthDate">생년월일</label>
-                            <input type="date" id="birthDate" class="input-field">
-                        </div>
-                        <div class="input-group">
-                            <label for="targetDate">기준일 (오늘)</label>
-                            <input type="date" id="targetDate" class="input-field">
-                        </div>
-                        <button id="calculateBtn" class="btn btn-primary"
-                            style="width: 100%; margin-top: 16px;">계산하기</button>
+                    <div class="input-group">
+                        <label for="birthDate">생년월일</label>
+                        <input type="date" id="birthDate" class="input-field">
                     </div>
+                    <div class="input-group">
+                        <label for="targetDate">기준일 (오늘)</label>
+                        <input type="date" id="targetDate" class="input-field">
+                    </div>
+                    <button id="calculateBtn" class="btn btn-primary"
+                        style="width: 100%; margin-top: 8px; padding: 12px; font-weight: 700;">계산하기</button>
 
-                    <div id="resultArea" class="card result-card" style="display: none; margin-top: 24px;">
-                        <h2 style="font-size: 1.25rem; margin-bottom: 20px;">계산 결과</h2>
+                    <div id="resultArea" class="result-card"
+                        style="display: none; margin-top: 48px; border-top: 1px solid var(--border-color); padding-top: 32px;">
+                        <h2 style="font-size: 1.125rem; margin-bottom: 24px; font-weight: 700;">계산 결과</h2>
                         <div class="result-grid"
-                            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 16px;">
-                            <div class="result-item"
-                                style="padding: 16px; background: var(--bg-secondary); border-radius: 12px; text-align: center;">
-                                <div style="font-size: 0.875rem; color: var(--text-tertiary); margin-bottom: 4px;">만 나이
+                            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 24px;">
+                            <div class="result-item" style="text-align: left;">
+                                <div style="font-size: 13px; color: var(--text-tertiary); margin-bottom: 8px;">만 나이
                                 </div>
                                 <div id="ageResult"
-                                    style="font-size: 1.5rem; font-weight: 700; color: var(--accent-color);">0세</div>
+                                    style="font-size: 1.75rem; font-weight: 700; color: var(--accent-blue);">0세</div>
                             </div>
-                            <div class="result-item"
-                                style="padding: 16px; background: var(--bg-secondary); border-radius: 12px; text-align: center;">
-                                <div style="font-size: 0.875rem; color: var(--text-tertiary); margin-bottom: 4px;">연 나이
+                            <div class="result-item" style="text-align: left;">
+                                <div style="font-size: 13px; color: var(--text-tertiary); margin-bottom: 8px;">연 나이
                                 </div>
-                                <div id="yearAgeResult" style="font-size: 1.5rem; font-weight: 700;">0세</div>
+                                <div id="yearAgeResult" style="font-size: 1.75rem; font-weight: 700;">0세</div>
                             </div>
-                            <div class="result-item"
-                                style="padding: 16px; background: var(--bg-secondary); border-radius: 12px; text-align: center;">
-                                <div style="font-size: 0.875rem; color: var(--text-tertiary); margin-bottom: 4px;">띠
-                                </div>
-                                <div id="zodiacResult" style="font-size: 1.5rem; font-weight: 700;">-</div>
+                            <div class="result-item" style="text-align: left;">
+                                <div style="font-size: 13px; color: var(--text-tertiary); margin-bottom: 8px;">띠</div>
+                                <div id="zodiacResult" style="font-size: 1.75rem; font-weight: 700;">-</div>
                             </div>
-                            <div class="result-item"
-                                style="padding: 16px; background: var(--bg-secondary); border-radius: 12px; text-align: center;">
-                                <div style="font-size: 0.875rem; color: var(--text-tertiary); margin-bottom: 4px;">별자리
-                                </div>
-                                <div id="constellationResult" style="font-size: 1.5rem; font-weight: 700;">-</div>
+                            <div class="result-item" style="text-align: left;">
+                                <div style="font-size: 13px; color: var(--text-tertiary); margin-bottom: 8px;">별자리</div>
+                                <div id="constellationResult" style="font-size: 1.75rem; font-weight: 700;">-</div>
                             </div>
                         </div>
                         <div id="detailResult"
-                            style="margin-top: 20px; padding: 16px; border-top: 1px solid var(--border-color); color: var(--text-secondary); line-height: 1.6;">
+                            style="margin-top: 32px; padding: 20px; background: var(--bg-hover); border-radius: 8px; color: var(--text-secondary); line-height: 1.6;">
                         </div>
                     </div>
                 </div>
