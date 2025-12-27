@@ -11,22 +11,6 @@
     <link rel="stylesheet" href="../../css/style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <style>
-        .drop-zone {
-            border: 2px dashed var(--border-color);
-            border-radius: 12px;
-            padding: 60px 40px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.2s;
-            background: transparent;
-            margin-bottom: 32px;
-        }
-
-        .drop-zone:hover {
-            border-color: var(--accent-blue);
-            background: rgba(var(--accent-rgb), 0.05);
-        }
-
         .preview-grid {
             display: flex;
             flex-wrap: wrap;
@@ -83,13 +67,10 @@
 
                 <div class="tool-container" data-tool-id="favicon-generator">
                     <div class="drop-zone" id="dropZone">
+                        <span class="material-symbols-rounded upload-icon">add_photo_alternate</span>
+                        <p class="upload-text">파비콘으로 만들 이미지를 선택하세요</p>
+                        <p class="upload-hint">정사각형(1:1 비율) 이미지를 권장합니다.</p>
                         <input type="file" id="fileInput" accept="image/*" style="display: none;">
-                        <span class="material-symbols-rounded"
-                            style="font-size: 48px; color: var(--text-tertiary); margin-bottom: 16px;">add_photo_alternate</span>
-                        <div
-                            style="font-size: 1.125rem; font-weight: 600; color: var(--text-primary); margin-bottom: 8px;">
-                            파비콘으로 만들 이미지를 선택하세요</div>
-                        <div style="font-size: 14px; color: var(--text-tertiary);">정사각형(1:1 비율) 설정의 이미지를 권장합니다.</div>
                     </div>
 
                     <p id="fileName"
@@ -163,17 +144,16 @@
 
                 this.dropZone.ondragover = (e) => {
                     e.preventDefault();
-                    this.dropZone.style.borderColor = 'var(--accent-color)';
-                    this.dropZone.style.background = 'rgba(var(--accent-rgb), 0.05)';
+                    this.dropZone.classList.add('dragover');
                 };
 
                 this.dropZone.ondragleave = () => {
-                    this.dropZone.style.borderColor = 'var(--border-color)';
-                    this.dropZone.style.background = 'transparent';
+                    this.dropZone.classList.remove('dragover');
                 };
 
                 this.dropZone.ondrop = (e) => {
                     e.preventDefault();
+                    this.dropZone.classList.remove('dragover');
                     this.handleFile(e.dataTransfer.files[0]);
                 };
             },

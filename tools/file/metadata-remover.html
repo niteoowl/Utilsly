@@ -10,21 +10,6 @@
     <link rel="preload" href="../../css/style.css" as="style">
     <link rel="stylesheet" href="../../css/style.css">
     <style>
-        .drop-zone {
-            border: 2px dashed var(--border-color);
-            border-radius: 12px;
-            padding: 60px 40px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.2s;
-            background: transparent;
-        }
-
-        .drop-zone:hover {
-            border-color: var(--accent-blue);
-            background: rgba(var(--accent-rgb), 0.05);
-        }
-
         .file-info {
             display: flex;
             align-items: center;
@@ -67,14 +52,10 @@
 
                 <div class="tool-container" data-tool-id="metadata-remover">
                     <div class="drop-zone" id="dropZone">
-                        <input type="file" id="fileInput" accept="image/jpeg,image/png" style="display: none;">
-                        <span class="material-symbols-rounded"
-                            style="font-size: 48px; color: var(--text-tertiary); margin-bottom: 16px;">no_photography</span>
-                        <div
-                            style="font-size: 1.125rem; font-weight: 600; color: var(--text-primary); margin-bottom: 8px;">
-                            메타데이터를 지울 이미지를 선택하세요</div>
-                        <div style="font-size: 14px; color: var(--text-tertiary);">개인정보(GPS, 카메라 정보 등)가 포함된 사진의 메타데이터를
-                            파기합니다.</div>
+                        <span class="material-symbols-rounded upload-icon">no_photography</span>
+                        <p class="upload-text">메타데이터를 제거할 파일을 선택하세요</p>
+                        <p class="upload-hint">이미지(JPG, PNG) 지원 • 개인정보 보호를 위해 EXIF 정보를 삭제합니다.</p>
+                        <input type="file" id="fileInput" accept="image/*" style="display: none;">
                     </div>
 
                     <div id="fileInfo" class="file-info" style="display: none;">
@@ -128,17 +109,16 @@
 
                 this.dropZone.ondragover = (e) => {
                     e.preventDefault();
-                    this.dropZone.style.borderColor = 'var(--accent-color)';
-                    this.dropZone.style.background = 'rgba(var(--accent-rgb), 0.05)';
+                    this.dropZone.classList.add('dragover');
                 };
 
                 this.dropZone.ondragleave = () => {
-                    this.dropZone.style.borderColor = 'var(--border-color)';
-                    this.dropZone.style.background = 'transparent';
+                    this.dropZone.classList.remove('dragover');
                 };
 
                 this.dropZone.ondrop = (e) => {
                     e.preventDefault();
+                    this.dropZone.classList.remove('dragover');
                     this.handleFile(e.dataTransfer.files[0]);
                 };
 
