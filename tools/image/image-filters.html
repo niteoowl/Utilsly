@@ -124,8 +124,27 @@
                         <button class="btn btn-primary" id="downloadBtn" style="display: none; flex: 1;">이미지 저장</button>
                     </div>
                 </div>
+                <div class="tool-help-section"
+                    style="margin-top: 48px; border-top: 1px solid var(--border-color); padding-top: 24px;">
+                    <div class="tool-help-header"
+                        onclick="this.classList.toggle('active'); this.nextElementSibling.classList.toggle('open')">
+                        <div class="tool-help-title">이용 가이드 및 FAQ</div>
+                        <span class="material-symbols-rounded toggle-icon">expand_more</span>
+                    </div>
+                    <div class="tool-help-content">
+                        <div class="faq-item">
+                            <div class="faq-question">여러 필터를 동시에 적용할 수 있나요?</div>
+                            <div class="faq-answer">네, 밝기, 대비, 채도 등 모든 슬라이더의 값이 조합되어 최종 이미지에 반영됩니다.</div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="faq-question">적용한 효과를 취소하려면 어떻게 하나요?</div>
+                            <div class="faq-answer">'초기화' 버튼을 누르면 모든 슬라이더가 기본값으로 돌아가고 이미지가 원본 상태로 복구됩니다.</div>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </main>
+    </div>
+    </main>
     </div>
     <script src="../../js/common.js"></script>
     <script>

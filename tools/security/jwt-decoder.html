@@ -161,8 +161,29 @@
                         </div>
                     </div>
                 </div>
+                <div class="tool-help-section"
+                    style="margin-top: 48px; border-top: 1px solid var(--border-color); padding-top: 24px;">
+                    <div class="tool-help-header"
+                        onclick="this.classList.toggle('active'); this.nextElementSibling.classList.toggle('open')">
+                        <div class="tool-help-title">이용 가이드 및 FAQ</div>
+                        <span class="material-symbols-rounded toggle-icon">expand_more</span>
+                    </div>
+                    <div class="tool-help-content">
+                        <div class="faq-item">
+                            <div class="faq-question">내 JWT가 서버로 전송되나요?</div>
+                            <div class="faq-answer">아니요, 100% 브라우저 내에서만 작동합니다. 어떠한 데이터도 서버로 전송되거나 저장되지 않으므로 안심하고 사용하세요.
+                            </div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="faq-question">서명(Signature) 검증도 해주나요?</div>
+                            <div class="faq-answer">이 도구는 JWT의 내용을 디코딩하여 보여주는 역할만 하며, 비밀키가 필요하므로 서명 유효성 검증은 수행하지 않습니다.
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </main>
+    </div>
+    </main>
     </div>
 
     <script src="../../js/common.js"></script>

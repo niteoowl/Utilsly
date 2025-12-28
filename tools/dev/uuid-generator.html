@@ -56,8 +56,28 @@
                             style="font-size: 24px; font-family: var(--font-mono); color: var(--text-primary);">Click generate...</code>
                     </div>
                 </div>
+                <div class="tool-help-section"
+                    style="margin-top: 32px; border-top: 1px solid var(--border-color); padding-top: 24px;">
+                    <div class="tool-help-header"
+                        onclick="this.classList.toggle('active'); this.nextElementSibling.classList.toggle('open')">
+                        <div class="tool-help-title">이용 가이드 및 FAQ</div>
+                        <span class="material-symbols-rounded toggle-icon">expand_more</span>
+                    </div>
+                    <div class="tool-help-content">
+                        <div class="faq-item">
+                            <div class="faq-question">UUID가 중복될 확률은 없나요?</div>
+                            <div class="faq-answer">UUID v4의 중복 확률은 로또에 1등 당첨될 확률보다 훨씬 낮아 사실상 0에 가깝습니다. 안심하고 고유 키로
+                                사용하세요.</div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="faq-question">어디에 저장되나요?</div>
+                            <div class="faq-answer">서버에 저장되지 않고 브라우저에서 즉석으로 생성되므로, 생성된 키는 별도로 복사하여 보관하셔야 합니다.</div>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </main>
+    </div>
+    </main>
     </div>
     <script src="../../js/common.js"></script>
     <script>

@@ -111,8 +111,28 @@
                         </button>
                     </div>
                 </div>
+                <div class="tool-help-section"
+                    style="margin-top: 48px; border-top: 1px solid var(--border-color); padding-top: 24px;">
+                    <div class="tool-help-header"
+                        onclick="this.classList.toggle('active'); this.nextElementSibling.classList.toggle('open')">
+                        <div class="tool-help-title">이용 가이드 및 FAQ</div>
+                        <span class="material-symbols-rounded toggle-icon">expand_more</span>
+                    </div>
+                    <div class="tool-help-content">
+                        <div class="faq-item">
+                            <div class="faq-question">녹화 시간 제한이 있나요?</div>
+                            <div class="faq-answer">브라우저의 메모리 용량에 따라 다르지만, 일반적으로 수십 분 이상의 긴 영상은 저장이 어려울 수 있습니다. 짧은 영상
+                                녹화에 최적화되어 있습니다.</div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="faq-question">소리도 녹음되나요?</div>
+                            <div class="faq-answer">녹화 시작 시 '시스템 오디오 공유' 옵션을 체크하면 컴퓨터 소리도 함께 녹음할 수 있습니다.</div>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </main>
+    </div>
+    </main>
     </div>
     <script src="../../js/common.js"></script>
     <script>

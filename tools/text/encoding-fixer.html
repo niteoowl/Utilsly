@@ -97,7 +97,28 @@
                         </div>
                     </div>
                 </div>
+                <div class="tool-help-section"
+                    style="margin-top: 32px; border-top: 1px solid var(--border-color); padding-top: 24px;">
+                    <div class="tool-help-header"
+                        onclick="this.classList.toggle('active'); this.nextElementSibling.classList.toggle('open')">
+                        <div class="tool-help-title">이용 가이드 및 FAQ</div>
+                        <span class="material-symbols-rounded toggle-icon">expand_more</span>
+                    </div>
+                    <div class="tool-help-content">
+                        <div class="faq-item">
+                            <div class="faq-question">외계어처럼 깨진 글자가 정말 복구되나요?</div>
+                            <div class="faq-answer">네, 보통 '뜐뜌' 같이 보이는 글자는 EUC-KR과 UTF-8 인코딩이 꼬였을 때 발생합니다. 이 도구는 그 패턴을
+                                분석해 원본 한글로 되돌려줍니다.</div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="faq-question">100% 복구되나요?</div>
+                            <div class="faq-answer">인코딩 오류로 인한 깨짐은 대부분 복구되지만, 파일 전송 과정에서 데이터 자체가 유실(???)된 경우는 복구가
+                                불가능합니다.</div>
+                        </div>
+                    </div>
+                </div>
             </div>
+    </div>
     </div>
     </div>
     </main>

@@ -323,8 +323,29 @@
                         </div>
                     </div>
                 </div>
+                <div class="tool-help-section"
+                    style="margin-top: 48px; border-top: 1px solid var(--border-color); padding-top: 24px;">
+                    <div class="tool-help-header"
+                        onclick="this.classList.toggle('active'); this.nextElementSibling.classList.toggle('open')">
+                        <div class="tool-help-title">이용 가이드 및 FAQ</div>
+                        <span class="material-symbols-rounded toggle-icon">expand_more</span>
+                    </div>
+                    <div class="tool-help-content">
+                        <div class="faq-item">
+                            <div class="faq-question">대용량 파일 전송도 가능한가요?</div>
+                            <div class="faq-answer">네, 서버를 거치지 않고 기기 간 직접 연결(P2P)하므로 용량 제한 없이 전송할 수 있습니다. 단, 양쪽 기기가 모두
+                                브라우저를 켜두어야 합니다.</div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="faq-question">멀리 떨어져 있어도 되나요?</div>
+                            <div class="faq-answer">네, 같은 와이파이가 아니어도 인터넷만 연결되어 있다면 전 세계 어디서든 6자리 번호로 연결하여 전송할 수 있습니다.
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </main>
+    </div>
+    </main>
     </div>
 
     <script src="../../js/common.js"></script>

@@ -190,8 +190,28 @@
                         </div>
                     </div>
                 </div>
+                <div class="tool-help-section" style="margin-top: 24px;">
+                    <div class="tool-help-header"
+                        onclick="this.classList.toggle('active'); this.nextElementSibling.classList.toggle('open')">
+                        <div class="tool-help-title">이용 가이드 및 FAQ</div>
+                        <span class="material-symbols-rounded toggle-icon">expand_more</span>
+                    </div>
+                    <div class="tool-help-content">
+                        <div class="faq-item">
+                            <div class="faq-question">파일이 서버에 업로드되나요?</div>
+                            <div class="faq-answer">아니요, 이 EPUB 리더는 100% 브라우저(클라이언트) 환경에서 실행되며, 선택한 파일은 귀하의 컴퓨터 밖으로 절대
+                                전송되지 않습니다.</div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="faq-question">읽던 페이지가 저장되나요?</div>
+                            <div class="faq-answer">현재 버전은 일회성 뷰어입니다. 페이지를 새로고침하면 초기화되므로 주의해주세요. 추후 이어보기 기능이 추가될 예정입니다.
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </main>
+    </div>
+    </main>
     </div>
     <script src="../../js/common.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.5/jszip.min.js"></script>

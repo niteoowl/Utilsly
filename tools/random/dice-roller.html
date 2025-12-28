@@ -352,6 +352,24 @@
 
                     <button class="btn btn-primary roll-btn" id="rollBtn">🎲 굴리기!</button>
                 </div>
+                <div class="tool-help-section">
+                    <div class="tool-help-header"
+                        onclick="this.classList.toggle('active'); this.nextElementSibling.classList.toggle('open')">
+                        <div class="tool-help-title">이용 가이드 및 FAQ</div>
+                        <span class="material-symbols-rounded toggle-icon">expand_more</span>
+                    </div>
+                    <div class="tool-help-content">
+                        <div class="faq-item">
+                            <div class="faq-question">주사위 숫자가 정말 랜덤인가요?</div>
+                            <div class="faq-answer">네, 물리 엔진 시뮬레이션은 아니지만 자바스크립트 표준 난수 생성기를 사용하여 각 주사위의 결과가 100% 무작위로
+                                결정됩니다.</div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="faq-question">최대 몇 개까지 굴릴 수 있나요?</div>
+                            <div class="faq-answer">성능 최적화를 위해 최대 6개까지 동시에 굴릴 수 있도록 설정되어 있습니다.</div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </main>
     </div>

@@ -55,6 +55,25 @@
 
                     <textarea id="output-text" placeholder="결과가 여기에 표시됩니다..." style="min-height: 150px;"
                         readonly></textarea>
+                    <div class="tool-help-section"
+                        style="margin-top: 32px; border-top: 1px solid var(--border-color); padding-top: 24px;">
+                        <div class="tool-help-header"
+                            onclick="this.classList.toggle('active'); this.nextElementSibling.classList.toggle('open')">
+                            <div class="tool-help-title">이용 가이드 및 FAQ</div>
+                            <span class="material-symbols-rounded toggle-icon">expand_more</span>
+                        </div>
+                        <div class="tool-help-content">
+                            <div class="faq-item">
+                                <div class="faq-question">왜 URL을 인코딩해야 하나요?</div>
+                                <div class="faq-answer">URL에는 공백이나 한글, 특수문자를 직접 남길 수 없습니다. 이를 인터넷에서 안전하게 전송 가능한
+                                    형태(%EC%95...)로 변환해야 오류가 발생하지 않습니다.</div>
+                            </div>
+                            <div class="faq-item">
+                                <div class="faq-question">UTF-8 말고 다른 인코딩도 지원하나요?</div>
+                                <div class="faq-answer">현재는 웹 표준인 UTF-8 인코딩/디코딩만 지원합니다.</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </main>

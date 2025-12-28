@@ -189,8 +189,28 @@
                         </button>
                     </div>
                 </div>
+                <div class="tool-help-section"
+                    style="margin-top: 48px; border-top: 1px solid var(--border-color); padding-top: 24px;">
+                    <div class="tool-help-header"
+                        onclick="this.classList.toggle('active'); this.nextElementSibling.classList.toggle('open')">
+                        <div class="tool-help-title">이용 가이드 및 FAQ</div>
+                        <span class="material-symbols-rounded toggle-icon">expand_more</span>
+                    </div>
+                    <div class="tool-help-content">
+                        <div class="faq-item">
+                            <div class="faq-question">몇 가지 색상을 추출하나요?</div>
+                            <div class="faq-answer">가장 많이 쓰인 '대표 색상(Dominant)' 1가지를 우선 추출하고, 그 외 어울리는 주요 색상 팔레트 10가지를
+                                추가로 분석해 보여줍니다.</div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="faq-question">색상 코드는 어떻게 복사하나요?</div>
+                            <div class="faq-answer">추출된 색상 카드나 코드를 클릭하면 HEX 코드(#1A2B3C)가 클립보드에 즉시 복사됩니다.</div>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </main>
+    </div>
+    </main>
     </div>
     <script src="../../js/common.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/color-thief/2.3.0/color-thief.umd.js"></script>

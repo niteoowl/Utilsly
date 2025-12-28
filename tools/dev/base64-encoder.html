@@ -61,6 +61,26 @@
                         <button class="btn btn-primary" id="encodeBtn">인코딩 (Encode) →</button>
                         <button class="btn btn-primary" id="decodeBtn">← 디코딩 (Decode)</button>
                     </div>
+                    <div class="tool-help-section"
+                        style="margin-top: 32px; border-top: 1px solid var(--border-color); padding-top: 24px;">
+                        <div class="tool-help-header"
+                            onclick="this.classList.toggle('active'); this.nextElementSibling.classList.toggle('open')">
+                            <div class="tool-help-title">이용 가이드 및 FAQ</div>
+                            <span class="material-symbols-rounded toggle-icon">expand_more</span>
+                        </div>
+                        <div class="tool-help-content">
+                            <div class="faq-item">
+                                <div class="faq-question">Base64가 무엇인가요?</div>
+                                <div class="faq-answer">이진 데이터(Binary)를 ASCII 텍스트로 인코딩하는 방식입니다. 이미지, 파일 등을 문자열 형태로 안전하게
+                                    전송하거나 저장할 때 주로 쓰입니다.</div>
+                            </div>
+                            <div class="faq-item">
+                                <div class="faq-question">한글도 잘 변환되나요?</div>
+                                <div class="faq-answer">네, UTF-8 인코딩을 완벽하게 지원하므로 한글을 포함한 전 세계 다국어 텍스트가 깨지지 않고 정확하게
+                                    변환됩니다.</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </main>

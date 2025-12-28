@@ -63,8 +63,28 @@
                         <button class="btn btn-primary" id="convertBtn" style="width: 100%;">변환 및 다운로드</button>
                     </div>
                 </div>
+                <div class="tool-help-section"
+                    style="margin-top: 48px; border-top: 1px solid var(--border-color); padding-top: 24px;">
+                    <div class="tool-help-header"
+                        onclick="this.classList.toggle('active'); this.nextElementSibling.classList.toggle('open')">
+                        <div class="tool-help-title">이용 가이드 및 FAQ</div>
+                        <span class="material-symbols-rounded toggle-icon">expand_more</span>
+                    </div>
+                    <div class="tool-help-content">
+                        <div class="faq-item">
+                            <div class="faq-question">투명 배경이 있는 PNG를 JPG로 바꾸면 어떻게 되나요?</div>
+                            <div class="faq-answer">JPG 형식은 투명도를 지원하지 않습니다. 따라서 투명했던 부분은 흰색 배경으로 채워져서 변환됩니다.</div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="faq-question">JPG를 PNG로 바꾸면 화질이 좋아지나요?</div>
+                            <div class="faq-answer">아니요, 이미 손실된 JPG 화질이 복구되지는 않습니다. 다만 PNG로 변환하면 이후 편집 저장 과정에서 추가적인 화질
+                                저하를 막을 수 있습니다.</div>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </main>
+    </div>
+    </main>
     </div>
     <script src="../../js/common.js"></script>
     <script>

@@ -64,8 +64,29 @@
                         <button class="btn" id="clearBtn">지우기</button>
                     </div>
                 </div>
+                <div class="tool-help-section"
+                    style="margin-top: 32px; border-top: 1px solid var(--border-color); padding-top: 24px;">
+                    <div class="tool-help-header"
+                        onclick="this.classList.toggle('active'); this.nextElementSibling.classList.toggle('open')">
+                        <div class="tool-help-title">이용 가이드 및 FAQ</div>
+                        <span class="material-symbols-rounded toggle-icon">expand_more</span>
+                    </div>
+                    <div class="tool-help-content">
+                        <div class="faq-item">
+                            <div class="faq-question">어떤 SQL 방언(Dialect)을 지원하나요?</div>
+                            <div class="faq-answer">표준 SQL을 기반으로 하며 MySQL, PostgreSQL, Oracle 등 대부분의 관계형 데이터베이스 쿼리를
+                                지원합니다.</div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="faq-question">정렬 시 대문자로 자동 변환되나요?</div>
+                            <div class="faq-answer">네, `SELECT`, `FROM`, `WHERE` 등 주요 SQL 키워드는 자동으로 대문자로 변환되어 가독성을 높입니다.
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </main>
+    </div>
+    </main>
     </div>
     <script src="../../js/common.js"></script>
     <script>

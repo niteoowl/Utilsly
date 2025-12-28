@@ -943,3 +943,76 @@ input[type="range"]::-webkit-slider-thumb:hover {
         display: none !important;
     }
 }
+
+/* Tool Help Section (FAQ / Usage) */
+.tool-help-section {
+    margin-top: 60px;
+    border-top: 1px solid var(--border-color);
+    padding-top: 40px;
+    color: var(--text-secondary);
+}
+
+.tool-help-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    margin-bottom: 20px;
+}
+
+.tool-help-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.tool-help-content {
+    display: none;
+    animation: fadeIn 0.3s ease;
+}
+
+.tool-help-content.open {
+    display: block;
+}
+
+.faq-item {
+    margin-bottom: 24px;
+}
+
+.faq-question {
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.faq-question::before {
+    content: 'Q.';
+    color: var(--accent-blue);
+    font-weight: 800;
+}
+
+.faq-answer {
+    line-height: 1.6;
+    font-size: 14px;
+    padding-left: 24px;
+}
+
+.toggle-icon {
+    font-size: 24px;
+    transition: transform 0.2s;
+}
+
+.tool-help-header.active .toggle-icon {
+    transform: rotate(180deg);
+}
+
+@media (max-width: 768px) {
+    .tool-help-section {
+        margin-top: 40px;
+        padding-top: 30px;
+    }
+}

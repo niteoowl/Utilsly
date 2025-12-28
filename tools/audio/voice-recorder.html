@@ -149,8 +149,28 @@
                         <!-- Recordings will appear here -->
                     </div>
                 </div>
+                <div class="tool-help-section"
+                    style="margin-top: 48px; border-top: 1px solid var(--border-color); padding-top: 24px;">
+                    <div class="tool-help-header"
+                        onclick="this.classList.toggle('active'); this.nextElementSibling.classList.toggle('open')">
+                        <div class="tool-help-title">이용 가이드 및 FAQ</div>
+                        <span class="material-symbols-rounded toggle-icon">expand_more</span>
+                    </div>
+                    <div class="tool-help-content">
+                        <div class="faq-item">
+                            <div class="faq-question">녹음 파일 형식은 무엇인가요?</div>
+                            <div class="faq-answer">브라우저 표준인 WebM 형식을 사용합니다. 팟플레이어 등 대부분의 최신 플레이어에서 재생 가능합니다.</div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="faq-question">녹음 시간 제약이 있나요?</div>
+                            <div class="faq-answer">서버에 저장하지 않고 브라우저 메모리를 사용하므로, 기기 성능에 따라 수 시간 녹음 시 메모리 부족이 발생할 수 있습니다.
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </main>
+    </div>
+    </main>
     </div>
     <script src="../../js/common.js"></script>
     <script>

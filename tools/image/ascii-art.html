@@ -71,8 +71,29 @@
                             style="background: var(--bg-sidebar); padding: 16px; border-radius: 8px; overflow-x: auto; font-family: monospace; font-size: 8px; line-height: 1;"></pre>
                     </div>
                 </div>
+                <div class="tool-help-section"
+                    style="margin-top: 32px; border-top: 1px solid var(--border-color); padding-top: 24px;">
+                    <div class="tool-help-header"
+                        onclick="this.classList.toggle('active'); this.nextElementSibling.classList.toggle('open')">
+                        <div class="tool-help-title">이용 가이드 및 FAQ</div>
+                        <span class="material-symbols-rounded toggle-icon">expand_more</span>
+                    </div>
+                    <div class="tool-help-content">
+                        <div class="faq-item">
+                            <div class="faq-question">어떤 문자셋이 가장 좋은가요?</div>
+                            <div class="faq-answer">일반 사진은 '상세(Detailed)' 옵션이 명암 표현이 좋아 가장 자연스럽고, 단순한 로고나 아이콘은 '표준'이나
+                                '블록'이 깔끔합니다.</div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="faq-question">해상도를 더 높일 수 있나요?</div>
+                            <div class="faq-answer">너비 슬라이더를 최대로 조절하면 더 세밀한 ASCII 아트를 만들 수 있습니다. 다만 텍스트 양이 많아져 복사 시 주의가
+                                필요합니다.</div>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </main>
+    </div>
+    </main>
     </div>
     <script src="../../js/common.js"></script>
     <script>

@@ -109,7 +109,27 @@
                     <button class="btn btn-primary" id="cropBtn" style="width: 100%; margin-top: 16px;">자르기 및
                         다운로드</button>
                 </div>
+                <div class="tool-help-section"
+                    style="margin-top: 48px; border-top: 1px solid var(--border-color); padding-top: 24px;">
+                    <div class="tool-help-header"
+                        onclick="this.classList.toggle('active'); this.nextElementSibling.classList.toggle('open')">
+                        <div class="tool-help-title">이용 가이드 및 FAQ</div>
+                        <span class="material-symbols-rounded toggle-icon">expand_more</span>
+                    </div>
+                    <div class="tool-help-content">
+                        <div class="faq-item">
+                            <div class="faq-question">이미지 화질이 저하되나요?</div>
+                            <div class="faq-answer">최대한 원본 화질을 유지하도록 처리하지만, JPG 등으로 저장 시 포맷 특성상 약간의 압축 손실이 발생할 수 있습니다.
+                            </div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="faq-question">이미지 회전이나 반전도 가능한가요?</div>
+                            <div class="faq-answer">네, 자르기 전에 툴바에 있는 회전 및 반전 버튼을 사용하여 이미지를 원하는 방향으로 맞출 수 있습니다.</div>
+                        </div>
+                    </div>
+                </div>
             </div>
+    </div>
     </div>
     </main>
     </div>

@@ -278,8 +278,32 @@
                         </div>
                     </div>
                 </div>
+                <div class="tool-help-section"
+                    style="margin-top: 48px; border-top: 1px solid var(--border-color); padding-top: 24px;">
+                    <div class="tool-help-header"
+                        onclick="this.classList.toggle('active'); this.nextElementSibling.classList.toggle('open')">
+                        <div class="tool-help-title">이용 가이드 및 FAQ</div>
+                        <span class="material-symbols-rounded toggle-icon">expand_more</span>
+                    </div>
+                    <div class="tool-help-content">
+                        <div class="faq-item">
+                            <div class="faq-question">지원하는 언어는 무엇인가요?</div>
+                            <div class="faq-answer">한국어, 영어, 일본어, 중국어(간체)를 지원하며, 한국어와 영어가 섞인 문서도 인식할 수 있습니다.</div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="faq-question">손글씨도 인식되나요?</div>
+                            <div class="faq-answer">반듯하게 쓰인 글씨는 어느 정도 인식되지만, 인쇄된 활자체(폰트)에 비해 정확도가 낮을 수 있습니다.</div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="faq-question">이미지가 서버에 저장되나요?</div>
+                            <div class="faq-answer">아니요, Tesseract.js 엔진을 사용하여 사용자 브라우저 내부에서만 처리되므로 이미지가 외부로 전송되지 않습니다.
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </main>
+    </div>
+    </main>
     </div>
     <script src="../../js/common.js"></script>
     <script>

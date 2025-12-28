@@ -58,8 +58,28 @@
                         </div>
                     </div>
                 </div>
+                <div class="tool-help-section"
+                    style="margin-top: 32px; border-top: 1px solid var(--border-color); padding-top: 24px;">
+                    <div class="tool-help-header"
+                        onclick="this.classList.toggle('active'); this.nextElementSibling.classList.toggle('open')">
+                        <div class="tool-help-title">이용 가이드 및 FAQ</div>
+                        <span class="material-symbols-rounded toggle-icon">expand_more</span>
+                    </div>
+                    <div class="tool-help-content">
+                        <div class="faq-item">
+                            <div class="faq-question">D-Day 계산 기준이 어떻게 되나요?</div>
+                            <div class="faq-answer">당일을 0일로 기준 삼아 계산합니다. 즉, 목표 날짜까지 남은 순수 일수를 의미합니다. 지난 날짜는 D+, 미래 날짜는
+                                D-로 표시됩니다.</div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="faq-question">음력 날짜도 지원하나요?</div>
+                            <div class="faq-answer">현재 버전은 양력 날짜만 지원합니다. 추후 음력 변환 기능도 추가될 예정입니다.</div>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </main>
+    </div>
+    </main>
     </div>
     <script src="../../js/common.js"></script>
     <script>

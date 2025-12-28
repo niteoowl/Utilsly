@@ -83,8 +83,27 @@
                         </button>
                     </div>
                 </div>
+                <div class="tool-help-section"
+                    style="margin-top: 32px; border-top: 1px solid var(--border-color); padding-top: 24px;">
+                    <div class="tool-help-header"
+                        onclick="this.classList.toggle('active'); this.nextElementSibling.classList.toggle('open')">
+                        <div class="tool-help-title">이용 가이드 및 FAQ</div>
+                        <span class="material-symbols-rounded toggle-icon">expand_more</span>
+                    </div>
+                    <div class="tool-help-content">
+                        <div class="faq-item">
+                            <div class="faq-question">QR 코드에 유효기간이 있나요?</div>
+                            <div class="faq-answer">아니요, 생성된 QR 코드는 영구적이며 만료되지 않습니다.</div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="faq-question">색상 변경도 가능한가요?</div>
+                            <div class="faq-answer">현재는 기본 흑백 스타일만 제공하지만, 추후 다양한 컬러 및 로고 삽입 기능을 추가할 예정입니다.</div>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </main>
+    </div>
+    </main>
     </div>
     <script src="../../js/common.js"></script>
     <script>

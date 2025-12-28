@@ -187,7 +187,27 @@
                     </div>
                 </div>
             </div>
-        </main>
+            <div class="tool-help-section"
+                style="margin-top: 48px; border-top: 1px solid var(--border-color); padding-top: 24px;">
+                <div class="tool-help-header"
+                    onclick="this.classList.toggle('active'); this.nextElementSibling.classList.toggle('open')">
+                    <div class="tool-help-title">이용 가이드 및 FAQ</div>
+                    <span class="material-symbols-rounded toggle-icon">expand_more</span>
+                </div>
+                <div class="tool-help-content">
+                    <div class="faq-item">
+                        <div class="faq-question">환율 정보는 실시간인가요?</div>
+                        <div class="faq-answer">오픈 API를 통해 약 1시간 단위로 갱신되는 매매기준율 데이터를 사용합니다. 실제 은행 창구 환율과는 차이가 있을 수 있습니다.
+                        </div>
+                    </div>
+                    <div class="faq-item">
+                        <div class="faq-question">수수료가 포함된 가격인가요?</div>
+                        <div class="faq-answer">아니요, 매매기준율 기준이며 환전 시에는 은행별 우대율과 수수료 정책에 따라 실제 적용 환율이 달라집니다.</div>
+                    </div>
+                </div>
+            </div>
+    </div>
+    </main>
     </div>
 
     <!-- Currency Picker Modal -->

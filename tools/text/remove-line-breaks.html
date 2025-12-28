@@ -50,6 +50,25 @@
                         <button class="btn" id="btnNone">줄바꿈 삭제</button>
                     </div>
                     <textarea id="input-text" placeholder="텍스트를 입력하세요..." style="min-height: 400px;"></textarea>
+                    <div class="tool-help-section">
+                        <div class="tool-help-header"
+                            onclick="this.classList.toggle('active'); this.nextElementSibling.classList.toggle('open')">
+                            <div class="tool-help-title">이용 가이드 및 FAQ</div>
+                            <span class="material-symbols-rounded toggle-icon">expand_more</span>
+                        </div>
+                        <div class="tool-help-content">
+                            <div class="faq-item">
+                                <div class="faq-question">PDF 복사 붙여넣기에 유용한가요?</div>
+                                <div class="faq-answer">네, PDF 문서나 논문에서 텍스트를 복사하면 줄바꿈이 엉망이 되는 경우가 많은데, 이 도구로 깔끔하게 한 문단으로
+                                    정리할 수 있습니다.</div>
+                            </div>
+                            <div class="faq-item">
+                                <div class="faq-question">공백으로 변경과 삭제의 차이는?</div>
+                                <div class="faq-answer">'공백으로'는 줄바꿈 자리에 띄어쓰기를 넣어 단어를 구분해주고, '삭제'는 아예 붙여버립니다. 영어 문장은
+                                    '공백으로'가 적합합니다.</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </main>

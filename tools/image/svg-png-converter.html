@@ -61,8 +61,27 @@
                         <button class="btn btn-primary" id="convertBtn" style="width: 100%;">PNG로 변환 및 다운로드</button>
                     </div>
                 </div>
+                <div class="tool-help-section"
+                    style="margin-top: 48px; border-top: 1px solid var(--border-color); padding-top: 24px;">
+                    <div class="tool-help-header"
+                        onclick="this.classList.toggle('active'); this.nextElementSibling.classList.toggle('open')">
+                        <div class="tool-help-title">이용 가이드 및 FAQ</div>
+                        <span class="material-symbols-rounded toggle-icon">expand_more</span>
+                    </div>
+                    <div class="tool-help-content">
+                        <div class="faq-item">
+                            <div class="faq-question">SVG가 무엇인가요?</div>
+                            <div class="faq-answer">SVG는 벡터 그래픽으로, 확대해도 깨지지 않는 이미지 포맷입니다. 웹용 아이콘이나 로고에 적합합니다.</div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="faq-question">변환된 PNG 크기는 어떻게 정하나요?</div>
+                            <div class="faq-answer">입력한 너비와 높이 픽셀 값에 맞춰 고해상도 PNG로 래스터화하여 저장됩니다.</div>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </main>
+    </div>
+    </main>
     </div>
     <script src="../../js/common.js"></script>
     <script>

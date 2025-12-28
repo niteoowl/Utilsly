@@ -106,6 +106,25 @@
                             <button class="btn" id="btn-copy-rgb">복사</button>
                         </div>
                     </div>
+                    <div class="tool-help-section"
+                        style="margin-top: 32px; border-top: 1px solid var(--border-color); padding-top: 24px;">
+                        <div class="tool-help-header"
+                            onclick="this.classList.toggle('active'); this.nextElementSibling.classList.toggle('open')">
+                            <div class="tool-help-title">이용 가이드 및 FAQ</div>
+                            <span class="material-symbols-rounded toggle-icon">expand_more</span>
+                        </div>
+                        <div class="tool-help-content">
+                            <div class="faq-item">
+                                <div class="faq-question">HEX 코드가 뭔가요?</div>
+                                <div class="faq-answer">16진수로 색상을 표현하는 방식(예: #FF0000)으로, 웹 디자인에서 가장 널리 쓰입니다.</div>
+                            </div>
+                            <div class="faq-item">
+                                <div class="faq-question">투명도 조절은 어떻게 하나요?</div>
+                                <div class="faq-answer">현재 버전의 기본 피커는 불투명 색상만 지원합니다. 추후 투명도(Alpha) 채널을 포함한 RGBA/HSLA 지원이
+                                    업데이트될 예정입니다.</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </main>

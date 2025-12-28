@@ -359,8 +359,29 @@
                         </div>
                     </div>
                 </div>
+                <div class="tool-help-section"
+                    style="margin-top: 48px; border-top: 1px solid var(--border-color); padding-top: 24px;">
+                    <div class="tool-help-header"
+                        onclick="this.classList.toggle('active'); this.nextElementSibling.classList.toggle('open')">
+                        <div class="tool-help-title">이용 가이드 및 FAQ</div>
+                        <span class="material-symbols-rounded toggle-icon">expand_more</span>
+                    </div>
+                    <div class="tool-help-content">
+                        <div class="faq-item">
+                            <div class="faq-question">내용은 어디에 저장되나요?</div>
+                            <div class="faq-answer">브라우저의 로컬 스토리지(Local Storage)에 자동 저장됩니다. 브라우저를 닫았다가 다시 열어도 내용이 유지되지만,
+                                캐시를 삭제하면 내용이 지워질 수 있으니 주의하세요.</div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="faq-question">다른 기기와 연동되나요?</div>
+                            <div class="faq-answer">아니요, 저장은 현재 사용 중인 기기와 브라우저에만 국한됩니다. 공유가 필요하다면 파일로 다운로드하여 전달하세요.
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </main>
+    </div>
+    </main>
     </div>
     <script src="../../js/common.js"></script>
     <!-- Quill.js -->

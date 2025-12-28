@@ -152,8 +152,27 @@
                         </div>
                     </div>
                 </div>
+                <div class="tool-help-section"
+                    style="margin-top: 48px; border-top: 1px solid var(--border-color); padding-top: 24px;">
+                    <div class="tool-help-header"
+                        onclick="this.classList.toggle('active'); this.nextElementSibling.classList.toggle('open')">
+                        <div class="tool-help-title">이용 가이드 및 FAQ</div>
+                        <span class="material-symbols-rounded toggle-icon">expand_more</span>
+                    </div>
+                    <div class="tool-help-content">
+                        <div class="faq-item">
+                            <div class="faq-question">투명한 배경은 어떻게 되나요?</div>
+                            <div class="faq-answer">JPG 포맷은 투명도를 지원하지 않기 때문에, 투명했던 배경 부분은 자동으로 흰색으로 채워져서 변환됩니다.</div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="faq-question">원본 파일은 삭제되나요?</div>
+                            <div class="faq-answer">아니요, 변환된 새 파일만 다운로드되며 원본 파일은 사용자 기기에 그대로 남습니다.</div>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </main>
+    </div>
+    </main>
     </div>
     <script src="../../js/common.js"></script>
     <script>

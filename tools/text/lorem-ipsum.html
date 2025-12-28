@@ -54,6 +54,24 @@
                         <button class="btn btn-primary" id="generateBtn">생성하기</button>
                     </div>
                     <textarea id="result-text" readonly style="min-height: 400px;"></textarea>
+                    <div class="tool-help-section">
+                        <div class="tool-help-header"
+                            onclick="this.classList.toggle('active'); this.nextElementSibling.classList.toggle('open')">
+                            <div class="tool-help-title">이용 가이드 및 FAQ</div>
+                            <span class="material-symbols-rounded toggle-icon">expand_more</span>
+                        </div>
+                        <div class="tool-help-content">
+                            <div class="faq-item">
+                                <div class="faq-question">로렘 입숨(Lorem Ipsum)이 무엇인가요?</div>
+                                <div class="faq-answer">디자인이나 출판물의 레이아웃을 시각적으로 확인하기 위해 사용하는 표준 채움 글(더미 텍스트)입니다. 의미 없는
+                                    라틴어 문장들로 구성되어 있습니다.</div>
+                            </div>
+                            <div class="faq-item">
+                                <div class="faq-question">한글 더미 텍스트는 없나요?</div>
+                                <div class="faq-answer">현재 버전은 표준 라틴어 로렘 입숨만 제공합니다. 추후 한글 더미 텍스트 생성 기능도 추가될 예정입니다.</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </main>

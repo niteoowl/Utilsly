@@ -136,8 +136,29 @@
                         </div>
                     </div>
                 </div>
+                <div class="tool-help-section"
+                    style="margin-top: 48px; border-top: 1px solid var(--border-color); padding-top: 24px;">
+                    <div class="tool-help-header"
+                        onclick="this.classList.toggle('active'); this.nextElementSibling.classList.toggle('open')">
+                        <div class="tool-help-title">이용 가이드 및 FAQ</div>
+                        <span class="material-symbols-rounded toggle-icon">expand_more</span>
+                    </div>
+                    <div class="tool-help-content">
+                        <div class="faq-item">
+                            <div class="faq-question">자막 파일을 지원하나요?</div>
+                            <div class="faq-answer">현재 자막 파일(.srt 등) 불러오기 기능은 지원하지 않습니다. 영상 자체의 재생 기능(배속, 회전 등)에 집중되어
+                                있습니다.</div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="faq-question">대용량 영상도 재생 가능한가요?</div>
+                            <div class="faq-answer">네, 서버에 업로드하지 않고 브라우저에서 직접 재생하므로 수 GB의 큰 영상도 끊김 없이 로컬 성능으로 재생됩니다.
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </main>
+    </div>
+    </main>
     </div>
     <script src="../../js/common.js"></script>
     <script>

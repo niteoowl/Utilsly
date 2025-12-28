@@ -75,10 +75,30 @@
                             다운로드</button>
                     </div>
                 </div>
-                <div id="statusMessage"
-                    style="margin-top: 16px; text-align: center; font-size: 0.875rem; color: var(--text-tertiary);">
+                <div class="tool-help-section"
+                    style="margin-top: 48px; border-top: 1px solid var(--border-color); padding-top: 24px;">
+                    <div class="tool-help-header"
+                        onclick="this.classList.toggle('active'); this.nextElementSibling.classList.toggle('open')">
+                        <div class="tool-help-title">이용 가이드 및 FAQ</div>
+                        <span class="material-symbols-rounded toggle-icon">expand_more</span>
+                    </div>
+                    <div class="tool-help-content">
+                        <div class="faq-item">
+                            <div class="faq-question">원본 파일은 손상되지 않나요?</div>
+                            <div class="faq-answer">네, 업로드한 원본 파일은 그대로 유지되며, 메타데이터가 제거된 '새로운 파일'이 생성되어 다운로드됩니다.</div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="faq-question">어떤 정보가 지워지나요?</div>
+                            <div class="faq-answer">촬영 기기 정보(카메라 모델), 촬영 위치(GPS 좌표), 촬영 일시 등 사진에 포함된 EXIF 메타데이터가 모두
+                                삭제됩니다.</div>
+                        </div>
+                    </div>
                 </div>
             </div>
+            <div id="statusMessage"
+                style="margin-top: 16px; text-align: center; font-size: 0.875rem; color: var(--text-tertiary);">
+            </div>
+    </div>
     </div>
     </main>
     </div>

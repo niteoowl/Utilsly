@@ -192,8 +192,28 @@
                         </div>
                     </div>
                 </div>
+                <div class="tool-help-section"
+                    style="margin-top: 48px; border-top: 1px solid var(--border-color); padding-top: 24px;">
+                    <div class="tool-help-header"
+                        onclick="this.classList.toggle('active'); this.nextElementSibling.classList.toggle('open')">
+                        <div class="tool-help-title">이용 가이드 및 FAQ</div>
+                        <span class="material-symbols-rounded toggle-icon">expand_more</span>
+                    </div>
+                    <div class="tool-help-content">
+                        <div class="faq-item">
+                            <div class="faq-question">분류된 파일은 어디에 저장되나요?</div>
+                            <div class="faq-answer">브라우저 메모리상에서 분류된 후, 최종적으로 '다운로드' 버튼을 누르면 카테고리별 폴더가 정리된 하나의 ZIP 파일로
+                                저장됩니다.</div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="faq-question">카테고리를 추가할 수 있나요?</div>
+                            <div class="faq-answer">현재 버전은 키보드 숫자키 1~9번에 매핑된 최대 9개의 카테고리 슬롯만 제공하고 있습니다.</div>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </main>
+    </div>
+    </main>
     </div>
     <script src="../../js/common.js"></script>
     <script>

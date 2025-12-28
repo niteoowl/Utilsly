@@ -125,6 +125,26 @@
                         <button class="btn btn-secondary" id="btnDownloadCsv">CSV 다운로드</button>
                         <button class="btn btn-secondary" id="btnDownloadJson">JSON 다운로드</button>
                     </div>
+                    <div class="tool-help-section"
+                        style="margin-top: 48px; border-top: 1px solid var(--border-color); padding-top: 24px;">
+                        <div class="tool-help-header"
+                            onclick="this.classList.toggle('active'); this.nextElementSibling.classList.toggle('open')">
+                            <div class="tool-help-title">이용 가이드 및 FAQ</div>
+                            <span class="material-symbols-rounded toggle-icon">expand_more</span>
+                        </div>
+                        <div class="tool-help-content">
+                            <div class="faq-item">
+                                <div class="faq-question">대용량 파일도 변환 가능한가요?</div>
+                                <div class="faq-answer">브라우저 메모리를 사용하여 변환하므로 수십 MB 정도는 거뜬하지만, 수백 MB 이상의 초대형 파일은 브라우저 성능에
+                                    따라 느려질 수 있습니다.</div>
+                            </div>
+                            <div class="faq-item">
+                                <div class="faq-question">데이터가 서버로 전송되나요?</div>
+                                <div class="faq-answer">아니요, 100% 사용자의 브라우저(Client-side) 내부에서만 변환 작업이 이루어지므로 비밀번호 등 민감한
+                                    데이터도 안전합니다.</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </main>

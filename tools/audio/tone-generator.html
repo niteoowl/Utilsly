@@ -154,8 +154,28 @@
                         </button>
                     </div>
                 </div>
+                <div class="tool-help-section"
+                    style="margin-top: 48px; border-top: 1px solid var(--border-color); padding-top: 24px;">
+                    <div class="tool-help-header"
+                        onclick="this.classList.toggle('active'); this.nextElementSibling.classList.toggle('open')">
+                        <div class="tool-help-title">이용 가이드 및 FAQ</div>
+                        <span class="material-symbols-rounded toggle-icon">expand_more</span>
+                    </div>
+                    <div class="tool-help-content">
+                        <div class="faq-item">
+                            <div class="faq-question">소리가 안 들려요.</div>
+                            <div class="faq-answer">시스템 볼륨을 확인하거나, 브라우저 탭이 음소거되어 있는지 확인하세요. 일부 모바일 기기에서는 매너 모드를 해제해야 할 수
+                                있습니다.</div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="faq-question">주파수 범위는 어디까지인가요?</div>
+                            <div class="faq-answer">일반적인 가청 주파수 대역인 20Hz부터 20,000Hz(20kHz)까지 생성할 수 있습니다.</div>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </main>
+    </div>
+    </main>
     </div>
     <script src="../../js/common.js"></script>
     <script>
