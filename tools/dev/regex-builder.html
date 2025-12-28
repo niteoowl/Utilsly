@@ -138,19 +138,15 @@
                     style="margin-top: 48px; border-top: 1px solid var(--border-color); padding-top: 24px;">
                     <div class="tool-help-header"
                         onclick="this.classList.toggle('active'); this.nextElementSibling.classList.toggle('open')">
-                        <div class="tool-help-title">이용 가이드 및 FAQ</div>
+                        <div class="tool-help-title">사용 방법</div>
                         <span class="material-symbols-rounded toggle-icon">expand_more</span>
                     </div>
                     <div class="tool-help-content">
-                        <div class="faq-item">
-                            <div class="faq-question">정규표현식이 너무 어려워요.</div>
-                            <div class="faq-answer">자주 쓰이는 패턴(이메일, 전화번호 등)을 버튼 클릭만으로 쉽게 추가할 수 있는 프리셋 기능을 활용해보세요.</div>
-                        </div>
-                        <div class="faq-item">
-                            <div class="faq-question">플래그(Flag)가 뭔가요?</div>
-                            <div class="faq-answer">검색 옵션입니다. <code>g</code>는 전체 검색(Global), <code>i</code>는 대소문자
-                                무시(Insensitive), <code>m</code>은 여러 줄 검색(Multi-line)을 의미합니다.</div>
-                        </div>
+                        <ol class="usage-list">
+                            <li><strong>프리셋 선택:</strong> 상단의 '자주 쓰는 표현식' 버튼(이메일, 전화번호 등)을 클릭하여 기본 패턴을 불러오세요.</li>
+                            <li><strong>수정:</strong> 불러온 패턴을 입력창에서 직접 수정하거나 테스트할 수 있습니다.</li>
+                            <li><strong>검증:</strong> '테스트 문자열' 입력창에 확인하고 싶은 텍스트를 넣어 매칭 여부를 실시간으로 확인하세요.</li>
+                        </ol>
                     </div>
                 </div>
             </div>

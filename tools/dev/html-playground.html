@@ -150,20 +150,15 @@
                 style="margin-top: 32px; border-top: 1px solid var(--border-color); padding-top: 24px;">
                 <div class="tool-help-header"
                     onclick="this.classList.toggle('active'); this.nextElementSibling.classList.toggle('open')">
-                    <div class="tool-help-title">이용 가이드 및 FAQ</div>
+                    <div class="tool-help-title">사용 방법</div>
                     <span class="material-symbols-rounded toggle-icon">expand_more</span>
                 </div>
                 <div class="tool-help-content">
-                    <div class="faq-item">
-                        <div class="faq-question">코드가 자동으로 저장되나요?</div>
-                        <div class="faq-answer">네, 브라우저의 로컬 스토리지(Local Storage)에 실시간으로 자동 저장되어, 브라우저를 닫았다 열어도 작업하던 코드가
-                            그대로 유지됩니다.</div>
-                    </div>
-                    <div class="faq-item">
-                        <div class="faq-question">외부 라이브러리(CDN)도 쓸 수 있나요?</div>
-                        <div class="faq-answer">HTML 에디터 영역에 <code>&lt;script src="..."&gt;</code> 태그나
-                            <code>&lt;link&gt;</code> 태그를 추가하면 Bootstrap, jQuery 등 외부 라이브러리도 사용할 수 있습니다.</div>
-                    </div>
+                    <ol class="usage-list">
+                        <li><strong>코딩:</strong> HTML, CSS, JavaScript 각 탭에 코드를 입력하세요.</li>
+                        <li><strong>실행:</strong> '실행 (Run)' 버튼을 클릭하거나 코드를 입력하면 실시간으로 미리보기가 갱신됩니다.</li>
+                        <li><strong>저장:</strong> 작성한 코드는 브라우저에 자동 저장되어 나중에 다시 이어서 작업할 수 있습니다.</li>
+                    </ol>
                 </div>
             </div>
     </div>

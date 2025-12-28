@@ -55,19 +55,15 @@
                     style="margin-top: 48px; border-top: 1px solid var(--border-color); padding-top: 24px;">
                     <div class="tool-help-header"
                         onclick="this.classList.toggle('active'); this.nextElementSibling.classList.toggle('open')">
-                        <div class="tool-help-title">이용 가이드 및 FAQ</div>
+                        <div class="tool-help-title">사용 방법</div>
                         <span class="material-symbols-rounded toggle-icon">expand_more</span>
                     </div>
                     <div class="tool-help-content">
-                        <div class="faq-item">
-                            <div class="faq-question">파일이 서버로 전송되나요?</div>
-                            <div class="faq-answer">아니요, 압축 과정은 전적으로 사용자의 컴퓨터(브라우저) 내에서 이루어지므로 파일 유출 걱정 없이 안전하게 사용할 수
-                                있습니다.</div>
-                        </div>
-                        <div class="faq-item">
-                            <div class="faq-question">용량 제한이 있나요?</div>
-                            <div class="faq-answer">브라우저 메모리 한계로 인해 수백 MB 이상의 대용량 파일은 처리가 어려울 수 있습니다.</div>
-                        </div>
+                        <ol class="usage-list">
+                            <li>압축할 파일들을 드래그하거나 클릭하여 업로드합니다(다중 선택 가능).</li>
+                            <li>생성될 ZIP 파일의 이름을 입력합니다(선택 사항).</li>
+                            <li>'ZIP으로 압축 및 다운로드' 버튼을 클릭하여 파일을 저장합니다.</li>
+                        </ol>
                     </div>
                 </div>
             </div>

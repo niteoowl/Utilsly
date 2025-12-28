@@ -109,19 +109,15 @@ console.log('Hello Utilsly!');
                 <div class="tool-help-section" style="margin-top: 24px;">
                     <div class="tool-help-header"
                         onclick="this.classList.toggle('active'); this.nextElementSibling.classList.toggle('open')">
-                        <div class="tool-help-title">이용 가이드 및 FAQ</div>
+                        <div class="tool-help-title">사용 방법</div>
                         <span class="material-symbols-rounded toggle-icon">expand_more</span>
                     </div>
                     <div class="tool-help-content">
-                        <div class="faq-item">
-                            <div class="faq-question">마크다운(Markdown)이 뭔가요?</div>
-                            <div class="faq-answer">텍스트 기반의 가벼운 마크업 언어로, '# 제목', '**강조**' 같은 기호로 서식을 표현합니다. 개발자 노트나 블로그
-                                초안 작성에 많이 쓰입니다.</div>
-                        </div>
-                        <div class="faq-item">
-                            <div class="faq-question">변환된 HTML을 어떻게 복사하나요?</div>
-                            <div class="faq-answer">오른쪽 미리보기 화면 내용을 드래그해서 복사하거나, 필요하다면 소스 보기 기능을 추후 업데이트할 예정입니다.</div>
-                        </div>
+                        <ol class="usage-list">
+                            <li><strong>작성:</strong> 왼쪽 에디터에 마크다운 문법으로 내용을 작성하세요. (# 제목, **강조** 등)</li>
+                            <li><strong>확인:</strong> 오른쪽 미리보기 창에서 실시간으로 변환된 결과를 확인하세요.</li>
+                            <li><strong>활용:</strong> 깃허브 리드미(README.md)나 블로그 포스팅 초안 작성 시 유용합니다.</li>
+                        </ol>
                     </div>
                 </div>
             </div>

@@ -226,20 +226,15 @@
                 style="margin-top: 48px; border-top: 1px solid var(--border-color); padding-top: 24px;">
                 <div class="tool-help-header"
                     onclick="this.classList.toggle('active'); this.nextElementSibling.classList.toggle('open')">
-                    <div class="tool-help-title">이용 가이드 및 FAQ</div>
+                    <div class="tool-help-title">사용 방법</div>
                     <span class="material-symbols-rounded toggle-icon">expand_more</span>
                 </div>
                 <div class="tool-help-content">
-                    <div class="faq-item">
-                        <div class="faq-question">이미지가 서버로 전송되나요?</div>
-                        <div class="faq-answer">아니요, 이 도구는 사용자의 브라우저 내에서 AI 모델(WASM)을 직접 실행하여 배경을 제거합니다. 이미지는 외부 서버로
-                            전송되지 않아 안심하고 사용할 수 있습니다.</div>
-                    </div>
-                    <div class="faq-item">
-                        <div class="faq-question">어떤 이미지가 가장 잘 되나요?</div>
-                        <div class="faq-answer">인물, 동물, 사물 등 피사체와 배경의 구분이 명확한 사진일수록 결과가 좋습니다. 복잡한 배경에서는 처리가 미흡할 수 있습니다.
-                        </div>
-                    </div>
+                    <ol class="usage-list">
+                        <li><strong>업로드:</strong> 배경을 지우고 싶은 이미지를 선택하거나 드래그하여 업로드하세요.</li>
+                        <li><strong>자동 제거:</strong> 이미지가 업로드되면 브라우저 내 AI가 자동으로 배경을 인식하여 제거합니다. (잠시 기다려주세요)</li>
+                        <li><strong>저장:</strong> 배경이 투명해진 결과물(PNG)을 다운로드하세요.</li>
+                    </ol>
                 </div>
             </div>
     </div>

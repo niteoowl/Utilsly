@@ -79,19 +79,15 @@
                     style="margin-top: 48px; border-top: 1px solid var(--border-color); padding-top: 24px;">
                     <div class="tool-help-header"
                         onclick="this.classList.toggle('active'); this.nextElementSibling.classList.toggle('open')">
-                        <div class="tool-help-title">이용 가이드 및 FAQ</div>
+                        <div class="tool-help-title">사용 방법</div>
                         <span class="material-symbols-rounded toggle-icon">expand_more</span>
                     </div>
                     <div class="tool-help-content">
-                        <div class="faq-item">
-                            <div class="faq-question">원본 파일은 손상되지 않나요?</div>
-                            <div class="faq-answer">네, 업로드한 원본 파일은 그대로 유지되며, 메타데이터가 제거된 '새로운 파일'이 생성되어 다운로드됩니다.</div>
-                        </div>
-                        <div class="faq-item">
-                            <div class="faq-question">어떤 정보가 지워지나요?</div>
-                            <div class="faq-answer">촬영 기기 정보(카메라 모델), 촬영 위치(GPS 좌표), 촬영 일시 등 사진에 포함된 EXIF 메타데이터가 모두
-                                삭제됩니다.</div>
-                        </div>
+                        <ol class="usage-list">
+                            <li>이미지 파일을 드래그하거나 클릭하여 업로드합니다.</li>
+                            <li>'메타데이터 제거 및 다운로드' 버튼을 클릭합니다.</li>
+                            <li>개인정보(EXIF)가 제거된 깨끗한 이미지 파일이 다운로드됩니다.</li>
+                        </ol>
                     </div>
                 </div>
             </div>

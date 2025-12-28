@@ -81,23 +81,15 @@
                 <div class="tool-help-section">
                     <div class="tool-help-header"
                         onclick="this.classList.toggle('active'); this.nextElementSibling.classList.toggle('open')">
-                        <div class="tool-help-title">이용 가이드 및 FAQ</div>
+                        <div class="tool-help-title">사용 방법</div>
                         <span class="material-symbols-rounded toggle-icon">expand_more</span>
                     </div>
                     <div class="tool-help-content">
-                        <div class="faq-item">
-                            <div class="faq-question">어떤 단위를 변환할 수 있나요?</div>
-                            <div class="faq-answer">길이, 무게, 부피, 넓이, 온도 등 5가지 주요 카테고리를 지원합니다. 상단 탭을 눌러 원하는 카테고리를 선택하세요.
-                            </div>
-                        </div>
-                        <div class="faq-item">
-                            <div class="faq-question">평(py)이나 근(geun) 같은 전통 단위도 정확한가요?</div>
-                            <div class="faq-answer">네, 표준 환산 규격(예: 1평 ≈ 3.3058㎡)을 따라 정확하게 계산됩니다.</div>
-                        </div>
-                        <div class="faq-item">
-                            <div class="faq-question">환율 변환은 안 되나요?</div>
-                            <div class="faq-answer">이 도구는 물리적 단위 변환 전용입니다. 환율은 실시간 데이터가 필요하여 현재 지원하지 않습니다.</div>
-                        </div>
+                        <ol class="usage-list">
+                            <li><strong>단위 선택:</strong> 상단 탭에서 길이, 무게, 넓이 등 변환할 종류를 선택하세요.</li>
+                            <li><strong>입력:</strong> 변환하고 싶은 값을 입력하고 현재 단위를 선택하세요. (예: cm)</li>
+                            <li><strong>확인:</strong> 입력 즉시 인치(inch), 피트(ft), 평 등 다른 단위로 자동 변환되어 표시됩니다.</li>
+                        </ol>
                     </div>
                 </div>
             </div>

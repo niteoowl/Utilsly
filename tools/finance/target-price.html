@@ -228,20 +228,15 @@
                 style="margin-top: 48px; border-top: 1px solid var(--border-color); padding-top: 24px;">
                 <div class="tool-help-header"
                     onclick="this.classList.toggle('active'); this.nextElementSibling.classList.toggle('open')">
-                    <div class="tool-help-title">이용 가이드 및 FAQ</div>
+                    <div class="tool-help-title">사용 방법</div>
                     <span class="material-symbols-rounded toggle-icon">expand_more</span>
                 </div>
                 <div class="tool-help-content">
-                    <div class="faq-item">
-                        <div class="faq-question">물타기 계산기와 다른 점은 무엇인가요?</div>
-                        <div class="faq-answer">물타기 계산기는 추가 매수 후 '결과 평단'을 알려주는 반면, 이 도구는 '원하는 평단'을 먼저 설정하면 '얼마나 더 사야
-                            하는지'를 알려주는 역산 방식입니다.</div>
-                    </div>
-                    <div class="faq-item">
-                        <div class="faq-question">왜 매수 수량이 소수점으로 나오나요?</div>
-                        <div class="faq-answer">정확한 계산을 위해 소수점이 나올 수 있지만, 주식은 보통 정수 단위로 거래되므로 올림 처리된 값을 참고하시는 것이 좋습니다.
-                        </div>
-                    </div>
+                    <ol class="usage-list">
+                        <li><strong>목표 설정:</strong> 현재 보유 주식 정보와 만들고 싶은 '목표 평단가'를 입력하세요.</li>
+                        <li><strong>현재가:</strong> 현재 거래되고 있는 시장 가격(추가 매수할 가격)을 입력하세요.</li>
+                        <li><strong>역산:</strong> 계산 버튼을 누르면 목표 평단을 만들기 위해 몇 주를 더 사야 하는지 알려줍니다.</li>
+                    </ol>
                 </div>
             </div>
     </div>

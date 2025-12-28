@@ -59,19 +59,15 @@
                         style="margin-top: 32px; border-top: 1px solid var(--border-color); padding-top: 24px;">
                         <div class="tool-help-header"
                             onclick="this.classList.toggle('active'); this.nextElementSibling.classList.toggle('open')">
-                            <div class="tool-help-title">이용 가이드 및 FAQ</div>
+                            <div class="tool-help-title">사용 방법</div>
                             <span class="material-symbols-rounded toggle-icon">expand_more</span>
                         </div>
                         <div class="tool-help-content">
-                            <div class="faq-item">
-                                <div class="faq-question">왜 URL을 인코딩해야 하나요?</div>
-                                <div class="faq-answer">URL에는 공백이나 한글, 특수문자를 직접 남길 수 없습니다. 이를 인터넷에서 안전하게 전송 가능한
-                                    형태(%EC%95...)로 변환해야 오류가 발생하지 않습니다.</div>
-                            </div>
-                            <div class="faq-item">
-                                <div class="faq-question">UTF-8 말고 다른 인코딩도 지원하나요?</div>
-                                <div class="faq-answer">현재는 웹 표준인 UTF-8 인코딩/디코딩만 지원합니다.</div>
-                            </div>
+                            <ol class="usage-list">
+                                <li><strong>입력:</strong> 변환할 URL 주소나 텍스트를 입력창에 넣으세요.</li>
+                                <li><strong>변환:</strong> 인코딩(특수문자 변환) 또는 디코딩(원문 복구) 버튼을 선택하세요.</li>
+                                <li><strong>확인:</strong> 반대편 창에서 변환된 결과를 확인하고 복사하여 사용하세요.</li>
+                            </ol>
                         </div>
                     </div>
                 </div>

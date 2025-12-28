@@ -60,19 +60,15 @@
                     style="margin-top: 32px; border-top: 1px solid var(--border-color); padding-top: 24px;">
                     <div class="tool-help-header"
                         onclick="this.classList.toggle('active'); this.nextElementSibling.classList.toggle('open')">
-                        <div class="tool-help-title">이용 가이드 및 FAQ</div>
+                        <div class="tool-help-title">사용 방법</div>
                         <span class="material-symbols-rounded toggle-icon">expand_more</span>
                     </div>
                     <div class="tool-help-content">
-                        <div class="faq-item">
-                            <div class="faq-question">UUID가 중복될 확률은 없나요?</div>
-                            <div class="faq-answer">UUID v4의 중복 확률은 로또에 1등 당첨될 확률보다 훨씬 낮아 사실상 0에 가깝습니다. 안심하고 고유 키로
-                                사용하세요.</div>
-                        </div>
-                        <div class="faq-item">
-                            <div class="faq-question">어디에 저장되나요?</div>
-                            <div class="faq-answer">서버에 저장되지 않고 브라우저에서 즉석으로 생성되므로, 생성된 키는 별도로 복사하여 보관하셔야 합니다.</div>
-                        </div>
+                        <ol class="usage-list">
+                            <li><strong>생성:</strong> '새로운 UUID 생성' 버튼을 클릭하면 즉시 랜덤한 고유 식별자가 생성됩니다.</li>
+                            <li><strong>복사:</strong> '복사' 버튼을 눌러 클립보드에 저장하세요.</li>
+                            <li><strong>활용:</strong> 데이터베이스의 PK나 임시 파일명 등 고유한 키가 필요한 곳에 사용하세요.</li>
+                        </ol>
                     </div>
                 </div>
             </div>

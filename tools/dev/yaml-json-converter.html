@@ -126,19 +126,15 @@
                     style="margin-top: 32px; border-top: 1px solid var(--border-color); padding-top: 24px;">
                     <div class="tool-help-header"
                         onclick="this.classList.toggle('active'); this.nextElementSibling.classList.toggle('open')">
-                        <div class="tool-help-title">이용 가이드 및 FAQ</div>
+                        <div class="tool-help-title">사용 방법</div>
                         <span class="material-symbols-rounded toggle-icon">expand_more</span>
                     </div>
                     <div class="tool-help-content">
-                        <div class="faq-item">
-                            <div class="faq-question">YAML과 JSON 중 무엇이 더 좋은가요?</div>
-                            <div class="faq-answer">YAML은 사람이 읽고 쓰기 편해 설정 파일에 주로 쓰이고, JSON은 기계 간 데이터 전송(API)에 주로 쓰입니다.
-                                용도에 맞게 변환해 사용하세요.</div>
-                        </div>
-                        <div class="faq-item">
-                            <div class="faq-question">변환 시 주석도 유지되나요?</div>
-                            <div class="faq-answer">JSON은 주석을 지원하지 않으므로, YAML을 JSON으로 변환하면 주석 내용은 사라집니다.</div>
-                        </div>
+                        <ol class="usage-list">
+                            <li><strong>입력:</strong> 변환하고 싶은 YAML 텍스트를 왼쪽 'YAML Template' 창에 입력하세요.</li>
+                            <li><strong>확인:</strong> 입력과 동시에 오른쪽 'JSON Output' 창에 변환된 JSON 결과가 나타납니다.</li>
+                            <li><strong>활용:</strong> 변환된 JSON 데이터를 복사하여 API 페이로드나 설정 파일로 사용하세요.</li>
+                        </ol>
                     </div>
                 </div>
             </div>

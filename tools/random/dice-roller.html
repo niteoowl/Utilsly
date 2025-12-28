@@ -355,19 +355,15 @@
                 <div class="tool-help-section">
                     <div class="tool-help-header"
                         onclick="this.classList.toggle('active'); this.nextElementSibling.classList.toggle('open')">
-                        <div class="tool-help-title">이용 가이드 및 FAQ</div>
+                        <div class="tool-help-title">사용 방법</div>
                         <span class="material-symbols-rounded toggle-icon">expand_more</span>
                     </div>
                     <div class="tool-help-content">
-                        <div class="faq-item">
-                            <div class="faq-question">주사위 숫자가 정말 랜덤인가요?</div>
-                            <div class="faq-answer">네, 물리 엔진 시뮬레이션은 아니지만 자바스크립트 표준 난수 생성기를 사용하여 각 주사위의 결과가 100% 무작위로
-                                결정됩니다.</div>
-                        </div>
-                        <div class="faq-item">
-                            <div class="faq-question">최대 몇 개까지 굴릴 수 있나요?</div>
-                            <div class="faq-answer">성능 최적화를 위해 최대 6개까지 동시에 굴릴 수 있도록 설정되어 있습니다.</div>
-                        </div>
+                        <ol class="usage-list">
+                            <li><strong>개수 설정:</strong> 굴릴 주사위의 개수(1~6개)를 선택하세요.</li>
+                            <li><strong>굴리기:</strong> '주사위 굴리기' 버튼을 누르거나 화면의 주사위를 터치하세요.</li>
+                            <li><strong>결과 확인:</strong> 3D 애니메이션과 함께 주사위가 굴러가고, 최종 합계 점수가 표시됩니다.</li>
+                        </ol>
                     </div>
                 </div>
             </div>

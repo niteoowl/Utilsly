@@ -187,23 +187,16 @@
                         style="margin-top: 24px; border-top: 1px solid var(--border-color); padding-top: 16px;">
                         <div class="tool-help-header"
                             onclick="this.classList.toggle('active'); this.nextElementSibling.classList.toggle('open')">
-                            <div class="tool-help-title">이용 가이드 및 FAQ</div>
+                            <div class="tool-help-title">사용 방법</div>
                             <span class="material-symbols-rounded toggle-icon">expand_more</span>
                         </div>
                         <div class="tool-help-content">
-                            <div class="faq-item">
-                                <div class="faq-question">키보드로 입력할 수 있나요?</div>
-                                <div class="faq-answer">현재 버전에서는 화면상의 버튼 클릭 입력만 지원합니다. 추후 키보드 지원 업데이트가 예정되어 있습니다.</div>
-                            </div>
-                            <div class="faq-item">
-                                <div class="faq-question">삼각함수(sin, cos)는 어떤 단위를 쓰나요?</div>
-                                <div class="faq-answer">기본적으로 라디안(Radian) 단위를 사용합니다. 각도(Degree)를 넣을 경우 원주율(PI) 변환이 필요할 수
-                                    있습니다.</div>
-                            </div>
-                            <div class="faq-item">
-                                <div class="faq-question">계산 기록이 저장되나요?</div>
-                                <div class="faq-answer">화면 상단에 직전 계산식과 결과가 잠시 표시되지만, 페이지를 새로고침하거나 이동하면 기록은 사라집니다.</div>
-                            </div>
+                            <ol class="usage-list">
+                                <li><strong>입력:</strong> 화면의 버튼을 클릭하여 수식을 입력하세요. 사칙연산은 물론 삼각함수, 루트, 로그 등 공학용 기능도 지원합니다.
+                                </li>
+                                <li><strong>계산:</strong> '=' 버튼을 누르면 정확한 계산 결과가 표시됩니다.</li>
+                                <li><strong>초기화:</strong> 'AC' 버튼으로 모든 내용을 지우거나, 'C' 버튼으로 마지막 글자를 지울 수 있습니다.</li>
+                            </ol>
                         </div>
                     </div>
                 </div>

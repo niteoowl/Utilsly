@@ -101,20 +101,15 @@
                     style="margin-top: 32px; border-top: 1px solid var(--border-color); padding-top: 24px;">
                     <div class="tool-help-header"
                         onclick="this.classList.toggle('active'); this.nextElementSibling.classList.toggle('open')">
-                        <div class="tool-help-title">이용 가이드 및 FAQ</div>
+                        <div class="tool-help-title">사용 방법</div>
                         <span class="material-symbols-rounded toggle-icon">expand_more</span>
                     </div>
                     <div class="tool-help-content">
-                        <div class="faq-item">
-                            <div class="faq-question">외계어처럼 깨진 글자가 정말 복구되나요?</div>
-                            <div class="faq-answer">네, 보통 '뜐뜌' 같이 보이는 글자는 EUC-KR과 UTF-8 인코딩이 꼬였을 때 발생합니다. 이 도구는 그 패턴을
-                                분석해 원본 한글로 되돌려줍니다.</div>
-                        </div>
-                        <div class="faq-item">
-                            <div class="faq-question">100% 복구되나요?</div>
-                            <div class="faq-answer">인코딩 오류로 인한 깨짐은 대부분 복구되지만, 파일 전송 과정에서 데이터 자체가 유실(???)된 경우는 복구가
-                                불가능합니다.</div>
-                        </div>
+                        <ol class="usage-list">
+                            <li><strong>입력:</strong> '뜐뜌' 처럼 깨진 한글 텍스트를 입력창에 붙여넣으세요.</li>
+                            <li><strong>변환:</strong> 버튼을 누르면 인코딩 오류(EUC-KR ↔ UTF-8)를 분석하여 원본 한글을 찾아냅니다.</li>
+                            <li><strong>복구:</strong> 정상적으로 보이는 텍스트를 확인하고 복사해서 사용하세요.</li>
+                        </ol>
                     </div>
                 </div>
             </div>
