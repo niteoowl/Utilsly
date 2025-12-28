@@ -11,6 +11,7 @@ const Utilsly = {
         this.initTheme();
         this.injectEarlyThemeScript(); // Prevent flash
         this.loadHiddenTools(); // Load user preferences
+        this.initCurrentTool(); // NEW: Init tool if present on initial load
         this.renderSidebar();
         this.highlightActivePage();
         this.initMobileMenu();
@@ -21,6 +22,34 @@ const Utilsly = {
         requestAnimationFrame(() => {
             document.documentElement.classList.add('loaded');
         });
+    },
+
+    /**
+     * Finds and initializes the tool on the current page.
+     */
+    initCurrentTool() {
+        const toolContainer = document.querySelector('[data-tool-id]');
+        if (toolContainer) {
+            const toolId = toolContainer.dataset.toolId;
+            // Wait for tool registration? 
+            // Since script tags are at the bottom, registering usually happens before DOMContentLoaded if synchronous,
+            // or we might need to wait if it's async. 
+            // In the current architecture, tools call Utilsly.registerTool() in the inline script at the bottom of <body>.
+            // Utilsly.init() runs on DOMContentLoaded.
+            // So registration should have happened.
+
+            if (this.tools[toolId]) {
+                console.log(`[Tool] Initializing tool: ${toolId}`);
+                try {
+                    this.tools[toolId].init();
+                    this.currentTool = { id: toolId, controller: this.tools[toolId] };
+                } catch (err) {
+                    console.error(`[Tool] Error initializing tool ${toolId}:`, err);
+                }
+            } else {
+                console.warn(`[Tool] Tool ID '${toolId}' found but no matching controller registered.`);
+            }
+        }
     },
 
     loadAuth() {
@@ -797,23 +826,8 @@ const Utilsly = {
             }
 
             // --- 5. Tool Initialization ---
-            const toolContainer = document.querySelector('[data-tool-id]');
-            if (toolContainer) {
-                const toolId = toolContainer.dataset.toolId;
-                if (this.tools[toolId]) {
-                    console.log(`[SPA] Initializing tool: ${toolId}`);
-                    try {
-                        this.tools[toolId].init();
-                        this.currentTool = { id: toolId, controller: this.tools[toolId] };
-                    } catch (err) {
-                        console.error(`[SPA] Error initializing tool ${toolId}:`, err);
-                    }
-                } else {
-                    console.warn(`[SPA] Tool ID '${toolId}' found but no matching controller registered.`);
-                }
-            } else {
-                // console.log("[SPA] No data-tool-id found in new content.");
-            }
+            // --- 5. Tool Initialization ---
+            this.initCurrentTool();
 
             // Scroll to top
             window.scrollTo(0, 0);
