@@ -457,8 +457,11 @@ const Utilsly = {
         html += `
             <div style="padding: 16px 8px; margin-top: auto;">
                 <button onclick="Utilsly.toggleSidebarEditMode()" style="width: 100%; padding: 8px; border: 1px dashed var(--border-color); background: transparent; color: var(--text-secondary); border-radius: 6px; cursor: pointer; font-size: 13px;">
-                    ${this.isEditingSidebar ? '완료' : '사이드바 편집'}
                 </button>
+            </div>
+            <div style="padding: 0 8px 16px 8px; font-size: 11px; color: var(--text-tertiary); text-align: center;">
+                <a href="/privacy.html" style="color: inherit; text-decoration: none;">개인정보처리방침</a> • 
+                <a href="/terms.html" style="color: inherit; text-decoration: none;">이용약관</a>
             </div>
         `;
 
@@ -670,6 +673,11 @@ const Utilsly = {
             const isInternal = href.startsWith('/') || !href.match(/^[a-z]+:/i); // Starts with / or no protocol
 
             if (isInternal) {
+                // NEW: Auto-close sidebar on mobile
+                if (window.innerWidth <= 768) {
+                    this.toggleSidebar(false);
+                }
+
                 event.preventDefault();
                 // Resolve to absolute URL for robust loading
                 const url = new URL(href, window.location.origin + window.location.pathname);
