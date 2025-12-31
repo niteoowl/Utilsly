@@ -202,7 +202,7 @@ const Utilsly = {
     // 수정됨: 모든 path에서 .html 제거
     sidebarTools: [
         {
-            category: "커뮤니티 (Community)",
+            category: "커뮤니티",
             items: [
                 { name: "전체글 보기", icon: "forum", path: "/community/index.html?category=all" },
                 { name: "공지사항", icon: "campaign", path: "/community/index.html?category=notice" },
@@ -211,7 +211,7 @@ const Utilsly = {
             ]
         },
         {
-            category: "랜덤 (Random)",
+            category: "랜덤",
             items: [
                 { name: "룰렛 돌리기", icon: "casino", path: "/tools/random/roulette" },
                 { name: "사다리 타기", icon: "line_style", path: "/tools/random/ladder" },
@@ -222,7 +222,7 @@ const Utilsly = {
             ]
         },
         {
-            category: "이미지 (Image)",
+            category: "이미지",
             items: [
                 { name: "이미지 리사이저", icon: "image", path: "/tools/image/image-resizer" },
                 { name: "PNG JPG 변환", icon: "transform", path: "/tools/image/png-to-jpg" },
@@ -239,14 +239,14 @@ const Utilsly = {
                 { name: "이미지 색상 추출", icon: "colorize", path: "/tools/image/color-extractor" },
                 { name: "OCR 텍스트 추출", icon: "find_in_page", path: "/tools/image/ocr" },
                 { name: "이미지 정렬/분류", icon: "auto_awesome_motion", path: "/tools/image/image-sorter" },
-                { name: "HEIC PNG 변환", icon: "image_converter", path: "/tools/image/heic-png-converter" },
+                { name: "HEIC PNG 변환", icon: "image", path: "/tools/image/heic-png-converter" },
                 { name: "ASCII 아트", icon: "grid_on", path: "/tools/image/ascii-art" },
                 { name: "파비콘 생성기", icon: "select_window", path: "/tools/image/favicon-generator" },
                 { name: "더미 이미지 생성", icon: "image", path: "/tools/image/dummy-image" },
             ]
         },
         {
-            category: "비디오 (Video)",
+            category: "비디오",
             items: [
                 { name: "비디오 플레이어", icon: "play_circle", path: "/tools/video/video-player" },
                 { name: "GIF 변환기", icon: "gif", path: "/tools/video/video-to-gif" },
@@ -273,7 +273,7 @@ const Utilsly = {
             ]
         },
         {
-            category: "메모/텍스트 (Memo)",
+            category: "메모/텍스트",
             items: [
                 { name: "빠른 메모장", icon: "edit_note", path: "/tools/memo/notepad" },
                 { name: "스마트 화이트보드", icon: "draw", path: "/tools/memo/whiteboard" },
@@ -289,7 +289,7 @@ const Utilsly = {
             ]
         },
         {
-            category: "개발 (Dev)",
+            category: "개발",
             items: [
                 { name: "HTML 플레이그라운드", icon: "code", path: "/tools/dev/html-playground" },
                 { name: "QR 코드 생성", icon: "qr_code_2", path: "/tools/dev/qr-generator" },
@@ -311,7 +311,7 @@ const Utilsly = {
             ]
         },
         {
-            category: "파일 (File)",
+            category: "파일",
             items: [
                 { name: "실시간 파일 공유", icon: "share_windows", path: "/tools/file/p2p-transfer" },
                 { name: "Zip 파일 압축", icon: "folder_zip", path: "/tools/file/zip-compress" },
@@ -321,7 +321,7 @@ const Utilsly = {
             ]
         },
         {
-            category: "보안 (Security)",
+            category: "보안",
             items: [
                 { name: "JWT 디코더", icon: "security", path: "/tools/security/jwt-decoder" },
                 { name: "비밀번호 생성기", icon: "password", path: "/tools/security/password-generator" },
@@ -329,7 +329,7 @@ const Utilsly = {
             ]
         },
         {
-            category: "수학/계산 (Math)",
+            category: "수학/계산",
             items: [
                 { name: "공학용 계산기", icon: "calculate", path: "/tools/math/scientific-calculator" },
                 { name: "단위 변환기", icon: "scale", path: "/tools/math/unit-converter" },
@@ -339,7 +339,7 @@ const Utilsly = {
             ]
         },
         {
-            category: "날짜/시간 (Date)",
+            category: "날짜/시간",
             items: [
                 { name: "타이머", icon: "timer", path: "/tools/date/timer" },
                 { name: "뽀모도로 타이머", icon: "check_circle", path: "/tools/date/pomodoro" },

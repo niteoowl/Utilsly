@@ -168,15 +168,16 @@
         }
 
         .section-title {
-            font-size: 16px;
+            font-size: 14px;
             font-weight: 700;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
+            color: var(--text-secondary);
         }
 
         .section-title .material-symbols-rounded {
-            font-size: 22px;
+            font-size: 18px;
         }
 
         .tools-section {
@@ -440,15 +441,16 @@
 
             // Image
             { name: "이미지 리사이저", icon: "image", path: "/tools/image/image-resizer", desc: "이미지 크기 조절", category: "image" },
-            { name: "이미지 일괄 변환기", icon: "transform", path: "/tools/image/image-converter", desc: "JPG, PNG, WEBP 변환", category: "image" },
+            { name: "PNG JPG 변환", icon: "transform", path: "/tools/image/png-to-jpg", desc: "이미지 포맷 변환", category: "image" },
+            { name: "JPG PNG 변환", icon: "transform", path: "/tools/image/jpg-to-png", desc: "이미지 포맷 변환", category: "image" },
             { name: "이미지 자르기", icon: "crop", path: "/tools/image/image-cropper", desc: "이미지 원하는 부분 자르기", category: "image" },
             { name: "이미지 필터", icon: "photo_filter", path: "/tools/image/image-filters", desc: "다양한 필터 적용", category: "image" },
             { name: "이미지 색상 추출", icon: "colorize", path: "/tools/image/color-extractor", desc: "이미지에서 색상 뽑기", category: "image" },
             { name: "OCR 텍스트 추출", icon: "find_in_page", path: "/tools/image/ocr", desc: "이미지 글자 인식", category: "image" },
-            { name: "이미지 정렬/분류", icon: "grid_view", path: "/tools/image/image-sorter", desc: "이미지 파일 일괄 정렬 및 분류", category: "image" },
-            { name: "더미 이미지 생성", icon: "placeholder", path: "/tools/image/placeholder-generator", desc: "테스트용 플레이스홀더 이미지", category: "image" },
+            { name: "이미지 정렬/분류", icon: "auto_awesome_motion", path: "/tools/image/image-sorter", desc: "이미지 파일 일괄 정렬 및 분류", category: "image" },
+            { name: "더미 이미지 생성", icon: "image", path: "/tools/image/dummy-image", desc: "테스트용 플레이스홀더 이미지", category: "image" },
             { name: "HEIC JPG 변환", icon: "phone_iphone", path: "/tools/image/heic-to-jpg", desc: "아이폰 사진을 JPG로 변환", category: "image" },
-            { name: "HEIC PNG 변환", icon: "transform", path: "/tools/image/heic-png-converter", desc: "아이폰 사진을 PNG로 변환", category: "image" },
+            { name: "HEIC PNG 변환", icon: "image", path: "/tools/image/heic-png-converter", desc: "아이폰 사진을 PNG로 변환", category: "image" },
             { name: "ASCII 아트", icon: "grid_on", path: "/tools/image/ascii-art", desc: "이미지를 문자로 변환", category: "image" },
 
             // Video
@@ -490,11 +492,17 @@
             { name: "CSV ↔ JSON 변환", icon: "data_thresholding", path: "/tools/dev/csv-json-converter", desc: "엑셀 데이터 형식 교차 변환", category: "dev" },
             { name: "YAML ↔ JSON 변환", icon: "integration_instructions", path: "/tools/dev/yaml-json-converter", desc: "설정 파일 형식 즉시 변환", category: "dev" },
             { name: "Crontab 생성기", icon: "schedule", path: "/tools/dev/crontab-generator", desc: "주기적 실행 구문 GUI 제작", category: "dev" },
+            { name: "Docker Compose 생성기", icon: "settings_input_component", path: "/tools/dev/docker-compose", desc: "GUI 기반 YAML 생성", category: "dev" },
+            { name: "Dockerfile 생성기", icon: "construction", path: "/tools/dev/dockerfile", desc: "단계별 빌드 구성", category: "dev" },
+            { name: "반응형 디자인 테스터", icon: "devices", path: "/tools/dev/responsive-tester", desc: "실시간 웹사이즈 테스트", category: "dev" },
+            { name: "내 IP 주소 확인", icon: "public", path: "/tools/dev/my-ip", desc: "현재 접속 IP 정보 조회", category: "dev" },
 
             // Math
             { name: "공학용 계산기", icon: "calculate", path: "/tools/math/scientific-calculator", desc: "복잡한 수식 계산", category: "math" },
             { name: "단위 변환기", icon: "scale", path: "/tools/math/unit-converter", desc: "길이, 무게, 넓이 변환", category: "math" },
             { name: "퍼센트 계산기", icon: "percent", path: "/tools/math/percentage-calculator", desc: "백분율 계산", category: "math" },
+            { name: "진수 변환기", icon: "numbers", path: "/tools/math/base-converter", desc: "2/8/10/16진수 상호 변환", category: "math" },
+            { name: "그래프 생성기", icon: "multiline_chart", path: "/tools/math/graph-generator", desc: "데이터 시각화 차트 생성", category: "math" },
 
             // Finance
             { name: "복리 이자 계산기", icon: "monetization_on", path: "/tools/finance/compound-interest", desc: "복리 이자 및 수익률 계산", category: "finance" },
@@ -534,7 +542,8 @@
             // File
             { name: "실시간 파일 공유", icon: "share_windows", path: "/tools/file/p2p-transfer", desc: "서버 저장 없이 즉시 파일 공유", category: "file" },
             { name: "Zip 파일 압축", icon: "folder_zip", path: "/tools/file/zip-compress", desc: "여러 파일을 하나의 Zip으로 압축", category: "file" },
-            { name: "Zip 압축 해제", icon: "unarchive", path: "/tools/file/zip-decompress", desc: "Zip 파일의 압축을 브라우저에서 해제", category: "file" }
+            { name: "Zip 압축 해제", icon: "unarchive", path: "/tools/file/zip-decompress", desc: "Zip 파일의 압축을 브라우저에서 해제", category: "file" },
+            { name: "메타데이터 수정기", icon: "edit_calendar", path: "/tools/file/metadata-editor", desc: "이미지 EXIF 데이터 상세 조회", category: "file" }
         ];
 
         // Update tool count
