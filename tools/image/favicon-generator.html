@@ -116,19 +116,58 @@
                     style="margin-top: 48px; border-top: 1px solid var(--border-color); padding-top: 24px;">
                     <div class="tool-help-header"
                         onclick="this.classList.toggle('active'); this.nextElementSibling.classList.toggle('open')">
-                        <div class="tool-help-title">이용 가이드 및 FAQ</div>
+                        <div class="tool-help-title">사용 가이드</div>
                         <span class="material-symbols-rounded toggle-icon">expand_more</span>
                     </div>
                     <div class="tool-help-content">
-                        <div class="faq-item">
-                            <div class="faq-question">어떤 파일들이 포함되나요?</div>
-                            <div class="faq-answer">기본 <code>favicon.ico</code> 파일뿐만 아니라, 웹 및 모바일 환경에 필요한 다양한 크기(16, 32,
-                                64, 180px 등)의 PNG 파일들이 ZIP 압축 파일로 제공됩니다.</div>
+                        <!-- Tool Intro -->
+                        <div class="help-intro">
+                            웹사이트나 블로그에 꼭 필요한 <strong>파비콘(Favicon)</strong>을 한 번에 만드세요. 이미지(로고) 하나만 업로드하면 다양한 환경에 맞는 모든
+                            아이콘 파일을 생성해 줍니다.<br><br>
+                            기본적인 <code>.ico</code> 파일부터 웹 브라우저용 PNG, 그리고 스마트폰 홈 화면용 <strong>Apple Touch Icon</strong>까지
+                            포함된 패키지를 무료로 다운로드할 수 있습니다.
                         </div>
-                        <div class="faq-item">
-                            <div class="faq-question">어떤 이미지가 가장 결과가 좋나요?</div>
-                            <div class="faq-answer">가로세로 비율이 1:1인 정사각형 이미지를 추천하며, 해상도는 최소 512x512 픽셀 이상이어야 고해상도 화면에서도
-                                선명하게 보입니다.</div>
+
+                        <!-- Ad Unit -->
+                        <div class="ad-unit">
+                            <div class="ad-placeholder">광고 영역 (상단)</div>
+                        </div>
+
+                        <!-- Usage Instructions -->
+                        <div class="help-subsection">
+                            <div class="help-subsection-title">
+                                <span class="material-symbols-rounded">check_circle</span>
+                                사용 방법
+                            </div>
+                            <ol class="usage-list">
+                                <li>로고 이미지를 정사각형 비율(1:1)로 준비합니다.</li>
+                                <li>이미지를 드래그하거나 클릭하여 업로드합니다.</li>
+                                <li>미리보기에서 각 크기별 아이콘을 확인합니다.</li>
+                                <li>'다운로드' 버튼을 눌러 모든 파일이 담긴 ZIP 파일을 받습니다.</li>
+                            </ol>
+                        </div>
+
+                        <!-- Ad Unit -->
+                        <div class="ad-unit">
+                            <div class="ad-placeholder">광고 영역 (하단)</div>
+                        </div>
+
+                        <!-- FAQ -->
+                        <div class="help-subsection">
+                            <div class="help-subsection-title">
+                                <span class="material-symbols-rounded">help</span>
+                                자주 묻는 질문 (FAQ)
+                            </div>
+                            <div class="faq-item">
+                                <div class="faq-question">어떤 파일들이 포함되나요?</div>
+                                <div class="faq-answer">기본 <code>favicon.ico</code> 파일뿐만 아니라, 웹 및 모바일 환경에 필요한 다양한 크기(16,
+                                    32, 64, 180px 등)의 PNG 파일들이 ZIP 압축 파일로 제공됩니다.</div>
+                            </div>
+                            <div class="faq-item">
+                                <div class="faq-question">어떤 이미지가 가장 결과가 좋나요?</div>
+                                <div class="faq-answer">가로세로 비율이 1:1인 정사각형 이미지를 추천하며, 해상도는 최소 512x512 픽셀 이상이어야 고해상도
+                                    화면에서도 선명하게 보입니다.</div>
+                            </div>
                         </div>
                     </div>
                 </div>

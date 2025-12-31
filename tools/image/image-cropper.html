@@ -113,18 +113,56 @@
                     style="margin-top: 48px; border-top: 1px solid var(--border-color); padding-top: 24px;">
                     <div class="tool-help-header"
                         onclick="this.classList.toggle('active'); this.nextElementSibling.classList.toggle('open')">
-                        <div class="tool-help-title">이용 가이드 및 FAQ</div>
+                        <div class="tool-help-title">사용 가이드</div>
                         <span class="material-symbols-rounded toggle-icon">expand_more</span>
                     </div>
                     <div class="tool-help-content">
-                        <div class="faq-item">
-                            <div class="faq-question">이미지 화질이 저하되나요?</div>
-                            <div class="faq-answer">최대한 원본 화질을 유지하도록 처리하지만, JPG 등으로 저장 시 포맷 특성상 약간의 압축 손실이 발생할 수 있습니다.
-                            </div>
+                        <!-- Tool Intro -->
+                        <div class="help-intro">
+                            이미지에서 필요한 부분만 남기고 <strong>자르기(Crop)</strong>를 수행하세요. 1:1(인스타그램), 16:9(유튜브 섬네일), 4:3 등
+                            <strong>자주 쓰는 비율</strong>을 제공하며, 자유롭게 선택할 수도 있습니다.<br><br>
+                            회전이나 반전 기능도 함께 제공하므로 사진 구도를 완벽하게 보정할 수 있습니다. 편집된 이미지는 고화질로 저장됩니다.
                         </div>
-                        <div class="faq-item">
-                            <div class="faq-question">이미지 회전이나 반전도 가능한가요?</div>
-                            <div class="faq-answer">네, 자르기 전에 툴바에 있는 회전 및 반전 버튼을 사용하여 이미지를 원하는 방향으로 맞출 수 있습니다.</div>
+
+                        <!-- Ad Unit -->
+                        <div class="ad-unit">
+                            <div class="ad-placeholder">광고 영역 (상단)</div>
+                        </div>
+
+                        <!-- Usage Instructions -->
+                        <div class="help-subsection">
+                            <div class="help-subsection-title">
+                                <span class="material-symbols-rounded">check_circle</span>
+                                사용 방법
+                            </div>
+                            <ol class="usage-list">
+                                <li>이미지를 드래그하거나 클릭하여 업로드합니다.</li>
+                                <li>상단 툴바에서 원하는 비율(16:9, 1:1 등)을 선택합니다.</li>
+                                <li>이미지 위 드래그 박스를 조절하여 자를 영역을 지정합니다.</li>
+                                <li>필요시 회전이나 반전 버튼을 사용한 후 '자르기 및 다운로드'를 클릭합니다.</li>
+                            </ol>
+                        </div>
+
+                        <!-- Ad Unit -->
+                        <div class="ad-unit">
+                            <div class="ad-placeholder">광고 영역 (하단)</div>
+                        </div>
+
+                        <!-- FAQ -->
+                        <div class="help-subsection">
+                            <div class="help-subsection-title">
+                                <span class="material-symbols-rounded">help</span>
+                                자주 묻는 질문 (FAQ)
+                            </div>
+                            <div class="faq-item">
+                                <div class="faq-question">이미지 화질이 저하되나요?</div>
+                                <div class="faq-answer">최대한 원본 화질을 유지하도록 처리하지만, JPG 등으로 저장 시 포맷 특성상 약간의 압축 손실이 발생할 수
+                                    있습니다.</div>
+                            </div>
+                            <div class="faq-item">
+                                <div class="faq-question">이미지 회전이나 반전도 가능한가요?</div>
+                                <div class="faq-answer">네, 자르기 전에 툴바에 있는 회전 및 반전 버튼을 사용하여 이미지를 원하는 방향으로 맞출 수 있습니다.</div>
+                            </div>
                         </div>
                     </div>
                 </div>

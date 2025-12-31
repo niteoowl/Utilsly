@@ -94,6 +94,66 @@
             </div>
     </div>
     </main>
+    <div class="tool-help-section"
+        style="margin-top: 48px; border-top: 1px solid var(--border-color); padding-top: 24px;">
+        <div class="tool-help-header"
+            onclick="this.classList.toggle('active'); this.nextElementSibling.classList.toggle('open')">
+            <div class="tool-help-title">사용 가이드</div>
+            <span class="material-symbols-rounded toggle-icon">expand_more</span>
+        </div>
+        <div class="tool-help-content">
+            <!-- Tool Intro -->
+            <div class="help-intro">
+                이미지를 텍스트 문자로 이루어진 <strong>아스키 아트(ASCII Art)</strong>로 변환해보세요. 이미지의 명암을 등호, 샵, 마침표 등의 문자로 표현하여 레트로한 감성을
+                자아냅니다.<br><br>
+                채팅방이나 SNS 댓글, 소스 코드 주석 등 이미지를 올릴 수 없는 곳에서 <strong>텍스트로 그림을 공유</strong>할 때 유용합니다. 너비와 문자 세트를 조절하여 디테일을
+                변경할 수 있습니다.
+            </div>
+
+            <!-- Ad Unit -->
+            <div class="ad-unit">
+                <div class="ad-placeholder">광고 영역 (상단)</div>
+            </div>
+
+            <!-- Usage Instructions -->
+            <div class="help-subsection">
+                <div class="help-subsection-title">
+                    <span class="material-symbols-rounded">check_circle</span>
+                    사용 방법
+                </div>
+                <ol class="usage-list">
+                    <li>이미지를 드래그하거나 클릭하여 업로드합니다.</li>
+                    <li>'너비' 슬라이더를 조절하여 해상도(디테일)를 설정합니다.</li>
+                    <li>'문자 세트'를 변경하여 명암 표현 방식을 선택합니다.</li>
+                    <li>'복사하기' 버튼을 눌러 결과물을 클립보드에 복사합니다.</li>
+                </ol>
+            </div>
+
+            <!-- Ad Unit -->
+            <div class="ad-unit">
+                <div class="ad-placeholder">광고 영역 (하단)</div>
+            </div>
+
+            <!-- FAQ -->
+            <div class="help-subsection">
+                <div class="help-subsection-title">
+                    <span class="material-symbols-rounded">help</span>
+                    자주 묻는 질문 (FAQ)
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question">결과물이 깨져 보여요.</div>
+                    <div class="faq-answer">아스키 아트는 고정폭 글꼴(Monospace)에서 가장 잘 보입니다. 메모장이나 코드 에디터 등에 붙여넣기 해보세요.</div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question">한글도 변환되나요?</div>
+                    <div class="faq-answer">이미지의 픽셀을 문자로 치환하여 그림을 그리는 방식이므로, 이미지 속에 있는 한글 텍스트 자체를 인식하여 변환하는 것은 아닙니다.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+    </main>
     </div>
     <script src="../../js/common.js"></script>
     <script>

@@ -79,15 +79,58 @@
                     style="margin-top: 48px; border-top: 1px solid var(--border-color); padding-top: 24px;">
                     <div class="tool-help-header"
                         onclick="this.classList.toggle('active'); this.nextElementSibling.classList.toggle('open')">
-                        <div class="tool-help-title">사용 방법</div>
+                        <div class="tool-help-title">사용 가이드</div>
                         <span class="material-symbols-rounded toggle-icon">expand_more</span>
                     </div>
                     <div class="tool-help-content">
-                        <ol class="usage-list">
-                            <li>이미지 파일을 드래그하거나 클릭하여 업로드합니다.</li>
-                            <li>'메타데이터 제거 및 다운로드' 버튼을 클릭합니다.</li>
-                            <li>개인정보(EXIF)가 제거된 깨끗한 이미지 파일이 다운로드됩니다.</li>
-                        </ol>
+                        <!-- Tool Intro -->
+                        <div class="help-intro">
+                            사진 속에 숨겨진 <strong>개인정보를 깨끗이 지우세요</strong>. 촬영 위치(GPS), 카메라 기종, 촬영 일시 등 사진에는 우리가 모르는 많은
+                            정보(EXIF)가 포함되어 있습니다.<br><br>
+                            이 도구는 이미지의 <strong>화질은 그대로 유지하면서</strong> 이러한 메타데이터만 안전하게 제거합니다. SNS나 블로그에 사진을 올리기 전,
+                            Utilsly 메타데이터 제거기로 소중한 사생활을 보호하세요.
+                        </div>
+
+                        <!-- Ad Unit -->
+                        <div class="ad-unit">
+                            <div class="ad-placeholder">광고 영역 (상단)</div>
+                        </div>
+
+                        <!-- Usage Instructions -->
+                        <div class="help-subsection">
+                            <div class="help-subsection-title">
+                                <span class="material-symbols-rounded">check_circle</span>
+                                사용 방법
+                            </div>
+                            <ol class="usage-list">
+                                <li>이미지 파일을 드래그하거나 클릭하여 업로드합니다.</li>
+                                <li>'메타데이터 제거 및 다운로드' 버튼을 클릭합니다.</li>
+                                <li>개인정보(EXIF)가 제거된 깨끗한 이미지 파일이 다운로드됩니다.</li>
+                            </ol>
+                        </div>
+
+                        <!-- Ad Unit -->
+                        <div class="ad-unit">
+                            <div class="ad-placeholder">광고 영역 (하단)</div>
+                        </div>
+
+                        <!-- FAQ -->
+                        <div class="help-subsection">
+                            <div class="help-subsection-title">
+                                <span class="material-symbols-rounded">help</span>
+                                자주 묻는 질문 (FAQ)
+                            </div>
+                            <div class="faq-item">
+                                <div class="faq-question">원본 파일은 손상되지 않나요?</div>
+                                <div class="faq-answer">네, 업로드한 원본 파일은 그대로 유지되며, 메타데이터가 제거된 '새로운 파일'이 생성되어 다운로드됩니다.
+                                </div>
+                            </div>
+                            <div class="faq-item">
+                                <div class="faq-question">어떤 정보가 지워지나요?</div>
+                                <div class="faq-answer">촬영 기기 정보(카메라 모델), 촬영 위치(GPS 좌표), 촬영 일시 등 사진에 포함된 EXIF 메타데이터가 모두
+                                    삭제됩니다.</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

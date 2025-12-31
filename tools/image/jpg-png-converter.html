@@ -67,18 +67,55 @@
                     style="margin-top: 48px; border-top: 1px solid var(--border-color); padding-top: 24px;">
                     <div class="tool-help-header"
                         onclick="this.classList.toggle('active'); this.nextElementSibling.classList.toggle('open')">
-                        <div class="tool-help-title">이용 가이드 및 FAQ</div>
+                        <div class="tool-help-title">사용 가이드</div>
                         <span class="material-symbols-rounded toggle-icon">expand_more</span>
                     </div>
                     <div class="tool-help-content">
-                        <div class="faq-item">
-                            <div class="faq-question">투명 배경이 있는 PNG를 JPG로 바꾸면 어떻게 되나요?</div>
-                            <div class="faq-answer">JPG 형식은 투명도를 지원하지 않습니다. 따라서 투명했던 부분은 흰색 배경으로 채워져서 변환됩니다.</div>
+                        <!-- Tool Intro -->
+                        <div class="help-intro">
+                            가장 많이 쓰이는 이미지 포맷인 <strong>JPG와 PNG를 서로 변환</strong>하는 도구입니다. 사진 용량을 줄이려면 JPG로, 화질 손실 없이 깨끗하게
+                            저장하거나 투명 배경이 필요하다면 PNG로 변환하세요.<br><br>
+                            품질 옵션을 조절하여 용량과 화질 사이의 균형을 맞출 수도 있습니다.
                         </div>
-                        <div class="faq-item">
-                            <div class="faq-question">JPG를 PNG로 바꾸면 화질이 좋아지나요?</div>
-                            <div class="faq-answer">아니요, 이미 손실된 JPG 화질이 복구되지는 않습니다. 다만 PNG로 변환하면 이후 편집 저장 과정에서 추가적인 화질
-                                저하를 막을 수 있습니다.</div>
+
+                        <!-- Ad Unit -->
+                        <div class="ad-unit">
+                            <div class="ad-placeholder">광고 영역 (상단)</div>
+                        </div>
+
+                        <!-- Usage Instructions -->
+                        <div class="help-subsection">
+                            <div class="help-subsection-title">
+                                <span class="material-symbols-rounded">check_circle</span>
+                                사용 방법
+                            </div>
+                            <ol class="usage-list">
+                                <li>변환할 이미지를 업로드합니다.</li>
+                                <li>원하는 변환 형식(JPG 또는 PNG)을 선택합니다.</li>
+                                <li>JPG인 경우 품질을 설정한 후 '변환 및 다운로드'를 클릭합니다.</li>
+                            </ol>
+                        </div>
+
+                        <!-- Ad Unit -->
+                        <div class="ad-unit">
+                            <div class="ad-placeholder">광고 영역 (하단)</div>
+                        </div>
+
+                        <!-- FAQ -->
+                        <div class="help-subsection">
+                            <div class="help-subsection-title">
+                                <span class="material-symbols-rounded">help</span>
+                                자주 묻는 질문 (FAQ)
+                            </div>
+                            <div class="faq-item">
+                                <div class="faq-question">투명 배경이 있는 PNG를 JPG로 바꾸면 어떻게 되나요?</div>
+                                <div class="faq-answer">JPG 형식은 투명도를 지원하지 않습니다. 따라서 투명했던 부분은 흰색 배경으로 채워져서 변환됩니다.</div>
+                            </div>
+                            <div class="faq-item">
+                                <div class="faq-question">JPG를 PNG로 바꾸면 화질이 좋아지나요?</div>
+                                <div class="faq-answer">아니요, 이미 손실된 JPG 화질이 복구되지는 않습니다. 다만 PNG로 변환하면 이후 편집 저장 과정에서 추가적인
+                                    화질 저하를 막을 수 있습니다.</div>
+                            </div>
                         </div>
                     </div>
                 </div>

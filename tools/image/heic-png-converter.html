@@ -63,19 +63,56 @@
                     style="margin-top: 48px; border-top: 1px solid var(--border-color); padding-top: 24px;">
                     <div class="tool-help-header"
                         onclick="this.classList.toggle('active'); this.nextElementSibling.classList.toggle('open')">
-                        <div class="tool-help-title">이용 가이드 및 FAQ</div>
+                        <div class="tool-help-title">사용 가이드</div>
                         <span class="material-symbols-rounded toggle-icon">expand_more</span>
                     </div>
                     <div class="tool-help-content">
-                        <div class="faq-item">
-                            <div class="faq-question">JPG와 PNG 중 무엇으로 변환해야 하나요?</div>
-                            <div class="faq-answer">일반 사진은 용량이 적은 JPG가 좋고, 투명도(Alpha Channel)가 있거나 화질 손실 없이 선명한 이미지가
-                                필요하다면 PNG 변환을 추천합니다.</div>
+                        <!-- Tool Intro -->
+                        <div class="help-intro">
+                            고효율 <strong>HEIC 이미지를 PNG 파일로 변환</strong>하세요. PNG는 손실 없는 압축을 지원하여 화질 저하가 없고, 배경 투명도가 필요한
+                            경우에도 적합합니다.<br><br>
+                            Apple 기기에서 촬영한 사진을 웹 디자인이나 다양한 편집 프로그램에서 사용하기 위해 변환이 필요할 때 유용합니다. 모든 과정은 브라우저에서 안전하게 처리됩니다.
                         </div>
-                        <div class="faq-item">
-                            <div class="faq-question">변환 속도가 느려요.</div>
-                            <div class="faq-answer">브라우저 성능을 사용하여 고해상도 이미지를 처리하기 때문에, 구형 기기에서는 시간이 걸릴 수 있습니다. 파일은 서버로
-                                전송되지 않습니다.</div>
+
+                        <!-- Ad Unit -->
+                        <div class="ad-unit">
+                            <div class="ad-placeholder">광고 영역 (상단)</div>
+                        </div>
+
+                        <!-- Usage Instructions -->
+                        <div class="help-subsection">
+                            <div class="help-subsection-title">
+                                <span class="material-symbols-rounded">check_circle</span>
+                                사용 방법
+                            </div>
+                            <ol class="usage-list">
+                                <li>변환할 HEIC 파일들을 드래그하거나 클릭하여 업로드합니다.</li>
+                                <li>변환이 진행되는 동안 잠시 기다립니다(고해상도일수록 시간이 소요될 수 있습니다).</li>
+                                <li>변환이 완료되면 각 파일을 다운로드하거나 '모두 다운로드' 버튼을 클릭합니다.</li>
+                            </ol>
+                        </div>
+
+                        <!-- Ad Unit -->
+                        <div class="ad-unit">
+                            <div class="ad-placeholder">광고 영역 (하단)</div>
+                        </div>
+
+                        <!-- FAQ -->
+                        <div class="help-subsection">
+                            <div class="help-subsection-title">
+                                <span class="material-symbols-rounded">help</span>
+                                자주 묻는 질문 (FAQ)
+                            </div>
+                            <div class="faq-item">
+                                <div class="faq-question">JPG와 PNG 중 무엇으로 변환해야 하나요?</div>
+                                <div class="faq-answer">일반 사진은 용량이 적은 JPG가 좋고, 투명도(Alpha Channel)가 있거나 화질 손실 없이 선명한 이미지가
+                                    필요하다면 PNG 변환을 추천합니다.</div>
+                            </div>
+                            <div class="faq-item">
+                                <div class="faq-question">변환 속도가 느려요.</div>
+                                <div class="faq-answer">브라우저 성능을 사용하여 고해상도 이미지를 처리하기 때문에, 구형 기기에서는 시간이 걸릴 수 있습니다. 파일은
+                                    서버로 전송되지 않습니다.</div>
+                            </div>
                         </div>
                     </div>
                 </div>

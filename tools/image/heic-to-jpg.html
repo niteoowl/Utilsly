@@ -148,63 +148,146 @@
                         <span class="material-symbols-rounded upload-icon">cloud_upload</span>
                         <p class="upload-text">HEIC 이미지를 드래그하거나 클릭하여 업로드</p>
                         <p class="upload-hint">HEIC 파일 지원</p>
-                        <input type="file" id="fileInput" accept=".heic,.HEIC" multiple style="display: none;">
+                        <input type="file" id="fileInput" accept="image/heic, .heic" multiple style="display: none;">
                     </div>
 
-                    <div id="loading" style="display: none; text-align: center; margin: 40px 0;">
-                        <div class="spinner"></div>
-                        <p>변환 준비 중...</p>
-                    </div>
-
-                    <div class="preview-container" id="previewContainer">
-                        <div class="file-list" id="fileList"></div>
-
-                        <div class="controls">
-                            <div class="control-group">
-                                <label>품질 (0.1 ~ 1.0)</label>
-                                <input type="range" id="qualityInput" min="0.1" max="1.0" step="0.1" value="0.9">
-                                <div
-                                    style="text-align: right; font-size: 12px; color: var(--text-secondary); margin-top: 4px;">
-                                    값: <span id="qualityValue">0.9</span>
-                                </div>
+                    <div id="progress" style="display: none; margin-top: 24px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                            <span>변환 중...</span>
+                            <span id="progressText">0/0</span>
+                        </div>
+                        <div style="background: var(--bg-sidebar); height: 8px; border-radius: 4px; overflow: hidden;">
+                            <div id="progressBar"
+                                style="background: var(--accent-blue); height: 100%; width: 0%; transition: width 0.3s; border-radius: 4px;">
                             </div>
                         </div>
+                    </div>
 
+                    <div id="results" style="display: none; margin-top: 24px;">
+                        <div style="font-weight: 600; margin-bottom: 12px;">변환 완료!</div>
+                        <div id="resultList"></div>
                         <div class="action-buttons">
-                            <button class="btn btn-primary" id="downloadBtn">
+                            <button class="btn btn-primary" id="downloadAllBtn">
                                 <span class="material-symbols-rounded"
                                     style="font-size: 18px; margin-right: 8px;">download</span>
-                                전체 다운로드 (ZIP)
-                            </button>
-                            <button class="btn" id="resetBtn">
-                                <span class="material-symbols-rounded"
-                                    style="font-size: 18px; margin-right: 8px;">refresh</span>
-                                초기화
+                                모두 다운로드
                             </button>
                         </div>
                     </div>
                 </div>
+
+                <div class="preview-container" id="previewContainer">
+                    <div class="file-list" id="fileList"></div>
+
+                    <div class="controls">
+                        <div class="control-group">
+                            <label>품질 (0.1 ~ 1.0)</label>
+                            <input type="range" id="qualityInput" min="0.1" max="1.0" step="0.1" value="0.9">
+                            <div
+                                style="text-align: right; font-size: 12px; color: var(--text-secondary); margin-top: 4px;">
+                                값: <span id="qualityValue">0.9</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="action-buttons">
+                        <button class="btn btn-primary" id="downloadBtn">
+                            <span class="material-symbols-rounded"
+                                style="font-size: 18px; margin-right: 8px;">download</span>
+                            전체 다운로드 (ZIP)
+                        </button>
+                        <button class="btn" id="resetBtn">
+                            <span class="material-symbols-rounded"
+                                style="font-size: 18px; margin-right: 8px;">refresh</span>
+                            초기화
+                        </button>
+                    </div>
+                </div>
+
+                <div id="loading" style="display: none; text-align: center; margin: 40px 0;">
+                    <div class="spinner"></div>
+                    <p>변환 준비 중...</p>
+                </div>
+
                 <div class="tool-help-section"
                     style="margin-top: 48px; border-top: 1px solid var(--border-color); padding-top: 24px;">
                     <div class="tool-help-header"
                         onclick="this.classList.toggle('active'); this.nextElementSibling.classList.toggle('open')">
-                        <div class="tool-help-title">이용 가이드 및 FAQ</div>
+                        <div class="tool-help-title">사용 가이드</div>
                         <span class="material-symbols-rounded toggle-icon">expand_more</span>
                     </div>
                     <div class="tool-help-content">
-                        <div class="faq-item">
-                            <div class="faq-question">품질(Quality) 설정은 어떤 역할을 하나요?</div>
-                            <div class="faq-answer">숫자가 높을수록(1.0) 화질이 좋지만 용량이 커지고, 낮을수록(0.1) 화질은 떨어지지만 용량이 매우 작아집니다. 보통
-                                0.8~0.9 정도가 적당합니다.</div>
+                        <!-- Tool Intro -->
+                        <div class="help-intro">
+                            아이폰(iPhone)이나 아이패드에서 찍은 <strong>HEIC 사진 파일</strong>이 윈도우나 웹사이트에서 열리지 않아 당황하셨나요? Utilsly 변환기를
+                            사용하면 범용적인 <strong>JPG(JPEG) 파일로 즉시 변환</strong>할 수 있습니다.<br><br>
+                            별도의 프로그램 설치 없이 온라인에서 무료로 변환하세요. 여러 장의 사진도 한 번에 일괄 변환할 수 있어 시간을 절약할 수 있습니다.
                         </div>
-                        <div class="faq-item">
-                            <div class="faq-question">대량 변환도 가능한가요?</div>
-                            <div class="faq-answer">네, 수십 장의 사진도 한 번에 업로드하여 순차적으로 변환할 수 있습니다. 변환이 완료되면 ZIP 파일로 묶어서
-                                다운로드됩니다.</div>
+
+                        <!-- Ad Unit -->
+                        <div class="ad-unit">
+                            <div class="ad-placeholder">광고 영역 (상단)</div>
+                        </div>
+
+                        <!-- Usage Instructions -->
+                        <div class="help-subsection">
+                            <div class="help-subsection-title">
+                                <span class="material-symbols-rounded">check_circle</span>
+                                사용 방법
+                            </div>
+                            <ol class="usage-list">
+                                <li>변환할 HEIC 파일들을 드래그하거나 클릭하여 업로드합니다.</li>
+                                <li>변환이 진행되는 동안 잠시 기다립니다(브라우저에서 처리).</li>
+                                <li>변환이 완료되면 각 파일을 다운로드하거나 '모두 다운로드' 버튼을 클릭합니다.</li>
+                            </ol>
+                        </div>
+
+                        <!-- Ad Unit -->
+                        <div class="ad-unit">
+                            <div class="ad-placeholder">광고 영역 (하단)</div>
+                        </div>
+
+                        <!-- FAQ -->
+                        <div class="help-subsection">
+                            <div class="help-subsection-title">
+                                <span class="material-symbols-rounded">help</span>
+                                자주 묻는 질문 (FAQ)
+                            </div>
+                            <div class="faq-item">
+                                <div class="faq-question">HEIC 파일이 무엇인가요?</div>
+                                <div class="faq-answer">Apple의 iPhone이나 iPad에서 사진을 저장할 때 사용하는 고효율 이미지 포맷입니다. 일반 윈도우 PC나
+                                    웹에서는 잘 열리지 않아 변환이 필요할 수 있습니다.</div>
+                            </div>
+                            <div class="faq-item">
+                                <div class="faq-question">여러 장을 한 번에 변환할 수 있나요?</div>
+                                <div class="faq-answer">네, 파일 선택 시 여러 개를 드래그하거나 선택하여 일괄 변환할 수 있으며, 변환 후 '모두 다운로드' 버튼으로 한
+                                    번에 저장이 가능합니다.</div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
+            <div class="tool-help-section"
+                style="margin-top: 48px; border-top: 1px solid var(--border-color); padding-top: 24px;">
+                <div class="tool-help-header"
+                    onclick="this.classList.toggle('active'); this.nextElementSibling.classList.toggle('open')">
+                    <div class="tool-help-title">이용 가이드 및 FAQ</div>
+                    <span class="material-symbols-rounded toggle-icon">expand_more</span>
+                </div>
+                <div class="tool-help-content">
+                    <div class="faq-item">
+                        <div class="faq-question">품질(Quality) 설정은 어떤 역할을 하나요?</div>
+                        <div class="faq-answer">숫자가 높을수록(1.0) 화질이 좋지만 용량이 커지고, 낮을수록(0.1) 화질은 떨어지지만 용량이 매우 작아집니다. 보통
+                            0.8~0.9 정도가 적당합니다.</div>
+                    </div>
+                    <div class="faq-item">
+                        <div class="faq-question">대량 변환도 가능한가요?</div>
+                        <div class="faq-answer">네, 수십 장의 사진도 한 번에 업로드하여 순차적으로 변환할 수 있습니다. 변환이 완료되면 ZIP 파일로 묶어서
+                            다운로드됩니다.</div>
+                    </div>
+                </div>
+            </div>
+    </div>
     </div>
     </main>
     </div>

@@ -124,17 +124,53 @@
                         style="margin-top: 48px; border-top: 1px solid var(--border-color); padding-top: 24px;">
                         <div class="tool-help-header"
                             onclick="this.classList.toggle('active'); this.nextElementSibling.classList.toggle('open')">
-                            <div class="tool-help-title">이용 가이드 및 FAQ</div>
+                            <div class="tool-help-title">사용 가이드</div>
                             <span class="material-symbols-rounded toggle-icon">expand_more</span>
                         </div>
                         <div class="tool-help-content">
-                            <div class="faq-item">
-                                <div class="faq-question">JPG를 PNG로 변환하면 화질이 좋아지나요?</div>
-                                <div class="faq-answer">아니요, 단순히 파일 형식만 변경되므로 기존 JPG의 노이즈나 압축 흔적은 그대로 유지됩니다.</div>
+                            <!-- Tool Intro -->
+                            <div class="help-intro">
+                                여러 장의 <strong>JPG 파일을 PNG로 일괄 변환</strong>하세요. PNG 포맷은 무손실 압축 방식을 사용하여, 이미지를 반복해서 저장해도 화질
+                                저하가 없습니다.<br><br>
+                                그래픽 작업 소스로 사용하거나, 이미지의 퀄리티를 유지하며 보관하고 싶을 때 적합합니다.
                             </div>
-                            <div class="faq-item">
-                                <div class="faq-question">왜 PNG로 변환하나요?</div>
-                                <div class="faq-answer">이후에 투명 배경 작업을 하거나, 반복적인 저장으로 인한 화질 저하를 막기 위해 무손실 포맷인 PNG로 변환합니다.
+
+                            <!-- Ad Unit -->
+                            <div class="ad-unit">
+                                <div class="ad-placeholder">광고 영역 (상단)</div>
+                            </div>
+
+                            <!-- Usage Instructions -->
+                            <div class="help-subsection">
+                                <div class="help-subsection-title">
+                                    <span class="material-symbols-rounded">check_circle</span>
+                                    사용 방법
+                                </div>
+                                <ol class="usage-list">
+                                    <li>변환할 JPG 파일들을 한 번에 드래그하거나 선택하여 업로드합니다.</li>
+                                    <li>변환된 목록을 확인하고 '전체 다운로드' 버튼을 누릅니다.</li>
+                                </ol>
+                            </div>
+
+                            <!-- Ad Unit -->
+                            <div class="ad-unit">
+                                <div class="ad-placeholder">광고 영역 (하단)</div>
+                            </div>
+
+                            <!-- FAQ -->
+                            <div class="help-subsection">
+                                <div class="help-subsection-title">
+                                    <span class="material-symbols-rounded">help</span>
+                                    자주 묻는 질문 (FAQ)
+                                </div>
+                                <div class="faq-item">
+                                    <div class="faq-question">JPG를 PNG로 변환하면 화질이 좋아지나요?</div>
+                                    <div class="faq-answer">아니요, 단순히 파일 형식만 변경되므로 기존 JPG의 노이즈나 압축 흔적은 그대로 유지됩니다.</div>
+                                </div>
+                                <div class="faq-item">
+                                    <div class="faq-question">왜 PNG로 변환하나요?</div>
+                                    <div class="faq-answer">이후에 투명 배경 작업을 하거나, 반복적인 저장으로 인한 화질 저하를 막기 위해 무손실 포맷인 PNG로
+                                        변환합니다.</div>
                                 </div>
                             </div>
                         </div>
