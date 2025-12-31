@@ -26,7 +26,10 @@
         </aside>
         <main class="main-content">
             <header class="top-bar">
-                <div class="breadcrumbs"><span class="breadcrumb-item">ZIP 압축</span></div>
+                <button class="menu-toggle-btn" onclick="Utilsly.toggleSidebar(true)">
+                    <span class="material-symbols-rounded">menu</span>
+                </button>
+                <div class="breadcrumbs"><span class="breadcrumb-item current-page">ZIP 압축</span></div>
             </header>
             <div class="content-area">
                 <div class="page-header">
@@ -51,8 +54,7 @@
                             다운로드</button>
                     </div>
                 </div>
-                <div class="tool-help-section"
-                    style="margin-top: 48px; border-top: 1px solid var(--border-color); padding-top: 24px;">
+                <div class="tool-help-section">
                     <div class="tool-help-header"
                         onclick="this.classList.toggle('active'); this.nextElementSibling.classList.toggle('open')">
                         <div class="tool-help-title">사용 가이드</div>
@@ -109,8 +111,7 @@
                     </div>
                 </div>
             </div>
-    </div>
-    </main>
+        </main>
     </div>
     <script src="../../js/common.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>

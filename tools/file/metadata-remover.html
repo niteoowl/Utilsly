@@ -36,8 +36,11 @@
 
         <main class="main-content">
             <header class="top-bar">
+                <button class="menu-toggle-btn" onclick="Utilsly.toggleSidebar(true)">
+                    <span class="material-symbols-rounded">menu</span>
+                </button>
                 <div class="breadcrumbs">
-                    <span class="breadcrumb-item">메타데이터 지우기</span>
+                    <span class="breadcrumb-item current-page">메타데이터 지우기</span>
                 </div>
             </header>
 
@@ -75,8 +78,7 @@
                             다운로드</button>
                     </div>
                 </div>
-                <div class="tool-help-section"
-                    style="margin-top: 48px; border-top: 1px solid var(--border-color); padding-top: 24px;">
+                <div class="tool-help-section">
                     <div class="tool-help-header"
                         onclick="this.classList.toggle('active'); this.nextElementSibling.classList.toggle('open')">
                         <div class="tool-help-title">사용 가이드</div>
@@ -137,9 +139,7 @@
             <div id="statusMessage"
                 style="margin-top: 16px; text-align: center; font-size: 0.875rem; color: var(--text-tertiary);">
             </div>
-    </div>
-    </div>
-    </main>
+        </main>
     </div>
     <script src="../../js/common.js"></script>
     <script>
