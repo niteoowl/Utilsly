@@ -1,277 +1,269 @@
 <!DOCTYPE html>
-<html lang="ko" data-theme="light">
+<html lang="ko">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>내 IP 주소 확인 - Utilsly</title>
-    <meta name="description" content="현재 자신의 공인 IP 주소와 인터넷 서비스 제공업체(ISP), 접속 위치 정보를 실시간으로 확인하세요.">
+    <meta name="description" content="현재 사용 중인 공인 IP 주소와 간략한 네트워크 정보를 즉시 확인하세요.">
+    <script>
+        !function () { const e = localStorage.getItem("theme"), t = window.matchMedia("(prefers-color-scheme: dark)").matches; "dark" !== e && (e || !t) || document.documentElement.setAttribute("data-theme", "dark") }();
+    </script>
     <link rel="stylesheet" href="../../css/style.css">
     <style>
-        .ip-display-card {
-            background: linear-gradient(135deg, var(--accent-blue), #004ecc);
-            color: white;
+        .ip-dashboard {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .ip-main-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
             border-radius: 24px;
             padding: 48px 24px;
             text-align: center;
-            box-shadow: 0 10px 30px rgba(0, 102, 255, 0.2);
-            margin-bottom: 32px;
             position: relative;
             overflow: hidden;
-        }
-
-        .ip-display-card::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
-            pointer-events: none;
+            background-image: radial-gradient(circle at top right, rgba(59, 130, 246, 0.05), transparent);
         }
 
         .ip-label {
-            font-size: 14px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            opacity: 0.9;
-            margin-bottom: 8px;
+            font-size: 16px;
             font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
         }
 
         .ip-address {
-            font-size: 48px;
+            font-size: clamp(32px, 8vw, 64px);
             font-weight: 800;
-            font-family: 'JetBrains Mono', monospace;
-            margin-bottom: 16px;
-            word-break: break-all;
-        }
-
-        .btn-copy-white {
-            background: rgba(255, 255, 255, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            color: white;
-            padding: 8px 16px;
-            border-radius: 50px;
-            font-size: 14px;
+            color: var(--text-primary);
+            font-family: 'Consolas', monospace;
+            margin-bottom: 24px;
+            letter-spacing: -1px;
             cursor: pointer;
-            transition: all 0.2s;
-            backdrop-filter: blur(4px);
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
+            transition: color 0.2s;
         }
 
-        .btn-copy-white:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: translateY(-2px);
+        .ip-address:hover {
+            color: var(--accent-blue);
         }
 
-        .details-grid {
+        .info-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 32px;
+            gap: 16px;
         }
 
-        .detail-item {
-            background: var(--bg-primary);
+        .info-card {
+            background: var(--bg-secondary);
             border: 1px solid var(--border-color);
             border-radius: 16px;
             padding: 20px;
-            transition: all 0.3s ease;
-        }
-
-        .detail-item:hover {
-            border-color: var(--accent-blue);
-            transform: translateY(-4px);
-            box-shadow: var(--shadow-sm);
-        }
-
-        .detail-label {
-            color: var(--text-tertiary);
-            font-size: 12px;
-            font-weight: 600;
-            margin-bottom: 8px;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 16px;
         }
 
-        .detail-value {
-            color: var(--text-primary);
-            font-size: 18px;
-            font-weight: 700;
-        }
-
-        .loading-shimmer {
-            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-            background-size: 200% 100%;
-            animation: shimmer 1.5s infinite;
-            border-radius: 4px;
-            display: inline-block;
-            height: 1em;
-            width: 80%;
-        }
-
-        @keyframes shimmer {
-            0% {
-                background-position: -200% 0;
-            }
-
-            100% {
-                background-position: 200% 0;
-            }
-        }
-
-        #refreshBtn {
-            margin: 0 auto;
+        .info-icon {
+            width: 44px;
+            height: 44px;
+            background: var(--bg-primary);
+            border-radius: 12px;
             display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent-blue);
+        }
+
+        .info-content {
+            flex-grow: 1;
+        }
+
+        .info-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-tertiary);
+            margin-bottom: 2px;
+        }
+
+        .info-value {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .refresh-btn {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+        }
+
+        .refresh-btn:hover {
+            background: var(--bg-secondary);
+            color: var(--accent-blue);
+            transform: rotate(15deg);
+        }
+
+        .copy-hint {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            margin-top: -12px;
+            margin-bottom: 20px;
+        }
+
+        #loadingOverlay {
+            position: absolute;
+            inset: 0;
+            background: var(--bg-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border-color);
+            border-top-color: var(--accent-blue);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
         }
     </style>
 </head>
 
 <body>
     <div class="app-container">
-        <nav class="sidebar"></nav>
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="user-profile">
+                    <div style="font-size: 24px; font-weight: 800; color: var(--text-primary); letter-spacing: -0.5px;">
+                        Utilsly.</div>
+                </div>
+            </div>
+            <nav class="sidebar-nav"></nav>
+        </aside>
 
         <main class="main-content">
             <header class="top-bar">
-                <div class="breadcrumbs">
-                    <span class="breadcrumb-item">내 IP 주소 확인</span>
+                <button class="menu-toggle-btn" onclick="Utilsly.toggleSidebar(true)">
+                    <span class="material-symbols-rounded">menu</span>
+                </button>
+                <div class="top-bar-title" data-tool-id="my-ip">내 IP 주소 확인</div>
+                <div class="theme-toggle" onclick="Utilsly.toggleTheme()">
+                    <span class="material-symbols-rounded">dark_mode</span>
                 </div>
             </header>
 
-            <div class="tool-header">
-                <div class="header-icon-wrapper">
-                    <span class="material-symbols-rounded">public</span>
-                </div>
-                <h1>내 IP 주소 확인</h1>
-                <p class="description">접속 중인 네트워크의 공인 IP와 인터넷 제공 정보, 대략적인 물리 위치를 확인합니다.</p>
-            </div>
-
-            <div class="tool-container" data-tool-id="my-ip">
-                <!-- Main Display Card -->
-                <div class="ip-display-card" id="mainCard">
-                    <div class="ip-label">Your Public IP Address</div>
-                    <div class="ip-address" id="ipAddress"><span class="loading-shimmer"></span></div>
-                    <button class="btn-copy-white" id="copyIpBtn">
-                        <span class="material-symbols-rounded" style="font-size: 18px;">content_copy</span>
-                        IP 주소 복사
-                    </button>
-                </div>
-
-                <!-- Details Grid -->
-                <div class="details-grid">
-                    <div class="detail-item">
-                        <div class="detail-label">
-                            <span class="material-symbols-rounded" style="font-size: 16px;">router</span>
-                            ISP (인터넷 제공업체)
-                        </div>
-                        <div class="detail-value" id="ispValue"><span class="loading-shimmer"></span></div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">
-                            <span class="material-symbols-rounded" style="font-size: 16px;">location_on</span>
-                            접속 위치 (도시/지역)
-                        </div>
-                        <div class="detail-value" id="locationValue"><span class="loading-shimmer"></span></div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">
-                            <span class="material-symbols-rounded" style="font-size: 16px;">flag</span>
-                            국가
-                        </div>
-                        <div class="detail-value" id="countryValue"><span class="loading-shimmer"></span></div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">
-                            <span class="material-symbols-rounded" style="font-size: 16px;">vpn_lock</span>
-                            타임존
-                        </div>
-                        <div class="detail-value" id="timezoneValue"><span class="loading-shimmer"></span></div>
-                    </div>
-                </div>
-
-                <!-- Browser Info -->
-                <div class="detail-item" style="margin-bottom: 32px;">
-                    <div class="detail-label">
-                        <span class="material-symbols-rounded" style="font-size: 16px;">devices</span>
-                        내 브라우저 및 기기 정보 (User Agent)
-                    </div>
-                    <div class="detail-value" id="userAgentValue"
-                        style="font-size: 14px; font-weight: 500; font-family: monospace;">
-                        <span class="loading-shimmer"></span>
-                    </div>
-                </div>
-
-                <div style="text-align: center; margin-bottom: 48px;">
-                    <button class="btn btn-secondary" id="refreshBtn">
-                        <span class="material-symbols-rounded" style="margin-right: 8px;">refresh</span>
-                        정보 다시 불러오기
-                    </button>
-                </div>
-
-                <!-- Ad Unit -->
-                <div class="ad-unit">
-                    <div class="ad-placeholder">광고 영역 (중간)</div>
-                </div>
-
-                <!-- Help Section -->
-                <div class="tool-help-section"
-                    style="margin-top: 48px; border-top: 1px solid var(--border-color); padding-top: 24px;">
-                    <div class="tool-help-header"
-                        onclick="this.classList.toggle('active'); this.nextElementSibling.classList.toggle('open')">
-                        <div class="tool-help-title">사용 가이드</div>
-                        <span class="material-symbols-rounded toggle-icon">expand_more</span>
-                    </div>
-                    <div class="tool-help-content">
-                        <div class="help-intro">
-                            내 IP 주소 확인 도구는 현재 인터넷에 연결되어 상대방 서버에 노출되는 <strong>공인 IP(Public IP)</strong>를 즉시 확인할 수 있는
-                            도구입니다. 이 정보와 함께 네트워크 서비스 제공업체(ISP)와 접속 중인 국가, 도시 정보를 함께 제공합니다.<br><br>
-                            개인정보 보호를 위해 상세한 주소까지는 추적하지 않으며, 공개적으로 제공되는 IP 지리 정보를 기반으로 데이터를 표시합니다.
-                        </div>
-
-                        <div class="ad-unit">
-                            <div class="ad-placeholder">광고 영역 (상단)</div>
-                        </div>
-
-                        <div class="help-subsection">
-                            <div class="help-subsection-title">
-                                <span class="material-symbols-rounded">check_circle</span>
-                                사용 방법
+            <div class="content-area">
+                <div class="tool-container">
+                    <div class="ip-dashboard">
+                        <div class="ip-main-card">
+                            <div id="loadingOverlay">
+                                <div class="spinner"></div>
                             </div>
-                            <ol class="usage-list">
-                                <li><strong>자동 로딩:</strong> 페이지에 접속하면 별도의 조작 없이 자동으로 사용자의 공인 IP를 조회합니다.</li>
-                                <li><strong>상세 정보 확인:</strong> ISP, 국가, 도시 정보를 통해 현재 네트워크 상태를 확인하세요.</li>
-                                <li><strong>IP 복사:</strong> 메인 카드의 'IP 주소 복사' 버튼을 눌러 편리하게 IP를 저장할 수 있습니다.</li>
-                                <li><strong>새로고침:</strong> 네트워크 환경이 바뀌었다면 '정보 다시 불러오기' 버튼을 클릭하세요.</li>
-                            </ol>
+                            <div class="ip-label">현재 나의 공인 IP 주소</div>
+                            <div class="ip-address" id="ipDisplay" title="클릭하여 복사">0.0.0.0</div>
+                            <div class="copy-hint">IP 주소를 클릭하면 복사됩니다.</div>
+                            <button class="refresh-btn" id="refreshBtn">
+                                <span class="material-symbols-rounded">refresh</span>
+                                새로고침
+                            </button>
                         </div>
 
-                        <div class="ad-unit">
-                            <div class="ad-placeholder">광고 영역 (하단)</div>
+                        <div class="info-grid">
+                            <div class="info-card">
+                                <div class="info-icon"><span class="material-symbols-rounded">location_on</span></div>
+                                <div class="info-content">
+                                    <div class="info-label">위치 (국가)</div>
+                                    <div class="info-value" id="countryDisplay">-</div>
+                                </div>
+                            </div>
+                            <div class="info-card">
+                                <div class="info-icon"><span
+                                        class="material-symbols-rounded">settings_input_component</span></div>
+                                <div class="info-content">
+                                    <div class="info-label">ISP / 통신사</div>
+                                    <div class="info-value" id="ispDisplay">-</div>
+                                </div>
+                            </div>
+                            <div class="info-card">
+                                <div class="info-icon"><span class="material-symbols-rounded">public</span></div>
+                                <div class="info-content">
+                                    <div class="info-label">호스트 이름</div>
+                                    <div class="info-value" id="hostDisplay">-</div>
+                                </div>
+                            </div>
                         </div>
+                    </div>
 
-                        <div class="help-subsection">
-                            <div class="help-subsection-title">
-                                <span class="material-symbols-rounded">help</span>
-                                자주 묻는 질문 (FAQ)
+                    <div class="tool-help-section"
+                        style="margin-top: 48px; border-top: 1px solid var(--border-color); padding-top: 24px;">
+                        <div class="tool-help-header"
+                            onclick="this.classList.toggle('active'); this.nextElementSibling.classList.toggle('open')">
+                            <div class="tool-help-title">사용 가이드</div>
+                            <span class="material-symbols-rounded toggle-icon">expand_more</span>
+                        </div>
+                        <div class="tool-help-content">
+                            <div class="help-intro">
+                                <strong>내 IP 주소 확인</strong> 도구는 현재 내가 인터넷에 연결되어 있는 외부(공인) IP 주소를 즉시 알려줍니다.<br><br>
+                                복잡한 설정 확인 없이 접속하는 것만으로 IP 주소와 함께 접속 국가, 통신사 정보 등을 한눈에 파악할 수 있으며, 개발이나 네트워크 설정 확인 시 유용하게
+                                사용할 수 있습니다.
                             </div>
-                            <div class="faq-item">
-                                <div class="faq-question">공인 IP와 사설 IP의 차이가 무엇인가요?</div>
-                                <div class="faq-answer">공인 IP는 인터넷상에서 유일한 주소이며 외부 기기가 나를 찾을 수 있는 주소입니다. 사설 IP는 공유기 내부에서
-                                    할당하는 주소(예: 192.168.x.x)로 외부에서는 보이지 않습니다. 본 도구는 공인 IP를 보여줍니다.</div>
+
+                            <div class="ad-unit">
+                                <div class="ad-placeholder">광고 영역 (상단)</div>
                             </div>
-                            <div class="faq-item">
-                                <div class="faq-question">표시되는 위치가 실제와 조금 다릅니다.</div>
-                                <div class="faq-answer">IP 기반 위치 정보는 ISP의 장비 위치를 기준으로 하므로, 실제 거주지 주소와는 차이가 발생할 수 있습니다.
-                                    이는 지극히 정상적인 현상입니다.</div>
+
+                            <div class="help-subsection">
+                                <div class="help-subsection-title">
+                                    <span class="material-symbols-rounded">check_circle</span>
+                                    사용 방법
+                                </div>
+                                <ol class="usage-list">
+                                    <li>페이지에 접속하면 자동으로 IP 주소를 불러옵니다.</li>
+                                    <li>가운데 큰 글씨로 표시된 IP 주소를 클릭하여 클립보드에 복사할 수 있습니다.</li>
+                                    <li>하단의 정보 카드에서 접속 위치와 통신사 정보를 확인합니다.</li>
+                                    <li>정보가 갱신되지 않는다면 '새로고침' 버튼을 클릭하세요.</li>
+                                </ol>
                             </div>
-                            <div class="faq-item">
-                                <div class="faq-question">VPN을 사용하면 어떻게 나오나요?</div>
-                                <div class="faq-answer">VPN을 사용 중이라면 실제 나의 IP 대신 VPN 서버의 IP와 해당 서버가 위치한 국가 정보가 표시됩니다.
+
+                            <div class="ad-unit">
+                                <div class="ad-placeholder">광고 영역 (하단)</div>
+                            </div>
+
+                            <div class="help-subsection">
+                                <div class="help-subsection-title">
+                                    <span class="material-symbols-rounded">help</span>
+                                    자주 묻는 질문 (FAQ)
+                                </div>
+                                <div class="faq-item">
+                                    <div class="faq-question">공인 IP와 사설 IP의 차이가 무엇인가요?</div>
+                                    <div class="faq-answer">공인 IP는 인터넷 세상에서 유일한 주소이고, 사설 IP(공유기 IP)는 집이나 사무실 내부망에서만 사용되는
+                                        주소입니다. 이 도구는 '공인 IP'를 보여줍니다.</div>
+                                </div>
+                                <div class="faq-item">
+                                    <div class="faq-question">VPN을 사용하면 어떻게 되나요?</div>
+                                    <div class="faq-answer">VPN을 켜면 실제 내 주소가 아닌 VPN 서버의 IP 주소와 서버가 위치한 국가 정보가 표시됩니다.
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -284,84 +276,63 @@
     <script src="../../js/common.js"></script>
     <script>
         Utilsly.registerTool('my-ip', {
-            elements: {},
-
             init() {
                 this.elements = {
-                    ipAddress: document.getElementById('ipAddress'),
-                    ispValue: document.getElementById('ispValue'),
-                    locationValue: document.getElementById('locationValue'),
-                    countryValue: document.getElementById('countryValue'),
-                    timezoneValue: document.getElementById('timezoneValue'),
-                    userAgentValue: document.getElementById('userAgentValue'),
-                    copyIpBtn: document.getElementById('copyIpBtn'),
-                    refreshBtn: document.getElementById('refreshBtn')
+                    display: document.getElementById('ipDisplay'),
+                    country: document.getElementById('countryDisplay'),
+                    isp: document.getElementById('ispDisplay'),
+                    host: document.getElementById('hostDisplay'),
+                    refresh: document.getElementById('refreshBtn'),
+                    overlay: document.getElementById('loadingOverlay')
                 };
 
-                this.bindEvents();
-                this.fetchIpInfo();
-                this.displayUserAgent();
-                console.log('My IP Address tool initialized');
+                this.elements.refresh.addEventListener('click', () => this.fetchIP());
+                this.elements.display.addEventListener('click', () => this.copyIP());
+
+                this.fetchIP();
             },
 
-            bindEvents() {
-                this.elements.copyIpBtn.addEventListener('click', () => this.copyIp());
-                this.elements.refreshBtn.addEventListener('click', () => this.fetchIpInfo());
-            },
+            async fetchIP() {
+                this.elements.overlay.style.display = 'flex';
 
-            async fetchIpInfo() {
-                this.showLoading();
                 try {
-                    // Using ipapi.co for detailed info
+                    // ipapi.co provides a generous free tier for JSON data including ISP/Location
                     const response = await fetch('https://ipapi.co/json/');
-                    if (!response.ok) throw new Error('API request failed');
-
                     const data = await response.json();
 
-                    this.elements.ipAddress.textContent = data.ip || 'Unknown';
-                    this.elements.ispValue.textContent = data.org || 'Unknown';
-                    this.elements.locationValue.textContent = `${data.city || ''}${data.city && data.region ? ', ' : ''}${data.region || ''}`;
-                    this.elements.countryValue.textContent = data.country_name || 'Unknown';
-                    this.elements.timezoneValue.textContent = data.timezone || 'Unknown';
+                    this.elements.display.innerText = data.ip;
+                    this.elements.country.innerText = `${data.country_name} (${data.country_code})`;
+                    this.elements.isp.innerText = data.org || '-';
+                    this.elements.host.innerText = data.asn || '-';
 
-                } catch (err) {
-                    console.error('IP fetch failed:', err);
-                    this.elements.ipAddress.textContent = 'Error fetching IP';
-                    this.elements.ispValue.textContent = '-';
-                    this.elements.locationValue.textContent = '-';
-                    this.elements.countryValue.textContent = '-';
+                } catch (error) {
+                    console.error('Error fetching IP:', error);
+                    this.elements.display.innerText = '불러오기 실패';
+                    this.elements.display.style.fontSize = '32px';
+                    this.elements.display.style.color = 'var(--status-error)';
+                } finally {
+                    this.elements.overlay.style.display = 'none';
                 }
             },
 
-            displayUserAgent() {
-                this.elements.userAgentValue.textContent = navigator.userAgent;
-            },
+            copyIP() {
+                const ip = this.elements.display.innerText;
+                if (ip === '0.0.0.0' || ip.includes('실패')) return;
 
-            showLoading() {
-                const shimmer = '<span class="loading-shimmer"></span>';
-                this.elements.ipAddress.innerHTML = shimmer;
-                this.elements.ispValue.innerHTML = shimmer;
-                this.elements.locationValue.innerHTML = shimmer;
-                this.elements.countryValue.innerHTML = shimmer;
-                this.elements.timezoneValue.innerHTML = shimmer;
-            },
+                navigator.clipboard.writeText(ip).then(() => {
+                    const originalColor = this.elements.display.style.color;
+                    const originalText = document.querySelector('.copy-hint').innerText;
 
-            async copyIp() {
-                const ip = this.elements.ipAddress.textContent;
-                if (!ip || ip.includes('Error') || ip === '') return;
+                    this.elements.display.style.color = 'var(--accent-blue)';
+                    document.querySelector('.copy-hint').innerText = '성공적으로 복사되었습니다!';
+                    document.querySelector('.copy-hint').style.color = 'var(--accent-blue)';
 
-                try {
-                    await navigator.clipboard.writeText(ip);
-                    const btn = this.elements.copyIpBtn;
-                    const originalText = btn.innerHTML;
-
-                    btn.innerHTML = '<span class="material-symbols-rounded">check</span>복사 완료';
                     setTimeout(() => {
-                        btn.innerHTML = originalText;
+                        this.elements.display.style.color = originalColor;
+                        document.querySelector('.copy-hint').innerText = originalText;
+                        document.querySelector('.copy-hint').style.color = 'var(--text-tertiary)';
                     }, 2000);
-                } catch (err) {
-                    console.error('Copy failed', err);
-                }
+                });
             }
         });
     </script>
