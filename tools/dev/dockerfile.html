@@ -28,29 +28,29 @@
         }
 
         .instruction-form {
-            background: var(--bg-secondary);
-            padding: 24px;
-            border-radius: 12px;
-            border: 1px solid var(--border-color);
+            padding-bottom: 32px;
+            border-bottom: 2px solid var(--border-color);
+            margin-bottom: 32px;
         }
 
         .instruction-list {
-            margin-top: 24px;
             display: flex;
             flex-direction: column;
             gap: 12px;
         }
 
         .instruction-item {
-            background: var(--bg-main);
-            padding: 12px 16px;
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-color);
             display: flex;
             justify-content: space-between;
             align-items: center;
             font-family: 'Fira Code', 'Consolas', monospace;
             font-size: 13px;
+        }
+
+        .instruction-item:last-child {
+            border-bottom: none;
         }
 
         .cmd-type {
@@ -127,7 +127,7 @@
                     <div class="docker-container">
                         <div class="input-panel">
                             <div class="instruction-form">
-                                <h3 style="margin-bottom: 20px;">명령어 추가</h3>
+                                <h2 style="margin-bottom: 24px; font-size: 1.25rem;">빌드 명령어 구성</h2>
                                 
                                 <div class="form-group">
                                     <label>유형 (Command Type)</label>
@@ -156,16 +156,17 @@
                             </div>
 
                             <div class="instruction-list" id="instrList">
-                                <!-- Instructions will appear here -->
+                                <h3 style="font-size: 14px; color: var(--text-tertiary); margin-bottom: 8px;">커맨드 목록</h3>
+                                <!-- Instructions -->
                             </div>
                         </div>
 
                         <div class="preview-area">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                                <h3 style="margin: 0;">Dockerfile 프리뷰</h3>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                                <h3 style="margin: 0; font-size: 1.1rem;">Dockerfile</h3>
                                 <button class="btn btn-sm" id="copyBtn">
                                     <span class="material-symbols-rounded" style="font-size: 18px; margin-right: 4px;">content_copy</span>
-                                    복사
+                                    파일 복사
                                 </button>
                             </div>
                             <div class="code-preview" id="filePreview"># 여기에 명령어가 표시됩니다.</div>

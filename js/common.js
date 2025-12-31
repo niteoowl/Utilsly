@@ -238,11 +238,11 @@ const Utilsly = {
                 { name: "이미지 블러", icon: "blur_on", path: "/tools/image/image-blur" },
                 { name: "이미지 색상 추출", icon: "colorize", path: "/tools/image/color-extractor" },
                 { name: "OCR 텍스트 추출", icon: "find_in_page", path: "/tools/image/ocr" },
-                { name: "이미지 정렬/분류", icon: "grid_view", path: "/tools/image/image-sorter" },
-                { name: "더미 이미지 생성", icon: "placeholder", path: "/tools/image/placeholder-generator" },
-                { name: "HEIC PNG 변환", icon: "transform", path: "/tools/image/heic-png-converter" },
+                { name: "이미지 정렬/분류", icon: "auto_awesome_motion", path: "/tools/image/image-sorter" },
+                { name: "HEIC PNG 변환", icon: "image_converter", path: "/tools/image/heic-png-converter" },
                 { name: "ASCII 아트", icon: "grid_on", path: "/tools/image/ascii-art" },
                 { name: "파비콘 생성기", icon: "select_window", path: "/tools/image/favicon-generator" },
+                { name: "더미 이미지 생성", icon: "image", path: "/tools/image/dummy-image" },
             ]
         },
         {

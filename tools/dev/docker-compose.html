@@ -28,27 +28,27 @@
         }
 
         .service-form {
-            background: var(--bg-secondary);
-            padding: 24px;
-            border-radius: 12px;
-            border: 1px solid var(--border-color);
+            padding-bottom: 32px;
+            border-bottom: 2px solid var(--border-color);
+            margin-bottom: 32px;
         }
 
         .service-list {
-            margin-top: 24px;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 16px;
         }
 
         .service-item {
-            background: var(--bg-main);
-            padding: 16px;
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-color);
             display: flex;
             justify-content: space-between;
             align-items: center;
+        }
+
+        .service-item:last-child {
+            border-bottom: none;
         }
 
         .service-id {
@@ -120,7 +120,7 @@
                     <div class="docker-container">
                         <div class="input-panel">
                             <div class="service-form">
-                                <h3 style="margin-bottom: 20px;">서비스 추가</h3>
+                                <h2 style="margin-bottom: 24px; font-size: 1.25rem;">서비스 구성</h2>
                                 <div class="form-group">
                                     <label>서비스 이름</label>
                                     <input type="text" id="svcName" placeholder="예: web-app">
@@ -141,23 +141,25 @@
                                 </div>
                                 <button class="btn btn-primary" id="addSvcBtn" style="width: 100%;">
                                     <span class="material-symbols-rounded" style="margin-right: 8px;">add</span>
-                                    서비스 추가
+                                    목록에 추가
                                 </button>
                             </div>
 
                             <div class="service-list" id="serviceList">
-                                <!-- Added services will appear here -->
+                                <h3 style="font-size: 15px; color: var(--text-tertiary); margin-bottom: 8px;">추가된 서비스
+                                </h3>
+                                <!-- Added services -->
                             </div>
                         </div>
 
                         <div class="preview-area">
                             <div
-                                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                                <h3 style="margin: 0;">YAML 프리뷰</h3>
+                                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                                <h3 style="margin: 0; font-size: 1.1rem;">docker-compose.yml</h3>
                                 <button class="btn btn-sm" id="copyBtn">
                                     <span class="material-symbols-rounded"
                                         style="font-size: 18px; margin-right: 4px;">content_copy</span>
-                                    복사
+                                    YAML 복사
                                 </button>
                             </div>
                             <div class="code-preview" id="yamlPreview">version: '3.8'
