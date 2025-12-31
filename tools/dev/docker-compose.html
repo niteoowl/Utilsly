@@ -4,198 +4,85 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>Docker Compose 생성기 - Utilsly</title>
-    <meta name="description" content="GUI 환경에서 Docker Compose 파일을 쉽고 빠르게 생성하세요. 서비스, 이미지, 포트, 볼륨 설정을 지원합니다.">
+    <meta name="description" content="GUI를 사용하여 간편하게 Docker Compose YAML 파일을 생성하고 관리하세요.">
     <script>
         !function () { const e = localStorage.getItem("theme"), t = window.matchMedia("(prefers-color-scheme: dark)").matches; "dark" !== e && (e || !t) || document.documentElement.setAttribute("data-theme", "dark") }();
     </script>
+
+    <link rel="preload" href="../../css/style.css" as="style">
     <link rel="stylesheet" href="../../css/style.css">
     <style>
-        .docker-builder {
+        .docker-container {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 24px;
-            margin-bottom: 32px;
+            align-items: start;
         }
 
-        @media (max-width: 992px) {
-            .docker-builder {
+        @media (max-width: 1024px) {
+            .docker-container {
                 grid-template-columns: 1fr;
             }
         }
 
-        .config-panel {
+        .service-form {
             background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
             padding: 24px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        .service-list {
+            margin-top: 24px;
             display: flex;
             flex-direction: column;
-            gap: 20px;
-        }
-
-        .service-card {
-            background: var(--bg-primary);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 20px;
-            position: relative;
-            animation: slideIn 0.3s ease-out;
-        }
-
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .service-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 16px;
-        }
-
-        .service-title {
-            font-weight: 700;
-            font-size: 16px;
-            color: var(--text-primary);
-        }
-
-        .remove-service {
-            color: var(--status-error);
-            cursor: pointer;
-            padding: 4px;
-            border-radius: 50%;
-            transition: background 0.2s;
-        }
-
-        .remove-service:hover {
-            background: rgba(239, 68, 68, 0.1);
-        }
-
-        .input-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
             gap: 12px;
         }
 
-        .input-group label {
-            display: block;
-            font-size: 12px;
-            font-weight: 600;
-            margin-bottom: 6px;
-            color: var(--text-secondary);
-        }
-
-        .input-group input,
-        .input-group select {
-            width: 100%;
-            padding: 10px 12px;
+        .service-item {
+            background: var(--bg-main);
+            padding: 16px;
             border-radius: 8px;
             border: 1px solid var(--border-color);
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            font-size: 14px;
-        }
-
-        .preview-panel {
-            background: #1e1e1e;
-            border-radius: 16px;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            border: 1px solid #333;
-        }
-
-        .preview-header {
-            background: #2d2d2d;
-            padding: 12px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid #3d3d3d;
         }
 
-        .preview-title {
-            color: #d4d4d4;
-            font-size: 13px;
-            font-family: 'Consolas', monospace;
-        }
-
-        .copy-btn {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: #fff;
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-size: 12px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            transition: all 0.2s;
-        }
-
-        .copy-btn:hover {
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        pre {
-            margin: 0;
-            padding: 20px;
-            color: #d4d4d4;
-            font-family: 'Consolas', 'Monaco', monospace;
-            font-size: 14px;
-            line-height: 1.5;
-            overflow-x: auto;
-            flex-grow: 1;
-        }
-
-        .add-service-btn {
-            width: 100%;
-            padding: 14px;
-            border: 2px dashed var(--border-color);
-            border-radius: 12px;
-            background: none;
-            color: var(--text-secondary);
+        .service-id {
             font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            transition: all 0.2s;
+            color: var(--primary);
         }
 
-        .add-service-btn:hover {
-            border-color: var(--accent-blue);
-            color: var(--accent-blue);
-            background: rgba(59, 130, 246, 0.05);
+        .preview-area {
+            position: sticky;
+            top: 24px;
         }
 
-        .keyword {
-            color: #569cd6;
+        .code-preview {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: 12px;
+            font-family: 'Fira Code', 'Consolas', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            overflow-x: auto;
+            white-space: pre;
+            min-height: 400px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        .string {
-            color: #ce9178;
+        .form-group {
+            margin-bottom: 16px;
         }
 
-        .comment {
-            color: #6a9955;
-        }
-
-        .indent {
-            display: inline-block;
-            width: 2ch;
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
         }
     </style>
 </head>
@@ -205,109 +92,129 @@
         <aside class="sidebar">
             <div class="sidebar-header">
                 <div class="user-profile">
-                    <div style="font-size: 24px; font-weight: 800; color: var(--text-primary); letter-spacing: -0.5px;">
-                        Utilsly.</div>
+                    <div class="avatar">U</div>
                 </div>
             </div>
-            <nav class="sidebar-nav"></nav>
+            <nav class="sidebar-nav">
+                <!-- Sidebar content generated by js/common.js -->
+            </nav>
         </aside>
 
         <main class="main-content">
             <header class="top-bar">
-                <button class="menu-toggle-btn" onclick="Utilsly.toggleSidebar(true)">
-                    <span class="material-symbols-rounded">menu</span>
-                </button>
-                <div class="top-bar-title" data-tool-id="docker-compose">Docker Compose 생성기</div>
-                <div class="theme-toggle" onclick="Utilsly.toggleTheme()">
-                    <span class="material-symbols-rounded">dark_mode</span>
+                <div class="breadcrumbs">
+                    <span class="breadcrumb-item">Docker 도구</span>
+                    <span class="material-symbols-rounded">chevron_right</span>
+                    <span class="breadcrumb-item">Docker Compose 생성기</span>
                 </div>
             </header>
 
             <div class="content-area">
-                <div class="tool-container">
-                    <div class="docker-builder">
-                        <div class="config-panel">
-                            <div class="input-group">
-                                <label>Version</label>
-                                <select id="composeVersion">
-                                    <option value="3.8">3.8</option>
-                                    <option value="3.0">3.0</option>
-                                    <option value="2.1">2.1</option>
-                                </select>
+                <div class="page-header">
+                    <div class="header-icon-wrapper">
+                        <span class="material-symbols-rounded">settings_input_component</span>
+                    </div>
+                    <h1>Docker Compose 생성기</h1>
+                    <p class="description">GUI 환경에서 서비스 정보를 입력하여 docker-compose.yml 파일을 완성하세요.</p>
+                </div>
+
+                <div class="tool-container" data-tool-id="docker-compose">
+                    <div class="docker-container">
+                        <div class="input-panel">
+                            <div class="service-form">
+                                <h3 style="margin-bottom: 20px;">서비스 추가</h3>
+                                <div class="form-group">
+                                    <label>서비스 이름</label>
+                                    <input type="text" id="svcName" placeholder="예: web-app">
+                                </div>
+                                <div class="form-group">
+                                    <label>이미지 (Image)</label>
+                                    <input type="text" id="svcImage" placeholder="예: nginx:latest">
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>호스트 포트</label>
+                                        <input type="text" id="svcHostPort" placeholder="예: 80">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>컨테이너 포트</label>
+                                        <input type="text" id="svcContPort" placeholder="예: 80">
+                                    </div>
+                                </div>
+                                <button class="btn btn-primary" id="addSvcBtn" style="width: 100%;">
+                                    <span class="material-symbols-rounded" style="margin-right: 8px;">add</span>
+                                    서비스 추가
+                                </button>
                             </div>
 
-                            <div id="servicesContainer" style="display: flex; flex-direction: column; gap: 16px;">
-                                <!-- Services will be added here -->
+                            <div class="service-list" id="serviceList">
+                                <!-- Added services will appear here -->
                             </div>
-
-                            <button class="add-service-btn" id="addServiceBtn">
-                                <span class="material-symbols-rounded">add</span>
-                                서비스 추가
-                            </button>
                         </div>
 
-                        <div class="preview-panel">
-                            <div class="preview-header">
-                                <div class="preview-title">docker-compose.yml</div>
-                                <button class="copy-btn" id="copyBtn">
-                                    <span class="material-symbols-rounded" style="font-size: 16px;">content_copy</span>
+                        <div class="preview-area">
+                            <div
+                                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                                <h3 style="margin: 0;">YAML 프리뷰</h3>
+                                <button class="btn btn-sm" id="copyBtn">
+                                    <span class="material-symbols-rounded"
+                                        style="font-size: 18px; margin-right: 4px;">content_copy</span>
                                     복사
                                 </button>
                             </div>
-                            <pre id="yamlPreview"></pre>
+                            <div class="code-preview" id="yamlPreview">version: '3.8'
+                                services:</div>
                         </div>
                     </div>
+                </div>
 
-                    <div class="tool-help-section"
-                        style="margin-top: 48px; border-top: 1px solid var(--border-color); padding-top: 24px;">
-                        <div class="tool-help-header"
-                            onclick="this.classList.toggle('active'); this.nextElementSibling.classList.toggle('open')">
-                            <div class="tool-help-title">사용 가이드</div>
-                            <span class="material-symbols-rounded toggle-icon">expand_more</span>
+                <!-- Usage Guide -->
+                <div class="tool-help-section"
+                    style="margin-top: 48px; border-top: 1px solid var(--border-color); padding-top: 24px;">
+                    <div class="tool-help-header"
+                        onclick="this.classList.toggle('active'); this.nextElementSibling.classList.toggle('open')">
+                        <div class="tool-help-title">사용 가이드</div>
+                        <span class="material-symbols-rounded toggle-icon">expand_more</span>
+                    </div>
+                    <div class="tool-help-content">
+                        <div class="help-intro">
+                            복잡한 <strong>Docker Compose YAML 파일</strong>을 수동으로 편집할 필요 없이, 시각적인 폼을 통해 빠르게 생성할 수 있습니다.
+                            서비스명, 사용할 이미지, 포트 포워딩 설정을 입력하면 즉시 유효한 YAML 코드가 생성됩니다.
                         </div>
-                        <div class="tool-help-content">
-                            <div class="help-intro">
-                                <strong>Docker Compose 생성기</strong>는 복잡한 YAML 문법을 직접 작성할 필요 없이, GUI 환경에서 클릭과 입력만으로 완벽한
-                                설정을 만들어주는 도구입니다.<br><br>
-                                이미지, 포트 포워딩, 볼륨 매핑, 환경 변수 등 핵심 설정을 시각적으로 관리하고 실시간으로 생성된 코드를 확인하여 복사할 수 있습니다.
-                            </div>
 
-                            <div class="ad-unit">
-                                <div class="ad-placeholder">광고 영역 (상단)</div>
-                            </div>
+                        <div class="ad-unit">
+                            <div class="ad-placeholder">광고 영역 (상단)</div>
+                        </div>
 
-                            <div class="help-subsection">
-                                <div class="help-subsection-title">
-                                    <span class="material-symbols-rounded">check_circle</span>
-                                    사용 방법
-                                </div>
-                                <ol class="usage-list">
-                                    <li>Docker Compose 버전을 선택합니다 (기본 3.8 추천).</li>
-                                    <li>'서비스 추가' 버튼을 눌러 새로운 컨테이너 정의를 생성합니다.</li>
-                                    <li>서비스 이름, 사용할 이미지 이름, 노출할 포트와 볼륨 정보를 입력합니다.</li>
-                                    <li>우측의 실시간 미리보기에서 코드를 확인하고 '복사' 버튼을 눌러 사용합니다.</li>
-                                </ol>
+                        <div class="help-subsection">
+                            <div class="help-subsection-title">
+                                <span class="material-symbols-rounded">check_circle</span>
+                                사용 방법
                             </div>
+                            <ol class="usage-list">
+                                <li>'서비스 이름'과 사용할 '이미지'를 입력합니다.</li>
+                                <li>포트 연결이 필요한 경우 호스트와 컨테이너 포트를 각각 입력합니다.</li>
+                                <li>'서비스 추가'를 누르면 우측에 실시간으로 YAML 코드가 업데이트됩니다.</li>
+                                <li>완성된 코드를 '복사' 버튼으로 가져가 파일로 저장하세요.</li>
+                            </ol>
+                        </div>
 
-                            <div class="ad-unit">
-                                <div class="ad-placeholder">광고 영역 (하단)</div>
+                        <div class="ad-unit">
+                            <div class="ad-placeholder">광고 영역 (하단)</div>
+                        </div>
+
+                        <div class="help-subsection">
+                            <div class="help-subsection-title">
+                                <span class="material-symbols-rounded">help</span>
+                                자주 묻는 질문 (FAQ)
                             </div>
-
-                            <div class="help-subsection">
-                                <div class="help-subsection-title">
-                                    <span class="material-symbols-rounded">help</span>
-                                    자주 묻는 질문 (FAQ)
-                                </div>
-                                <div class="faq-item">
-                                    <div class="faq-question">Docker Compose가 무엇인가요?</div>
-                                    <div class="faq-answer">여러 개의 Docker 컨테이너를 하나의 파일로 정의하고 실행하기 위한 도구입니다. 데이터베이스, 웹 서버
-                                        등을 한 번에 띄울 때 유용합니다.</div>
-                                </div>
-                                <div class="faq-item">
-                                    <div class="faq-question">생성된 파일은 어떻게 사용하나요?</div>
-                                    <div class="faq-answer">내용을 복사하여 `docker-compose.yml` 파일로 저장한 뒤, 터미널에서
-                                        `docker-compose up -d`를 실행하면 됩니다.</div>
-                                </div>
+                            <div class="faq-item">
+                                <div class="faq-question">환경 변수나 볼륨 설정은 어떻게 하나요?</div>
+                                <div class="faq-answer">현재 버전은 기본적인 이미지 및 포트 설정을 지원하며, 고급 설정은 추후 업데이트될 예정입니다.</div>
+                            </div>
+                            <div class="faq-item">
+                                <div class="faq-question">YAML 형식이 올바른가요?</div>
+                                <div class="faq-answer">네, 표준 Docker Compose 3.8 포맷에 맞춰 생성됩니다.</div>
                             </div>
                         </div>
                     </div>
@@ -320,122 +227,107 @@
     <script>
         Utilsly.registerTool('docker-compose', {
             services: [],
+            elements: {},
 
             init() {
                 this.elements = {
-                    version: document.getElementById('composeVersion'),
-                    container: document.getElementById('servicesContainer'),
-                    addBtn: document.getElementById('addServiceBtn'),
+                    svcName: document.getElementById('svcName'),
+                    svcImage: document.getElementById('svcImage'),
+                    svcHostPort: document.getElementById('svcHostPort'),
+                    svcContPort: document.getElementById('svcContPort'),
+                    addBtn: document.getElementById('addSvcBtn'),
+                    svcList: document.getElementById('serviceList'),
                     preview: document.getElementById('yamlPreview'),
                     copyBtn: document.getElementById('copyBtn')
                 };
 
-                this.addBtn.addEventListener('click', () => this.addService());
-                this.elements.version.addEventListener('change', () => this.updatePreview());
-                this.elements.copyBtn.addEventListener('click', () => this.copyCode());
+                this.handleAdd = () => this.addService();
+                this.handleCopy = () => this.copyToClipboard();
 
-                // Add default service
-                this.addService('web', 'nginx:latest');
+                this.elements.addBtn.addEventListener('click', this.handleAdd);
+                this.elements.copyBtn.addEventListener('click', this.handleCopy);
+
+                this.updatePreview();
             },
 
-            addService(name = '', image = '') {
-                const id = Date.now();
-                const service = {
-                    id,
-                    name: name || `service_${this.services.length + 1}`,
-                    image: image || 'ubuntu:latest',
-                    ports: '',
-                    volumes: ''
-                };
+            cleanup() {
+                this.elements.addBtn.removeEventListener('click', this.handleAdd);
+                this.elements.copyBtn.removeEventListener('click', this.handleCopy);
+                this.elements = {};
+                this.services = [];
+            },
 
+            addService() {
+                const name = this.elements.svcName.value.trim();
+                const image = this.elements.svcImage.value.trim();
+                const hPort = this.elements.svcHostPort.value.trim();
+                const cPort = this.elements.svcContPort.value.trim();
+
+                if (!name || !image) {
+                    alert('서비스명과 이미지는 필수 항목입니다.');
+                    return;
+                }
+
+                const service = { name, image, hPort, cPort };
                 this.services.push(service);
-                this.renderService(service);
+                this.renderServiceList();
                 this.updatePreview();
+
+                // Reset inputs
+                this.elements.svcName.value = '';
+                this.elements.svcImage.value = '';
+                this.elements.svcHostPort.value = '';
+                this.elements.svcContPort.value = '';
             },
 
-            removeService(id) {
-                this.services = this.services.filter(s => s.id !== id);
-                document.querySelector(`[data-id="${id}"]`).remove();
-                this.updatePreview();
+            renderServiceList() {
+                this.elements.svcList.innerHTML = this.services.map((svc, index) => `
+                    <div class="service-item">
+                        <div>
+                            <span class="service-id">${svc.name}</span>
+                            <span style="color: var(--text-tertiary); margin-left:8px;">${svc.image}</span>
+                        </div>
+                        <button class="btn btn-sm" onclick="Utilsly.tools['docker-compose'].removeSvc(${index})">
+                            <span class="material-symbols-rounded" style="font-size: 18px; color: var(--danger);">delete</span>
+                        </button>
+                    </div>
+                `).join('');
             },
 
-            renderService(service) {
-                const card = document.createElement('div');
-                card.className = 'service-card';
-                card.dataset.id = service.id;
-                card.innerHTML = `
-                    <div class="service-header">
-                        <div class="service-title">서비스 설정</div>
-                        <span class="material-symbols-rounded remove-service" onclick="Utilsly.tools['docker-compose'].removeService(${service.id})">close</span>
-                    </div>
-                    <div class="input-grid">
-                        <div class="input-group">
-                            <label>Service Name</label>
-                            <input type="text" class="svc-name" value="${service.name}" placeholder="예: web">
-                        </div>
-                        <div class="input-group">
-                            <label>Image</label>
-                            <input type="text" class="svc-image" value="${service.image}" placeholder="예: nginx:latest">
-                        </div>
-                        <div class="input-group">
-                            <label>Ports (host:container)</label>
-                            <input type="text" class="svc-ports" value="${service.ports}" placeholder="예: 80:80">
-                        </div>
-                        <div class="input-group">
-                            <label>Volumes (host:container)</label>
-                            <input type="text" class="svc-volumes" value="${service.volumes}" placeholder="예: ./html:/usr/share/nginx/html">
-                        </div>
-                    </div>
-                `;
-
-                card.querySelectorAll('input').forEach(input => {
-                    input.addEventListener('input', (e) => {
-                        const s = this.services.find(item => item.id === service.id);
-                        if (e.target.classList.contains('svc-name')) s.name = e.target.value;
-                        if (e.target.classList.contains('svc-image')) s.image = e.target.value;
-                        if (e.target.classList.contains('svc-ports')) s.ports = e.target.value;
-                        if (e.target.classList.contains('svc-volumes')) s.volumes = e.target.value;
-                        this.updatePreview();
-                    });
-                });
-
-                this.elements.container.appendChild(card);
+            removeSvc(index) {
+                this.services.splice(index, 1);
+                this.renderServiceList();
+                this.updatePreview();
             },
 
             updatePreview() {
-                let yaml = `<span class="keyword">version</span>: <span class="string">"${this.elements.version.value}"</span>\n\n`;
-                yaml += `<span class="keyword">services</span>:`;
+                let yaml = "version: '3.8'\nservices:";
 
-                this.services.forEach(s => {
-                    yaml += `\n  <span class="keyword">${s.name || 'unnamed'}</span>:`;
-                    yaml += `\n    <span class="keyword">image</span>: <span class="string">${s.image || 'latest'}</span>`;
+                if (this.services.length === 0) {
+                    yaml += "\n  # 여기에 서비스 내용이 표시됩니다.";
+                } else {
+                    this.services.forEach(svc => {
+                        yaml += `\n  ${svc.name}:`;
+                        yaml += `\n    image: ${svc.image}`;
+                        if (svc.hPort && svc.cPort) {
+                            yaml += `\n    ports:`;
+                            yaml += `\n      - "${svc.hPort}:${svc.cPort}"`;
+                        }
+                    });
+                }
 
-                    if (s.ports) {
-                        yaml += `\n    <span class="keyword">ports</span>:`;
-                        s.ports.split(',').forEach(p => {
-                            yaml += `\n      - <span class="string">"${p.trim()}"</span>`;
-                        });
-                    }
-
-                    if (s.volumes) {
-                        yaml += `\n    <span class="keyword">volumes</span>:`;
-                        s.volumes.split(',').forEach(v => {
-                            yaml += `\n      - <span class="string">"${v.trim()}"</span>`;
-                        });
-                    }
-                });
-
-                this.elements.preview.innerHTML = yaml;
+                this.elements.preview.textContent = yaml;
             },
 
-            copyCode() {
-                const text = this.elements.preview.innerText;
-                navigator.clipboard.writeText(text).then(() => {
-                    const btn = this.elements.copyBtn;
-                    const originalText = btn.innerHTML;
-                    btn.innerHTML = '<span class="material-symbols-rounded" style="font-size: 16px;">check</span> 복사됨!';
-                    setTimeout(() => btn.innerHTML = originalText, 2000);
-                });
+            async copyToClipboard() {
+                try {
+                    await navigator.clipboard.writeText(this.elements.preview.textContent);
+                    const originalText = this.elements.copyBtn.innerHTML;
+                    this.elements.copyBtn.innerHTML = '<span class="material-symbols-rounded" style="font-size: 18px; margin-right: 4px;">check</span>완료';
+                    setTimeout(() => this.elements.copyBtn.innerHTML = originalText, 2000);
+                } catch (err) {
+                    console.error('Copy failed:', err);
+                }
             }
         });
     </script>

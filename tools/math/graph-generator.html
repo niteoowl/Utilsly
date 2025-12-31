@@ -4,98 +4,99 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>그래프 생성기 - Utilsly</title>
-    <meta name="description" content="데이터를 입력하여 아름다운 막대 그래프, 선 그래프, 파이 차트를 즉시 생성하고 이미지로 다운로드하세요.">
+    <meta name="description" content="데이터를 입력하여 간편하게 선형, 막대, 파이 차트 등 다양한 그래프를 생성하고 다운로드하세요.">
     <script>
         !function () { const e = localStorage.getItem("theme"), t = window.matchMedia("(prefers-color-scheme: dark)").matches; "dark" !== e && (e || !t) || document.documentElement.setAttribute("data-theme", "dark") }();
     </script>
+
+    <link rel="preload" href="../../css/style.css" as="style">
     <link rel="stylesheet" href="../../css/style.css">
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        .graph-builder {
+        .graph-container {
             display: grid;
             grid-template-columns: 350px 1fr;
             gap: 24px;
-            margin-bottom: 32px;
+            align-items: start;
         }
 
-        @media (max-width: 992px) {
-            .graph-builder {
+        @media (max-width: 1024px) {
+            .graph-container {
                 grid-template-columns: 1fr;
             }
         }
 
         .data-panel {
             background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
             padding: 24px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
         }
 
         .chart-panel {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
+            background: var(--bg-main);
+            padding: 32px;
             border-radius: 16px;
-            padding: 24px;
+            border: 1px solid var(--border-color);
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .data-input-area {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-top: 20px;
+        }
+
+        .data-row {
+            display: grid;
+            grid-template-columns: 1fr 100px 40px;
+            gap: 8px;
+            align-items: center;
+        }
+
+        #chartCanvas {
+            max-width: 100%;
+            height: auto !important;
+        }
+
+        .type-selector {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+
+        .type-btn {
+            padding: 10px;
+            background: var(--bg-main);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            cursor: pointer;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            min-height: 400px;
-            position: relative;
+            gap: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            transition: all 0.2s;
         }
 
-        .input-group label {
-            display: block;
-            font-size: 13px;
-            font-weight: 700;
-            margin-bottom: 8px;
-            color: var(--text-primary);
+        .type-btn.active {
+            border-color: var(--primary);
+            background: var(--primary-light);
+            color: var(--primary);
         }
 
-        .input-group input,
-        .input-group select,
-        .input-group textarea {
-            width: 100%;
-            padding: 10px 12px;
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            font-size: 14px;
-        }
-
-        .input-group textarea {
-            height: 150px;
-            font-family: 'Consolas', monospace;
-            line-height: 1.6;
-        }
-
-        .canvas-container {
-            width: 100%;
-            max-width: 600px;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .action-bar {
-            margin-top: 20px;
-            display: flex;
-            gap: 12px;
-            width: 100%;
-        }
-
-        .color-dot {
-            display: inline-block;
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            margin-right: 8px;
+        .type-btn .material-symbols-rounded {
+            font-size: 20px;
         }
     </style>
 </head>
@@ -105,130 +106,130 @@
         <aside class="sidebar">
             <div class="sidebar-header">
                 <div class="user-profile">
-                    <div style="font-size: 24px; font-weight: 800; color: var(--text-primary); letter-spacing: -0.5px;">
-                        Utilsly.</div>
+                    <div class="avatar">U</div>
                 </div>
             </div>
-            <nav class="sidebar-nav"></nav>
+            <nav class="sidebar-nav">
+                <!-- Sidebar content generated by js/common.js -->
+            </nav>
         </aside>
 
         <main class="main-content">
             <header class="top-bar">
-                <button class="menu-toggle-btn" onclick="Utilsly.toggleSidebar(true)">
-                    <span class="material-symbols-rounded">menu</span>
-                </button>
-                <div class="top-bar-title" data-tool-id="graph-generator">그래프 생성기</div>
-                <div class="theme-toggle" onclick="Utilsly.toggleTheme()">
-                    <span class="material-symbols-rounded">dark_mode</span>
+                <div class="breadcrumbs">
+                    <span class="breadcrumb-item">수학 도구</span>
+                    <span class="material-symbols-rounded">chevron_right</span>
+                    <span class="breadcrumb-item">그래프 생성기</span>
                 </div>
             </header>
 
             <div class="content-area">
-                <div class="tool-container">
-                    <div class="graph-builder">
+                <div class="page-header">
+                    <div class="header-icon-wrapper">
+                        <span class="material-symbols-rounded">multiline_chart</span>
+                    </div>
+                    <h1>그래프 생성기</h1>
+                    <p class="description">데이터를 입력하여 시각적으로 아름다운 차트를 만드세요. 이미지로 저장할 수 있습니다.</p>
+                </div>
+
+                <div class="tool-container" data-tool-id="graph-generator">
+                    <div class="graph-container">
                         <div class="data-panel">
-                            <div class="input-group">
-                                <label>그래프 제목</label>
-                                <input type="text" id="chartTitle" placeholder="예: 월별 사용자 방문 수" value="샘플 데이터 그래프">
-                            </div>
-
-                            <div class="input-group">
+                            <h3>차트 설정</h3>
+                            <div class="form-group" style="margin-top: 16px;">
                                 <label>차트 종류</label>
-                                <select id="chartType">
-                                    <option value="bar">막대 그래프 (Bar)</option>
-                                    <option value="line">선 그래프 (Line)</option>
-                                    <option value="pie">파이 차트 (Pie)</option>
-                                    <option value="doughnut">도넛 차트 (Doughnut)</option>
-                                    <option value="polarArea">폴라 영역 (Polar)</option>
-                                </select>
+                                <div class="type-selector">
+                                    <div class="type-btn active" data-type="line">
+                                        <span class="material-symbols-rounded">show_chart</span>
+                                        꺾은선
+                                    </div>
+                                    <div class="type-btn" data-type="bar">
+                                        <span class="material-symbols-rounded">bar_chart</span>
+                                        막대
+                                    </div>
+                                    <div class="type-btn" data-type="pie">
+                                        <span class="material-symbols-rounded">pie_chart</span>
+                                        파이
+                                    </div>
+                                </div>
                             </div>
 
-                            <div class="input-group">
-                                <label>데이터 입력 (라벨, 값)</label>
-                                <textarea id="dataInput"
-                                    placeholder="월요일, 10&#10;화요일, 25&#10;수요일, 15&#10;목요일, 30&#10;금요일, 45">월요일, 10
-화요일, 25
-수요일, 15
-목요일, 30
-금요일, 45</textarea>
-                                <div style="font-size: 11px; color: var(--text-tertiary); margin-top: 4px;">한 줄에 한 항목씩
-                                    '이름, 숫자' 형식으로 입력하세요.</div>
+                            <div class="form-group">
+                                <label>차트 제목</label>
+                                <input type="text" id="chartTitle" placeholder="예: 월별 사용자 유입">
                             </div>
 
-                            <div class="input-group">
-                                <label>메인 색상 테마</label>
-                                <select id="colorTheme">
-                                    <option value="blue">Blue Breeze</option>
-                                    <option value="warm">Warm Sunset</option>
-                                    <option value="nature">Nature Green</option>
-                                    <option value="vibrant">Vibrant Mix</option>
-                                    <option value="mono">Elegant Mono</option>
-                                </select>
+                            <div class="data-input-area">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <label style="margin: 0;">데이터 목록</label>
+                                    <button class="btn btn-sm" id="addRowBtn">
+                                        <span class="material-symbols-rounded" style="font-size: 16px;">add</span>
+                                    </button>
+                                </div>
+                                <div id="rowsContainer">
+                                    <!-- Data rows will be added here -->
+                                </div>
                             </div>
 
-                            <button class="btn btn-primary" id="updateBtn" style="width: 100%;">그래프 업데이트</button>
+                            <button class="btn btn-primary" id="downloadBtn" style="width: 100%; margin-top: 24px;">
+                                <span class="material-symbols-rounded" style="margin-right: 8px;">download</span>
+                                이미지로 저장
+                            </button>
                         </div>
 
                         <div class="chart-panel">
-                            <div class="canvas-container">
-                                <canvas id="mainChart"></canvas>
-                            </div>
-                            <div class="action-bar">
-                                <button class="btn" id="downloadBtn" style="flex: 1;">
-                                    <span class="material-symbols-rounded">download</span> 이미지 저장
-                                </button>
-                            </div>
+                            <canvas id="chartCanvas"></canvas>
                         </div>
                     </div>
+                </div>
 
-                    <div class="tool-help-section"
-                        style="margin-top: 48px; border-top: 1px solid var(--border-color); padding-top: 24px;">
-                        <div class="tool-help-header"
-                            onclick="this.classList.toggle('active'); this.nextElementSibling.classList.toggle('open')">
-                            <div class="tool-help-title">사용 가이드</div>
-                            <span class="material-symbols-rounded toggle-icon">expand_more</span>
+                <!-- Usage Guide -->
+                <div class="tool-help-section"
+                    style="margin-top: 48px; border-top: 1px solid var(--border-color); padding-top: 24px;">
+                    <div class="tool-help-header"
+                        onclick="this.classList.toggle('active'); this.nextElementSibling.classList.toggle('open')">
+                        <div class="tool-help-title">사용 가이드</div>
+                        <span class="material-symbols-rounded toggle-icon">expand_more</span>
+                    </div>
+                    <div class="tool-help-content">
+                        <div class="help-intro">
+                            복잡한 엑셀이나 통계 프로그램 없이도, 브라우저에서 즉시 <strong>고퀄리티 그래프</strong>를 생성할 수 있습니다.<br><br>
+                            입력한 데이터에 따라 실시간으로 변화하는 그래프를 확인하고, 보고서나 발표 자료에 활용하기 좋은 이미지 파일로 저장하세요.
                         </div>
-                        <div class="tool-help-content">
-                            <div class="help-intro">
-                                <strong>그래프 생성기</strong>는 복잡한 엑셀 작업 없이 텍스트 입력만으로 고품질의 통계 그래프를 무료로 생성해주는 도구입니다.<br><br>
-                                다양한 차트 타입과 감각적인 색상 테마를 제공하며, 생성된 결과는 즉시 고해상도 PNG 이미지로 내려받아 보고서나 발표 자료에 활용할 수 있습니다.
-                            </div>
 
-                            <div class="ad-unit">
-                                <div class="ad-placeholder">광고 영역 (상단)</div>
-                            </div>
+                        <div class="ad-unit">
+                            <div class="ad-placeholder">광고 영역 (상단)</div>
+                        </div>
 
-                            <div class="help-subsection">
-                                <div class="help-subsection-title">
-                                    <span class="material-symbols-rounded">check_circle</span>
-                                    사용 방법
-                                </div>
-                                <ol class="usage-list">
-                                    <li>좌측 입력창에 그래프의 제목과 차트 종류를 선택합니다.</li>
-                                    <li>데이터 입력 영역에 '항목 이름, 숫자' 형태로 데이터를 입력합니다.</li>
-                                    <li>원하는 색상 테마를 고른 뒤 '그래프 업데이트' 버튼을 누릅니다.</li>
-                                    <li>출력된 그래프를 확인하고 '이미지 저장' 버튼을 클릭하여 다운로드합니다.</li>
-                                </ol>
+                        <div class="help-subsection">
+                            <div class="help-subsection-title">
+                                <span class="material-symbols-rounded">check_circle</span>
+                                사용 방법
                             </div>
+                            <ol class="usage-list">
+                                <li>원하는 <strong>차트 종류</strong>(선형, 막대, 파이)를 선택합니다.</li>
+                                <li>차트를 설명할 수 있는 제목을 입력합니다.</li>
+                                <li>'데이터 목록'에서 항목 이름과 수치(값)를 입력합니다. 항목이 더 필요하면 '+' 버튼을 누르세요.</li>
+                                <li>수정을 완료하면 실시간으로 그려진 차트를 확인하고 '이미지로 저장'을 클릭하여 다운로드합니다.</li>
+                            </ol>
+                        </div>
 
-                            <div class="ad-unit">
-                                <div class="ad-placeholder">광고 영역 (하단)</div>
+                        <div class="ad-unit">
+                            <div class="ad-placeholder">광고 영역 (하단)</div>
+                        </div>
+
+                        <div class="help-subsection">
+                            <div class="help-subsection-title">
+                                <span class="material-symbols-rounded">help</span>
+                                자주 묻는 질문 (FAQ)
                             </div>
-
-                            <div class="help-subsection">
-                                <div class="help-subsection-title">
-                                    <span class="material-symbols-rounded">help</span>
-                                    자주 묻는 질문 (FAQ)
-                                </div>
-                                <div class="faq-item">
-                                    <div class="faq-question">데이터 입력 시 콤마(,)가 꼭 필요한가요?</div>
-                                    <div class="faq-answer">네, 이름과 숫자를 구분하기 위해 중간에 쉼표(,)를 넣어주어야 올바르게 인식됩니다. (예: 사과, 50)
-                                    </div>
-                                </div>
-                                <div class="faq-item">
-                                    <div class="faq-question">저장되는 이미지의 품질은 어떤가요?</div>
-                                    <div class="faq-answer">현재 보이는 그래프의 해상도 그대로 PNG 파일로 저장되어 선명한 품질을 제공합니다.</div>
-                                </div>
+                            <div class="faq-item">
+                                <div class="faq-question">데이터는 최대 몇 개까지 넣을 수 있나요?</div>
+                                <div class="faq-answer">수량 제한은 없으나, 시각적인 가독성을 위해 10~15개 이내로 입력하는 것을 추천합니다.</div>
+                            </div>
+                            <div class="faq-item">
+                                <div class="faq-question">이미지 품질은 어떤가요?</div>
+                                <div class="faq-answer">고해상도 Canvas 기반으로 생성되어 웹 문서나 PPT 등에 활용하기 충분한 퀄리티를 제공합니다.</div>
                             </div>
                         </div>
                     </div>
@@ -241,106 +242,122 @@
     <script>
         Utilsly.registerTool('graph-generator', {
             chart: null,
-            themes: {
-                blue: ['#3b82f6', '#60a5fa', '#93c5fd', '#bfdbfe', '#dbeafe'],
-                warm: ['#f97316', '#fb923c', '#fdba74', '#fed7aa', '#ffedd5'],
-                nature: ['#10b981', '#34d399', '#6ee7b7', '#a7f3d0', '#d1fae5'],
-                vibrant: ['#ef4444', '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6'],
-                mono: ['#334155', '#475569', '#64748b', '#94a3b8', '#cbd5e1']
-            },
+            elements: {},
+            rows: [
+                { label: '항목 1', value: 10 },
+                { label: '항목 2', value: 25 },
+                { label: '항목 3', value: 15 }
+            ],
+            chartType: 'line',
 
             init() {
                 this.elements = {
-                    title: document.getElementById('chartTitle'),
-                    type: document.getElementById('chartType'),
-                    input: document.getElementById('dataInput'),
-                    theme: document.getElementById('colorTheme'),
-                    updateBtn: document.getElementById('updateBtn'),
+                    container: document.getElementById('rowsContainer'),
+                    addRowBtn: document.getElementById('addRowBtn'),
+                    titleInput: document.getElementById('chartTitle'),
+                    canvas: document.getElementById('chartCanvas'),
                     downloadBtn: document.getElementById('downloadBtn'),
-                    canvas: document.getElementById('mainChart')
+                    typeBtns: document.querySelectorAll('.type-btn')
                 };
 
-                this.elements.updateBtn.addEventListener('click', () => this.updateChart());
-                this.elements.downloadBtn.addEventListener('click', () => this.downloadImage());
+                this.elements.addRowBtn.addEventListener('click', () => this.addRow());
+                this.elements.titleInput.addEventListener('input', () => this.updateChart());
+                this.elements.downloadBtn.addEventListener('click', () => this.download());
 
-                // Initial Chart
+                this.elements.typeBtns.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        this.elements.typeBtns.forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        this.chartType = btn.dataset.type;
+                        this.updateChart();
+                    });
+                });
+
+                this.renderRows();
+                this.initChart();
+            },
+
+            cleanup() {
+                if (this.chart) this.chart.destroy();
+                this.elements = {};
+            },
+
+            initChart() {
+                const ctx = this.elements.canvas.getContext('2d');
+                this.chart = new Chart(ctx, {
+                    type: this.chartType,
+                    data: this.getData(),
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            title: { display: true, text: '내 차트' }
+                        }
+                    }
+                });
+            },
+
+            getData() {
+                const colors = [
+                    '#4f46e5', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6',
+                    '#ec4899', '#06b6d4', '#84cc16'
+                ];
+
+                return {
+                    labels: this.rows.map(r => r.label),
+                    datasets: [{
+                        label: '값',
+                        data: this.rows.map(r => r.value),
+                        backgroundColor: this.chartType === 'pie' ? colors : 'rgba(79, 70, 229, 0.2)',
+                        borderColor: '#4f46e5',
+                        borderWidth: 2,
+                        tension: 0.3,
+                        fill: true
+                    }]
+                };
+            },
+
+            renderRows() {
+                this.elements.container.innerHTML = this.rows.map((row, index) => `
+                    <div class="data-row" style="margin-bottom: 8px;">
+                        <input type="text" value="${row.label}" oninput="Utilsly.tools['graph-generator'].updateRow(${index}, 'label', this.value)" placeholder="이름">
+                        <input type="number" value="${row.value}" oninput="Utilsly.tools['graph-generator'].updateRow(${index}, 'value', this.value)" placeholder="값">
+                        <button class="btn btn-sm" onclick="Utilsly.tools['graph-generator'].removeRow(${index})" style="padding:4px;">
+                            <span class="material-symbols-rounded" style="font-size: 16px; color: var(--danger);">delete</span>
+                        </button>
+                    </div>
+                `).join('');
+            },
+
+            addRow() {
+                this.rows.push({ label: `항목 ${this.rows.length + 1}`, value: 0 });
+                this.renderRows();
+                this.updateChart();
+            },
+
+            updateRow(index, field, value) {
+                if (field === 'value') value = parseFloat(value) || 0;
+                this.rows[index][field] = value;
+                this.updateChart();
+            },
+
+            removeRow(index) {
+                if (this.rows.length <= 1) return;
+                this.rows.splice(index, 1);
+                this.renderRows();
                 this.updateChart();
             },
 
             updateChart() {
-                const rawData = this.elements.input.value.split('\n');
-                const labels = [];
-                const values = [];
-
-                rawData.forEach(line => {
-                    const parts = line.split(',');
-                    if (parts.length >= 2) {
-                        const name = parts[0].trim();
-                        const val = parseFloat(parts[1].trim());
-                        if (name && !isNaN(val)) {
-                            labels.push(name);
-                            values.push(val);
-                        }
-                    }
-                });
-
-                if (labels.length === 0) return;
-
-                const ctx = this.elements.canvas.getContext('2d');
-                const type = this.elements.type.value;
-                const themeColors = this.themes[this.elements.theme.value];
-
-                if (this.chart) {
-                    this.chart.destroy();
-                }
-
-                Chart.defaults.font.family = "'Pretendard', sans-serif";
-                Chart.defaults.color = getComputedStyle(document.documentElement).getPropertyValue('--text-secondary').trim();
-
-                this.chart = new Chart(ctx, {
-                    type: type,
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            label: this.elements.title.value || '계산된 데이터',
-                            data: values,
-                            backgroundColor: type === 'line' ? themeColors[0] + '33' : themeColors,
-                            borderColor: themeColors[0],
-                            borderWidth: 2,
-                            tension: 0.4,
-                            fill: type === 'line'
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            title: {
-                                display: true,
-                                text: this.elements.title.value,
-                                font: { size: 16, weight: 'bold' },
-                                color: getComputedStyle(document.documentElement).getPropertyValue('--text-primary').trim()
-                            },
-                            legend: {
-                                display: ['pie', 'doughnut', 'polarArea'].includes(type)
-                            }
-                        },
-                        scales: ['pie', 'doughnut', 'polarArea'].includes(type) ? {} : {
-                            y: {
-                                beginAtZero: true,
-                                grid: { color: getComputedStyle(document.documentElement).getPropertyValue('--border-color').trim() }
-                            },
-                            x: {
-                                grid: { display: false }
-                            }
-                        }
-                    }
-                });
+                if (!this.chart) return;
+                this.chart.config.type = this.chartType;
+                this.chart.data = this.getData();
+                this.chart.options.plugins.title.text = this.elements.titleInput.value || '내 차트';
+                this.chart.update();
             },
 
-            downloadImage() {
+            download() {
                 const link = document.createElement('a');
-                link.download = `${this.elements.title.value || 'graph'}.png`;
+                link.download = 'my-chart.png';
                 link.href = this.elements.canvas.toDataURL('image/png');
                 link.click();
             }

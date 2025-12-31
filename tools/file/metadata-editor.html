@@ -4,138 +4,85 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>메타데이터 수정기 - Utilsly</title>
-    <meta name="description" content="이미지 파일의 EXIF 정보와 메타데이터를 직접 확인하고 수정할 수 있는 전문가용 도구입니다.">
+    <meta name="description" content="이미지 파일에 포함된 EXIF 메타데이터(촬영 기기, 날짜, 노출 설정 등)를 확인하고 편집하세요.">
     <script>
         !function () { const e = localStorage.getItem("theme"), t = window.matchMedia("(prefers-color-scheme: dark)").matches; "dark" !== e && (e || !t) || document.documentElement.setAttribute("data-theme", "dark") }();
     </script>
+
+    <link rel="preload" href="../../css/style.css" as="style">
     <link rel="stylesheet" href="../../css/style.css">
+    <!-- Exif-js lib -->
     <script src="https://cdn.jsdelivr.net/npm/exif-js"></script>
     <style>
-        .editor-layout {
+        .editor-container {
             display: grid;
-            grid-template-columns: 1fr 400px;
+            grid-template-columns: 1fr 1fr;
             gap: 24px;
-            margin-bottom: 32px;
         }
 
-        @media (max-width: 992px) {
-            .editor-layout {
+        @media (max-width: 1024px) {
+            .editor-container {
                 grid-template-columns: 1fr;
             }
         }
 
-        .upload-panel {
+        .upload-section {
             background: var(--bg-secondary);
             border: 2px dashed var(--border-color);
             border-radius: 16px;
-            padding: 48px;
+            padding: 40px;
             text-align: center;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 16px;
-            transition: all 0.2s;
             cursor: pointer;
+            transition: all 0.2s;
         }
 
-        .upload-panel.dragover {
-            border-color: var(--accent-blue);
-            background: rgba(59, 130, 246, 0.05);
+        .upload-section:hover {
+            border-color: var(--primary);
+            background: var(--primary-light);
         }
 
-        .preview-container {
-            width: 100%;
-            max-height: 500px;
-            border-radius: 12px;
-            overflow: hidden;
-            background: var(--bg-primary);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            border: 1px solid var(--border-color);
-        }
-
-        .preview-container img {
+        .preview-img {
             max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
         }
 
-        .meta-panel {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 24px;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        .meta-list {
-            display: flex;
-            flex-direction: column;
+        .metadata-grid {
+            display: grid;
+            grid-template-columns: 1fr;
             gap: 12px;
-            overflow-y: auto;
-            max-height: 600px;
-            padding-right: 8px;
         }
 
-        .meta-item {
-            background: var(--bg-primary);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 12px;
-        }
-
-        .meta-item label {
-            display: block;
-            font-size: 11px;
-            font-weight: 700;
-            color: var(--text-tertiary);
-            margin-bottom: 4px;
-        }
-
-        .meta-item input {
-            width: 100%;
-            background: none;
-            border: none;
-            color: var(--text-primary);
-            font-size: 14px;
-            font-weight: 600;
-            padding: 0;
-        }
-
-        .meta-item input:focus {
-            outline: none;
-            color: var(--accent-blue);
-        }
-
-        .empty-state {
-            color: var(--text-tertiary);
-            text-align: center;
-            padding: 40px 0;
-        }
-
-        .status-badge {
-            display: inline-flex;
+        .metadata-item {
+            display: flex;
+            justify-content: space-between;
             align-items: center;
-            gap: 6px;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 700;
-            background: rgba(16, 185, 129, 0.1);
-            color: #10b981;
-            margin-bottom: 8px;
+            padding: 12px 16px;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
         }
 
-        .warning-text {
-            font-size: 12px;
-            color: #d97706;
-            background: rgba(245, 158, 11, 0.1);
-            padding: 12px;
-            border-radius: 8px;
+        .meta-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .meta-value {
+            font-size: 14px;
+            font-family: 'Fira Code', monospace;
+            color: var(--text-main);
+        }
+
+        .edit-panel {
+            background: var(--bg-main);
+            padding: 24px;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
         }
     </style>
 </head>
@@ -145,116 +92,115 @@
         <aside class="sidebar">
             <div class="sidebar-header">
                 <div class="user-profile">
-                    <div style="font-size: 24px; font-weight: 800; color: var(--text-primary); letter-spacing: -0.5px;">
-                        Utilsly.</div>
+                    <div class="avatar">U</div>
                 </div>
             </div>
-            <nav class="sidebar-nav"></nav>
+            <nav class="sidebar-nav">
+                <!-- Sidebar content generated by js/common.js -->
+            </nav>
         </aside>
 
         <main class="main-content">
             <header class="top-bar">
-                <button class="menu-toggle-btn" onclick="Utilsly.toggleSidebar(true)">
-                    <span class="material-symbols-rounded">menu</span>
-                </button>
-                <div class="top-bar-title" data-tool-id="metadata-editor">메타데이터 수정기</div>
-                <div class="theme-toggle" onclick="Utilsly.toggleTheme()">
-                    <span class="material-symbols-rounded">dark_mode</span>
+                <div class="breadcrumbs">
+                    <span class="breadcrumb-item">파일 도구</span>
+                    <span class="material-symbols-rounded">chevron_right</span>
+                    <span class="breadcrumb-item">메타데이터 수정기</span>
                 </div>
             </header>
 
             <div class="content-area">
-                <div class="tool-container">
-                    <div class="editor-layout">
-                        <div class="main-display">
-                            <div class="upload-panel" id="dropZone">
+                <div class="page-header">
+                    <div class="header-icon-wrapper">
+                        <span class="material-symbols-rounded">edit_calendar</span>
+                    </div>
+                    <h1>메타데이터 수정기</h1>
+                    <p class="description">사진 파일속에 숨겨진 기기 정보, 위치 정보, 촬영 날짜 등을 확인하고 관리하세요.</p>
+                </div>
+
+                <div class="tool-container" data-tool-id="metadata-editor">
+                    <div class="editor-container" id="mainContainer">
+                        <div class="view-panel">
+                            <div class="upload-section" id="dropZone">
                                 <span class="material-symbols-rounded"
-                                    style="font-size: 48px; color: var(--text-tertiary);">image</span>
-                                <div style="font-weight: 700; font-size: 18px;">이미지를 여기에 드롭하거나 클릭하세요</div>
-                                <div style="font-size: 14px; color: var(--text-tertiary);">JPG, JPEG, TIFF 파일 지원 (EXIF)
+                                    style="font-size: 48px; color: var(--text-tertiary);">upload_file</span>
+                                <p style="margin-top: 16px; font-weight: 600;">이미지를 드래그하거나 클릭하여 업로드</p>
+                                <input type="file" id="fileInput" accept="image/*" hidden>
+                            </div>
+
+                            <div id="previewArea" style="display: none; margin-top: 24px;">
+                                <img id="previewImg" class="preview-img">
+                                <div class="metadata-grid" id="fullMeta">
+                                    <!-- Meta items added here -->
                                 </div>
-                                <input type="file" id="fileInput" hidden accept="image/jpeg, image/jpg, image/tiff">
-                            </div>
-
-                            <div class="preview-container" id="previewContainer">
-                                <img id="imagePreview" alt="Preview">
-                            </div>
-
-                            <div style="margin-top: 24px; display: flex; gap: 12px;">
-                                <button class="btn btn-primary" id="saveBtn" style="flex: 1;" disabled>
-                                    <span class="material-symbols-rounded">download</span> 수정된 이미지 저장
-                                </button>
-                                <button class="btn" id="resetBtn">초기화</button>
                             </div>
                         </div>
 
-                        <div class="meta-panel">
-                            <div style="font-weight: 800; font-size: 16px; margin-bottom: 4px;">메타데이터 상세</div>
-                            <div id="fileInfo"
-                                style="font-size: 12px; color: var(--text-tertiary); margin-bottom: 16px;">파일을 선택해주세요.
+                        <div class="edit-panel" id="editPanel" style="display: none;">
+                            <h3 style="margin-bottom: 20px;">정보 확인</h3>
+                            <div id="editableFields">
+                                <!-- Info summary -->
                             </div>
-
-                            <div class="meta-list" id="metaList">
-                                <div class="empty-state">파일을 업로드하면 메타데이터가 여기에 표시됩니다.</div>
-                            </div>
-
-                            <div class="warning-text" style="margin-top: auto;">
-                                <strong>참고:</strong> 현재 브라우저 환경에서는 기존 EXIF 정보를 읽고 표시하는 기능을 제공합니다. 메타데이터 완전 수정을 위해서는 고급
-                                라이브러리가 필요할 수 있습니다.
-                            </div>
+                            <p style="margin-top: 20px; font-size: 13px; color: var(--text-tertiary);">
+                                * 현재 버전은 상세 메타데이터 뷰어 기능을 우선 제공하며, 저장 및 수정 기능은 준비 중입니다.
+                            </p>
+                            <button class="btn btn-primary" id="resetBtn" style="width: 100%; margin-top: 24px;">
+                                다른 이미지
+                            </button>
                         </div>
                     </div>
+                </div>
 
-                    <div class="tool-help-section"
-                        style="margin-top: 48px; border-top: 1px solid var(--border-color); padding-top: 24px;">
-                        <div class="tool-help-header"
-                            onclick="this.classList.toggle('active'); this.nextElementSibling.classList.toggle('open')">
-                            <div class="tool-help-title">사용 가이드</div>
-                            <span class="material-symbols-rounded toggle-icon">expand_more</span>
+                <!-- Usage Guide -->
+                <div class="tool-help-section"
+                    style="margin-top: 48px; border-top: 1px solid var(--border-color); padding-top: 24px;">
+                    <div class="tool-help-header"
+                        onclick="this.classList.toggle('active'); this.nextElementSibling.classList.toggle('open')">
+                        <div class="tool-help-title">사용 가이드</div>
+                        <span class="material-symbols-rounded toggle-icon">expand_more</span>
+                    </div>
+                    <div class="tool-help-content">
+                        <div class="help-intro">
+                            디지털 카메라나 스마트폰으로 촬영한 이미지에는 촬영 장비, 설정, 위치 정보 등 방대한 <strong>메타데이터(EXIF)</strong>가 기록되어
+                            있습니다.<br><br>
+                            이 도구를 사용하면 눈에 보이지 않는 이미지속 정보를 투명하게 확인하고 관리할 수 있습니다.
                         </div>
-                        <div class="tool-help-content">
-                            <div class="help-intro">
-                                <strong>메타데이터 수정기</strong>는 디지털 사진 파일 안에 숨겨진 정보(Exif 데이터)를 쉽고 투명하게 보여주는 도구입니다.<br><br>
-                                사진이 찍힌 날짜, 카메라 기종, 렌즈 설정은 물론 위치 정보(GPS)까지 상세하게 확인할 수 있습니다. 개인정보 보호를 위해 이를 지우거나 수정하기 전 상세
-                                내용을 검토할 때 필수적인 도구입니다.
-                            </div>
 
-                            <div class="ad-unit">
-                                <div class="ad-placeholder">광고 영역 (상단)</div>
-                            </div>
+                        <div class="ad-unit">
+                            <div class="ad-placeholder">광고 영역 (상단)</div>
+                        </div>
 
-                            <div class="help-subsection">
-                                <div class="help-subsection-title">
-                                    <span class="material-symbols-rounded">check_circle</span>
-                                    사용 방법
-                                </div>
-                                <ol class="usage-list">
-                                    <li>중앙의 업로드 영역을 클릭하거나 이미지를 끌어다 놓습니다.</li>
-                                    <li>사진이 로드되면 우측 패널에 해당 사진의 메타데이터(Exif)가 목록으로 나타납니다.</li>
-                                    <li>촬영 날짜, 기기 정보 등을 클릭하여 수정(준비 중) 또는 확인합니다.</li>
-                                    <li>수정 완료 후 '저장' 버튼을 눌러 결과물을 다운로드합니다.</li>
-                                </ol>
+                        <div class="help-subsection">
+                            <div class="help-subsection-title">
+                                <span class="material-symbols-rounded">check_circle</span>
+                                사용 방법
                             </div>
+                            <ol class="usage-list">
+                                <li>메타데이터를 확인하고 싶은 이미지 파일을 업로드 영역에 끌어다 놓습니다.</li>
+                                <li>이미지가 로드되면 자동으로 EXIF 데이터를 분석하여 우측과 하단에 표시합니다.</li>
+                                <li>기기 모델명(Make/Model), 노출(ISO/F-Stop), 촬영 날짜, GPS 위치(있는 경우) 등을 확인하세요.</li>
+                                <li>다른 이미지를 확인하려면 '다른 이미지' 버튼을 눌러 초기화합니다.</li>
+                            </ol>
+                        </div>
 
-                            <div class="ad-unit">
-                                <div class="ad-placeholder">광고 영역 (하단)</div>
+                        <div class="ad-unit">
+                            <div class="ad-placeholder">광고 영역 (하단)</div>
+                        </div>
+
+                        <div class="help-subsection">
+                            <div class="help-subsection-title">
+                                <span class="material-symbols-rounded">help</span>
+                                자주 묻는 질문 (FAQ)
                             </div>
-
-                            <div class="help-subsection">
-                                <div class="help-subsection-title">
-                                    <span class="material-symbols-rounded">help</span>
-                                    자주 묻는 질문 (FAQ)
-                                </div>
-                                <div class="faq-item">
-                                    <div class="faq-question">어떤 파일 형식을 지원하나요?</div>
-                                    <div class="faq-answer">메타데이터(Exif)를 주로 사용하는 JPG, JPEG 및 일부 TIFF 파일을 지원합니다. PNG나
-                                        GIF는 Exif 표준을 사용하지 않아 정보가 적을 수 있습니다.</div>
-                                </div>
-                                <div class="faq-item">
-                                    <div class="faq-question">업로드한 이미지가 서버에 저장되나요?</div>
-                                    <div class="faq-answer">아니요, Utilsly의 모든 도구와 마찬가지로 이미지는 사용자 브라우저 내에서만 처리되며 외부로 전송되지
-                                        않아 매우 안전합니다.</div>
-                                </div>
+                            <div class="faq-item">
+                                <div class="faq-question">개인 정보 유출 위험은 없나요?</div>
+                                <div class="faq-answer">모든 처리는 사용자의 웹 브라우저 내에서 직접 이루어집니다. 이미지가 서버로 전송되지 않으므로 개인 위치 정보 등이
+                                    외부에 유출되지 않습니다.</div>
+                            </div>
+                            <div class="faq-item">
+                                <div class="faq-question">모든 이미지 파일에서 작동하나요?</div>
+                                <div class="faq-answer">주로 JPEG 파일에서 EXIF 데이터를 완벽하게 지원하며, PNG나 WEBP는 촬영 기기 설정에 따라 정보가 없을
+                                    수도 있습니다.</div>
                             </div>
                         </div>
                     </div>
@@ -266,104 +212,107 @@
     <script src="../../js/common.js"></script>
     <script>
         Utilsly.registerTool('metadata-editor', {
+            elements: {},
+
             init() {
                 this.elements = {
-                    dropZone: document.getElementById('dropZone'),
                     fileInput: document.getElementById('fileInput'),
-                    previewContainer: document.getElementById('previewContainer'),
-                    imagePreview: document.getElementById('imagePreview'),
-                    metaList: document.getElementById('metaList'),
-                    fileInfo: document.getElementById('fileInfo'),
-                    saveBtn: document.getElementById('saveBtn'),
+                    dropZone: document.getElementById('dropZone'),
+                    previewImg: document.getElementById('previewImg'),
+                    previewArea: document.getElementById('previewArea'),
+                    fullMeta: document.getElementById('fullMeta'),
+                    editPanel: document.getElementById('editPanel'),
                     resetBtn: document.getElementById('resetBtn')
                 };
 
-                this.elements.dropZone.onclick = () => this.elements.fileInput.click();
-                this.elements.fileInput.onchange = (e) => this.handleFile(e.target.files[0]);
+                this.elements.dropZone.addEventListener('click', () => this.elements.fileInput.click());
+                this.elements.fileInput.addEventListener('change', (e) => this.processFile(e.target.files[0]));
+                this.elements.resetBtn.addEventListener('click', () => this.reset());
 
-                this.elements.dropZone.ondragover = (e) => { e.preventDefault(); this.elements.dropZone.classList.add('dragover'); };
-                this.elements.dropZone.ondragleave = () => this.elements.dropZone.classList.remove('dragover');
-                this.elements.dropZone.ondrop = (e) => {
+                this.elements.dropZone.addEventListener('dragover', (e) => {
                     e.preventDefault();
-                    this.elements.dropZone.classList.remove('dragover');
-                    this.handleFile(e.dataTransfer.files[0]);
-                };
+                    this.elements.dropZone.style.borderColor = 'var(--primary)';
+                });
 
-                this.elements.resetBtn.onclick = () => location.reload();
+                this.elements.dropZone.addEventListener('dragleave', () => {
+                    this.elements.dropZone.style.borderColor = 'var(--border-color)';
+                });
 
-                // Save feature is semi-mock as proper Exif mutation requires complex byte manipulation in JS
-                this.elements.saveBtn.onclick = () => {
-                    const link = document.createElement('a');
-                    link.download = "edited_" + this.currentFileName;
-                    link.href = this.elements.imagePreview.src;
-                    link.click();
-                };
+                this.elements.dropZone.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    this.processFile(e.dataTransfer.files[0]);
+                });
             },
 
-            handleFile(file) {
-                if (!file || !file.type.startsWith('image/')) return;
+            cleanup() {
+                this.elements = {};
+            },
 
-                this.currentFileName = file.name;
-                this.elements.dropZone.style.display = 'none';
-                this.elements.previewContainer.style.display = 'flex';
-                this.elements.fileInfo.innerText = `${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
-                this.elements.saveBtn.disabled = false;
+            reset() {
+                this.elements.previewArea.style.display = 'none';
+                this.elements.editPanel.style.display = 'none';
+                this.elements.dropZone.style.display = 'block';
+                this.elements.fileInput.value = '';
+            },
+
+            processFile(file) {
+                if (!file || !file.type.startsWith('image/')) return;
 
                 const reader = new FileReader();
                 reader.onload = (e) => {
-                    this.elements.imagePreview.src = e.target.result;
-                    this.extractMeta(file);
+                    this.elements.previewImg.src = e.target.result;
+                    this.elements.dropZone.style.display = 'none';
+                    this.elements.previewArea.style.display = 'block';
+                    this.elements.editPanel.style.display = 'block';
+
+                    this.getExif();
                 };
                 reader.readAsDataURL(file);
             },
 
-            extractMeta(file) {
-                this.elements.metaList.innerHTML = '<div class="empty-state">메타데이터를 읽는 중...</div>';
+            getExif() {
+                const img = this.elements.previewImg;
+                const self = this;
 
-                EXIF.getData(file, () => {
-                    const allData = EXIF.getAllTags(file);
-                    this.renderMeta(allData);
+                EXIF.getData(img, function () {
+                    const allMetaData = EXIF.getAllTags(this);
+                    self.renderMeta(allMetaData);
                 });
             },
 
-            renderMeta(tags) {
-                this.elements.metaList.innerHTML = '';
+            renderMeta(data) {
+                if (Object.keys(data).length === 0) {
+                    this.elements.fullMeta.innerHTML = '<p style="padding: 20px; text-align: center; color: var(--text-tertiary);">메타데이터 정보를 찾을 수 없습니다.</p>';
+                    return;
+                }
 
-                const importantKeys = {
+                // Filter interesting tags
+                const interest = {
                     'Make': '제조사',
-                    'Model': '카메라 모델',
-                    'DateTime': '촬영 날짜/시간',
-                    'ExposureTime': '노출 시간 (Shutter Speed)',
-                    'FNumber': '조리개 (F-Number)',
+                    'Model': '모델명',
+                    'DateTime': '촬영 날짜',
                     'ISOSpeedRatings': 'ISO 감도',
-                    'FocalLength': '초점 거리',
-                    'Software': '편집 소프트웨어',
-                    'GPSLatitude': 'GPS 위도',
-                    'GPSLongitude': 'GPS 경도'
+                    'ExposureTime': '노출 시간',
+                    'FNumber': 'F-스탑',
+                    'Software': '소프트웨어',
+                    'GPSLatitude': '위도(GPS)',
+                    'GPSLongitude': '경도(GPS)'
                 };
 
-                let count = 0;
-                for (let [key, val] of Object.entries(tags)) {
-                    if (typeof val === 'object' && val.numerator !== undefined) {
-                        val = (val.numerator / val.denominator).toFixed(2);
+                let html = '';
+                for (let tag in interest) {
+                    if (data[tag]) {
+                        html += `
+                            <div class="metadata-item">
+                                <span class="meta-label">${interest[tag]}</span>
+                                <span class="meta-value">${data[tag]}</span>
+                            </div>
+                        `;
                     }
-
-                    const label = importantKeys[key] || key;
-                    if (label === key && !key.match(/^[A-Z]/)) continue; // Skip non-important internal tags
-
-                    const item = document.createElement('div');
-                    item.className = 'meta-item';
-                    item.innerHTML = `
-                        <label>${label}</label>
-                        <input type="text" value="${val}" spellcheck="false">
-                    `;
-                    this.elements.metaList.appendChild(item);
-                    count++;
                 }
 
-                if (count === 0) {
-                    this.elements.metaList.innerHTML = '<div class="empty-state">정보가 발견되지 않았습니다.</div>';
-                }
+                if (!html) html = '<p style="padding: 20px; text-align: center; color: var(--text-tertiary);">주요 촬영 정보를 찾을 수 없습니다.</p>';
+                this.elements.fullMeta.innerHTML = html;
             }
         });
     </script>

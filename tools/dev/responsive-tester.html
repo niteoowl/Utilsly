@@ -4,142 +4,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>반응형 화면 테스터 - Utilsly</title>
-    <meta name="description" content="다양한 기기 환경(모바일, 태블릿, 데스크탑)에서 웹사이트가 어떻게 보이는지 한눈에 확인하고 테스트하세요.">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>반응형 디자인 테스터 - Utilsly</title>
+    <meta name="description" content="다양한 기기 환경(모바일, 태블릿, 데스크톱)에서 웹사이트의 반응형 디자인을 실시간으로 확인하세요.">
     <script>
         !function () { const e = localStorage.getItem("theme"), t = window.matchMedia("(prefers-color-scheme: dark)").matches; "dark" !== e && (e || !t) || document.documentElement.setAttribute("data-theme", "dark") }();
     </script>
+
+    <link rel="preload" href="../../css/style.css" as="style">
     <link rel="stylesheet" href="../../css/style.css">
     <style>
         .tester-container {
             display: flex;
             flex-direction: column;
             gap: 24px;
-            margin-bottom: 32px;
         }
 
-        .url-input-bar {
+        .controls-panel {
             background: var(--bg-secondary);
+            padding: 24px;
+            border-radius: 12px;
             border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .url-input-group {
             display: flex;
             gap: 12px;
-            align-items: center;
         }
 
-        .url-input-container {
-            position: relative;
-            flex-grow: 1;
-        }
-
-        .url-input-container input {
-            width: 100%;
-            padding: 12px 16px 12px 42px;
-            border-radius: 10px;
-            border: 1px solid var(--border-color);
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            font-size: 14px;
-        }
-
-        .url-input-container .material-symbols-rounded {
-            position: absolute;
-            left: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--text-tertiary);
-            font-size: 20px;
+        .url-input-group input {
+            flex: 1;
         }
 
         .device-presets {
             display: flex;
-            gap: 8px;
             flex-wrap: wrap;
-            padding: 0 4px;
-        }
-
-        .preset-btn {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            color: var(--text-secondary);
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
             gap: 8px;
-            transition: all 0.2s;
         }
 
-        .preset-btn:hover {
-            border-color: var(--accent-blue);
-            color: var(--accent-blue);
-        }
-
-        .preset-btn.active {
-            background: var(--accent-blue);
-            border-color: var(--accent-blue);
-            color: #fff;
-        }
-
-        .viewport-wrapper {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            border-radius: 20px;
+        .iframe-wrapper {
+            background: var(--border-color);
             padding: 24px;
+            border-radius: 16px;
             display: flex;
             justify-content: center;
             align-items: flex-start;
-            min-height: 500px;
             overflow: auto;
-            position: relative;
+            min-height: 600px;
+            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.05);
         }
 
-        .viewport-container {
-            background: #fff;
+        .preview-frame {
+            background: white;
+            border: 8px solid #333;
+            border-radius: 12px;
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-            overflow: hidden;
-            border: 8px solid #222;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            position: relative;
+            transition: width 0.3s ease, height 0.3s ease;
         }
 
-        .viewport-container iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-            background: #fff;
-        }
-
-        .viewport-info {
-            position: absolute;
-            top: -40px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--bg-primary);
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 700;
+        .frame-info {
+            text-align: center;
+            margin-top: 12px;
+            font-size: 14px;
             color: var(--text-secondary);
-            border: 1px solid var(--border-color);
-            white-space: nowrap;
+            font-weight: 500;
         }
 
-        .warning-msg {
-            background: rgba(245, 158, 11, 0.1);
-            border: 1px solid rgba(245, 158, 11, 0.2);
-            color: #d97706;
-            padding: 12px 16px;
-            border-radius: 10px;
-            font-size: 13px;
+        .dimension-inputs {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
+        }
+
+        .dimension-inputs input {
+            width: 80px;
+            text-align: center;
         }
     </style>
 </head>
@@ -149,118 +91,126 @@
         <aside class="sidebar">
             <div class="sidebar-header">
                 <div class="user-profile">
-                    <div style="font-size: 24px; font-weight: 800; color: var(--text-primary); letter-spacing: -0.5px;">
-                        Utilsly.</div>
+                    <div class="avatar">U</div>
                 </div>
             </div>
-            <nav class="sidebar-nav"></nav>
+            <nav class="sidebar-nav">
+                <!-- Sidebar content generated by js/common.js -->
+            </nav>
         </aside>
 
         <main class="main-content">
             <header class="top-bar">
-                <button class="menu-toggle-btn" onclick="Utilsly.toggleSidebar(true)">
-                    <span class="material-symbols-rounded">menu</span>
-                </button>
-                <div class="top-bar-title" data-tool-id="responsive-tester">반응형 화면 테스터</div>
-                <div class="theme-toggle" onclick="Utilsly.toggleTheme()">
-                    <span class="material-symbols-rounded">dark_mode</span>
+                <div class="breadcrumbs">
+                    <span class="breadcrumb-item">개발 도구</span>
+                    <span class="material-symbols-rounded">chevron_right</span>
+                    <span class="breadcrumb-item">반응형 디자인 테스터</span>
                 </div>
             </header>
 
             <div class="content-area">
-                <div class="tool-container">
+                <div class="page-header">
+                    <div class="header-icon-wrapper">
+                        <span class="material-symbols-rounded">devices</span>
+                    </div>
+                    <h1>반응형 디자인 테스터</h1>
+                    <p class="description">URL을 입력하고 다양한 화면 크기에서 웹사이트가 어떻게 보이는지 확인해보세요.</p>
+                </div>
+
+                <div class="tool-container" data-tool-id="responsive-tester">
                     <div class="tester-container">
-                        <div class="warning-msg">
-                            <span class="material-symbols-rounded">warning</span>
-                            보안상의 이유로 일부 사이트(X-Frame-Options 설정됨)는 미리보기가 제한될 수 있습니다.
-                        </div>
-
-                        <div class="url-input-bar">
-                            <div class="url-input-container">
-                                <span class="material-symbols-rounded">language</span>
+                        <div class="controls-panel">
+                            <div class="url-input-group">
                                 <input type="text" id="urlInput" placeholder="https://example.com"
-                                    value="https://www.google.com/search?q=utilsly&igu=1">
+                                    value="https://utilsly.com">
+                                <button class="btn btn-primary" id="loadBtn">불러오기</button>
                             </div>
-                            <button class="btn btn-primary" id="loadBtn">불러오기</button>
+
+                            <div
+                                style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+                                <div class="device-presets">
+                                    <button class="btn btn-sm btn-active" data-w="375" data-h="667">Mobile (S)</button>
+                                    <button class="btn btn-sm" data-w="414" data-h="896">Mobile (L)</button>
+                                    <button class="btn btn-sm" data-w="768" data-h="1024">Tablet</button>
+                                    <button class="btn btn-sm" data-w="1024" data-h="768">Desktop (S)</button>
+                                    <button class="btn btn-sm" data-w="1280" data-h="800">Desktop (L)</button>
+                                </div>
+
+                                <div class="dimension-inputs">
+                                    <input type="number" id="widthInput" value="375">
+                                    <span>×</span>
+                                    <input type="number" id="heightInput" value="667">
+                                    <button class="btn btn-sm" id="rotateBtn">
+                                        <span class="material-symbols-rounded"
+                                            style="font-size: 18px;">screen_rotation</span>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
 
-                        <div class="device-presets">
-                            <button class="preset-btn active" data-width="375" data-height="667" data-icon="smartphone">
-                                <span class="material-symbols-rounded">smartphone</span>
-                                Mobile (375x667)
-                            </button>
-                            <button class="preset-btn" data-width="768" data-height="1024" data-icon="tablet_android">
-                                <span class="material-symbols-rounded">tablet_android</span>
-                                Tablet (768x1024)
-                            </button>
-                            <button class="preset-btn" data-width="1280" data-height="800" data-icon="laptop">
-                                <span class="material-symbols-rounded">laptop</span>
-                                Laptop (1280x800)
-                            </button>
-                            <button class="preset-btn" data-width="1920" data-height="1080" data-icon="desktop_windows">
-                                <span class="material-symbols-rounded">desktop_windows</span>
-                                Desktop (1920x1080)
-                            </button>
-                        </div>
-
-                        <div class="viewport-wrapper">
-                            <div class="viewport-container" id="viewport" style="width: 375px; height: 667px;">
-                                <div class="viewport-info" id="viewInfo">375 x 667 (iPhone SE)</div>
-                                <iframe id="previewFrame" src="https://www.google.com/search?q=utilsly&igu=1"></iframe>
+                        <div class="iframe-container">
+                            <div class="iframe-wrapper">
+                                <iframe id="previewFrame" class="preview-frame" src="https://utilsly.com" width="375"
+                                    height="667" frameborder="0"></iframe>
                             </div>
+                            <div class="frame-info" id="frameInfo">현재 크기: 375 x 667</div>
+                            <p
+                                style="margin-top: 16px; font-size: 13px; color: var(--text-tertiary); text-align: center;">
+                                * 보안 정책(X-Frame-Options)이 적용된 사이트는 표시되지 않을 수 있습니다.
+                            </p>
                         </div>
                     </div>
+                </div>
 
-                    <div class="tool-help-section"
-                        style="margin-top: 48px; border-top: 1px solid var(--border-color); padding-top: 24px;">
-                        <div class="tool-help-header"
-                            onclick="this.classList.toggle('active'); this.nextElementSibling.classList.toggle('open')">
-                            <div class="tool-help-title">사용 가이드</div>
-                            <span class="material-symbols-rounded toggle-icon">expand_more</span>
+                <!-- Usage Guide -->
+                <div class="tool-help-section"
+                    style="margin-top: 48px; border-top: 1px solid var(--border-color); padding-top: 24px;">
+                    <div class="tool-help-header"
+                        onclick="this.classList.toggle('active'); this.nextElementSibling.classList.toggle('open')">
+                        <div class="tool-help-title">사용 가이드</div>
+                        <span class="material-symbols-rounded toggle-icon">expand_more</span>
+                    </div>
+                    <div class="tool-help-content">
+                        <div class="help-intro">
+                            웹 개발자나 디자이너를 위해 제작된 도구로, 별도의 기기 없이 브라우저 내에서 <strong>반응형 화면</strong>을 즉시 테스트할 수 있습니다.<br><br>
+                            iPhone, iPad 등 자주 쓰이는 해상도를 프리셋으로 제공하며, 자유로운 수치 입력을 통해 커스텀 환경을 구축할 수 있습니다.
                         </div>
-                        <div class="tool-help-content">
-                            <div class="help-intro">
-                                <strong>반응형 화면 테스터</strong>는 웹사이트 개발 시 필수적인 도구로, 실제 기기가 없어도 다양한 해상도 환경을 가상으로
-                                재현해줍니다.<br><br>
-                                URL을 입력하여 페이지를 불러온 뒤, 클릭 한 번으로 스마트폰, 태블릿, PC 환경을 오가며 레이아웃이 깨지지 않는지 즉시 확인할 수 있습니다.
-                            </div>
 
-                            <div class="ad-unit">
-                                <div class="ad-placeholder">광고 영역 (상단)</div>
-                            </div>
+                        <div class="ad-unit">
+                            <div class="ad-placeholder">광고 영역 (상단)</div>
+                        </div>
 
-                            <div class="help-subsection">
-                                <div class="help-subsection-title">
-                                    <span class="material-symbols-rounded">check_circle</span>
-                                    사용 방법
-                                </div>
-                                <ol class="usage-list">
-                                    <li>테스트하고 싶은 웹사이트의 URL을 주소창에 입력합니다 (https:// 포함).</li>
-                                    <li>상단의 기기 아이콘 버튼을 눌러 원하는 해상도를 선택합니다.</li>
-                                    <li>화면 사이즈가 변하는 것을 확인하며 사이트의 반응형 동작을 테스트합니다.</li>
-                                    <li>불러오기가 되지 않는 사이트는 보안 정책상 iframe 차단이 설정된 경우일 수 있습니다.</li>
-                                </ol>
+                        <div class="help-subsection">
+                            <div class="help-subsection-title">
+                                <span class="material-symbols-rounded">check_circle</span>
+                                사용 방법
                             </div>
+                            <ol class="usage-list">
+                                <li>상단 입력창에 테스트할 웹사이트의 <strong>URL</strong>을 입력하고 '불러오기'를 누릅니다.</li>
+                                <li>제공된 기기 프리셋 버튼을 클릭하여 화면 크기를 즉시 변경합니다.</li>
+                                <li>너비와 높이 수치를 직접 입력하거나 '회전' 버튼을 눌러 가로/세로 비율을 바꿀 수 있습니다.</li>
+                                <li>실제로 스크롤하거나 링크를 클릭하며 반응형 레이아웃을 검토하세요.</li>
+                            </ol>
+                        </div>
 
-                            <div class="ad-unit">
-                                <div class="ad-placeholder">광고 영역 (하단)</div>
+                        <div class="ad-unit">
+                            <div class="ad-placeholder">광고 영역 (하단)</div>
+                        </div>
+
+                        <div class="help-subsection">
+                            <div class="help-subsection-title">
+                                <span class="material-symbols-rounded">help</span>
+                                자주 묻는 질문 (FAQ)
                             </div>
-
-                            <div class="help-subsection">
-                                <div class="help-subsection-title">
-                                    <span class="material-symbols-rounded">help</span>
-                                    자주 묻는 질문 (FAQ)
-                                </div>
-                                <div class="faq-item">
-                                    <div class="faq-question">왜 일부 사이트는 화면이 나오지 않나요?</div>
-                                    <div class="faq-answer">보안 정책(X-Frame-Options 또는 CSP) 때문입니다. 많은 대형 포털(네이버, 구글 메인 등)은
-                                        다른 사이트 내부(iframe)에서 열리는 것을 차단합니다.</div>
-                                </div>
-                                <div class="faq-item">
-                                    <div class="faq-question">자신이 개발 중인 로컬 호스트도 테스트 가능한가요?</div>
-                                    <div class="faq-answer">네, 브라우저에서 실행 중이므로 `http://localhost:3000` 같은 주소도 보안 오류가 없다면
-                                        테스트가 가능합니다.</div>
-                                </div>
+                            <div class="faq-item">
+                                <div class="faq-question">화면이 하얗게 나오거나 불러와지지 않아요.</div>
+                                <div class="faq-answer">Google, Naver 등 일부 대형 사이트는 보안상의 이유(X-Frame-Options: SAMEORIGIN)로
+                                    iframe 내 표시를 차단합니다. 이는 브라우저 보안 규정 때문입니다.</div>
+                            </div>
+                            <div class="faq-item">
+                                <div class="faq-question">실제 모바일 기기와 100% 동일한가요?</div>
+                                <div class="faq-answer">해상도 환경은 동일하게 시뮬레이션하지만, 모바일 특유의 브라우저 엔진(Safari iOS 등) 특성이나 터치 센서
+                                    등은 PC 브라우저 환경을 따릅니다.</div>
                             </div>
                         </div>
                     </div>
@@ -272,61 +222,70 @@
     <script src="../../js/common.js"></script>
     <script>
         Utilsly.registerTool('responsive-tester', {
+            elements: {},
+
             init() {
                 this.elements = {
-                    input: document.getElementById('urlInput'),
+                    urlInput: document.getElementById('urlInput'),
                     loadBtn: document.getElementById('loadBtn'),
-                    viewport: document.getElementById('viewport'),
-                    frame: document.getElementById('previewFrame'),
-                    viewInfo: document.getElementById('viewInfo'),
-                    presets: document.querySelectorAll('.preset-btn')
+                    previewFrame: document.getElementById('previewFrame'),
+                    widthInput: document.getElementById('widthInput'),
+                    heightInput: document.getElementById('heightInput'),
+                    rotateBtn: document.getElementById('rotateBtn'),
+                    presets: document.querySelectorAll('.device-presets .btn'),
+                    info: document.getElementById('frameInfo')
                 };
 
-                this.elements.loadBtn.addEventListener('click', () => this.loadUrl());
-                this.elements.input.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') this.loadUrl();
-                });
+                this.handleLoad = () => this.updateURL();
+                this.handleRotate = () => this.rotate();
+                this.handleInput = () => this.updateDimensions();
+
+                this.elements.loadBtn.addEventListener('click', this.handleLoad);
+                this.elements.rotateBtn.addEventListener('click', this.handleRotate);
+                this.elements.widthInput.addEventListener('input', this.handleInput);
+                this.elements.heightInput.addEventListener('input', this.handleInput);
 
                 this.elements.presets.forEach(btn => {
                     btn.addEventListener('click', () => {
-                        this.elements.presets.forEach(b => b.classList.remove('active'));
-                        btn.classList.add('active');
-
-                        const w = btn.dataset.width;
-                        const h = btn.dataset.height;
-                        const label = btn.innerText.trim();
-
-                        this.elements.viewport.style.width = w + 'px';
-                        this.elements.viewport.style.height = h + 'px';
-                        this.elements.viewInfo.innerText = `${w} x ${h} (${label.split('(')[0].trim()})`;
-
-                        // Device Frame Styling
-                        if (w < 500) {
-                            this.elements.viewport.style.borderRadius = '40px';
-                            this.elements.viewport.style.borderWidth = '12px';
-                        } else {
-                            this.elements.viewport.style.borderRadius = '8px';
-                            this.elements.viewport.style.borderWidth = '8px';
-                        }
+                        this.elements.presets.forEach(b => b.classList.remove('btn-active'));
+                        btn.classList.add('btn-active');
+                        this.elements.widthInput.value = btn.dataset.w;
+                        this.elements.heightInput.value = btn.dataset.h;
+                        this.updateDimensions();
                     });
                 });
+
+                // Trigger initial scale
+                this.updateDimensions();
             },
 
-            loadUrl() {
-                let url = this.elements.input.value.trim();
+            cleanup() {
+                this.elements = {};
+            },
+
+            updateURL() {
+                let url = this.elements.urlInput.value.trim();
                 if (!url) return;
-
-                if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                if (!url.startsWith('http')) {
                     url = 'https://' + url;
-                    this.elements.input.value = url;
                 }
+                this.elements.previewFrame.src = url;
+            },
 
-                // Special case for Google search to allow iframe (using &igu=1)
-                if (url.includes('google.com/search') && !url.includes('igu=1')) {
-                    url += '&igu=1';
-                }
+            updateDimensions() {
+                const w = this.elements.widthInput.value;
+                const h = this.elements.heightInput.value;
+                this.elements.previewFrame.style.width = w + 'px';
+                this.elements.previewFrame.style.height = h + 'px';
+                this.elements.info.textContent = `현재 크기: ${w} x ${h}`;
+            },
 
-                this.elements.frame.src = url;
+            rotate() {
+                const w = this.elements.widthInput.value;
+                const h = this.elements.heightInput.value;
+                this.elements.widthInput.value = h;
+                this.elements.heightInput.value = w;
+                this.updateDimensions();
             }
         });
     </script>

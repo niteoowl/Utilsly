@@ -4,129 +4,93 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>Dockerfile 생성기 - Utilsly</title>
-    <meta name="description" content="단계별 설정을 통해 완벽한 Dockerfile을 생성하세요. 베이스 이미지, 작업 디렉토리, 명령어 실행 등 주요 설정을 지원합니다.">
+    <meta name="description" content="단계별 안내를 통해 프로젝트에 필요한 Dockerfile을 손쉽게 생성하세요.">
     <script>
         !function () { const e = localStorage.getItem("theme"), t = window.matchMedia("(prefers-color-scheme: dark)").matches; "dark" !== e && (e || !t) || document.documentElement.setAttribute("data-theme", "dark") }();
     </script>
+
+    <link rel="preload" href="../../css/style.css" as="style">
     <link rel="stylesheet" href="../../css/style.css">
     <style>
-        .docker-builder {
+        .docker-container {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 24px;
-            margin-bottom: 32px;
+            align-items: start;
         }
 
-        @media (max-width: 992px) {
-            .docker-builder {
+        @media (max-width: 1024px) {
+            .docker-container {
                 grid-template-columns: 1fr;
             }
         }
 
-        .config-panel {
+        .instruction-form {
             background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
             padding: 24px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        .instruction-list {
+            margin-top: 24px;
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 12px;
         }
 
-        .instruction-group {
-            background: var(--bg-primary);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 16px;
-        }
-
-        .instruction-group label {
-            display: block;
-            font-size: 13px;
-            font-weight: 700;
-            margin-bottom: 8px;
-            color: var(--text-primary);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .instruction-group input, .instruction-group select, .instruction-group textarea {
-            width: 100%;
-            padding: 10px 12px;
+        .instruction-item {
+            background: var(--bg-main);
+            padding: 12px 16px;
             border-radius: 8px;
             border: 1px solid var(--border-color);
-            background: var(--bg-secondary);
-            color: var(--text-primary);
-            font-size: 14px;
-            font-family: inherit;
-        }
-
-        .instruction-group textarea {
-            height: 80px;
-            resize: vertical;
-        }
-
-        .preview-panel {
-            background: #1e1e1e;
-            border-radius: 16px;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            border: 1px solid #333;
-            position: sticky;
-            top: 24px;
-            height: fit-content;
-        }
-
-        .preview-header {
-            background: #2d2d2d;
-            padding: 12px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid #3d3d3d;
-        }
-
-        .preview-title {
-            color: #d4d4d4;
+            font-family: 'Fira Code', 'Consolas', monospace;
             font-size: 13px;
-            font-family: 'Consolas', monospace;
         }
 
-        .copy-btn {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: #fff;
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-size: 12px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            transition: all 0.2s;
+        .cmd-type {
+            font-weight: 700;
+            color: var(--primary);
+            min-width: 80px;
         }
 
-        .copy-btn:hover {
-            background: rgba(255, 255, 255, 0.1);
+        .preview-area {
+            position: sticky;
+            top: 24px;
         }
 
-        pre {
-            margin: 0;
-            padding: 20px;
+        .code-preview {
+            background: #1e1e1e;
             color: #d4d4d4;
-            font-family: 'Consolas', 'Monaco', monospace;
+            padding: 20px;
+            border-radius: 12px;
+            font-family: 'Fira Code', 'Consolas', monospace;
             font-size: 14px;
-            line-height: 1.5;
+            line-height: 1.6;
             overflow-x: auto;
+            white-space: pre;
+            min-height: 480px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        .keyword { color: #569cd6; }
-        .string { color: #ce9178; }
-        .comment { color: #6a9955; }
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--bg-main);
+            color: var(--text-main);
+            font-family: inherit;
+        }
     </style>
 </head>
 
@@ -135,116 +99,129 @@
         <aside class="sidebar">
             <div class="sidebar-header">
                 <div class="user-profile">
-                    <div style="font-size: 24px; font-weight: 800; color: var(--text-primary); letter-spacing: -0.5px;">
-                        Utilsly.</div>
+                    <div class="avatar">U</div>
                 </div>
             </div>
-            <nav class="sidebar-nav"></nav>
+            <nav class="sidebar-nav">
+                <!-- Sidebar content generated by js/common.js -->
+            </nav>
         </aside>
 
         <main class="main-content">
             <header class="top-bar">
-                <button class="menu-toggle-btn" onclick="Utilsly.toggleSidebar(true)">
-                    <span class="material-symbols-rounded">menu</span>
-                </button>
-                <div class="top-bar-title" data-tool-id="dockerfile">Dockerfile 생성기</div>
-                <div class="theme-toggle" onclick="Utilsly.toggleTheme()">
-                    <span class="material-symbols-rounded">dark_mode</span>
+                <div class="breadcrumbs">
+                    <span class="breadcrumb-item">Docker 도구</span>
+                    <span class="material-symbols-rounded">chevron_right</span>
+                    <span class="breadcrumb-item">Dockerfile 생성기</span>
                 </div>
             </header>
 
             <div class="content-area">
-                <div class="tool-container">
-                    <div class="docker-builder">
-                        <div class="config-panel" id="configPanel">
-                            <div class="instruction-group">
-                                <label><span class="material-symbols-rounded" style="font-size: 18px; color: var(--accent-blue);">info</span>FROM (Base Image)</label>
-                                <input type="text" id="fromImage" placeholder="예: node:18-alpine" value="node:18-alpine">
+                <div class="page-header">
+                    <div class="header-icon-wrapper">
+                        <span class="material-symbols-rounded">construction</span>
+                    </div>
+                    <h1>Dockerfile 생성기</h1>
+                    <p class="description">컨테이너 이미지를 빌드하기 위한 명령어(FROM, RUN 등)를 단계별로 구성하세요.</p>
+                </div>
+
+                <div class="tool-container" data-tool-id="dockerfile">
+                    <div class="docker-container">
+                        <div class="input-panel">
+                            <div class="instruction-form">
+                                <h3 style="margin-bottom: 20px;">명령어 추가</h3>
+                                
+                                <div class="form-group">
+                                    <label>유형 (Command Type)</label>
+                                    <select id="cmdType">
+                                        <option value="FROM">FROM (기본 이미지)</option>
+                                        <option value="WORKDIR">WORKDIR (작업 디렉토리)</option>
+                                        <option value="COPY">COPY (파일 복사)</option>
+                                        <option value="ADD">ADD (파일/URL 추가)</option>
+                                        <option value="RUN">RUN (명령어 실행)</option>
+                                        <option value="ENV">ENV (환경 변수)</option>
+                                        <option value="EXPOSE">EXPOSE (포트 노출)</option>
+                                        <option value="CMD">CMD (기본 실행 명령)</option>
+                                        <option value="ENTRYPOINT">ENTRYPOINT (진입점)</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group" id="inputGroup">
+                                    <label id="inputLabel">값 (Value)</label>
+                                    <input type="text" id="cmdValue" placeholder="예: node:18-alpine">
+                                </div>
+
+                                <button class="btn btn-primary" id="addCmdBtn" style="width: 100%;">
+                                    <span class="material-symbols-rounded" style="margin-right: 8px;">add</span>
+                                    명령어 추가
+                                </button>
                             </div>
 
-                            <div class="instruction-group">
-                                <label><span class="material-symbols-rounded" style="font-size: 18px; color: var(--accent-blue);">folder</span>WORKDIR</label>
-                                <input type="text" id="workdir" placeholder="예: /app" value="/app">
-                            </div>
-
-                            <div class="instruction-group">
-                                <label><span class="material-symbols-rounded" style="font-size: 18px; color: var(--accent-blue);">content_copy</span>COPY / ADD</label>
-                                <input type="text" id="copyFiles" placeholder="예: . ." value=". .">
-                            </div>
-
-                            <div class="instruction-group">
-                                <label><span class="material-symbols-rounded" style="font-size: 18px; color: var(--accent-blue);">terminal</span>RUN (Command)</label>
-                                <textarea id="runCmd" placeholder="예: npm install"></textarea>
-                            </div>
-
-                            <div class="instruction-group">
-                                <label><span class="material-symbols-rounded" style="font-size: 18px; color: var(--accent-blue);">settings_input_component</span>EXPOSE (Ports)</label>
-                                <input type="text" id="exposePorts" placeholder="예: 3000">
-                            </div>
-
-                            <div class="instruction-group">
-                                <label><span class="material-symbols-rounded" style="font-size: 18px; color: var(--accent-blue);">play_arrow</span>CMD (Run Command)</label>
-                                <input type="text" id="cmd" placeholder='예: ["npm", "start"]' value='["npm", "start"]'>
+                            <div class="instruction-list" id="instrList">
+                                <!-- Instructions will appear here -->
                             </div>
                         </div>
 
-                        <div class="preview-panel">
-                            <div class="preview-header">
-                                <div class="preview-title">Dockerfile</div>
-                                <button class="copy-btn" id="copyBtn">
-                                    <span class="material-symbols-rounded" style="font-size: 16px;">content_copy</span>
+                        <div class="preview-area">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                                <h3 style="margin: 0;">Dockerfile 프리뷰</h3>
+                                <button class="btn btn-sm" id="copyBtn">
+                                    <span class="material-symbols-rounded" style="font-size: 18px; margin-right: 4px;">content_copy</span>
                                     복사
                                 </button>
                             </div>
-                            <pre id="dockerfilePreview"></pre>
+                            <div class="code-preview" id="filePreview"># 여기에 명령어가 표시됩니다.</div>
                         </div>
                     </div>
+                </div>
 
-                    <div class="tool-help-section" style="margin-top: 48px; border-top: 1px solid var(--border-color); padding-top: 24px;">
-                        <div class="tool-help-header" onclick="this.classList.toggle('active'); this.nextElementSibling.classList.toggle('open')">
-                            <div class="tool-help-title">사용 가이드</div>
-                            <span class="material-symbols-rounded toggle-icon">expand_more</span>
+                <!-- Usage Guide -->
+                <div class="tool-help-section"
+                    style="margin-top: 48px; border-top: 1px solid var(--border-color); padding-top: 24px;">
+                    <div class="tool-help-header"
+                        onclick="this.classList.toggle('active'); this.nextElementSibling.classList.toggle('open')">
+                        <div class="tool-help-title">사용 가이드</div>
+                        <span class="material-symbols-rounded toggle-icon">expand_more</span>
+                    </div>
+                    <div class="tool-help-content">
+                        <div class="help-intro">
+                            복잡한 Docker 명령어를 기억할 필요 없이, 필요한 설정을 선택하고 값을 입력하여 <strong>Dockerfile</strong>을 완성할 수 있습니다.<br><br>
+                            기본 이미지 설정부터 환경 변수 정의, 실행 명령어 지정까지 모든 과정을 시각적으로 관리하세요.
                         </div>
-                        <div class="tool-help-content">
-                            <div class="help-intro">
-                                <strong>Dockerfile 생성기</strong>는 애플리케이션을 컨테이너화하기 위한 명세서를 시각적인 도구를 통해 작성할 수 있게 도와줍니다. 복잡한 명령어를 외울 필요 없이 필요한 정보만 입력하면 표준 규격에 맞는 Dockerfile이 생성됩니다.<br><br>
-                                설정된 내용은 실시간으로 브라우저 내에서 미리보기로 출력되며, 단축키나 복사 버튼을 통해 즉시 파일로 저장하여 사용할 수 있습니다.
-                            </div>
-                            
-                            <div class="ad-unit">
-                                <div class="ad-placeholder">광고 영역 (상단)</div>
-                            </div>
 
-                            <div class="help-subsection">
-                                <div class="help-subsection-title">
-                                    <span class="material-symbols-rounded">check_circle</span>
-                                    사용 방법
-                                </div>
-                                <ol class="usage-list">
-                                    <li>FROM 항목에 사용할 베이스 이미지(OS나 런타임 환경)를 입력합니다.</li>
-                                    <li>WORKDIR로 컨테이너 내부의 작업 경로를 지정합니다 (보통 /app).</li>
-                                    <li>필요한 소스 코드를 복사(COPY)하고 패키지 설치를 위한 명령어(RUN)를 입력합니다.</li>
-                                    <li>포트(EXPOSE)와 최종 실행 명령어(CMD)를 입력한 뒤 우측에서 코드를 복사합니다.</li>
-                                </ol>
-                            </div>
+                        <div class="ad-unit">
+                            <div class="ad-placeholder">광고 영역 (상단)</div>
+                        </div>
 
-                            <div class="ad-unit">
-                                <div class="ad-placeholder">광고 영역 (하단)</div>
+                        <div class="help-subsection">
+                            <div class="help-subsection-title">
+                                <span class="material-symbols-rounded">check_circle</span>
+                                사용 방법
                             </div>
+                            <ol class="usage-list">
+                                <li>'유형' 메뉴에서 추가할 명령어를 선택합니다 (예: FROM).</li>
+                                <li>해당 명령어에 들어갈 '값'을 입력합니다 (예: node:18).</li>
+                                <li>'명령어 추가' 버튼을 눌러 목록에 쌓습니다.</li>
+                                <li>명령어 순서를 고려하며 전체 내용을 구성한 후, 완성된 빌드 파일을 '복사'하세요.</li>
+                            </ol>
+                        </div>
 
-                            <div class="help-subsection">
-                                <div class="help-subsection-title">
-                                    <span class="material-symbols-rounded">help</span>
-                                    자주 묻는 질문 (FAQ)
-                                </div>
-                                <div class="faq-item">
-                                    <div class="faq-question">Dockerfile이란 무엇인가요?</div>
-                                    <div class="faq-answer">Docker 이미지를 빌드하기 위한 일종의 설계도 파일입니다. 어떤 환경이 필요한지, 어떤 파일을 복사하고 실행해야 하는지를 정의합니다.</div>
-                                </div>
-                                <div class="faq-item">
-                                    <div class="faq-question">알파인(alpine) 이미지는 무엇인가요?</div>
-                                    <div class="faq-answer">보안과 성능을 위해 불필요한 패키지를 모두 제거한 매우 가벼운 리눅스 이미지입니다. 'node:18-alpine' 처럼 뒤에 alpine이 붙은 이미지를 주로 사용합니다.</div>
-                                </div>
+                        <div class="ad-unit">
+                            <div class="ad-placeholder">광고 영역 (하단)</div>
+                        </div>
+
+                        <div class="help-subsection">
+                            <div class="help-subsection-title">
+                                <span class="material-symbols-rounded">help</span>
+                                자주 묻는 질문 (FAQ)
+                            </div>
+                            <div class="faq-item">
+                                <div class="faq-question">명령어 순서가 중요한가요?</div>
+                                <div class="faq-answer">네, Docker 빌드 과정은 위에서 아래로 순차적으로 진행되므로 FROM 명령어가 가장 먼저 와야 하며, 파일 복사와 빌드 명령 순서에 따라 레이어 캐싱 효율이 달라집니다.</div>
+                            </div>
+                            <div class="faq-item">
+                                <div class="faq-question">CMD와 ENTRYPOINT의 차이는 무엇인가요?</div>
+                                <div class="faq-answer">ENTRYPOINT는 컨테이너 시작 시 실행될 고정된 명령이고, CMD는 ENTRYPOINT에 전달되는 기본 인자 또는 단독 실행 명령(변경 가능) 역할을 합니다.</div>
                             </div>
                         </div>
                     </div>
@@ -256,77 +233,110 @@
     <script src="../../js/common.js"></script>
     <script>
         Utilsly.registerTool('dockerfile', {
+            instructions: [],
+            elements: {},
+
             init() {
                 this.elements = {
-                    panel: document.getElementById('configPanel'),
-                    preview: document.getElementById('dockerfilePreview'),
-                    copyBtn: document.getElementById('copyBtn'),
-                    inputs: {
-                        from: document.getElementById('fromImage'),
-                        workdir: document.getElementById('workdir'),
-                        copy: document.getElementById('copyFiles'),
-                        run: document.getElementById('runCmd'),
-                        expose: document.getElementById('exposePorts'),
-                        cmd: document.getElementById('cmd')
-                    }
+                    cmdType: document.getElementById('cmdType'),
+                    cmdValue: document.getElementById('cmdValue'),
+                    inputLabel: document.getElementById('inputLabel'),
+                    addBtn: document.getElementById('addCmdBtn'),
+                    instrList: document.getElementById('instrList'),
+                    preview: document.getElementById('filePreview'),
+                    copyBtn: document.getElementById('copyBtn')
                 };
 
-                // Bind events to all inputs
-                Object.values(this.elements.inputs).forEach(input => {
-                    input.addEventListener('input', () => this.generate());
-                });
+                this.handleAdd = () => this.addInstruction();
+                this.handleCopy = () => this.copyToClipboard();
+                this.handleTypeChange = () => this.updatePlaceholder();
 
-                this.elements.copyBtn.addEventListener('click', () => this.copyCode());
-                
-                // Initial generation
-                this.generate();
+                this.elements.addBtn.addEventListener('click', this.handleAdd);
+                this.elements.copyBtn.addEventListener('click', this.handleCopy);
+                this.elements.cmdType.addEventListener('change', this.handleTypeChange);
+
+                this.updatePlaceholder();
             },
 
-            generate() {
-                const vals = this.elements.inputs;
-                let df = `<span class="comment"># Generated by Utilsly Dockerfile Generator</span>\n\n`;
-                
-                if (vals.from.value) {
-                    df += `<span class="keyword">FROM</span> ${vals.from.value}\n\n`;
-                }
-                
-                if (vals.workdir.value) {
-                    df += `<span class="keyword">WORKDIR</span> ${vals.workdir.value}\n\n`;
-                }
-
-                if (vals.copy.value) {
-                    df += `<span class="keyword">COPY</span> ${vals.copy.value}\n\n`;
-                }
-
-                if (vals.run.value) {
-                    const lines = vals.run.value.split('\n').filter(l => l.trim());
-                    lines.forEach((line, idx) => {
-                        const prefix = idx === 0 ? '<span class="keyword">RUN</span> ' : '    && ';
-                        const suffix = idx === lines.length - 1 ? '' : ' \\';
-                        df += `${prefix}${line.trim()}${suffix}\n`;
-                    });
-                    if (lines.length > 0) df += '\n';
-                }
-
-                if (vals.expose.value) {
-                    df += `<span class="keyword">EXPOSE</span> ${vals.expose.value}\n\n`;
-                }
-
-                if (vals.cmd.value) {
-                    df += `<span class="keyword">CMD</span> ${vals.cmd.value}\n`;
-                }
-
-                this.elements.preview.innerHTML = df;
+            cleanup() {
+                this.elements.addBtn.removeEventListener('click', this.handleAdd);
+                this.elements.copyBtn.removeEventListener('click', this.handleCopy);
+                this.elements.cmdType.removeEventListener('change', this.handleTypeChange);
+                this.elements = {};
+                this.instructions = [];
             },
 
-            copyCode() {
-                const text = this.elements.preview.innerText;
-                navigator.clipboard.writeText(text).then(() => {
-                    const btn = this.elements.copyBtn;
-                    const originalText = btn.innerHTML;
-                    btn.innerHTML = '<span class="material-symbols-rounded" style="font-size: 16px;">check</span> 복사됨!';
-                    setTimeout(() => btn.innerHTML = originalText, 2000);
-                });
+            updatePlaceholder() {
+                const type = this.elements.cmdType.value;
+                const placeholders = {
+                    'FROM': '예: node:18-alpine',
+                    'WORKDIR': '예: /app',
+                    'COPY': '예: . .',
+                    'ADD': '예: source.tar.gz /destination',
+                    'RUN': '예: npm install',
+                    'ENV': '예: NODE_ENV=production',
+                    'EXPOSE': '예: 8080',
+                    'CMD': '예: ["npm", "start"]',
+                    'ENTRYPOINT': '예: ["node", "app.js"]'
+                };
+                this.elements.cmdValue.placeholder = placeholders[type] || '';
+            },
+
+            addInstruction() {
+                const type = this.elements.cmdType.value;
+                const value = this.elements.cmdValue.value.trim();
+
+                if (!value) {
+                    alert('값을 입력해주세요.');
+                    return;
+                }
+
+                this.instructions.push({ type, value });
+                this.renderList();
+                this.updatePreview();
+                this.elements.cmdValue.value = '';
+                this.elements.cmdValue.focus();
+            },
+
+            renderList() {
+                this.elements.instrList.innerHTML = this.instructions.map((inst, index) => `
+                    <div class="instruction-item">
+                        <div>
+                            <span class="cmd-type">${inst.type}</span>
+                            <span>${inst.value}</span>
+                        </div>
+                        <button class="btn btn-sm" onclick="Utilsly.tools['dockerfile'].removeInst(${index})">
+                            <span class="material-symbols-rounded" style="font-size: 18px; color: var(--danger);">delete</span>
+                        </button>
+                    </div>
+                `).join('');
+            },
+
+            removeInst(index) {
+                this.instructions.splice(index, 1);
+                this.renderList();
+                this.updatePreview();
+            },
+
+            updatePreview() {
+                if (this.instructions.length === 0) {
+                    this.elements.preview.textContent = "# 여기에 명령어가 표시됩니다.";
+                    return;
+                }
+                
+                const content = this.instructions.map(inst => `${inst.type} ${inst.value}`).join('\n');
+                this.elements.preview.textContent = content;
+            },
+
+            async copyToClipboard() {
+                try {
+                    await navigator.clipboard.writeText(this.elements.preview.textContent);
+                    const originalText = this.elements.copyBtn.innerHTML;
+                    this.elements.copyBtn.innerHTML = '<span class="material-symbols-rounded" style="font-size: 18px; margin-right: 4px;">check</span>완료';
+                    setTimeout(() => this.elements.copyBtn.innerHTML = originalText, 2000);
+                } catch (err) {
+                    console.error('Copy failed:', err);
+                }
             }
         });
     </script>
