@@ -14,6 +14,9 @@
     /* Prevent dark mode flash */
     color-scheme: light;
 
+    /* Prevent layout shift from scrollbar */
+    scrollbar-gutter: stable;
+
     /* Notion-like Palette (Light Mode) */
     --bg-primary: #FFFFFF;
     --bg-sidebar: #F7F7F5;
@@ -1043,6 +1046,29 @@ input[type="range"]::-webkit-slider-thumb:hover {
 .usage-list li::marker {
     color: var(--accent-blue);
     font-weight: 600;
+}
+
+/* Ad Units */
+.ad-unit {
+    margin: 32px 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.ad-placeholder {
+    width: 100%;
+    max-width: 728px;
+    /* Leaderboard size */
+    height: 90px;
+    background-color: var(--bg-sidebar);
+    border: 1px dashed var(--border-dark);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-tertiary);
+    font-size: 14px;
+    border-radius: 4px;
 }
 
 .toggle-icon {
