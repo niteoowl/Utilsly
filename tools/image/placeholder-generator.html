@@ -75,17 +75,56 @@
                     style="margin-top: 48px; border-top: 1px solid var(--border-color); padding-top: 24px;">
                     <div class="tool-help-header"
                         onclick="this.classList.toggle('active'); this.nextElementSibling.classList.toggle('open')">
-                        <div class="tool-help-title">이용 가이드 및 FAQ</div>
+                        <div class="tool-help-title">사용 가이드</div>
                         <span class="material-symbols-rounded toggle-icon">expand_more</span>
                     </div>
                     <div class="tool-help-content">
-                        <div class="faq-item">
-                            <div class="faq-question">웹사이트 디자인 시안에 사용해도 되나요?</div>
-                            <div class="faq-answer">네, 레이아웃을 잡거나 이미지가 들어갈 공간을 미리 표시하는 용도로 자유롭게 사용하실 수 있습니다.</div>
+                        <!-- Tool Intro -->
+                        <div class="help-intro">
+                            웹사이트 기획이나 디자인 시안을 만들 때 실제 이미지가 아직 준비되지 않았다면, <strong>이미지 플레이스홀더 생성기</strong>를 사용해 보세요. 원하는
+                            정확한 크기와 색상의 더미 이미지를 즉시 생성할 수 있습니다.<br><br>
+                            단순한 색상 배경뿐만 아니라 텍스트를 삽입하여 해당 이미지가 어떤 용도인지(예: '메인 배너', '600x400') 명확하게 표시할 수 있어 팀원 간의 원활한
+                            커뮤니케이션을 돕습니다.
                         </div>
-                        <div class="faq-item">
-                            <div class="faq-question">생성된 이미지는 무료인가요?</div>
-                            <div class="faq-answer">네, 생성된 이미지는 저작권 걱정 없이 개인 및 상업적 용도로 무료로 사용하실 수 있습니다.</div>
+
+                        <!-- Ad Unit -->
+                        <div class="ad-unit">
+                            <div class="ad-placeholder">광고 영역 (상단)</div>
+                        </div>
+
+                        <!-- Usage Instructions -->
+                        <div class="help-subsection">
+                            <div class="help-subsection-title">
+                                <span class="material-symbols-rounded">check_circle</span>
+                                사용 방법
+                            </div>
+                            <ol class="usage-list">
+                                <li>생성하고자 하는 이미지의 너비(Width)와 높이(Height)를 픽셀 단위로 입력합니다.</li>
+                                <li>배경색과 그 위에 표시될 텍스트의 색상을 선택합니다.</li>
+                                <li>표시될 텍스트를 입력합니다. 비워두면 크기 정보가 자동으로 표시됩니다.</li>
+                                <li>실시간으로 생성된 이미지를 확인하고 '다운로드' 버튼을 눌러 저장합니다.</li>
+                            </ol>
+                        </div>
+
+                        <!-- Ad Unit -->
+                        <div class="ad-unit">
+                            <div class="ad-placeholder">광고 영역 (하단)</div>
+                        </div>
+
+                        <!-- FAQ -->
+                        <div class="help-subsection">
+                            <div class="help-subsection-title">
+                                <span class="material-symbols-rounded">help</span>
+                                자주 묻는 질문 (FAQ)
+                            </div>
+                            <div class="faq-item">
+                                <div class="faq-question">웹사이트 디자인 시안에 사용해도 되나요?</div>
+                                <div class="faq-answer">네, 레이아웃을 잡거나 이미지가 들어갈 공간을 미리 표시하는 용도로 자유롭게 사용하실 수 있습니다.</div>
+                            </div>
+                            <div class="faq-item">
+                                <div class="faq-question">생성된 이미지는 무료인가요?</div>
+                                <div class="faq-answer">네, 생성된 이미지는 저작권 걱정 없이 개인 및 상업적 용도로 무료로 사용하실 수 있습니다.</div>
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -66,17 +66,57 @@
                     style="margin-top: 48px; border-top: 1px solid var(--border-color); padding-top: 24px;">
                     <div class="tool-help-header"
                         onclick="this.classList.toggle('active'); this.nextElementSibling.classList.toggle('open')">
-                        <div class="tool-help-title">이용 가이드 및 FAQ</div>
+                        <div class="tool-help-title">사용 가이드</div>
                         <span class="material-symbols-rounded toggle-icon">expand_more</span>
                     </div>
                     <div class="tool-help-content">
-                        <div class="faq-item">
-                            <div class="faq-question">양방향 변환이 가능한가요?</div>
-                            <div class="faq-answer">네, PNG를 WebP로, 또는 그 반대로 자유롭게 변환할 수 있습니다.</div>
+                        <!-- Tool Intro -->
+                        <div class="help-intro">
+                            PNG와 WebP 포맷 사이를 자유롭게 넘나드는 <strong>양방향 변환기</strong>입니다. 현대적인 웹 환경에 최적화된 WebP 포맷과 범용성이 높은 PNG
+                            포맷 중 필요한 형식을 선택하여 즉시 변경할 수 있습니다.<br><br>
+                            단순한 포맷 변경뿐만 아니라 이미지 품질(Quality)을 세밀하게 조절하여, 결과물의 선명도와 파일 용량 사이의 최적의 균형점을 찾을 수 있도록 도와줍니다.
                         </div>
-                        <div class="faq-item">
-                            <div class="faq-question">투명 배경은 유지되나요?</div>
-                            <div class="faq-answer">네, 두 포맷 모두 알파 채널(투명도)을 지원하므로 배경이 투명하게 유지됩니다.</div>
+
+                        <!-- Ad Unit -->
+                        <div class="ad-unit">
+                            <div class="ad-placeholder">광고 영역 (상단)</div>
+                        </div>
+
+                        <!-- Usage Instructions -->
+                        <div class="help-subsection">
+                            <div class="help-subsection-title">
+                                <span class="material-symbols-rounded">check_circle</span>
+                                사용 방법
+                            </div>
+                            <ol class="usage-list">
+                                <li>변환하고자 하는 PNG 또는 WebP 이미지 파일을 업로드 영역에 올립니다.</li>
+                                <li>'변환 형식' 메뉴에서 최종 저장될 포맷(WebP 또는 PNG)을 지정합니다.</li>
+                                <li>품질(Quality) 슬라이더를 움직여 이미지의 압축률을 정합니다 (90% 이상 권장).</li>
+                                <li>'변환 및 다운로드' 버튼을 클릭하여 결과물을 즉시 내 기기에 저장합니다.</li>
+                            </ol>
+                        </div>
+
+                        <!-- Ad Unit -->
+                        <div class="ad-unit">
+                            <div class="ad-placeholder">광고 영역 (하단)</div>
+                        </div>
+
+                        <!-- FAQ -->
+                        <div class="help-subsection">
+                            <div class="help-subsection-title">
+                                <span class="material-symbols-rounded">help</span>
+                                자주 묻는 질문 (FAQ)
+                            </div>
+                            <div class="faq-item">
+                                <div class="faq-question">양방향 변환이 가능한가요?</div>
+                                <div class="faq-answer">네, PNG를 WebP로, 또는 그 반대로 자유롭게 변환할 수 있습니다. 이미지를 업로드하면 현재 포맷에 맞춰
+                                    자동으로 변환 옵션이 설정됩니다.</div>
+                            </div>
+                            <div class="faq-item">
+                                <div class="faq-question">투명 배경은 유지되나요?</div>
+                                <div class="faq-answer">네, PNG와 WebP 두 포맷 모두 알파 채널(투명도)을 완벽하게 지원하므로 배경이 투명한 이미지를 그대로
+                                    유지하여 변환할 수 있습니다.</div>
+                            </div>
                         </div>
                     </div>
                 </div>

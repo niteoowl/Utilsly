@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>진수 변환기 - Utilsly</title>
+    <meta name="description" content="2진수, 8진수, 10진수, 16진수 간의 변환을 쉽고 빠르게 수행하세요. 실시간 변환 기능을 제공합니다.">
+    <link rel="stylesheet" href="../../css/style.css">
+    <style>
+        .converter-card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 24px;
+            transition: all 0.3s ease;
+        }
+
+        .converter-card:hover {
+            box-shadow: var(--shadow-md);
+            border-color: var(--accent-blue);
+        }
+
+        .input-row {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .input-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .base-label {
+            min-width: 80px;
+            font-weight: 700;
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+
+        .input-wrapper {
+            position: relative;
+            flex: 1;
+        }
+
+        .base-input {
+            width: 100%;
+            padding: 12px 48px 12px 16px;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            font-size: 16px;
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--bg-sidebar);
+            color: var(--text-primary);
+            transition: all 0.2s;
+        }
+
+        .base-input:focus {
+            border-color: var(--accent-blue);
+            background: var(--bg-primary);
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(0, 102, 255, 0.1);
+        }
+
+        .copy-btn {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--text-tertiary);
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .copy-btn:hover {
+            color: var(--accent-blue);
+            background: rgba(0, 102, 255, 0.05);
+        }
+
+        .copy-btn.success {
+            color: var(--accent-green);
+        }
+
+        .invalid-feedback {
+            color: var(--accent-red);
+            font-size: 12px;
+            margin-top: 4px;
+            display: none;
+        }
+
+        .base-input.invalid {
+            border-color: var(--accent-red);
+        }
+
+        .base-input.invalid+.invalid-feedback {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <nav class="sidebar"></nav>
+
+        <main class="main-content">
+            <header class="top-bar">
+                <div class="breadcrumbs">
+                    <span class="breadcrumb-item">진수 변환기</span>
+                </div>
+            </header>
+
+            <div class="tool-header">
+                <div class="header-icon-wrapper">
+                    <span class="material-symbols-rounded">calculate</span>
+                </div>
+                <h1>진수 변환기</h1>
+                <p class="description">입력하는 즉시 2진수, 8진수, 10진수, 16진수로 상호 변환합니다.</p>
+            </div>
+
+            <div class="tool-container" data-tool-id="base-converter">
+                <div class="converter-card" style="max-width: 700px; margin: 0 auto;">
+                    <!-- 10진수 -->
+                    <div class="input-row">
+                        <div class="base-label">10진수</div>
+                        <div class="input-wrapper">
+                            <input type="text" id="base10" class="base-input" data-base="10"
+                                placeholder="Decimal (0-9)">
+                            <button class="copy-btn" title="복사">
+                                <span class="material-symbols-rounded">content_copy</span>
+                            </button>
+                            <div class="invalid-feedback">올바른 10진수를 입력하세요.</div>
+                        </div>
+                    </div>
+
+                    <!-- 2진수 -->
+                    <div class="input-row">
+                        <div class="base-label">2진수</div>
+                        <div class="input-wrapper">
+                            <input type="text" id="base2" class="base-input" data-base="2" placeholder="Binary (0-1)">
+                            <button class="copy-btn" title="복사">
+                                <span class="material-symbols-rounded">content_copy</span>
+                            </button>
+                            <div class="invalid-feedback">올바른 2진수를 입력하세요(0, 1만 허용).</div>
+                        </div>
+                    </div>
+
+                    <!-- 8진수 -->
+                    <div class="input-row">
+                        <div class="base-label">8진수</div>
+                        <div class="input-wrapper">
+                            <input type="text" id="base8" class="base-input" data-base="8" placeholder="Octal (0-7)">
+                            <button class="copy-btn" title="복사">
+                                <span class="material-symbols-rounded">content_copy</span>
+                            </button>
+                            <div class="invalid-feedback">올바른 8진수를 입력하세요(0-7 허용).</div>
+                        </div>
+                    </div>
+
+                    <!-- 16진수 -->
+                    <div class="input-row">
+                        <div class="base-label">16진수</div>
+                        <div class="input-wrapper">
+                            <input type="text" id="base16" class="base-input" data-base="16"
+                                placeholder="Hex (0-9, A-F)">
+                            <button class="copy-btn" title="복사">
+                                <span class="material-symbols-rounded">content_copy</span>
+                            </button>
+                            <div class="invalid-feedback">올바른 16진수를 입력하세요.</div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 24px; text-align: right;">
+                        <button class="btn btn-secondary btn-sm" id="clearBtn">
+                            <span class="material-symbols-rounded"
+                                style="font-size: 16px; margin-right: 4px;">refresh</span>
+                            초기화
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Ad Unit -->
+                <div class="ad-unit">
+                    <div class="ad-placeholder">광고 영역 (중간)</div>
+                </div>
+
+                <!-- Help Section -->
+                <div class="tool-help-section"
+                    style="margin-top: 48px; border-top: 1px solid var(--border-color); padding-top: 24px;">
+                    <div class="tool-help-header"
+                        onclick="this.classList.toggle('active'); this.nextElementSibling.classList.toggle('open')">
+                        <div class="tool-help-title">사용 가이드</div>
+                        <span class="material-symbols-rounded toggle-icon">expand_more</span>
+                    </div>
+                    <div class="tool-help-content">
+                        <div class="help-intro">
+                            진수 변환기는 프로그래밍이나 데이터 분석 시 자주 사용되는 <strong>진수 간의 상호 변환</strong>을 지원하는 도구입니다. 10진수뿐만 아니라 컴퓨터
+                            통신의 기초인 2진수, 하드웨어 주소 표현에 쓰이는 16진수 등을 한자리에서 확인할 수 있습니다.<br><br>
+                            복잡한 계산 과정 없이 숫자만 입력하면 즉시 다른 모든 진수로 자동 계산되어 표시됩니다.
+                        </div>
+
+                        <div class="ad-unit">
+                            <div class="ad-placeholder">광고 영역 (상단)</div>
+                        </div>
+
+                        <div class="help-subsection">
+                            <div class="help-subsection-title">
+                                <span class="material-symbols-rounded">check_circle</span>
+                                사용 방법
+                            </div>
+                            <ol class="usage-list">
+                                <li><strong>값 입력:</strong> 변환하고 싶은 숫자를 해당하는 진수 칸에 입력하세요.</li>
+                                <li><strong>실시간 확인:</strong> 입력과 동시에 다른 모든 입력창의 숫자가 자동으로 업데이트됩니다.</li>
+                                <li><strong>복사하기:</strong> 결과값 우측의 아이콘을 클릭하여 클립보드에 바로 복사할 수 있습니다.</li>
+                                <li><strong>초기화:</strong> '초기화' 버튼을 눌러 모든 입력값을 쉽게 비울 수 있습니다.</li>
+                            </ol>
+                        </div>
+
+                        <div class="ad-unit">
+                            <div class="ad-placeholder">광고 영역 (하단)</div>
+                        </div>
+
+                        <div class="help-subsection">
+                            <div class="help-subsection-title">
+                                <span class="material-symbols-rounded">help</span>
+                                자주 묻는 질문 (FAQ)
+                            </div>
+                            <div class="faq-item">
+                                <div class="faq-question">입력할 수 있는 숫자의 크기 제한이 있나요?</div>
+                                <div class="faq-answer">자바스크립트의 안전한 정수 범위(Number.MAX_SAFE_INTEGER) 내에서 정확하게 변환됩니다. 아주 큰
+                                    숫자의 경우 오차가 발생할 수 있으니 주의하세요.</div>
+                            </div>
+                            <div class="faq-item">
+                                <div class="faq-question">음수 변환도 가능한가요?</div>
+                                <div class="faq-answer">현재 버전은 양의 정수 변환을 우선적으로 지원하며, 음수(보수 표현) 기능은 추후 업데이트 예정입니다.</div>
+                            </div>
+                            <div class="faq-item">
+                                <div class="faq-question">대문자/소문자 16진수 구분이 있나요?</div>
+                                <div class="faq-answer">16진수 입력 시 소문자와 대문자 모두 인식하며, 결과는 표준화된 대문자로 표시됩니다.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="../../js/common.js"></script>
+    <script>
+        Utilsly.registerTool('base-converter', {
+            inputs: {},
+            clearBtn: null,
+
+            init() {
+                this.inputs = {
+                    2: document.getElementById('base2'),
+                    8: document.getElementById('base8'),
+                    10: document.getElementById('base10'),
+                    16: document.getElementById('base16')
+                };
+                this.clearBtn = document.getElementById('clearBtn');
+
+                this.bindEvents();
+                console.log('Base Converter initialized');
+            },
+
+            bindEvents() {
+                Object.entries(this.inputs).forEach(([base, input]) => {
+                    input.addEventListener('input', (e) => this.handleInput(e, parseInt(base)));
+
+                    // Copy button logic
+                    const copyBtn = input.nextElementSibling;
+                    copyBtn.addEventListener('click', () => this.copyResult(input));
+                });
+
+                this.clearBtn.addEventListener('click', () => this.clearAll());
+            },
+
+            handleInput(e, fromBase) {
+                const value = e.target.value.trim();
+                const input = e.target;
+
+                if (value === "") {
+                    this.clearAll();
+                    return;
+                }
+
+                // Check validity
+                let isValid = true;
+                try {
+                    // Custom regex per base
+                    const regexMap = {
+                        2: /^[01]+$/,
+                        8: /^[0-7]+$/,
+                        10: /^[0-9]+$/,
+                        16: /^[0-9a-fA-F]+$/
+                    };
+
+                    if (!regexMap[fromBase].test(value)) {
+                        isValid = false;
+                    } else {
+                        // BigInt for precision with large numbers
+                        const decimal = BigInt("0x" + BigInt(fromBase === 10 ? value : (parseInt(value, fromBase).toString(16))).toString(16)); // This is a bit convoluted, let's simplify.
+
+                        // Proper BigInt parsing from base
+                        let decimalBig;
+                        if (fromBase === 10) {
+                            decimalBig = BigInt(value);
+                        } else {
+                            // Manual BigInt parse from base
+                            decimalBig = this.parseBigInt(value, fromBase);
+                        }
+
+                        this.updateAll(decimalBig, fromBase);
+                    }
+                } catch (err) {
+                    isValid = false;
+                }
+
+                if (!isValid) {
+                    input.classList.add('invalid');
+                } else {
+                    input.classList.remove('invalid');
+                }
+            },
+
+            parseBigInt(str, base) {
+                const digits = "0123456789abcdef";
+                let result = 0n;
+                const b = BigInt(base);
+                for (const char of str.toLowerCase()) {
+                    const digit = BigInt(digits.indexOf(char));
+                    result = result * b + digit;
+                }
+                return result;
+            },
+
+            updateAll(decimal, sourceBase) {
+                Object.entries(this.inputs).forEach(([base, input]) => {
+                    const b = parseInt(base);
+                    if (b === sourceBase && document.activeElement === input) return;
+
+                    let result;
+                    if (b === 10) {
+                        result = decimal.toString();
+                    } else {
+                        result = decimal.toString(b).toUpperCase();
+                    }
+                    input.value = result;
+                    input.classList.remove('invalid');
+                });
+            },
+
+            clearAll() {
+                Object.values(this.inputs).forEach(input => {
+                    input.value = "";
+                    input.classList.remove('invalid');
+                });
+            },
+
+            async copyResult(input) {
+                if (!input.value) return;
+
+                try {
+                    await navigator.clipboard.writeText(input.value);
+                    const btn = input.nextElementSibling;
+                    const icon = btn.querySelector('.material-symbols-rounded');
+                    const originalIcon = icon.textContent;
+
+                    btn.classList.add('success');
+                    icon.textContent = 'check';
+
+                    setTimeout(() => {
+                        btn.classList.remove('success');
+                        icon.textContent = originalIcon;
+                    }, 2000);
+                } catch (err) {
+                    console.error('Failed to copy', err);
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

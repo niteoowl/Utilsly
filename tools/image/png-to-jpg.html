@@ -156,17 +156,57 @@
                     style="margin-top: 48px; border-top: 1px solid var(--border-color); padding-top: 24px;">
                     <div class="tool-help-header"
                         onclick="this.classList.toggle('active'); this.nextElementSibling.classList.toggle('open')">
-                        <div class="tool-help-title">이용 가이드 및 FAQ</div>
+                        <div class="tool-help-title">사용 가이드</div>
                         <span class="material-symbols-rounded toggle-icon">expand_more</span>
                     </div>
                     <div class="tool-help-content">
-                        <div class="faq-item">
-                            <div class="faq-question">투명한 배경은 어떻게 되나요?</div>
-                            <div class="faq-answer">JPG 포맷은 투명도를 지원하지 않기 때문에, 투명했던 배경 부분은 자동으로 흰색으로 채워져서 변환됩니다.</div>
+                        <!-- Tool Intro -->
+                        <div class="help-intro">
+                            PNG 이미지를 호환성이 높은 <strong>JPG 형식</strong>으로 빠르고 간편하게 변환하세요. 투명한 배경을 가진 PNG 이미지를 JPG로 변환할 때
+                            배경처리는 물론, 이미지 품질 설정을 통해 용량 최적화까지 한 번에 해결할 수 있습니다.<br><br>
+                            여러 장의 이미지를 동시에 업로드하여 일괄 변환(Batch Processing)할 수 있으며, 변환된 파일은 압축 파일(ZIP)로 묶어서 한 번에 내려받을 수 있어
+                            매우 효율적입니다.
                         </div>
-                        <div class="faq-item">
-                            <div class="faq-question">원본 파일은 삭제되나요?</div>
-                            <div class="faq-answer">아니요, 변환된 새 파일만 다운로드되며 원본 파일은 사용자 기기에 그대로 남습니다.</div>
+
+                        <!-- Ad Unit -->
+                        <div class="ad-unit">
+                            <div class="ad-placeholder">광고 영역 (상단)</div>
+                        </div>
+
+                        <!-- Usage Instructions -->
+                        <div class="help-subsection">
+                            <div class="help-subsection-title">
+                                <span class="material-symbols-rounded">check_circle</span>
+                                사용 방법
+                            </div>
+                            <ol class="usage-list">
+                                <li>변환할 PNG 파일들을 드래그하여 업로드하거나 클릭하여 선택합니다.</li>
+                                <li>'품질' 슬라이더를 조절하여 결과물의 압축률을 설정합니다 (값 0.9 이상 권장).</li>
+                                <li>업로드된 이미지 리스트를 확인하고 '전체 다운로드' 버튼을 클릭합니다.</li>
+                                <li>변환된 JPG 파일들이 하나의 ZIP 파일로 묶여 안전하게 저장됩니다.</li>
+                            </ol>
+                        </div>
+
+                        <!-- Ad Unit -->
+                        <div class="ad-unit">
+                            <div class="ad-placeholder">광고 영역 (하단)</div>
+                        </div>
+
+                        <!-- FAQ -->
+                        <div class="help-subsection">
+                            <div class="help-subsection-title">
+                                <span class="material-symbols-rounded">help</span>
+                                자주 묻는 질문 (FAQ)
+                            </div>
+                            <div class="faq-item">
+                                <div class="faq-question">투명한 배경은 어떻게 되나요?</div>
+                                <div class="faq-answer">JPG 포맷은 투명도를 지원하지 않기 때문에, 투명했던 배경 부분은 자동으로 흰색으로 채워져서 변환됩니다.
+                                </div>
+                            </div>
+                            <div class="faq-item">
+                                <div class="faq-question">원본 파일은 삭제되나요?</div>
+                                <div class="faq-answer">아니요, 변환된 새 파일만 다운로드되며 원본 파일은 사용자 기기에 그대로 남습니다.</div>
+                            </div>
                         </div>
                     </div>
                 </div>

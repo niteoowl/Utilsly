@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dockerfile 생성기 - Utilsly</title>
+    <meta name="description" content="클릭 몇 번으로 최적화된 Dockerfile을 생성하세요. 다양한 설정과 실시간 미리보기를 제공합니다.">
+    <link rel="stylesheet" href="../../css/style.css">
+    <style>
+        .split-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            align-items: start;
+        }
+
+        @media (max-width: 992px) {
+            .split-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .config-panel {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .preview-panel {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            border-radius: 16px;
+            padding: 24px;
+            position: sticky;
+            top: 24px;
+            min-height: 500px;
+            font-family: 'JetBrains Mono', monospace;
+            box-shadow: var(--shadow-md);
+            border: 1px solid #333;
+        }
+
+        .preview-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #333;
+        }
+
+        .preview-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .code-content {
+            white-space: pre-wrap;
+            line-height: 1.6;
+            font-size: 14px;
+        }
+
+        .code-keyword { color: #569cd6; font-weight: 600; }
+        .code-string { color: #ce9178; }
+        .code-comment { color: #6a9955; }
+
+        .form-section {
+            margin-bottom: 24px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .form-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .section-label {
+            display: block;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .dynamic-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .dynamic-item {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-remove {
+            padding: 8px;
+            color: var(--accent-red);
+            background: rgba(255, 68, 68, 0.05);
+            border: 1px solid rgba(255, 68, 68, 0.1);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-remove:hover {
+            background: var(--accent-red);
+            color: white;
+        }
+
+        .btn-add {
+            margin-top: 12px;
+            width: 100%;
+            border: 1px dashed var(--border-color);
+            background: var(--bg-sidebar);
+            color: var(--text-secondary);
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .btn-add:hover {
+            background: var(--bg-primary);
+            border-color: var(--accent-blue);
+            color: var(--accent-blue);
+        }
+
+        .copy-success {
+            position: fixed;
+            bottom: 32px;
+            right: 32px;
+            background: var(--accent-green);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 12px;
+            box-shadow: var(--shadow-lg);
+            display: none;
+            z-index: 1000;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <nav class="sidebar"></nav>
+
+        <main class="main-content">
+            <header class="top-bar">
+                <div class="breadcrumbs">
+                    <span class="breadcrumb-item">Dockerfile 생성기</span>
+                </div>
+            </header>
+
+            <div class="tool-header">
+                <div class="header-icon-wrapper">
+                    <span class="material-symbols-rounded">terminal</span>
+                </div>
+                <h1>Dockerfile 생성기</h1>
+                <p class="description">직관적인 화면 구성을 통해 복잡한 Dockerfile을 쉽고 빠르게 작성하세요.</p>
+            </div>
+
+            <div class="tool-container" data-tool-id="dockerfile-generator">
+                <div class="split-layout">
+                    <!-- Config Side -->
+                    <div class="config-panel">
+                        <!-- Base Image -->
+                        <div class="form-section">
+                            <label class="section-label">
+                                <span class="material-symbols-rounded" style="font-size: 20px;">base_station</span>
+                                베이스 이미지 (FROM)
+                            </label>
+                            <input type="text" id="baseImage" class="search-input" placeholder="e.g., node:18-alpine" value="node:18-alpine">
+                        </div>
+
+                        <!-- Labels -->
+                        <div class="form-section">
+                            <label class="section-label">
+                                <span class="material-symbols-rounded" style="font-size: 20px;">label</span>
+                                라벨 (LABEL)
+                            </label>
+                            <div class="dynamic-list" id="labelList">
+                                <div class="dynamic-item">
+                                    <input type="text" class="search-input label-key" placeholder="Key (e.g., maintainer)" style="flex: 1;">
+                                    <input type="text" class="search-input label-val" placeholder="Value" style="flex: 1;">
+                                    <button class="btn-remove"><span class="material-symbols-rounded" style="font-size: 18px;">delete</span></button>
+                                </div>
+                            </div>
+                            <button class="btn-add" onclick="Utilsly.tools['dockerfile-generator'].addItem('labelList')">
+                                <span class="material-symbols-rounded" style="font-size: 16px;">add</span>라벨 추가
+                            </button>
+                        </div>
+
+                        <!-- Working Directory -->
+                        <div class="form-section">
+                            <label class="section-label">
+                                <span class="material-symbols-rounded" style="font-size: 20px;">folder</span>
+                                작업 디렉토리 (WORKDIR)
+                            </label>
+                            <input type="text" id="workDir" class="search-input" placeholder="/app" value="/app">
+                        </div>
+
+                        <!-- Copy Files -->
+                        <div class="form-section">
+                            <label class="section-label">
+                                <span class="material-symbols-rounded" style="font-size: 20px;">content_copy</span>
+                                파일 복사 (COPY)
+                            </label>
+                            <div class="dynamic-list" id="copyList">
+                                <div class="dynamic-item">
+                                    <input type="text" class="search-input src" placeholder="Source (e.g., .)" style="flex: 1;">
+                                    <input type="text" class="search-input dest" placeholder="Dest (e.g., .)" style="flex: 1;">
+                                    <button class="btn-remove"><span class="material-symbols-rounded" style="font-size: 18px;">delete</span></button>
+                                </div>
+                            </div>
+                            <button class="btn-add" onclick="Utilsly.tools['dockerfile-generator'].addItem('copyList')">
+                                <span class="material-symbols-rounded" style="font-size: 16px;">add</span>항목 추가
+                            </button>
+                        </div>
+
+                        <!-- RUN Commands -->
+                        <div class="form-section">
+                            <label class="section-label">
+                                <span class="material-symbols-rounded" style="font-size: 20px;">play_arrow</span>
+                                실행 명령어 (RUN)
+                            </label>
+                            <div class="dynamic-list" id="runList">
+                                <div class="dynamic-item">
+                                    <input type="text" class="search-input cmd" placeholder="e.g., npm install" style="flex: 1;">
+                                    <button class="btn-remove"><span class="material-symbols-rounded" style="font-size: 18px;">delete</span></button>
+                                </div>
+                            </div>
+                            <button class="btn-add" onclick="Utilsly.tools['dockerfile-generator'].addItem('runList')">
+                                <span class="material-symbols-rounded" style="font-size: 16px;">add</span>명령어 추가
+                            </button>
+                        </div>
+
+                        <!-- Ports -->
+                        <div class="form-section">
+                            <label class="section-label">
+                                <span class="material-symbols-rounded" style="font-size: 20px;">lan</span>
+                                포트 개방 (EXPOSE)
+                            </label>
+                            <input type="text" id="exposePorts" class="search-input" placeholder="e.g., 3000, 80">
+                        </div>
+
+                        <!-- Env Vars -->
+                        <div class="form-section">
+                            <label class="section-label">
+                                <span class="material-symbols-rounded" style="font-size: 20px;">settings_input_component</span>
+                                환경 변수 (ENV)
+                            </label>
+                            <div class="dynamic-list" id="envList">
+                                <div class="dynamic-item">
+                                    <input type="text" class="search-input env-key" placeholder="VAR_NAME" style="flex: 1;">
+                                    <input type="text" class="search-input env-val" placeholder="Value" style="flex: 1;">
+                                    <button class="btn-remove"><span class="material-symbols-rounded" style="font-size: 18px;">delete</span></button>
+                                </div>
+                            </div>
+                            <button class="btn-add" onclick="Utilsly.tools['dockerfile-generator'].addItem('envList')">
+                                <span class="material-symbols-rounded" style="font-size: 16px;">add</span>환경 변수 추가
+                            </button>
+                        </div>
+
+                        <!-- CMD -->
+                        <div class="form-section">
+                            <label class="section-label">
+                                <span class="material-symbols-rounded" style="font-size: 20px;">start</span>
+                                시작 명령어 (CMD)
+                            </label>
+                            <input type="text" id="cmd" class="search-input" placeholder='e.g., ["npm", "start"]'>
+                        </div>
+                    </div>
+
+                    <!-- Preview Side -->
+                    <div class="preview-panel">
+                        <div class="preview-header">
+                            <div class="preview-title">Dockerfile Preview</div>
+                            <button class="btn btn-primary btn-sm" id="copyBtn" style="padding: 6px 12px;">
+                                <span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px;">content_copy</span>
+                                복사하기
+                            </button>
+                        </div>
+                        <div class="code-content" id="codeContent"></div>
+                    </div>
+                </div>
+
+                <div id="copyToast" class="copy-success">클립보드에 복사되었습니다!</div>
+
+                <!-- Ad Unit -->
+                <div class="ad-unit">
+                    <div class="ad-placeholder">광고 영역 (중간)</div>
+                </div>
+
+                <!-- Help Section -->
+                <div class="tool-help-section" style="margin-top: 48px; border-top: 1px solid var(--border-color); padding-top: 24px;">
+                    <div class="tool-help-header" onclick="this.classList.toggle('active'); this.nextElementSibling.classList.toggle('open')">
+                        <div class="tool-help-title">사용 가이드</div>
+                        <span class="material-symbols-rounded toggle-icon">expand_more</span>
+                    </div>
+                    <div class="tool-help-content">
+                        <div class="help-intro">
+                            Dockerfile 생성기는 도커 이미지를 빌드하기 위한 <strong>설정 파일(Dockerfile)</strong>을 GUI 환경에서 쉽고 정확하게 작성할 수 있도록 돕는 도구입니다. 복잡한 문법을 외울 필요 없이, 각 항목별로 필요한 정보를 입력하면 도커의 표준 문법에 맞게 파일 내용을 자동으로 생성합니다.<br><br>
+                            실시간 미리보기를 통해 작성 중인 내용을 즉시 확인할 수 있으며, 완성된 코드는 클릭 한 번으로 복사하여 프로젝트에 바로 사용할 수 있습니다.
+                        </div>
+
+                        <div class="ad-unit">
+                            <div class="ad-placeholder">광고 영역 (상단)</div>
+                        </div>
+
+                        <div class="help-subsection">
+                            <div class="help-subsection-title">
+                                <span class="material-symbols-rounded">check_circle</span>
+                                사용 방법
+                            </div>
+                            <ol class="usage-list">
+                                <li><strong>베이스 이미지:</strong> FROM 명령어로 사용할 기반 이미지와 태그를 입력합니다 (예: node:18-alpine).</li>
+                                <li><strong>설정 입력:</strong> 작업 디렉토리, 실행 명령어, 환경 변수 등 필요한 도커 명령어를 폼 양식에 맞게 입력하세요.</li>
+                                <li><strong>항목 추가:</strong> ADD, COPY, RUN 등 여러 줄의 명령어가 필요한 경우 '+' 버튼을 눌러 자유롭게 추가할 수 있습니다.</li>
+                                <li><strong>결과 복사:</strong> 오른쪽 미리보기 창에서 완성된 내용을 확인하고 '복사하기' 버튼을 눌러 사용하세요.</li>
+                            </ol>
+                        </div>
+
+                        <div class="ad-unit">
+                            <div class="ad-placeholder">광고 영역 (하단)</div>
+                        </div>
+
+                        <div class="help-subsection">
+                            <div class="help-subsection-title">
+                                <span class="material-symbols-rounded">help</span>
+                                자주 묻는 질문 (FAQ)
+                            </div>
+                            <div class="faq-item">
+                                <div class="faq-question">CMD와 ENTRYPOINT의 차이가 무엇인가요?</div>
+                                <div class="faq-answer">ENTRYPOINT는 컨테이너가 시작될 때 반드시 실행되는 고정 명령어를 의미하고, CMD는 컨테이너 시작 시 실행되는 기본 명령어로 외부 인자에 의해 덮어씌워질 수 있습니다.</div>
+                            </div>
+                            <div class="faq-item">
+                                <div class="faq-question">레이어 최적화는 어떻게 하나요?</div>
+                                <div class="faq-answer">가능한 한 RUN 명령어를 && 연산자로 묶어서 작성하여 이미지 레이어 수를 줄이는 것이 좋습니다. 생성기에서 여러 줄을 추가하면 각각 RUN 명령어가 생성됩니다.</div>
+                            </div>
+                            <div class="faq-item">
+                                <div class="faq-question">파일 이름은 어떻게 저장해야 하나요?</div>
+                                <div class="faq-answer">복사한 내용을 프로젝트 루트 디렉토리에 확장자 없이 'Dockerfile'이라는 이름의 파일로 저장하면 됩니다.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="../../js/common.js"></script>
+    <script>
+        Utilsly.registerTool('dockerfile-generator', {
+            elements: {},
+
+            init() {
+                this.elements = {
+                    baseImage: document.getElementById('baseImage'),
+                    workDir: document.getElementById('workDir'),
+                    exposePorts: document.getElementById('exposePorts'),
+                    cmd: document.getElementById('cmd'),
+                    codeContent: document.getElementById('codeContent'),
+                    copyBtn: document.getElementById('copyBtn'),
+                    copyToast: document.getElementById('copyToast')
+                };
+
+                this.bindEvents();
+                this.updatePreview();
+                console.log('Dockerfile Generator initialized');
+            },
+
+            bindEvents() {
+                // Main inputs
+                ['baseImage', 'workDir', 'exposePorts', 'cmd'].forEach(id => {
+                    this.elements[id].addEventListener('input', () => this.updatePreview());
+                });
+
+                // Listen for changes in dynamic lists (delegation)
+                document.querySelectorAll('.dynamic-list').forEach(list => {
+                    list.addEventListener('input', () => this.updatePreview());
+                    list.addEventListener('click', (e) => {
+                        if (e.target.closest('.btn-remove')) {
+                            e.target.closest('.dynamic-item').remove();
+                            this.updatePreview();
+                        }
+                    });
+                });
+
+                this.elements.copyBtn.addEventListener('click', () => this.copyToClipboard());
+            },
+
+            addItem(containerId) {
+                const container = document.getElementById(containerId);
+                const item = document.createElement('div');
+                item.className = 'dynamic-item';
+                
+                let html = '';
+                if (containerId === 'labelList') {
+                    html = `<input type="text" class="search-input label-key" placeholder="Key" style="flex: 1;">
+                            <input type="text" class="search-input label-val" placeholder="Value" style="flex: 1;">`;
+                } else if (containerId === 'copyList') {
+                    html = `<input type="text" class="search-input src" placeholder="Source" style="flex: 1;">
+                            <input type="text" class="search-input dest" placeholder="Dest" style="flex: 1;">`;
+                } else if (containerId === 'runList') {
+                    html = `<input type="text" class="search-input cmd" placeholder="e.g., npm install" style="flex: 1;">`;
+                } else if (containerId === 'envList') {
+                    html = `<input type="text" class="search-input env-key" placeholder="VAR_NAME" style="flex: 1;">
+                            <input type="text" class="search-input env-val" placeholder="Value" style="flex: 1;">`;
+                }
+
+                html += `<button class="btn-remove"><span class="material-symbols-rounded" style="font-size: 18px;">delete</span></button>`;
+                item.innerHTML = html;
+                container.appendChild(item);
+                this.updatePreview();
+            },
+
+            updatePreview() {
+                let code = '';
+
+                // Header
+                code += '<span class="code-comment"># Generated by Utilsly Dockerfile Generator</span>\n\n';
+
+                // FROM
+                if (this.elements.baseImage.value) {
+                    code += `<span class="code-keyword">FROM</span> ${this.elements.baseImage.value}\n`;
+                }
+
+                // LABEL
+                const labels = Array.from(document.querySelectorAll('#labelList .dynamic-item')).map(item => {
+                    const k = item.querySelector('.label-key').value.trim();
+                    const v = item.querySelector('.label-val').value.trim();
+                    return (k && v) ? `${k}="${v}"` : null;
+                }).filter(v => v);
+                if (labels.length > 0) {
+                    code += `<span class="code-keyword">LABEL</span> ${labels.join(' ')}\n`;
+                }
+
+                // WORKDIR
+                if (this.elements.workDir.value) {
+                    code += `<span class="code-keyword">WORKDIR</span> ${this.elements.workDir.value}\n`;
+                }
+
+                // ENV
+                Array.from(document.querySelectorAll('#envList .dynamic-item')).forEach(item => {
+                    const k = item.querySelector('.env-key').value.trim();
+                    const v = item.querySelector('.env-val').value.trim();
+                    if (k && v) code += `<span class="code-keyword">ENV</span> ${k}=${v}\n`;
+                });
+
+                // RUN
+                Array.from(document.querySelectorAll('#runList .dynamic-item')).forEach(item => {
+                    const cmd = item.querySelector('.cmd').value.trim();
+                    if (cmd) code += `<span class="code-keyword">RUN</span> ${cmd}\n`;
+                });
+
+                // COPY
+                Array.from(document.querySelectorAll('#copyList .dynamic-item')).forEach(item => {
+                    const s = item.querySelector('.src').value.trim();
+                    const d = item.querySelector('.dest').value.trim();
+                    if (s && d) code += `<span class="code-keyword">COPY</span> ${s} ${d}\n`;
+                });
+
+                // EXPOSE
+                if (this.elements.exposePorts.value) {
+                    code += `<span class="code-keyword">EXPOSE</span> ${this.elements.exposePorts.value}\n`;
+                }
+
+                // CMD
+                if (this.elements.cmd.value) {
+                    code += `<span class="code-keyword">CMD</span> ${this.elements.cmd.value}\n`;
+                }
+
+                this.elements.codeContent.innerHTML = code;
+            },
+
+            async copyToClipboard() {
+                const text = this.elements.codeContent.innerText;
+                try {
+                    await navigator.clipboard.writeText(text);
+                    const toast = this.elements.copyToast;
+                    toast.style.display = 'block';
+                    setTimeout(() => {
+                        toast.style.display = 'none';
+                    }, 2000);
+                } catch (err) {
+                    console.error('Failed to copy', err);
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

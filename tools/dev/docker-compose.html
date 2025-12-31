@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Docker Compose 생성기 - Utilsly</title>
+    <meta name="description" content="여러 개의 서비스를 포함하는 docker-compose.yml 파일을 브라우저에서 쉽고 빠르게 설계하고 생성하세요.">
+    <link rel="stylesheet" href="../../css/style.css">
+    <style>
+        .split-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            align-items: start;
+        }
+
+        @media (max-width: 992px) {
+            .split-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .services-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .service-card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: var(--shadow-sm);
+            position: relative;
+            transition: border-color 0.2s;
+        }
+
+        .service-card:hover {
+            border-color: var(--accent-blue);
+        }
+
+        .service-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .service-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-delete-service {
+            color: var(--accent-red);
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+        }
+
+        .btn-delete-service:hover {
+            background: rgba(255, 68, 68, 0.1);
+        }
+
+        .field-group {
+            margin-bottom: 16px;
+        }
+
+        .field-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .field-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+        }
+
+        .preview-panel {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            border-radius: 16px;
+            padding: 24px;
+            position: sticky;
+            top: 24px;
+            min-height: 500px;
+            font-family: 'JetBrains Mono', monospace;
+            box-shadow: var(--shadow-md);
+            border: 1px solid #333;
+        }
+
+        .preview-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #333;
+        }
+
+        .preview-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .code-content {
+            white-space: pre;
+            line-height: 1.6;
+            font-size: 14px;
+            overflow-x: auto;
+        }
+
+        .code-key {
+            color: #569cd6;
+        }
+
+        .code-val {
+            color: #ce9178;
+        }
+
+        .code-comment {
+            color: #6a9955;
+        }
+
+        .btn-add-service {
+            width: 100%;
+            padding: 16px;
+            border: 2px dashed var(--border-color);
+            background: transparent;
+            color: var(--text-secondary);
+            border-radius: 16px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.2s;
+        }
+
+        .btn-add-service:hover {
+            border-color: var(--accent-blue);
+            color: var(--accent-blue);
+            background: var(--bg-sidebar);
+        }
+
+        .copy-success {
+            position: fixed;
+            bottom: 32px;
+            right: 32px;
+            background: var(--accent-green);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 12px;
+            box-shadow: var(--shadow-lg);
+            display: none;
+            z-index: 1000;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <nav class="sidebar"></nav>
+
+        <main class="main-content">
+            <header class="top-bar">
+                <div class="breadcrumbs">
+                    <span class="breadcrumb-item">Docker Compose 생성기</span>
+                </div>
+            </header>
+
+            <div class="tool-header">
+                <div class="header-icon-wrapper">
+                    <span class="material-symbols-rounded">layers</span>
+                </div>
+                <h1>Docker Compose 생성기</h1>
+                <p class="description">멀티 컨테이너 애플리케이션 설정을 위한 docker-compose.yml 파일을 시각적으로 구성하세요.</p>
+            </div>
+
+            <div class="tool-container" data-tool-id="docker-compose-generator">
+                <div class="split-layout">
+                    <!-- Config Side -->
+                    <div class="services-panel">
+                        <div id="servicesList">
+                            <!-- Service Cards will be injected here -->
+                        </div>
+
+                        <button class="btn-add-service" id="addServiceBtn">
+                            <span class="material-symbols-rounded">add_circle</span>
+                            새 서비스 추가
+                        </button>
+                    </div>
+
+                    <!-- Preview Side -->
+                    <div class="preview-panel">
+                        <div class="preview-header">
+                            <div class="preview-title">docker-compose.yml Preview</div>
+                            <button class="btn btn-primary btn-sm" id="copyBtn">
+                                <span class="material-symbols-rounded"
+                                    style="font-size: 18px; margin-right: 6px;">content_copy</span>
+                                복사하기
+                            </button>
+                        </div>
+                        <div class="code-content" id="codeContent"></div>
+                    </div>
+                </div>
+
+                <div id="copyToast" class="copy-success">클립보드에 복사되었습니다!</div>
+
+                <!-- Ad Unit -->
+                <div class="ad-unit">
+                    <div class="ad-placeholder">광고 영역 (중간)</div>
+                </div>
+
+                <!-- Help Section -->
+                <div class="tool-help-section"
+                    style="margin-top: 48px; border-top: 1px solid var(--border-color); padding-top: 24px;">
+                    <div class="tool-help-header"
+                        onclick="this.classList.toggle('active'); this.nextElementSibling.classList.toggle('open')">
+                        <div class="tool-help-title">사용 가이드</div>
+                        <span class="material-symbols-rounded toggle-icon">expand_more</span>
+                    </div>
+                    <div class="tool-help-content">
+                        <div class="help-intro">
+                            Docker Compose 생성기는 여러 개의 도커 컨테이너를 한꺼번에 정의하고 실행하기 위한 <strong>YAML 설정 파일</strong>을 시각적으로
+                            작성해주는 도구입니다. 데이터베이스, 백엔드 서버, 프론트엔드 등 유기적으로 연결된 서비스들의 포트 포워딩, 환경 변수, 볼륨 설정을 한눈에 파악하며 구성할 수
+                            있습니다.<br><br>
+                            YAML 특유의 띄어쓰기(들여쓰기) 오류 걱정 없이 직관적인 인터페이스로 완벽한 설정 파일을 만들어보세요.
+                        </div>
+
+                        <div class="ad-unit">
+                            <div class="ad-placeholder">광고 영역 (상단)</div>
+                        </div>
+
+                        <div class="help-subsection">
+                            <div class="help-subsection-title">
+                                <span class="material-symbols-rounded">check_circle</span>
+                                사용 방법
+                            </div>
+                            <ol class="usage-list">
+                                <li><strong>서비스 추가:</strong> '새 서비스 추가' 버튼을 눌러 컨테이너 단위를 생성합니다.</li>
+                                <li><strong>이미지 지정:</strong> 사용할 도커 이미지의 이름과 태그를 입력합니다 (예: nginx:latest, mysql:8).</li>
+                                <li><strong>네트워크/포트 설정:</strong> 호스트 포트와 컨테이너 내부 포트를 연결하고, 필요한 환경 변수를 키=값 형태로 입력합니다.
+                                </li>
+                                <li><strong>미리보기 및 다운로드:</strong> 오른쪽 창에서 생성된 YAML 코드를 확인하고 복사하여 프로젝트 루트에 저장하세요.</li>
+                            </ol>
+                        </div>
+
+                        <div class="ad-unit">
+                            <div class="ad-placeholder">광고 영역 (하단)</div>
+                        </div>
+
+                        <div class="help-subsection">
+                            <div class="help-subsection-title">
+                                <span class="material-symbols-rounded">help</span>
+                                자주 묻는 질문 (FAQ)
+                            </div>
+                            <div class="faq-item">
+                                <div class="faq-question">파일 이름은 무엇으로 해야 하나요?</div>
+                                <div class="faq-answer">일반적으로 'docker-compose.yml' 또는 'docker-compose.yaml'로 명명하며,
+                                    커맨드라인에서 바로 실행할 수 있습니다.</div>
+                            </div>
+                            <div class="faq-item">
+                                <div class="faq-question">환경 변수(Environment)는 왜 필요한가요?</div>
+                                <div class="faq-answer">데이터베이스 비밀번호, API 키 등 실행 시점에 필요한 동적 설정을 컨테이너 내부로 전달하기 위해 사용합니다.
+                                </div>
+                            </div>
+                            <div class="faq-item">
+                                <div class="faq-question">Restart Policy는 무엇을 선택해야 하나요?</div>
+                                <div class="faq-answer">서버 운영 환경에서는 컨테이너가 예기치 않게 종료되었을 때 자동으로 다시 시작하도록 'always'나
+                                    'unless-stopped'를 주로 사용합니다.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="../../js/common.js"></script>
+    <script>
+        Utilsly.registerTool('docker-compose-generator', {
+            services: [],
+            serviceCounter: 0,
+            elements: {},
+
+            init() {
+                this.elements = {
+                    servicesList: document.getElementById('servicesList'),
+                    addServiceBtn: document.getElementById('addServiceBtn'),
+                    codeContent: document.getElementById('codeContent'),
+                    copyBtn: document.getElementById('copyBtn'),
+                    copyToast: document.getElementById('copyToast')
+                };
+
+                this.bindEvents();
+                this.addService(); // Start with one service
+                console.log('Docker Compose Generator initialized');
+            },
+
+            bindEvents() {
+                this.elements.addServiceBtn.addEventListener('click', () => this.addService());
+                this.elements.copyBtn.addEventListener('click', () => this.copyToClipboard());
+
+                // Live update delegation
+                this.elements.servicesList.addEventListener('input', () => this.updatePreview());
+                this.elements.servicesList.addEventListener('click', (e) => {
+                    if (e.target.closest('.btn-delete-service')) {
+                        const card = e.target.closest('.service-card');
+                        card.remove();
+                        this.updatePreview();
+                    }
+                });
+            },
+
+            addService() {
+                this.serviceCounter++;
+                const id = 'svc-' + this.serviceCounter;
+                const card = document.createElement('div');
+                card.className = 'service-card';
+                card.id = id;
+
+                card.innerHTML = `
+                    <div class="service-header">
+                        <div class="service-title">
+                            <span class="material-symbols-rounded" style="color: var(--accent-blue);">package</span>
+                            <input type="text" class="svc-name search-input" value="web-service-${this.serviceCounter}" style="border: none; background: transparent; padding: 0; font-size: inherit; font-weight: inherit; width: 150px;">
+                        </div>
+                        <button class="btn-delete-service" title="삭제">
+                            <span class="material-symbols-rounded">delete</span>
+                        </button>
+                    </div>
+                    <div class="field-group">
+                        <label class="field-label">Image</label>
+                        <input type="text" class="svc-image search-input" placeholder="e.g., nginx:latest">
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div class="field-group">
+                            <label class="field-label">Ports (host:container)</label>
+                            <input type="text" class="svc-ports search-input" placeholder="e.g., 80:80">
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label">Restart Policy</label>
+                            <select class="svc-restart search-input">
+                                <option value="no">no</option>
+                                <option value="always">always</option>
+                                <option value="on-failure">on-failure</option>
+                                <option value="unless-stopped">unless-stopped</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="field-group">
+                        <label class="field-label">Environment (KEY=VALUE, one per line)</label>
+                        <textarea class="svc-env search-input" rows="3" placeholder="NODE_ENV=production\nPORT=3000" style="resize: vertical;"></textarea>
+                    </div>
+                `;
+
+                this.elements.servicesList.appendChild(card);
+                this.updatePreview();
+            },
+
+            updatePreview() {
+                let yml = `<span class="code-key">version</span>: <span class="code-val">'3.8'</span>\n\n`;
+                yml += `<span class="code-key">services</span>:\n`;
+
+                const cards = Array.from(this.elements.servicesList.querySelectorAll('.service-card'));
+
+                if (cards.length === 0) {
+                    yml += `  <span class="code-comment"># No services added yet</span>`;
+                }
+
+                cards.forEach(card => {
+                    const name = card.querySelector('.svc-name').value.trim() || 'unnamed-service';
+                    const image = card.querySelector('.svc-image').value.trim();
+                    const ports = card.querySelector('.svc-ports').value.trim();
+                    const restart = card.querySelector('.svc-restart').value;
+                    const env = card.querySelector('.svc-env').value.trim();
+
+                    yml += `  <span class="code-key">${name}</span>:\n`;
+                    if (image) yml += `    <span class="code-key">image</span>: <span class="code-val">${image}</span>\n`;
+                    if (restart !== 'no') yml += `    <span class="code-key">restart</span>: <span class="code-val">${restart}</span>\n`;
+                    if (ports) {
+                        yml += `    <span class="code-key">ports</span>:\n`;
+                        yml += `      - <span class="code-val">"${ports}"</span>\n`;
+                    }
+                    if (env) {
+                        yml += `    <span class="code-key">environment</span>:\n`;
+                        const lines = env.split('\n');
+                        lines.forEach(line => {
+                            if (line.trim()) yml += `      - <span class="code-val">${line.trim()}</span>\n`;
+                        });
+                    }
+                });
+
+                this.elements.codeContent.innerHTML = yml;
+            },
+
+            async copyToClipboard() {
+                const text = this.elements.codeContent.innerText;
+                try {
+                    await navigator.clipboard.writeText(text);
+                    const toast = this.elements.copyToast;
+                    toast.style.display = 'block';
+                    setTimeout(() => toast.style.display = 'none', 2000);
+                } catch (err) {
+                    console.error('Failed to copy', err);
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

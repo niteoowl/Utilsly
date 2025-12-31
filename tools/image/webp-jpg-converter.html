@@ -58,17 +58,58 @@
                     style="margin-top: 48px; border-top: 1px solid var(--border-color); padding-top: 24px;">
                     <div class="tool-help-header"
                         onclick="this.classList.toggle('active'); this.nextElementSibling.classList.toggle('open')">
-                        <div class="tool-help-title">이용 가이드 및 FAQ</div>
+                        <div class="tool-help-title">사용 가이드</div>
                         <span class="material-symbols-rounded toggle-icon">expand_more</span>
                     </div>
                     <div class="tool-help-content">
-                        <div class="faq-item">
-                            <div class="faq-question">움직이는 WebP도 변환되나요?</div>
-                            <div class="faq-answer">현재 버전에서는 정지 이미지만 지원하며, 애니메이션 WebP의 경우 첫 번째 프레임만 JPG로 변환됩니다.</div>
+                        <!-- Tool Intro -->
+                        <div class="help-intro">
+                            최신 웹 포맷인 WebP 이미지를 어디서나 열어볼 수 있는 표준 <strong>JPG 형식</strong>으로 편리하게 변환하세요. 웹사이트에서 다운로드한 WebP
+                            파일을 다른 편집 프로그램이나 서비스에서 사용하기 위해 JPG로 바꿔야 할 때 즉시 해결할 수 있습니다.<br><br>
+                            변환 시 품질(Quality)을 조절하여 이미지의 선명도와 파일 용량 사이의 균형을 선택할 수 있으며, 서버 전송 없이 브라우저 내에서 직접 처리되어 개인정보 노출
+                            걱정 없이 안전합니다.
                         </div>
-                        <div class="faq-item">
-                            <div class="faq-question">변환 속도는 빠른가요?</div>
-                            <div class="faq-answer">모든 과정이 서버 전송 없이 브라우저 내에서 즉시 처리되므로 매우 빠르고 보안상 안전합니다.</div>
+
+                        <!-- Ad Unit -->
+                        <div class="ad-unit">
+                            <div class="ad-placeholder">광고 영역 (상단)</div>
+                        </div>
+
+                        <!-- Usage Instructions -->
+                        <div class="help-subsection">
+                            <div class="help-subsection-title">
+                                <span class="material-symbols-rounded">check_circle</span>
+                                사용 방법
+                            </div>
+                            <ol class="usage-list">
+                                <li>변환하고자 하는 WebP 이미지 파일을 업로드 영역에 올립니다.</li>
+                                <li>생성될 JPG 이미지의 품질(Quality)을 백분율 단위로 지정합니다 (90% 이상 권장).</li>
+                                <li>'JPG로 변환 및 다운로드' 버튼을 클릭합니다.</li>
+                                <li>변환된 JPG 파일이 즉시 내 기기로 저장되어 어디서든 사용할 수 있게 됩니다.</li>
+                            </ol>
+                        </div>
+
+                        <!-- Ad Unit -->
+                        <div class="ad-unit">
+                            <div class="ad-placeholder">광고 영역 (하단)</div>
+                        </div>
+
+                        <!-- FAQ -->
+                        <div class="help-subsection">
+                            <div class="help-subsection-title">
+                                <span class="material-symbols-rounded">help</span>
+                                자주 묻는 질문 (FAQ)
+                            </div>
+                            <div class="faq-item">
+                                <div class="faq-question">움직이는 WebP도 변환되나요?</div>
+                                <div class="faq-answer">현재 변환 기술은 정지 이미지에 최적화되어 있습니다. 애니메이션(GIF와 유사한) WebP의 경우, 움직임이 제거된
+                                    채 첫 번째 프레임만 JPG로 추출되어 저장됩니다.</div>
+                            </div>
+                            <div class="faq-item">
+                                <div class="faq-question">변환 속도는 빠른가요?</div>
+                                <div class="faq-answer">네, 모든 변환 작업이 사용자의 컴퓨터 자원을 사용하여 실시간으로 이루어지기 때문에 인터넷 연결 속도에 상관없이
+                                    매우 빠르게 처리됩니다.</div>
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -304,6 +304,10 @@ const Utilsly = {
                 { name: "Base64 인코더", icon: "package_2", path: "/tools/dev/base64-encoder" },
                 { name: "UUID 생성기", icon: "fingerprint", path: "/tools/dev/uuid-generator" },
                 { name: "Regex 빌더", icon: "regular_expression", path: "/tools/dev/regex-builder" },
+                { name: "Docker Compose 생성기", icon: "layers", path: "/tools/dev/docker-compose" },
+                { name: "Dockerfile 생성기", icon: "terminal", path: "/tools/dev/dockerfile" },
+                { name: "반응형 화면 테스터", icon: "devices", path: "/tools/dev/responsive-tester" },
+                { name: "내 IP 주소 확인", icon: "public", path: "/tools/dev/my-ip" },
             ]
         },
         {
@@ -313,6 +317,7 @@ const Utilsly = {
                 { name: "Zip 파일 압축", icon: "folder_zip", path: "/tools/file/zip-compress" },
                 { name: "Zip 압축 해제", icon: "unarchive", path: "/tools/file/zip-decompress" },
                 { name: "메타데이터 지우기", icon: "cleaning_services", path: "/tools/file/metadata-remover" },
+                { name: "메타데이터 수정기", icon: "edit_attributes", path: "/tools/file/metadata-modifier" },
             ]
         },
         {
@@ -329,6 +334,8 @@ const Utilsly = {
                 { name: "공학용 계산기", icon: "calculate", path: "/tools/math/scientific-calculator" },
                 { name: "단위 변환기", icon: "scale", path: "/tools/math/unit-converter" },
                 { name: "퍼센트 계산기", icon: "percent", path: "/tools/math/percentage-calculator" },
+                { name: "진수 변환기", icon: "calculate", path: "/tools/math/base-converter" },
+                { name: "그래프 생성기", icon: "bar_chart", path: "/tools/math/graph-generator" },
             ]
         },
         {
