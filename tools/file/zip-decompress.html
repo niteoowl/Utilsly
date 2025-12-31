@@ -51,15 +51,47 @@
                     style="margin-top: 48px; border-top: 1px solid var(--border-color); padding-top: 24px;">
                     <div class="tool-help-header"
                         onclick="this.classList.toggle('active'); this.nextElementSibling.classList.toggle('open')">
-                        <div class="tool-help-title">사용 방법</div>
+                        <div class="tool-help-title">사용 가이드</div>
                         <span class="material-symbols-rounded toggle-icon">expand_more</span>
                     </div>
                     <div class="tool-help-content">
-                        <ol class="usage-list">
-                            <li>업로드 영역을 클릭하거나 ZIP 파일을 드래그하여 업로드합니다.</li>
-                            <li>파일 목록에서 압축 해제할 파일들을 확인합니다.</li>
-                            <li>'모든 파일 다운로드' 버튼을 클릭하여 압축을 해제합니다.</li>
-                        </ol>
+                        <!-- Tool Intro -->
+                        <div class="help-intro">
+                            ZIP 파일의 압축을 브라우저에서 안전하게 해제하세요. 파일이 서버로 전송되지 않아 안심하고 사용할 수 있습니다.
+                        </div>
+
+                        <!-- Usage Instructions -->
+                        <div class="help-subsection">
+                            <div class="help-subsection-title">
+                                <span class="material-symbols-rounded">check_circle</span>
+                                사용 방법
+                            </div>
+                            <ol class="usage-list">
+                                <li>업로드 영역을 클릭하거나 ZIP 파일을 드래그하여 업로드합니다.</li>
+                                <li>파일 목록에서 압축 해제할 파일들을 확인합니다.</li>
+                                <li>'모든 파일 다운로드' 버튼을 클릭하여 압축을 해제합니다.</li>
+                            </ol>
+                        </div>
+
+                        <!-- FAQ -->
+                        <div class="help-subsection">
+                            <div class="help-subsection-title">
+                                <span class="material-symbols-rounded">help</span>
+                                자주 묻는 질문 (FAQ)
+                            </div>
+                            <div class="faq-item">
+                                <div class="faq-question">암호가 걸린 ZIP 파일도 되나요?</div>
+                                <div class="faq-answer">현재 버전에서는 암호화된 ZIP 파일의 압축 해제는 지원하지 않을 수 있습니다. 일반적인 ZIP 파일 이용을
+                                    권장합니다.
+                                </div>
+                            </div>
+                            <div class="faq-item">
+                                <div class="faq-question">파일이 깨져서 나와요.</div>
+                                <div class="faq-answer">파일명이 한글인 경우 인코딩 문제로 깨질 수 있습니다. 대부분 자동 감지하지만, 일부 오래된 포맷은 호환되지 않을
+                                    수
+                                    있습니다.</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

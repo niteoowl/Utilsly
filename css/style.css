@@ -1001,6 +1001,50 @@ input[type="range"]::-webkit-slider-thumb:hover {
     padding-left: 24px;
 }
 
+/* New Help Section Styles */
+.help-intro {
+    font-size: 15px;
+    color: var(--text-primary);
+    margin-bottom: 24px;
+    line-height: 1.6;
+}
+
+.help-subsection {
+    margin-bottom: 32px;
+}
+
+.help-subsection-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.help-subsection-title .material-symbols-rounded {
+    font-size: 20px;
+    color: var(--accent-blue);
+}
+
+.usage-list {
+    padding-left: 24px;
+    margin: 0;
+}
+
+.usage-list li {
+    margin-bottom: 12px;
+    font-size: 15px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+.usage-list li::marker {
+    color: var(--accent-blue);
+    font-weight: 600;
+}
+
 .toggle-icon {
     font-size: 24px;
     transition: transform 0.2s;
