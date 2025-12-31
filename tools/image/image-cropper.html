@@ -6,48 +6,76 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>이미지 자르기 - Utilsly</title>
-    <meta name="description" content="이미지를 원하는 비율로 자유롭게 자르세요.">
+    <meta name="description" content="이미지를 원하는 비율로 정교하게 자르세요. 원본 품질을 유지하며 회전 및 반전 기능도 지원합니다.">
     <script>
         !function () { const e = localStorage.getItem("theme"), t = window.matchMedia("(prefers-color-scheme: dark)").matches; "dark" !== e && (e || !t) || document.documentElement.setAttribute("data-theme", "dark") }();
     </script>
 
     <link rel="preload" href="../../css/style.css" as="style">
     <link rel="stylesheet" href="../../css/style.css">
-    <script>
-        !function () { const e = localStorage.getItem("theme"), t = window.matchMedia("(prefers-color-scheme: dark)").matches; "dark" !== e && (e || !t) || document.documentElement.setAttribute("data-theme", "dark") }();
-    </script>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
     <style>
-        .editor-container {
+        .cropper-layout {
             display: none;
-            margin-bottom: 24px;
-            max-height: 500px;
+            flex-direction: column;
+            gap: 24px;
         }
 
-        .img-container {
-            max-height: 500px;
-            background: #f0f0f0;
-        }
-
-        img {
+        .img-preview-container {
             max-width: 100%;
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 300px;
+        }
+
+        #image {
+            display: block;
+            max-width: 100%;
+            visibility: hidden;
+            /* Hide until Cropper.js takes over */
         }
 
         .toolbar {
             display: flex;
             gap: 8px;
-            margin-bottom: 16px;
             flex-wrap: wrap;
+            padding: 16px;
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
         }
 
-        /* Standard Upload Area */
+        .action-bar {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-top: 24px;
+        }
 
+        @media (max-width: 600px) {
+            .action-bar {
+                grid-template-columns: 1fr;
+            }
+        }
 
-        .upload-icon {
-            font-size: 64px;
-            color: var(--text-tertiary);
-            margin-bottom: 16px;
+        .upload-area {
+            border: 2px dashed var(--border-color);
+            border-radius: 16px;
+            padding: 80px 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: transparent;
+        }
+
+        .upload-area:hover {
+            border-color: var(--primary);
+            background: var(--primary-light);
         }
     </style>
 </head>
@@ -78,214 +106,212 @@
                         <span class="material-symbols-rounded">crop</span>
                     </div>
                     <h1>이미지 자르기</h1>
-                    <p class="description">이미지를 원하는 영역만큼 잘라내고 저장하세요.</p>
+                    <p class="description">원하는 영역을 정교하게 도려내고 고화질로 저장하세요.</p>
                 </div>
 
                 <div class="tool-container" data-tool-id="image-cropper">
-                    <div class="drop-zone" id="dropZone">
-                        <span class="material-symbols-rounded upload-icon">crop</span>
-                        <p class="upload-text">이미지를 드래그하거나 클릭하여 업로드</p>
-                        <p class="upload-hint">JPG, PNG, WEBP 등 지원</p>
+                    <!-- Upload Initial State -->
+                    <div class="upload-area" id="dropZone">
+                        <span class="material-symbols-rounded"
+                            style="font-size: 64px; color: var(--text-tertiary); margin-bottom: 24px;">add_photo_alternate</span>
+                        <h2 class="upload-text" style="font-size: 18px; margin-bottom: 8px;">편집할 이미지 업로드</h2>
+                        <p class="upload-hint" style="color: var(--text-secondary);">파일을 드래그하거나 여기를 클릭하세요. (JPG, PNG,
+                            WEBP 등)</p>
                         <input type="file" id="fileInput" accept="image/*" style="display: none;">
                     </div>
 
-                    <div class="editor-container" id="editorContainer">
+                    <!-- Cropper UI (Hidden initially) -->
+                    <div class="cropper-layout" id="cropperLayout">
                         <div class="toolbar">
-                            <button class="btn" id="btn169">16:9</button>
-                            <button class="btn" id="btn43">4:3</button>
-                            <button class="btn" id="btn11">1:1</button>
-                            <button class="btn" id="btnFree">자유</button>
-                            <button class="btn" id="btnRotate">
+                            <button class="btn btn-secondary btn-sm" data-ratio="1.777">16:9</button>
+                            <button class="btn btn-secondary btn-sm" data-ratio="1.333">4:3</button>
+                            <button class="btn btn-secondary btn-sm" data-ratio="1">1:1</button>
+                            <button class="btn btn-secondary btn-sm" data-ratio="NaN">자유형</button>
+                            <div style="width: 1px; background: var(--border-color); margin: 0 8px;"></div>
+                            <button class="btn btn-secondary btn-sm" id="btnRotate">
                                 <span class="material-symbols-rounded">rotate_right</span>
                             </button>
-                            <button class="btn" id="btnFlip">
+                            <button class="btn btn-secondary btn-sm" id="btnFlip">
                                 <span class="material-symbols-rounded">flip</span>
+                            </button>
+                            <div style="flex: 1;"></div>
+                            <button class="btn btn-secondary btn-sm" id="btnReset">초기화</button>
+                        </div>
+
+                        <div class="img-preview-container">
+                            <img id="image" alt="">
+                        </div>
+
+                        <div class="action-bar">
+                            <button class="btn btn-secondary" onclick="location.reload()">다른 이미지 선택</button>
+                            <button class="btn btn-primary" id="cropBtn">
+                                <span class="material-symbols-rounded">download</span>
+                                자르기 및 다운로드
                             </button>
                         </div>
                     </div>
-                    <div class="img-container">
-                        <img id="image" src="" alt="Picture">
-                    </div>
-                    <button class="btn btn-primary" id="cropBtn" style="width: 100%; margin-top: 16px;">자르기 및
-                        다운로드</button>
                 </div>
-                <div class="tool-help-section"
-                    style="margin-top: 48px; border-top: 1px solid var(--border-color); padding-top: 24px;">
+
+                <!-- Usage Guide -->
+                <div class="tool-help-section" style="margin-top: 64px;">
                     <div class="tool-help-header"
                         onclick="this.classList.toggle('active'); this.nextElementSibling.classList.toggle('open')">
-                        <div class="tool-help-title">사용 가이드</div>
+                        <div class="tool-help-title">이용 가이드</div>
                         <span class="material-symbols-rounded toggle-icon">expand_more</span>
                     </div>
                     <div class="tool-help-content">
-                        <!-- Tool Intro -->
                         <div class="help-intro">
-                            이미지에서 필요한 부분만 남기고 <strong>자르기(Crop)</strong>를 수행하세요. 1:1(인스타그램), 16:9(유튜브 섬네일), 4:3 등
-                            <strong>자주 쓰는 비율</strong>을 제공하며, 자유롭게 선택할 수도 있습니다.<br><br>
-                            회전이나 반전 기능도 함께 제공하므로 사진 구도를 완벽하게 보정할 수 있습니다. 편집된 이미지는 고화질로 저장됩니다.
+                            사진에서 불필요한 배경을 제거하거나, 특정 플랫폼(인스타그램, 유튜브 등)에 맞는 크기로 자를 때 유용합니다. 정교한 <strong>비율 고정</strong> 기능을
+                            통해 완벽한 구도를 잡을 수 있습니다.
                         </div>
 
-                        <!-- Ad Unit -->
                         <div class="ad-unit">
                             <div class="ad-placeholder">광고 영역 (상단)</div>
                         </div>
 
-                        <!-- Usage Instructions -->
                         <div class="help-subsection">
                             <div class="help-subsection-title">
                                 <span class="material-symbols-rounded">check_circle</span>
-                                사용 방법
+                                단축어 가이드
                             </div>
-                            <ol class="usage-list">
-                                <li>이미지를 드래그하거나 클릭하여 업로드합니다.</li>
-                                <li>상단 툴바에서 원하는 비율(16:9, 1:1 등)을 선택합니다.</li>
-                                <li>이미지 위 드래그 박스를 조절하여 자를 영역을 지정합니다.</li>
-                                <li>필요시 회전이나 반전 버튼을 사용한 후 '자르기 및 다운로드'를 클릭합니다.</li>
-                            </ol>
-                        </div>
-
-                        <!-- Ad Unit -->
-                        <div class="ad-unit">
-                            <div class="ad-placeholder">광고 영역 (하단)</div>
-                        </div>
-
-                        <!-- FAQ -->
-                        <div class="help-subsection">
-                            <div class="help-subsection-title">
-                                <span class="material-symbols-rounded">help</span>
-                                자주 묻는 질문 (FAQ)
-                            </div>
-                            <div class="faq-item">
-                                <div class="faq-question">이미지 화질이 저하되나요?</div>
-                                <div class="faq-answer">최대한 원본 화질을 유지하도록 처리하지만, JPG 등으로 저장 시 포맷 특성상 약간의 압축 손실이 발생할 수
-                                    있습니다.</div>
-                            </div>
-                            <div class="faq-item">
-                                <div class="faq-question">이미지 회전이나 반전도 가능한가요?</div>
-                                <div class="faq-answer">네, 자르기 전에 툴바에 있는 회전 및 반전 버튼을 사용하여 이미지를 원하는 방향으로 맞출 수 있습니다.</div>
-                            </div>
+                            <ul class="usage-list" style="columns: 2;">
+                                <li><strong>1:1</strong>: 인스타그램 프로필/게시물</li>
+                                <li><strong>16:9</strong>: 유튜브 섬네일, HD 영상</li>
+                                <li><strong>4:3</strong>: 클래식 디지털 카메라 비율</li>
+                                <li><strong>자유형</strong>: 원하는 핸들러만큼 조절</li>
+                            </ul>
                         </div>
                     </div>
                 </div>
             </div>
+        </main>
     </div>
-    </div>
-    </main>
-    </div>
+
     <script src="../../js/common.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
     <script>
         Utilsly.registerTool('image-cropper', {
             elements: {},
             cropper: null,
+            isFlipped: false,
 
             init() {
                 this.elements = {
                     dropZone: document.getElementById('dropZone'),
                     fileInput: document.getElementById('fileInput'),
-                    editorContainer: document.getElementById('editorContainer'),
+                    cropperLayout: document.getElementById('cropperLayout'),
                     image: document.getElementById('image'),
-                    btn169: document.getElementById('btn169'),
-                    btn43: document.getElementById('btn43'),
-                    btn11: document.getElementById('btn11'),
-                    btnFree: document.getElementById('btnFree'),
                     btnRotate: document.getElementById('btnRotate'),
                     btnFlip: document.getElementById('btnFlip'),
+                    btnReset: document.getElementById('btnReset'),
                     cropBtn: document.getElementById('cropBtn')
                 };
 
-                this.handleClick = () => this.elements.fileInput.click();
-                this.handleChange = (e) => this.handleFile(e);
+                this.elements.dropZone.addEventListener('click', () => this.elements.fileInput.click());
+                this.elements.fileInput.addEventListener('change', (e) => this.handleFile(e));
 
-                this.elements.dropZone.addEventListener('click', this.handleClick);
-                this.elements.fileInput.addEventListener('change', this.handleChange);
+                // Ratio buttons
+                document.querySelectorAll('[data-ratio]').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const ratio = parseFloat(btn.dataset.ratio);
+                        this.cropper?.setAspectRatio(isNaN(ratio) ? NaN : ratio);
 
-                // Toolkit listeners
-                this.handle169 = () => this.cropper?.setAspectRatio(16 / 9);
-                this.handle43 = () => this.cropper?.setAspectRatio(4 / 3);
-                this.handle11 = () => this.cropper?.setAspectRatio(1);
-                this.handleFree = () => this.cropper?.setAspectRatio(NaN);
-                this.handleRotate = () => this.cropper?.rotate(90);
-                this.handleFlip = () => this.cropper?.scaleX(-1); // Toggle logic needed? Or just flip once? Original was scaleX(-1) which sets, not toggles.
-                // Actually cropperjs scaleX(-1) sets the scale. To toggle we need state. 
-                // But original code was `cropper.scaleX(-1)`. 
-                // Wait, if scaleX is 1, -1 flips it. If it is -1, -1 does nothing change? 
-                // Cropper.js scaleX param IS the scale factor.
-                // Let's check if the user intended Toggle. The original code: `cropper.scaleX(-1)`.
-                // If I click it twice, it stays flipped?
-                // I will implement a simpler toggle if needed, but let's stick to original behavior which is setting -1.
-                // Actually, let's make it toggle for better UX if I can, but standard is fine.
+                        // Active state toggle
+                        document.querySelectorAll('[data-ratio]').forEach(b => b.classList.remove('btn-primary'));
+                        document.querySelectorAll('[data-ratio]').forEach(b => b.classList.add('btn-secondary'));
+                        btn.classList.remove('btn-secondary');
+                        btn.classList.add('btn-primary');
+                    });
+                });
 
-                this.handleCrop = () => this.cropImage();
+                this.elements.btnRotate.addEventListener('click', () => this.cropper?.rotate(90));
 
-                this.elements.btn169.addEventListener('click', this.handle169);
-                this.elements.btn43.addEventListener('click', this.handle43);
-                this.elements.btn11.addEventListener('click', this.handle11);
-                this.elements.btnFree.addEventListener('click', this.handleFree);
-                this.elements.btnRotate.addEventListener('click', this.handleRotate);
-
-                this.isFlipped = false;
-                this.handleFlipClick = () => {
+                this.elements.btnFlip.addEventListener('click', () => {
                     this.isFlipped = !this.isFlipped;
                     this.cropper?.scaleX(this.isFlipped ? -1 : 1);
-                };
-                this.elements.btnFlip.addEventListener('click', this.handleFlipClick);
+                });
 
-                this.elements.cropBtn.addEventListener('click', this.handleCrop);
+                this.elements.btnReset.addEventListener('click', () => {
+                    this.cropper?.reset();
+                    this.isFlipped = false;
+                });
 
-                console.log('Image Cropper initialized');
+                this.elements.cropBtn.addEventListener('click', () => this.downloadCropped());
+
+                // Drag and Drop
+                this.elements.dropZone.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    this.elements.dropZone.style.borderColor = 'var(--primary)';
+                    this.elements.dropZone.style.background = 'var(--primary-light)';
+                });
+
+                this.elements.dropZone.addEventListener('dragleave', () => {
+                    this.elements.dropZone.style.borderColor = 'var(--border-color)';
+                    this.elements.dropZone.style.background = 'transparent';
+                });
+
+                this.elements.dropZone.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    const files = e.dataTransfer.files;
+                    if (files.length > 0) {
+                        this.elements.fileInput.files = files;
+                        this.handleFile({ target: { files } });
+                    }
+                });
             },
 
             cleanup() {
-                if (this.elements.dropZone) {
-                    this.elements.dropZone.removeEventListener('click', this.handleClick);
-                    this.elements.fileInput.removeEventListener('change', this.handleChange);
-                    this.elements.btn169.removeEventListener('click', this.handle169);
-                    this.elements.btn43.removeEventListener('click', this.handle43);
-                    this.elements.btn11.removeEventListener('click', this.handle11);
-                    this.elements.btnFree.removeEventListener('click', this.handleFree);
-                    this.elements.btnRotate.removeEventListener('click', this.handleRotate);
-                    this.elements.btnFlip.removeEventListener('click', this.handleFlipClick);
-                    this.elements.cropBtn.removeEventListener('click', this.handleCrop);
-                }
                 if (this.cropper) {
                     this.cropper.destroy();
                     this.cropper = null;
                 }
                 this.elements = {};
-                console.log('Image Cropper cleanup done');
             },
 
             handleFile(e) {
-                if (e.target.files.length > 0) {
-                    const file = e.target.files[0];
-                    const reader = new FileReader();
-                    reader.onload = (evt) => {
-                        this.elements.image.src = evt.target.result;
-                        this.elements.dropZone.style.display = 'none';
-                        this.elements.editorContainer.style.display = 'block';
-
-                        if (this.cropper) this.cropper.destroy();
-
-                        if (typeof Cropper !== 'undefined') {
-                            this.cropper = new Cropper(this.elements.image, {
-                                viewMode: 1,
-                                autoCropArea: 0.8,
-                            });
-                        } else {
-                            console.error("CropperJS not loaded");
-                        }
-                    };
-                    reader.readAsDataURL(file);
+                if (!e.target.files.length) return;
+                const file = e.target.files[0];
+                if (!file.type.startsWith('image/')) {
+                    Utilsly.showAlert('이미지 파일만 선택 가능합니다.', '오류');
+                    return;
                 }
+
+                const reader = new FileReader();
+                reader.onload = (evt) => {
+                    this.elements.image.src = evt.target.result;
+                    this.elements.dropZone.style.display = 'none';
+                    this.elements.cropperLayout.style.display = 'flex';
+
+                    if (this.cropper) this.cropper.destroy();
+
+                    this.cropper = new Cropper(this.elements.image, {
+                        viewMode: 1,
+                        background: true,
+                        autoCropArea: 0.9,
+                        responsive: true,
+                        ready: () => {
+                            this.elements.image.style.visibility = 'visible';
+                        }
+                    });
+                };
+                reader.readAsDataURL(file);
             },
 
-            cropImage() {
+            downloadCropped() {
                 if (!this.cropper) return;
-                const canvas = this.cropper.getCroppedCanvas();
-                const link = document.createElement('a');
-                link.download = 'cropped-image.png';
-                link.href = canvas.toDataURL();
-                link.click();
+                const canvas = this.cropper.getCroppedCanvas({
+                    imageSmoothingEnabled: true,
+                    imageSmoothingQuality: 'high',
+                });
+
+                canvas.toBlob((blob) => {
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.download = `cropped_${Date.now()}.png`;
+                    link.href = url;
+                    link.click();
+                    URL.revokeObjectURL(url);
+                }, 'image/png');
             }
         });
     </script>

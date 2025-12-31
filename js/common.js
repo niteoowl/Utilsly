@@ -284,6 +284,7 @@ const Utilsly = {
                 { name: "로렘 입숨 생성", icon: "description", path: "/tools/text/lorem-ipsum" },
                 { name: "줄바꿈 제거", icon: "format_align_left", path: "/tools/text/remove-line-breaks" },
                 { name: "마크다운 미리보기", icon: "markdown", path: "/tools/text/markdown-preview" },
+                { name: "한자 획순 보기", icon: "draw", path: "/tools/text/hanja-stroke" },
                 { name: "특수문자 폰트", icon: "text_fields", path: "/tools/text/fancy-text" },
                 { name: "글자 깨짐 복구", icon: "history_edu", path: "/tools/text/encoding-fixer" },
             ]
