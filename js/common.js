@@ -259,6 +259,7 @@ const Utilsly = {
                 { name: "PDF 합치기", icon: "picture_as_pdf", path: "/tools/pdf/pdf-merge" },
                 { name: "PDF 분할", icon: "cut", path: "/tools/pdf/pdf-split" },
                 { name: "PDF → 이미지", icon: "image_search", path: "/tools/pdf/pdf-to-image" },
+                { name: "PDF 편집기", icon: "edit_document", path: "/tools/pdf/pdf-editor" },
                 { name: "PDF 암호 제거", icon: "no_encryption", path: "/tools/pdf/remove-password" },
                 { name: "깨진 PDF 복구", icon: "medical_services", path: "/tools/pdf/repair-pdf" },
             ]

@@ -444,42 +444,44 @@ h1 {
     border: none;
 }
 
-/* Global Drop Zone / Upload Area */
 .drop-zone {
     border: 2px dashed var(--border-color);
     border-radius: 12px;
-    padding: 0;
-    /* Clear padding, use flex for centering */
-    height: 200px;
-    /* Fixed Height for consistency */
+    padding: 48px 24px;
+    /* Increased padding */
+    min-height: 220px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     text-align: center;
     cursor: pointer;
-    transition: all 0.2s;
-    background: var(--bg-primary);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    background: var(--bg-sidebar);
+    /* Use sidebar bg for subtle contrast */
     margin-bottom: 24px;
+    color: var(--text-secondary);
 }
 
 .drop-zone:hover,
 .drop-zone.dragover {
-    border-color: var(--border-color);
-    /* No border change on hover */
+    border-color: var(--text-tertiary);
     background: var(--bg-hover);
-}
-
-[data-theme="dark"] .drop-zone:hover,
-[data-theme="dark"] .drop-zone.dragover {
-    border-color: var(--border-color);
-    /* No border change in dark mode either */
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
 }
 
 .drop-zone .upload-icon {
-    font-size: 48px;
+    font-size: 56px;
+    /* Slightly larger */
     color: var(--text-tertiary);
-    margin-bottom: 12px;
+    margin-bottom: 16px;
+    transition: transform 0.2s;
+}
+
+.drop-zone:hover .upload-icon {
+    transform: scale(1.1);
+    color: var(--text-primary);
 }
 
 .drop-zone .upload-text {
